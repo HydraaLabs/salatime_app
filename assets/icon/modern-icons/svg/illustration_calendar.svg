@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 260">
+<rect width="280" height="260" rx="28" fill="#F2EFE2"/>
+<ellipse cx="142" cy="222" rx="92" ry="12" fill="#20402F" opacity="0.10"/>
+<g transform="rotate(-3 140 140)">
+<rect x="48" y="62" width="184" height="156" rx="18" fill="#FBF7EA" stroke="#E2D9C2" stroke-width="2"/>
+<path d="M48 108h184" stroke="#E2D9C2" stroke-width="2"/>
+<rect x="48" y="62" width="184" height="34" rx="18" fill="#C56A5B"/>
+<rect x="48" y="82" width="184" height="14" fill="#C56A5B"/>
+<!-- binder rings -->
+<g fill="#B9564A">
+<circle cx="88" cy="62" r="9"/><circle cx="140" cy="62" r="9"/><circle cx="192" cy="62" r="9"/>
+</g>
+<g stroke="#8C4A40" stroke-width="6" stroke-linecap="round">
+<path d="M88 62V44M140 62V44M192 62V44"/>
+</g>
+<!-- crescent date -->
+<path d="M158 158a24 24 0 1 1-20-35 19 19 0 1 0 20 35z" fill="#D9A961"/>
+<circle cx="168" cy="132" r="4" fill="#D9A961"/>
+<!-- date dots -->
+<g fill="#CFC5A6">
+<circle cx="76" cy="196" r="5"/><circle cx="108" cy="196" r="5"/><circle cx="140" cy="196" r="5"/>
+<circle cx="172" cy="196" r="5"/><circle cx="204" cy="196" r="5"/>
+</g>
+</g>
+</svg>

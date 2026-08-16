@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 260">
+<rect width="300" height="260" rx="28" fill="#EAF1E6"/>
+<ellipse cx="160" cy="228" rx="110" ry="12" fill="#20402F" opacity="0.10"/>
+<!-- mosque -->
+<g>
+<rect x="96" y="150" width="150" height="80" fill="#F4F0E1"/>
+<rect x="96" y="150" width="150" height="12" fill="#DED7BE"/>
+<path d="M171 78c-38 24-58 52-58 88h116c0-36-20-64-58-88z" fill="#7FA688"/>
+<path d="M171 78c-15 26-22 56-21 88h-37c0-36 20-64 58-88z" fill="#ffffff" opacity="0.2"/>
+<rect x="168" y="58" width="6" height="22" fill="#C9A85C"/><circle cx="171" cy="53" r="5.5" fill="#E2B558"/>
+<g fill="#F4F0E1" stroke="#DED7BE" stroke-width="2">
+<rect x="78" y="112" width="16" height="118"/><rect x="248" y="112" width="16" height="118"/>
+</g>
+<path d="M86 76l-13 34h26z" fill="#6E9878"/>
+<path d="M256 76l-13 34h26z" fill="#6E9878"/>
+<path d="M150 230v-42c0-12 9-21 21-21s21 9 21 21v42z" fill="#5F8A6C"/>
+<path d="M116 230v-30c0-9 6-15 13-15s13 6 13 15v30z" fill="#AFC6AC"/>
+<path d="M200 230v-30c0-9 6-15 13-15s13 6 13 15v30z" fill="#AFC6AC"/>
+</g>
+<!-- location pin -->
+<g transform="translate(58,120)">
+<path d="M28 0C13 0 0 12 0 28c0 20 28 44 28 44s28-24 28-44C56 12 43 0 28 0z" fill="#C56A5B"/>
+<circle cx="28" cy="27" r="12" fill="#F8F3E4"/>
+<circle cx="28" cy="27" r="5" fill="#C56A5B"/>
+</g>
+</svg>

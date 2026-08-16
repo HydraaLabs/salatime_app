@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420">
+<defs>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#F2F0E4"/><stop offset="1" stop-color="#E3EBDD"/>
+</linearGradient>
+<linearGradient id="dome" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#8FB694"/><stop offset="1" stop-color="#6E9878"/>
+</linearGradient>
+</defs>
+<rect width="900" height="420" fill="url(#sky)"/>
+<!-- crescent -->
+<path d="M560 88a44 44 0 1 1-38-66 36 36 0 1 0 38 66z" fill="#EED9A6"/>
+<circle cx="330" cy="70" r="3" fill="#DCD4B8"/><circle cx="640" cy="46" r="2.5" fill="#DCD4B8"/><circle cx="740" cy="110" r="3" fill="#DCD4B8"/>
+<!-- birds -->
+<path d="M300 130q7-7 14 0M318 124q6-6 12 0" stroke="#9FB49F" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+<!-- distant mosque silhouette -->
+<g fill="#C4D5C2">
+<rect x="560" y="240" width="200" height="120"/>
+<path d="M660 156c-34 22-52 48-52 84h104c0-36-18-62-52-84z"/>
+<rect x="548" y="200" width="14" height="160"/><circle cx="555" cy="192" r="9"/>
+<rect x="758" y="200" width="14" height="160"/><circle cx="765" cy="192" r="9"/>
+</g>
+<!-- main mosque -->
+<g>
+<rect x="620" y="250" width="240" height="170" fill="#EFECDD"/>
+<rect x="620" y="250" width="240" height="16" fill="#D9D3BC"/>
+<path d="M740 118c-52 32-80 72-80 132h160c0-60-28-100-80-132z" fill="url(#dome)"/>
+<path d="M740 118c-20 34-30 76-28 132h-52c0-60 28-100 80-132z" fill="#ffffff" opacity="0.18"/>
+<rect x="736" y="92" width="8" height="30" fill="#C9A85C"/><circle cx="740" cy="86" r="7" fill="#E2B558"/>
+<!-- side domes -->
+<path d="M662 224c-24 14-36 32-36 54h72c0-22-12-40-36-54z" fill="url(#dome)"/>
+<path d="M818 224c-24 14-36 32-36 54h72c0-22-12-40-36-54z" fill="url(#dome)"/>
+<!-- minarets -->
+<g fill="#EFECDD" stroke="#D9D3BC" stroke-width="2">
+<rect x="596" y="188" width="20" height="232"/><rect x="864" y="188" width="20" height="232"/>
+</g>
+<path d="M606 138l-16 44h32z" fill="#7FA688"/><rect x="602" y="132" width="8" height="8" fill="#C9A85C"/>
+<path d="M874 138l-16 44h32z" fill="#7FA688"/><rect x="870" y="132" width="8" height="8" fill="#C9A85C"/>
+<!-- arches -->
+<g fill="#B9CBB6">
+<path d="M700 420v-58c0-14 9-24 20-24s20 10 20 24v58z"/>
+<path d="M652 420v-44c0-11 7-19 15-19s15 8 15 19v44z"/>
+<path d="M798 420v-44c0-11 7-19 15-19s15 8 15 19v44z"/>
+</g>
+</g>
+<!-- foreground plants -->
+<g stroke="#8FAE8C" stroke-width="4" fill="none" stroke-linecap="round">
+<path d="M60 420c0-40 8-70 24-92M84 420c0-30 10-52 26-66"/>
+<path d="M84 328c-14-2-24-12-26-26 16 0 26 10 26 26zM110 354c-2-14 4-26 16-32 4 16-2 28-16 32z" fill="#A6C0A0" stroke="none"/>
+</g>
+<!-- mist bands -->
+<rect x="0" y="360" width="900" height="60" fill="#F2F0E6" opacity="0.7"/>
+<rect x="0" y="392" width="900" height="28" fill="#F2F0E6"/>
+</svg>

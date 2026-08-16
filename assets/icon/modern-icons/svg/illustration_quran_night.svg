@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 320">
+<defs>
+<linearGradient id="night" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#12291F"/><stop offset="1" stop-color="#1E4634"/>
+</linearGradient>
+<linearGradient id="beam" x1="0" y1="1" x2="0" y2="0">
+<stop offset="0" stop-color="#F4E3B0" stop-opacity="0.9"/><stop offset="1" stop-color="#F4E3B0" stop-opacity="0"/>
+</linearGradient>
+<radialGradient id="glow" cx="0.5" cy="0.75" r="0.6">
+<stop offset="0" stop-color="#F0DCA4" stop-opacity="0.55"/><stop offset="1" stop-color="#F0DCA4" stop-opacity="0"/>
+</radialGradient>
+</defs>
+<rect width="840" height="320" rx="26" fill="url(#night)"/>
+<g fill="#E8D9A8">
+<circle cx="120" cy="70" r="2.6"/><circle cx="230" cy="44" r="2"/><circle cx="330" cy="90" r="2.2"/>
+<circle cx="560" cy="40" r="2.4"/><circle cx="700" cy="66" r="2"/><circle cx="770" cy="120" r="2.6"/>
+<circle cx="420" cy="52" r="1.8"/><circle cx="640" cy="150" r="1.8"/>
+</g>
+<path d="M520 96a52 52 0 1 1-45-78 43 43 0 1 0 45 78z" fill="#EFD9A0"/>
+<ellipse cx="600" cy="270" rx="230" ry="120" fill="url(#glow)"/>
+<path d="M585 60h30l14 190h-58z" fill="url(#beam)"/>
+<!-- rehal stand -->
+<g stroke="#7A4E2C" stroke-width="12" stroke-linecap="round">
+<path d="M545 210l110 78M655 210l-110 78"/>
+</g>
+<path d="M540 206h120l-60 46z" fill="#8A5A34"/>
+<!-- open quran -->
+<path d="M600 196c-26-16-56-22-84-20l10 44c26-4 52 0 74 14 22-14 48-18 74-14l10-44c-28-2-58 4-84 20z" fill="#F6EFD9"/>
+<path d="M600 196c-26-16-56-22-84-20l10 44c26-4 52 0 74 14z" fill="#EAE0C2"/>
+<path d="M600 196v38" stroke="#C9B98C" stroke-width="3"/>
+<g stroke="#C9BC96" stroke-width="2.4" stroke-linecap="round">
+<path d="M536 190c16 0 32 3 46 9M540 202c14 0 28 3 40 8"/>
+<path d="M664 190c-16 0-32 3-46 9M660 202c-14 0-28 3-40 8"/>
+</g>
+</svg>

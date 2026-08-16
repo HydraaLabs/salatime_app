@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">
+<rect width="300" height="300" rx="28" fill="#E9F1E4"/>
+<circle cx="150" cy="132" r="78" fill="none" stroke="#7A9C82" stroke-width="3"/>
+<circle cx="161" cy="51" r="11" fill="#3E6B4C"/><circle cx="158" cy="48" r="3.4" fill="#5E8B6A"/><circle cx="180" cy="56" r="11" fill="#3E6B4C"/><circle cx="177" cy="53" r="3.4" fill="#5E8B6A"/><circle cx="198" cy="67" r="11" fill="#3E6B4C"/><circle cx="195" cy="64" r="3.4" fill="#5E8B6A"/><circle cx="212" cy="81" r="11" fill="#3E6B4C"/><circle cx="209" cy="78" r="3.4" fill="#5E8B6A"/><circle cx="222" cy="99" r="11" fill="#3E6B4C"/><circle cx="219" cy="96" r="3.4" fill="#5E8B6A"/><circle cx="227" cy="118" r="11" fill="#3E6B4C"/><circle cx="224" cy="115" r="3.4" fill="#5E8B6A"/><circle cx="227" cy="139" r="11" fill="#3E6B4C"/><circle cx="224" cy="136" r="3.4" fill="#5E8B6A"/><circle cx="222" cy="158" r="11" fill="#3E6B4C"/><circle cx="219" cy="155" r="3.4" fill="#5E8B6A"/><circle cx="211" cy="176" r="11" fill="#3E6B4C"/><circle cx="208" cy="173" r="3.4" fill="#5E8B6A"/><circle cx="197" cy="190" r="11" fill="#3E6B4C"/><circle cx="194" cy="187" r="3.4" fill="#5E8B6A"/><circle cx="179" cy="200" r="11" fill="#3E6B4C"/><circle cx="176" cy="197" r="3.4" fill="#5E8B6A"/><circle cx="160" cy="205" r="11" fill="#3E6B4C"/><circle cx="157" cy="202" r="3.4" fill="#5E8B6A"/><circle cx="139" cy="205" r="11" fill="#3E6B4C"/><circle cx="136" cy="202" r="3.4" fill="#5E8B6A"/><circle cx="120" cy="200" r="11" fill="#3E6B4C"/><circle cx="117" cy="197" r="3.4" fill="#5E8B6A"/><circle cx="102" cy="189" r="11" fill="#3E6B4C"/><circle cx="99" cy="186" r="3.4" fill="#5E8B6A"/><circle cx="88" cy="175" r="11" fill="#3E6B4C"/><circle cx="85" cy="172" r="3.4" fill="#5E8B6A"/><circle cx="78" cy="157" r="11" fill="#3E6B4C"/><circle cx="75" cy="154" r="3.4" fill="#5E8B6A"/><circle cx="73" cy="138" r="11" fill="#3E6B4C"/><circle cx="70" cy="135" r="3.4" fill="#5E8B6A"/><circle cx="73" cy="117" r="11" fill="#3E6B4C"/><circle cx="70" cy="114" r="3.4" fill="#5E8B6A"/><circle cx="103" cy="66" r="11" fill="#3E6B4C"/><circle cx="100" cy="63" r="3.4" fill="#5E8B6A"/>
+<!-- imame + tassel -->
+<path d="M150 206v14" stroke="#7A9C82" stroke-width="3"/>
+<rect x="140" y="218" width="20" height="26" rx="8" fill="#3E6B4C"/>
+<path d="M150 244v10" stroke="#7A9C82" stroke-width="3"/>
+<g stroke="#3E6B4C" stroke-width="4" stroke-linecap="round">
+<path d="M150 254v26M141 254l-5 24M159 254l5 24M133 252l-9 20M167 252l9 20"/>
+</g>
+</svg>

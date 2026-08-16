@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 360">
+<defs>
+<linearGradient id="sc" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#EFF3E8"/><stop offset="1" stop-color="#D9E6D5"/>
+</linearGradient>
+</defs>
+<rect width="300" height="360" rx="28" fill="url(#sc)"/>
+<circle cx="226" cy="84" r="34" fill="#F0DFAC"/>
+<path d="M0 268c60-34 118-40 172-18 46 18 90 16 128 0v110H0z" fill="#B7CDB2"/>
+<path d="M0 300c70-26 140-26 210-2 34 12 64 12 90 4v58H0z" fill="#9CBA98"/>
+<!-- hanging tasbih -->
+<path d="M150 0v64" stroke="#6E8F76" stroke-width="4" stroke-linecap="round"/>
+<g fill="#3E6B4C">
+<circle cx="150" cy="76" r="10"/><circle cx="150" cy="98" r="10"/><circle cx="150" cy="120" r="10"/>
+<circle cx="150" cy="142" r="10"/><circle cx="150" cy="164" r="10"/>
+</g>
+<g fill="#5E8B6A">
+<circle cx="147" cy="73" r="3"/><circle cx="147" cy="95" r="3"/><circle cx="147" cy="117" r="3"/>
+<circle cx="147" cy="139" r="3"/><circle cx="147" cy="161" r="3"/>
+</g>
+<rect x="141" y="176" width="18" height="24" rx="7" fill="#2E5B41"/>
+<g stroke="#3E6B4C" stroke-width="4" stroke-linecap="round">
+<path d="M150 200v24M142 200l-5 22M158 200l5 22"/>
+</g>
+</svg>
