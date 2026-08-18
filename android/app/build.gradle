@@ -75,6 +75,34 @@ android {
         }
     }
 
+    packagingOptions {
+        // Exclude card.io / OpenCV native libs bundled by flutter_paypal:
+        // built with an old NDK, they crash on 16 KB page-size devices and
+        // block Play rollout. PayPal web checkout does not use them.
+        jniLibs.excludes += [
+            'lib/arm64-v8a/libcardioDecider.so',
+            'lib/arm64-v8a/libcardioRecognizer.so',
+            'lib/arm64-v8a/libcardioRecognizer_tegra2.so',
+            'lib/arm64-v8a/libopencv_core.so',
+            'lib/arm64-v8a/libopencv_imgproc.so',
+            'lib/armeabi-v7a/libcardioDecider.so',
+            'lib/armeabi-v7a/libcardioRecognizer.so',
+            'lib/armeabi-v7a/libcardioRecognizer_tegra2.so',
+            'lib/armeabi-v7a/libopencv_core.so',
+            'lib/armeabi-v7a/libopencv_imgproc.so',
+            'lib/x86/libcardioDecider.so',
+            'lib/x86/libcardioRecognizer.so',
+            'lib/x86/libcardioRecognizer_tegra2.so',
+            'lib/x86/libopencv_core.so',
+            'lib/x86/libopencv_imgproc.so',
+            'lib/x86_64/libcardioDecider.so',
+            'lib/x86_64/libcardioRecognizer.so',
+            'lib/x86_64/libcardioRecognizer_tegra2.so',
+            'lib/x86_64/libopencv_core.so',
+            'lib/x86_64/libopencv_imgproc.so',
+        ]
+    }
+
 }
 
 flutter {
