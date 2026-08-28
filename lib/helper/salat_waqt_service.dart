@@ -7,6 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zabi/controller/package_prayer_time_controller.dart';
 import 'package:zabi/controller/prayer_time_adjustment.dart';
+import 'package:zabi/helper/location_auto_update_service.dart';
 import 'package:zabi/util/app_constants.dart';
 import 'package:zabi/view/screens/notification/widgets/salat_waqt.dart';
 import 'package:zabi/view/screens/notification/widgets/salat_waqt_repository.dart';
@@ -27,9 +28,14 @@ class SalatWaqtService {
     final isPrayerTme = prefs.getBool(AppConstants.isPrayerTme);
     final saveCityName = prefs.getString(AppConstants.saveCityName);
 
+    // When automatic location update is enabled, always compute the adhan
+    // from the current GPS position instead of a manually chosen city.
+    final autoLocation =
+        prefs.getBool(LocationAutoUpdateService.enabledKey) ?? false;
+
     await Get.find<PrayerTimeController>().fetchPrayerTime(
       reload: false,
-      isManualPrayerTme: isPrayerTme ?? false,
+      isManualPrayerTme: autoLocation ? false : (isPrayerTme ?? false),
       manualCity:
           saveCityName ??
           Get.find<PrayerTimeController>().currentAddress.toString(),

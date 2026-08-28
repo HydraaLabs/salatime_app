@@ -31,6 +31,10 @@ class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
   late List<Widget> _pages;
   int _selectedPageIndex = 0;
 
+  // Pages already visited are kept alive in the IndexedStack; unvisited
+  // pages stay unmounted until first access.
+  final Set<int> _visitedPages = {0};
+
   final internetController = Get.put(InternetController());
 
   // Reference width used as the design baseline (standard mobile width).
@@ -49,7 +53,10 @@ class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
       showNoInternetDialog();
       return;
     }
-    setState(() => _selectedPageIndex = index);
+    setState(() {
+      _selectedPageIndex = index;
+      _visitedPages.add(index);
+    });
   }
 
   /// Scales [baseSize] according to the current device width relative to
@@ -72,14 +79,23 @@ class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
       body: Obx(() {
         _pages = [
           const HomeScreen(),
-          const CompassScreen(appBackButton: false),
+          CompassScreen(
+            appBackButton: false,
+            isActive: _selectedPageIndex == 1,
+          ),
           internetController.hasInternet.value
               ? const SuraList(appBackButton: false)
               : const MainOfflineQuranScreen(appBackButton: false),
           const NearbyMosque(appBackButton: false),
           CategoryScreen(appBackButton: false),
         ];
-        return _pages[_selectedPageIndex];
+        return IndexedStack(
+          index: _selectedPageIndex,
+          children: [
+            for (int i = 0; i < _pages.length; i++)
+              _visitedPages.contains(i) ? _pages[i] : const SizedBox.shrink(),
+          ],
+        );
       }),
       bottomNavigationBar: Obx(() {
         final isModern =

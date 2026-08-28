@@ -15,7 +15,7 @@ import 'package:flutter_sslcommerz/sslcommerz.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
+import 'package:zabi/helper/debug_http_client.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zabi/data/repository/donation_repo.dart';
@@ -434,7 +434,7 @@ class DonationController extends GetxController implements GetxService {
         "currency": currency,
         'payment_method_types[]': 'card',
       };
-      var response = await http.post(
+      var response = await appHttpClient.post(
         Uri.parse("https://api.stripe.com/v1/payment_intents"),
         body: body,
         headers: {

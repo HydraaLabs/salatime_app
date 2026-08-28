@@ -82,6 +82,11 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
     await _player.dispose();
   }
 
+  Future<void> setLoopMode(LoopMode mode) => _player.setLoopMode(mode);
+
+  Future<void> setShuffleEnabled(bool enabled) =>
+      _player.setShuffleModeEnabled(enabled);
+
   @override
   Future<void> skipToNext() => _player.seekToNext();
 

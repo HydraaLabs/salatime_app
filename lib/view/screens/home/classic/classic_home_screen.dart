@@ -188,12 +188,15 @@ class ClassicHomeScreen extends StatelessWidget {
             ),
             const SizedBox(width: 3),
             Expanded(
-              child: Text(
-                prayerTimeController.saveLocalStoreCity ??
-                    prayerTimeController.currentAddress.toString(),
-                style: robotoRegular.copyWith(
-                  fontSize: Dimensions.FONT_SIZE_DEFAULT,
-                  color: theme.hintColor,
+              child: Obx(
+                () => Text(
+                  prayerTimeController.saveAddress.value.isNotEmpty
+                      ? prayerTimeController.saveAddress.value
+                      : prayerTimeController.currentAddress.value,
+                  style: robotoRegular.copyWith(
+                    fontSize: Dimensions.FONT_SIZE_DEFAULT,
+                    color: theme.hintColor,
+                  ),
                 ),
               ),
             ),

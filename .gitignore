@@ -7,6 +7,7 @@
 *.swp
 *.tmp
 *.lock
+!pubspec.lock
 *.bin
 *.savlive
 *.cxX

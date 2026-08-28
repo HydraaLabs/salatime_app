@@ -59,6 +59,7 @@
 		<string>remote-notification</string>
 		<string>fetch</string>
 		<string>audio</string>
+		<string>location</string>
 	</array>
 
 	<!-- 🚀 LAUNCH SETTINGS -->

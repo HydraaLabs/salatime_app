@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zabi/controller/home_layout_controller.dart';
 import 'package:zabi/controller/internet_check_controller.dart';
 import 'package:zabi/controller/package_prayer_time_controller.dart';
 import 'package:zabi/controller/prayer_time_adjustment.dart';
 import 'package:zabi/controller/quran_settings_controller.dart';
+import 'package:zabi/helper/location_auto_update_service.dart';
 import 'package:zabi/helper/salat_waqt_service.dart';
-import 'package:zabi/util/app_constants.dart';
 import 'package:zabi/view/screens/home/classic/classic_home_screen.dart';
 import 'package:zabi/view/screens/home/modern/modern_home_screen.dart';
 
@@ -35,33 +34,17 @@ class _HomeScreenState extends State<HomeScreen> {
       // 1. Get location first
       await prayerTimeController.getLocation();
 
-      // 2. Load settings
+      // 2. Load settings. getLocation() already refreshes prayer times.
       prayerTimeController.loadSwitchValue();
       prayerTimeController.loadPrayerTimeSettings();
-      Get.find<SettingsController>().fetchMosqueSettingsData();
 
-      // 3. Fetch prayer time
-      await _fetchPrayerTimes(prayerTimeController);
-
-      // 4. Init adjustment
+      // 3. Init adjustment
       Get.find<PrayerTimeAdjustmentController>().init();
       SalatWaqtService.initializeSalatWaqt();
+
+      // 4. Adapt adhan times when the user moves (if opted in)
+      LocationAutoUpdateService.start();
     });
-  }
-
-  Future<void> _fetchPrayerTimes(
-    PrayerTimeController prayerTimeController,
-  ) async {
-    final prefs = Get.find<SharedPreferences>();
-
-    final isPrayerTme = prefs.getBool(AppConstants.isPrayerTme);
-    final saveCityName = prefs.getString(AppConstants.saveCityName);
-
-    await prayerTimeController.fetchPrayerTime(
-      isManualPrayerTme: isPrayerTme ?? false,
-      manualCity:
-          saveCityName ?? prayerTimeController.currentAddress.toString(),
-    );
   }
 
   @override

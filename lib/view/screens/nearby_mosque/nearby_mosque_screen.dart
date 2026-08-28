@@ -2,7 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:get/get.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:zabi/controller/nearby_mosque_controller.dart';
 import 'package:zabi/helper/translator_helper.dart';
 import 'package:zabi/shimmer/all_shimmer_loder.dart';
@@ -14,9 +16,59 @@ import '../../../util/dimensions.dart';
 import '../../../util/images.dart';
 import '../../../util/styles.dart';
 
-class NearbyMosque extends StatelessWidget {
+class NearbyMosque extends StatefulWidget {
   final bool appBackButton;
   const NearbyMosque({super.key, required this.appBackButton});
+
+  @override
+  State<NearbyMosque> createState() => _NearbyMosqueState();
+}
+
+class _NearbyMosqueState extends State<NearbyMosque> {
+  final MapController _mapController = MapController();
+
+  // Parse "lat,lng" stored by NearbyMosqueController.getLocation().
+  LatLng? _userLatLng(String userLocation) {
+    final parts = userLocation.split(',');
+    if (parts.length != 2) return null;
+    final lat = double.tryParse(parts[0]);
+    final lng = double.tryParse(parts[1]);
+    if (lat == null || lng == null) return null;
+    return LatLng(lat, lng);
+  }
+
+  List<Marker> _buildMarkers(BuildContext context, List places) {
+    final markers = <Marker>[];
+    for (var i = 0; i < places.length; i++) {
+      final location = places[i]["geometry"]?["location"];
+      if (location == null) continue;
+      markers.add(
+        Marker(
+          point: LatLng(location["lat"], location["lng"]),
+          width: 40,
+          height: 40,
+          child: Icon(
+            Icons.mosque,
+            color: Theme.of(context).primaryColor,
+            size: 32,
+          ),
+        ),
+      );
+    }
+    return markers;
+  }
+
+  void _centerOnPlace(Map place) {
+    final location = place["geometry"]?["location"];
+    if (location == null) return;
+    _mapController.move(LatLng(location["lat"], location["lng"]), 15);
+  }
+
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +77,7 @@ class NearbyMosque extends StatelessWidget {
       // Appbar start ===>
       appBar: CustomAppBar(
         title: 'nearby_mosque'.tr,
-        isBackButtonExist: appBackButton == true ? true : false,
+        isBackButtonExist: widget.appBackButton == true ? true : false,
       ),
 
       // body start ==>
@@ -58,6 +110,61 @@ class NearbyMosque extends StatelessWidget {
                       ),
                       child: Column(
                         children: [
+                          // map ===>
+                          Builder(
+                            builder: (context) {
+                              final userLatLng = _userLatLng(
+                                nearbyMosqueController.userLocation.value,
+                              );
+                              if (userLatLng == null) {
+                                return const SizedBox.shrink();
+                              }
+                              return SizedBox(
+                                height: Get.height * 0.42,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(
+                                    Dimensions.RADIUS_SMALL,
+                                  ),
+                                  child: FlutterMap(
+                                    mapController: _mapController,
+                                    options: MapOptions(
+                                      initialCenter: userLatLng,
+                                      initialZoom: 14,
+                                    ),
+                                    children: [
+                                      TileLayer(
+                                        urlTemplate:
+                                            'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                        userAgentPackageName:
+                                            'com.example.zabi',
+                                      ),
+                                      MarkerLayer(
+                                        markers: [
+                                          ..._buildMarkers(
+                                            context,
+                                            nearbyMosqueController.places,
+                                          ),
+                                          // user position marker
+                                          Marker(
+                                            point: userLatLng,
+                                            width: 40,
+                                            height: 40,
+                                            child: const Icon(
+                                              Icons.my_location,
+                                              color: Colors.blue,
+                                              size: 28,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 10),
+
                           Text(
                             "if_you_cant_find_the_mosque_according_to_the_predefined_area_then_search_for_the_mosque_by_selecting_area_by_kilometers_from_below"
                                 .tr,
@@ -128,20 +235,7 @@ class NearbyMosque extends StatelessWidget {
                               double lat = place["geometry"]["location"]["lat"];
                               double lng = place["geometry"]["location"]["lng"];
                               return GestureDetector(
-                                onTap: () async {
-                                  final url =
-                                      'https://www.google.com/maps/search/?api=1&query=$lat,$lng';
-                                  final canLaunchUrl = await canLaunch(url);
-
-                                  if (canLaunchUrl) {
-                                    await launch(url);
-                                  } else {
-                                    showCustomSnackBar(
-                                      "please_try_again".tr,
-                                      isError: true,
-                                    );
-                                  }
-                                },
+                                onTap: () => _centerOnPlace(place),
                                 child: Card(
                                   clipBehavior: Clip.antiAlias,
                                   color: Theme.of(context).cardColor,
@@ -166,10 +260,28 @@ class NearbyMosque extends StatelessWidget {
                                         fontSize: Dimensions.FONT_SIZE_SMALL,
                                       ),
                                     ),
-                                    trailing: SvgPicture.asset(
-                                      Images.Icon_Right_Arrow,
-                                      color: Theme.of(context).primaryColor,
-                                      height: 30,
+                                    trailing: GestureDetector(
+                                      onTap: () async {
+                                        final url =
+                                            'https://www.google.com/maps/search/?api=1&query=$lat,$lng';
+                                        final canLaunchUrl = await canLaunch(
+                                          url,
+                                        );
+
+                                        if (canLaunchUrl) {
+                                          await launch(url);
+                                        } else {
+                                          showCustomSnackBar(
+                                            "please_try_again".tr,
+                                            isError: true,
+                                          );
+                                        }
+                                      },
+                                      child: SvgPicture.asset(
+                                        Images.Icon_Right_Arrow,
+                                        color: Theme.of(context).primaryColor,
+                                        height: 30,
+                                      ),
                                     ),
                                   ),
                                 ),

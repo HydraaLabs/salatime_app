@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
- import 'package:http/http.dart' as http;
+import 'package:zabi/helper/debug_http_client.dart';
  import 'package:path_provider/path_provider.dart';
  import 'package:permission_handler/permission_handler.dart';
 class DownloadFile {
@@ -31,7 +31,7 @@ class DownloadFile {
     debugPrint("File path: ${file.path}");
     try {
       // Download the file
-      final response = await http.get(Uri.parse(url));
+      final response = await appHttpClient.get(Uri.parse(url));
       // Print response code
       debugPrint("Response code: ${response.statusCode}");
       if (response.statusCode == 200) {

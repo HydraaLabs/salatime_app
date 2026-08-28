@@ -1,7 +1,7 @@
 // ignore_for_file: avoid_print, deprecated_member_use, strict_top_level_inference
 
 import 'dart:async';
-import 'dart:io';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -9,11 +9,13 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zabi/data/api/api_client.dart';
 import 'package:zabi/data/model/response/city_model.dart';
+import 'package:zabi/data/model/response/city_suggestion_model.dart';
 import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
 import 'package:zabi/helper/location_helper.dart';
 import 'package:zabi/util/app_constants.dart';
@@ -48,11 +50,65 @@ class PrayerTimeController extends GetxController implements GetxService {
   double? latitude;
   double? longitude;
   String? saveLocalStoreCity;
+  Position? _lastPosition;
+
+  Future<Position> _resolvePosition() async {
+    final inMemory = _lastPosition;
+    if (inMemory != null) return inMemory;
+
+    final cached = await Geolocator.getLastKnownPosition();
+    if (cached != null) {
+      _lastPosition = cached;
+      return cached;
+    }
+
+    final current = await Geolocator.getCurrentPosition(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.medium,
+        timeLimit: Duration(seconds: 8),
+      ),
+    );
+    _lastPosition = current;
+    return current;
+  }
+
+  /// Picks the first non-empty city field of a [Placemark].
+  /// `subAdministrativeArea` is often null on Android depending on the
+  /// city/country, so we fall back through several fields and finally keep
+  /// the previous address (or '--') instead of crashing on a null `!`.
+  String _placemarkCity(Placemark placemark) {
+    for (final value in [
+      placemark.locality,
+      placemark.subAdministrativeArea,
+      placemark.administrativeArea,
+      placemark.subLocality,
+    ]) {
+      if (value != null && value.trim().isNotEmpty) return value;
+    }
+    return currentAddress.value;
+  }
 
   Future<void> getLocation() async {
     bool serviceEnabled = false;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     LocationPermission permission;
+
+    // A manually searched city with saved coordinates does not need GPS:
+    // prayer times are computed for those coordinates instead.
+    final savedManualCity = prefs.getString(AppConstants.saveCityName);
+    if ((prefs.getBool(AppConstants.isPrayerTme) ?? false) &&
+        savedManualCity != null &&
+        prefs.getDouble(AppConstants.manualCityLat) != null &&
+        prefs.getDouble(AppConstants.manualCityLng) != null) {
+      isLocationDenied.value = false;
+      await fetchPrayerTime(
+        reload: false,
+        isManualPrayerTme: true,
+        manualCity: savedManualCity,
+      );
+      update();
+      return;
+    }
 
     // Geolocator is not implemented on every platform (e.g. Linux desktop).
     if (!isGeolocatorSupported) {
@@ -76,7 +132,7 @@ class PrayerTimeController extends GetxController implements GetxService {
     if (permission == LocationPermission.denied) {
       // If permission is denied, request permission from the user
       permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) { 
+      if (permission == LocationPermission.denied) {
         //   If permission is still denied, show a message to the user using GetX's Snackbar
         showCustomSnackBar(
           "for_getting_Automatic_Prayer_Time_Nearby_Mosque_Qibla_Compass_need_to_enable_location_permission"
@@ -112,18 +168,16 @@ class PrayerTimeController extends GetxController implements GetxService {
     // If permission is granted, retrieve the current position
     if (serviceEnabled) {
       try {
-        Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
-        );
+        final position = await _resolvePosition();
+        latitude = position.latitude;
+        longitude = position.longitude;
 
         List<Placemark> addressList = await placemarkFromCoordinates(
           position.latitude,
           position.longitude,
         );
         final callAddress = addressList.first;
-        currentAddress.value = Platform.isIOS
-            ? callAddress.administrativeArea!
-            : callAddress.subAdministrativeArea!;
+        currentAddress.value = _placemarkCity(callAddress);
 
         final prefs = await SharedPreferences.getInstance();
         final isPrayerTme = prefs.getBool(AppConstants.isPrayerTme);
@@ -134,7 +188,7 @@ class PrayerTimeController extends GetxController implements GetxService {
 
         final saveCityName = prefs.getString(AppConstants.saveCityName);
 
-        fetchPrayerTime(
+        await fetchPrayerTime(
           reload: false,
           isManualPrayerTme: isPrayerTme ?? false,
           manualCity: saveCityName ?? currentAddress.toString(),
@@ -268,16 +322,29 @@ class PrayerTimeController extends GetxController implements GetxService {
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
 
+      // A manually selected city that has saved coordinates (from the online
+      // city search) is sent in "automatic" mode with the city coordinates,
+      // so prayer times are computed on the fly for that exact location.
+      final savedCity = prefs.getString(AppConstants.saveCityName);
+      final cityLat = prefs.getDouble(AppConstants.manualCityLat);
+      final cityLng = prefs.getDouble(AppConstants.manualCityLng);
+      final bool useManualCityCoords =
+          isManualPrayerTme &&
+          manualCity != null &&
+          manualCity == savedCity &&
+          cityLat != null &&
+          cityLng != null;
+
       // Geolocator is not implemented on every platform (e.g. Linux
       // desktop): fall back to the manually selected city in that case.
       Position? position;
-      if (isGeolocatorSupported) {
-        position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
-        );
+      if (useManualCityCoords) {
+        // No GPS fix needed, the city coordinates are used below.
+      } else if (isGeolocatorSupported) {
+        position = await _resolvePosition();
       } else {
         isManualPrayerTme = true;
-        manualCity ??= prefs.getString(AppConstants.saveCityName);
+        manualCity ??= savedCity;
       }
 
       // Save the prayer time type to SharedPreferences
@@ -294,9 +361,7 @@ class PrayerTimeController extends GetxController implements GetxService {
           position.longitude,
         );
         final callAddress = addressList.first;
-        currentAddress.value = Platform.isIOS
-            ? callAddress.administrativeArea!
-            : callAddress.subAdministrativeArea!;
+        currentAddress.value = _placemarkCity(callAddress);
         if (kDebugMode) {
           print("Address: ${currentAddress.value}");
         }
@@ -305,15 +370,17 @@ class PrayerTimeController extends GetxController implements GetxService {
       DateTime currentDate = DateTime.now();
       String formattedDate = DateFormat('yyyy-MM-dd').format(currentDate);
 
-      var lat = position?.latitude ?? '';
-      var lng = position?.longitude ?? '';
+      var lat = useManualCityCoords ? cityLat : position?.latitude ?? '';
+      var lng = useManualCityCoords ? cityLng : position?.longitude ?? '';
       var prayerMethod = _selectedCalculationMethod;
       var school = _selectedPrayerMadhab;
       var timezone = await FlutterTimezone.getLocalTimezone();
 
       final response = await apiClient
           .postData(AppConstants.TODAYS_PRAYER_TIME, {
-            "type": isManualPrayerTme ? "manual" : "automatic",
+            "type": (isManualPrayerTme && !useManualCityCoords)
+                ? "manual"
+                : "automatic",
             "date": formattedDate,
             "city": isManualPrayerTme ? manualCity ?? "" : currentAddress.value,
             "lat": "$lat",
@@ -388,6 +455,55 @@ class PrayerTimeController extends GetxController implements GetxService {
 
   RxBool isCityListLoading = false.obs;
   CityesModel? cityModelData;
+
+  // Online city search (Nominatim / OpenStreetMap)
+  RxList<CitySuggestionModel> citySuggestions = <CitySuggestionModel>[].obs;
+  Timer? _citySearchDebounce;
+
+  /// Debounced entry point called from the search field.
+  void onCitySearchChanged(String query) {
+    search.value = query;
+    _citySearchDebounce?.cancel();
+    if (query.trim().length < 2) {
+      citySuggestions.clear();
+      return;
+    }
+    _citySearchDebounce = Timer(
+      const Duration(milliseconds: 500),
+      () => searchCitiesOnline(query.trim()),
+    );
+  }
+
+  /// Search cities online via Nominatim (OpenStreetMap).
+  Future<void> searchCitiesOnline(String query) async {
+    try {
+      isCityListLoading(true);
+      final lang = Get.locale?.languageCode ?? 'en';
+      final uri = Uri.parse(
+        'https://nominatim.openstreetmap.org/search'
+        '?q=${Uri.encodeComponent(query)}'
+        '&format=jsonv2&limit=8&addressdetails=1&accept-language=$lang',
+      );
+      final response = await http.get(
+        uri,
+        headers: const {'User-Agent': 'SalaTime/1.0 (contact@salatime.net)'},
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        citySuggestions.value = data
+            .whereType<Map<String, dynamic>>()
+            .map(CitySuggestionModel.fromJson)
+            .where((city) => city.name.isNotEmpty)
+            .toList();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error searching cities: $e");
+      }
+    } finally {
+      isCityListLoading(false);
+    }
+  }
 
   Future<void> cityCategoryListData() async {
     try {

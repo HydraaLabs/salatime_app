@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:audio_service/audio_service.dart';
+import 'package:just_audio/just_audio.dart' show LoopMode;
 import 'package:zabi/controller/audio_player_controller.dart';
 
 class FullScreenBottomSheet extends StatelessWidget {
@@ -190,10 +191,58 @@ class FullScreenBottomSheet extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
+        _buildShuffleButton(),
         _buildIconButton(Icons.skip_previous, controller.skipToPrevious),
         _buildPlayPauseButton(),
         _buildIconButton(Icons.skip_next, controller.skipToNext),
+        _buildRepeatButton(),
       ],
+    );
+  }
+
+  Widget _buildShuffleButton() {
+    return Obx(() {
+      final active = controller.shuffleEnabled.value;
+      return _buildModeButton(
+        Icons.shuffle,
+        active: active,
+        onTap: controller.toggleShuffle,
+      );
+    });
+  }
+
+  Widget _buildRepeatButton() {
+    return Obx(() {
+      final mode = controller.loopMode.value;
+      return _buildModeButton(
+        mode == LoopMode.one ? Icons.repeat_one : Icons.repeat,
+        active: mode != LoopMode.off,
+        onTap: controller.toggleRepeat,
+      );
+    });
+  }
+
+  Widget _buildModeButton(IconData icon,
+      {required bool active, required VoidCallback onTap}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(50),
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: active
+              ? Get.theme.colorScheme.primary.withOpacity(0.25)
+              : Colors.grey.withOpacity(0.2),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          icon,
+          size: 26,
+          color: active
+              ? Get.theme.colorScheme.primary
+              : (Get.isDarkMode ? Colors.grey.shade400 : Colors.black),
+        ),
+      ),
     );
   }
 

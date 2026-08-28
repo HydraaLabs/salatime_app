@@ -1,10 +1,16 @@
+import 'dart:convert';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart' show LoopMode;
+import 'package:zabi/controller/quran_controller.dart';
 import 'package:zabi/data/api/api_client.dart';
+import 'package:zabi/data/model/response/mp3quran_model.dart';
 import 'package:zabi/data/model/response/reciters_model.dart';
 import 'package:zabi/helper/audio_handler.dart';
 import 'package:zabi/helper/audio_service_helper.dart';
+import 'package:zabi/helper/debug_http_client.dart';
 import 'package:zabi/util/app_constants.dart';
 
 class AudioPlayerController extends GetxController {
@@ -16,16 +22,39 @@ class AudioPlayerController extends GetxController {
   RxBool isRecitersLoading = false.obs;
   RecitersModel? recitersListApiData;
 
-  // Get dua list from here
+  // mp3quran.net cache (raw data, keeps the moshaf/recitation lists)
+  List<Mp3QuranReciter> recitersMp3 = [];
+  // Récitation choisie dans le sélecteur (null = première disponible)
+  Moshaf? selectedMoshaf;
+
+  // Get reciters list from mp3quran.net
   Future<void> fetchReciterData() async {
     try {
       isRecitersLoading(true);
-      final response = await apiClient.getData(AppConstants.RECITERS);
+      final lang = Get.locale?.languageCode ?? 'en';
+      final response = await appHttpClient.get(
+        Uri.parse('${AppConstants.MP3QURAN_API_URL}/reciters?language=$lang'),
+      );
 
       if (response.statusCode == 200) {
-        recitersListApiData = RecitersModel.fromJson(response.body);
+        final parsed =
+            Mp3QuranResponse.fromJson(jsonDecode(response.body));
+        recitersMp3 = parsed.reciters ?? [];
+
+        // Map into the legacy RecitersModel shape so the UI stays unchanged
+        recitersListApiData = RecitersModel.fromJson({
+          'result': true,
+          'message': 'Data fetched successfully',
+          'data': recitersMp3
+              .map((r) => {
+                    'id': r.id,
+                    'name': r.name,
+                    'profile_picture': null,
+                  })
+              .toList(),
+        });
         if (kDebugMode) {
-          print("Reciters List: ${recitersListApiData!.data!.length}");
+          print("Reciters List: ${recitersMp3.length}");
         }
       } else {
         if (kDebugMode) {
@@ -42,7 +71,13 @@ class AudioPlayerController extends GetxController {
     }
   }
 
-  // Reciter audio list
+  // Récitations (moshaf) disponibles pour un récitateur
+  List<Moshaf> moshafListFor(int reciterId) {
+    final reciter = recitersMp3.firstWhereOrNull((r) => r.id == reciterId);
+    return reciter?.moshaf ?? [];
+  }
+
+  // Reciter audio list (built from the selected mp3quran moshaf)
   RxBool isAudioLoading = false.obs;
   List<dynamic> audioData = [];
 
@@ -50,17 +85,35 @@ class AudioPlayerController extends GetxController {
     try {
       audioData.clear();
       isAudioLoading(true);
-      final response = await apiClient.getData(AppConstants.AUDIO_LIST + id);
 
-      if (response.statusCode == 200) {
-        audioData = response.body["data"];
+      final reciterId = int.tryParse(id);
+      final reciter = recitersMp3.firstWhereOrNull((r) => r.id == reciterId);
+      final moshaf = selectedMoshaf ??
+          (reciter?.moshaf?.isNotEmpty == true ? reciter!.moshaf!.first : null);
+
+      if (reciter == null || moshaf == null) {
         if (kDebugMode) {
-          print("Audio List: ${audioData[0]["reciter_name"]}");
+          print("Reciter or moshaf not found for id $id");
         }
-      } else {
-        if (kDebugMode) {
-          print("Error fetching data qfqwf: ${response.statusCode}");
-        }
+        return;
+      }
+
+      // Sura names from our own API (already localized), fallback "Sura N"
+      final suraNames = await _loadSuraNames();
+
+      audioData = moshaf.surahList
+          .map((suraNumber) => {
+                'path': moshaf.suraUrl(suraNumber),
+                'sura_name':
+                    suraNames[suraNumber] ?? 'Sura $suraNumber',
+                'reciter_name': reciter.name,
+                'duration': null,
+                'reciter_avatar': '',
+              })
+          .toList();
+
+      if (kDebugMode) {
+        print("Audio List: ${audioData.length} suras — ${moshaf.name}");
       }
     } catch (e) {
       if (kDebugMode) {
@@ -72,6 +125,28 @@ class AudioPlayerController extends GetxController {
     }
   }
 
+  // Sura number -> display name (from our API, fallback "Sura N")
+  Future<Map<int, String>> _loadSuraNames() async {
+    try {
+      final quranController = Get.find<QuranController>();
+      if (quranController.suraListApiData?.data == null) {
+        await quranController.fetchSuraListData();
+      }
+      final data = quranController.suraListApiData?.data;
+      if (data == null) return {};
+      return {
+        for (var sura in data)
+          if (sura.id != null)
+            sura.id!: (sura.translateName ?? sura.arabicName ?? '')
+      };
+    } catch (e) {
+      if (kDebugMode) {
+        print("Sura names unavailable: $e");
+      }
+      return {};
+    }
+  }
+
   // Audio player controller starts
   final AudioHandler _audioHandler = AudioServiceHelper.audioHandler;
   final RxList<MediaItem> audioList = <MediaItem>[].obs;
@@ -80,6 +155,31 @@ class AudioPlayerController extends GetxController {
   final RxBool isPlaying = false.obs;
   final Rx<Duration> position = Duration.zero.obs;
   final Rx<Duration> duration = Duration.zero.obs;
+
+  // Playback modes: repeat cycles off -> all -> one, shuffle is on/off
+  final Rx<LoopMode> loopMode = LoopMode.off.obs;
+  final RxBool shuffleEnabled = false.obs;
+
+  Future<void> toggleRepeat() async {
+    final next = loopMode.value == LoopMode.off
+        ? LoopMode.all
+        : loopMode.value == LoopMode.all
+            ? LoopMode.one
+            : LoopMode.off;
+    loopMode.value = next;
+    if (_audioHandler is AudioPlayerHandler) {
+      await _audioHandler.setLoopMode(next);
+    }
+    update();
+  }
+
+  Future<void> toggleShuffle() async {
+    shuffleEnabled.value = !shuffleEnabled.value;
+    if (_audioHandler is AudioPlayerHandler) {
+      await _audioHandler.setShuffleEnabled(shuffleEnabled.value);
+    }
+    update();
+  }
 
   // Future<void> ensureAudioHandlerRunning() async {
   //   if (!_audioHandler.playbackState.value.playing &&
@@ -160,7 +260,10 @@ class AudioPlayerController extends GetxController {
 
           // Automatically play the first audio if the last one is finished
           if (state.processingState == AudioProcessingState.completed) {
-            if (currentMediaItem.value == audioList.last) {
+            // Loop modes are handled natively by just_audio; here only the
+            // "no repeat" case needs a decision at the end of the queue.
+            if (loopMode.value == LoopMode.off &&
+                currentMediaItem.value == audioList.last) {
               await _audioHandler.pause();
               Get.back();
             } else {

@@ -17,7 +17,6 @@ import 'util/messages.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await di.init();
   // Initialize the AudioHandler
   await AudioServiceHelper.init();
   Map<String, Map<String, String>> languages = await di.init();

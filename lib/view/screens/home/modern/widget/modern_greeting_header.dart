@@ -114,14 +114,17 @@ class ModernGreetingHeader extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Expanded(
-                      child: Text(
-                        prayerTimeController.saveLocalStoreCity ??
-                            prayerTimeController.currentAddress.toString(),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: robotoRegular.copyWith(
-                          fontSize: Dimensions.FONT_SIZE_DEFAULT,
-                          color: _textMuted,
+                      child: Obx(
+                        () => Text(
+                          prayerTimeController.saveAddress.value.isNotEmpty
+                              ? prayerTimeController.saveAddress.value
+                              : prayerTimeController.currentAddress.value,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: robotoRegular.copyWith(
+                            fontSize: Dimensions.FONT_SIZE_DEFAULT,
+                            color: _textMuted,
+                          ),
                         ),
                       ),
                     ),

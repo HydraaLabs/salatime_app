@@ -48,8 +48,39 @@ class ReciterScreen extends StatelessWidget {
                         audioPlayerController.recitersListApiData!.data![index];
                     return GestureDetector(
                       onTap: () {
-                        Get.toNamed(RouteHelper.audioList,
-                            arguments: reciter.id);
+                        final moshafs =
+                            audioPlayerController.moshafListFor(reciter.id!);
+                        // Plusieurs récitations (moshaf) : laisser choisir
+                        if (moshafs.length > 1) {
+                          Get.bottomSheet(
+                            Container(
+                              color: Theme.of(context).cardColor,
+                              padding: const EdgeInsets.all(
+                                  Dimensions.PADDING_SIZE_DEFAULT),
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: moshafs.length,
+                                itemBuilder: (context, i) => ListTile(
+                                  leading: const Icon(Icons.library_music),
+                                  title: Text(moshafs[i].name ?? '',
+                                      style: robotoMedium),
+                                  onTap: () {
+                                    audioPlayerController.selectedMoshaf =
+                                        moshafs[i];
+                                    Get.back();
+                                    Get.toNamed(RouteHelper.audioList,
+                                        arguments: reciter.id);
+                                  },
+                                ),
+                              ),
+                            ),
+                          );
+                        } else {
+                          audioPlayerController.selectedMoshaf =
+                              moshafs.isNotEmpty ? moshafs.first : null;
+                          Get.toNamed(RouteHelper.audioList,
+                              arguments: reciter.id);
+                        }
                       },
                       child: Card(
                         clipBehavior: Clip.antiAlias,
