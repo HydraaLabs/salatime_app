@@ -893,76 +893,6 @@ class QuiblaeShimmerScreen extends StatelessWidget {
   }
 }
 
-class DonationTypeShimmer extends StatelessWidget {
-  const DonationTypeShimmer({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: 15,
-      shrinkWrap: true,
-      padding: const EdgeInsets.symmetric(
-        horizontal: Dimensions.PADDING_SIZE_SMALL,
-      ),
-      itemBuilder: (BuildContext context, int index) {
-        return Shimmer.fromColors(
-          baseColor: Colors.grey.shade400,
-          highlightColor: Colors.grey.shade100,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Card(
-              color: Colors.transparent,
-              clipBehavior: Clip.antiAlias,
-              child: ListTile(
-                contentPadding: const EdgeInsetsDirectional.only(
-                  start: Dimensions.PADDING_SIZE_EXTRA_SMALL,
-                  end: Dimensions.PADDING_SIZE_SMALL,
-                ),
-
-                leading: Container(
-                  height: 40,
-                  width: 40,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      SvgPicture.asset(
-                        Images.Icon_Star,
-                        height: 50,
-                        fit: BoxFit.fill,
-                        color: Colors.white,
-                      ),
-                      Text(
-                        "$index",
-                        style: robotoMedium.copyWith(
-                          fontSize: Dimensions.FONT_SIZE_SMALL,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                title: Container(height: 15, width: 20, color: Colors.white),
-                trailing: const Text("         "),
-                // title:  Text(
-                //   "Donation Type",
-                //   style: robotoMedium.copyWith(
-                //     fontSize: Dimensions.FONT_SIZE_SMALL,
-                //     color: Colors.white,
-                //   ),
-                // ) ,
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
 class WallpaperListTypeShimmer extends StatelessWidget {
   const WallpaperListTypeShimmer({super.key});
 
@@ -1086,62 +1016,6 @@ class WallpaperDetailsTypeShimmer extends StatelessWidget {
           },
         ),
       ),
-    );
-  }
-}
-
-class DonatedShimmer extends StatelessWidget {
-  const DonatedShimmer({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: 15,
-      shrinkWrap: true,
-      padding: const EdgeInsets.symmetric(
-        horizontal: Dimensions.PADDING_SIZE_SMALL,
-      ),
-      itemBuilder: (BuildContext context, int index) {
-        return Shimmer.fromColors(
-          baseColor: Colors.grey.shade400,
-          highlightColor: Colors.grey.shade100,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Card(
-              color: Colors.transparent,
-              clipBehavior: Clip.antiAlias,
-              child: ListTile(
-                contentPadding: const EdgeInsetsDirectional.only(
-                  start: Dimensions.PADDING_SIZE_EXTRA_SMALL,
-                  end: Dimensions.PADDING_SIZE_SMALL,
-                ),
-                leading: Container(
-                  height: 40,
-                  width: 50,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                title: Container(height: 15, width: 90, color: Colors.white),
-                subtitle: Row(
-                  children: [
-                    Container(height: 13, width: 120, color: Colors.white),
-                  ],
-                ),
-                trailing: Container(
-                  height: 30,
-                  width: 35,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      },
     );
   }
 }

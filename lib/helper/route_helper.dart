@@ -19,8 +19,6 @@ import 'package:zabi/view/screens/haram_ingredients_food/haram_ingredients_food.
 import 'package:zabi/view/screens/home/home_screen.dart';
 import 'package:zabi/view/screens/name_generator/islamic_name_generator_screen.dart';
 import 'package:zabi/view/screens/nearby_mosque/nearby_mosque_screen.dart';
-import 'package:zabi/view/screens/payment/donation_type_screen.dart';
-import 'package:zabi/view/screens/payment/payment_type_screen.dart';
 import 'package:zabi/view/screens/prayer_adjustment/prayer_adjustment_screen.dart';
 import 'package:zabi/view/screens/quran/sura_detaile_screen.dart';
 import 'package:zabi/view/screens/quran/sura_list_screen.dart';
@@ -31,8 +29,6 @@ import 'package:zabi/view/screens/splash/splash_screen.dart';
 import 'package:zabi/view/screens/wallpapers/wallpaper_screen.dart';
 import 'package:zabi/view/screens/zakat/zakat_calculator.dart';
 import 'package:zabi/view/screens/zakat/zakat_detaile.dart';
-
-import '../view/screens/payment/donated_list.dart';
 
 class RouteHelper {
   static String initial = "/";
@@ -59,9 +55,6 @@ class RouteHelper {
   static String suraDetaile = "/suraDetaile";
   static String duaAdd = "/duaAdd";
   static String settings = "/settings";
-  static String userDonatedList = "/userDonatedList";
-  static String donationTypeList = "/donationTypeList";
-  static String paymentType = "/paymentType";
   static String recters = "/recters";
   static String audioList = "/audioList";
   static String wallpaperScreens = "/wallpaperScreens";
@@ -93,10 +86,6 @@ class RouteHelper {
   static String getSuraDetailePageRoute() => suraDetaile;
   static String getDuaAddPageRoute() => duaAdd;
   static String getSettingsPageRoute() => settings;
-  static String getDonationListPageRoute(String value) =>
-      "$userDonatedList?value=$value";
-  static String getDonationTypeListPageRoute() => donationTypeList;
-  static String getPaymentTypeListPageRoute() => paymentType;
   static String getRectersPageRoute() => recters;
   static String getAudioListPageRoute() => audioList;
   static String getWallpaperPageRoute() => wallpaperScreens;
@@ -223,24 +212,6 @@ class RouteHelper {
     GetPage(
       name: settings,
       page: () => const SettingsScreen(appBackButton: true),
-      transition: Transition.cupertinoDialog,
-    ),
-    GetPage(
-      name: userDonatedList,
-      page: () => UserDonateScreen(
-        appBackButton: true,
-        value: Get.parameters['value'] ?? '1',
-      ),
-      transition: Transition.cupertinoDialog,
-    ),
-    GetPage(
-      name: donationTypeList,
-      page: () => const DonationTypeScreen(appBackButton: true),
-      transition: Transition.cupertinoDialog,
-    ),
-    GetPage(
-      name: paymentType,
-      page: () => PaymentTypeScreen(appBackButton: true),
       transition: Transition.cupertinoDialog,
     ),
     GetPage(

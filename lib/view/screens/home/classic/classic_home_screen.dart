@@ -50,7 +50,7 @@ class ClassicHomeScreen extends StatelessWidget {
                 top: false,
                 child: isLoading || mosqueData == null && !hasInternet
                     ? const DashbordShimmerScreen()
-                    : _buildBody(context, mosqueData, prayerTimeController),
+                    : _buildBody(context, prayerTimeController),
               ),
 
               floatingActionButton: GestureDetector(
@@ -155,7 +155,7 @@ class ClassicHomeScreen extends StatelessWidget {
       elevation: 0,
       centerTitle: false,
       title: _buildAppBarTitle(context, mosqueData, prayerTimeController),
-      actions: _buildAppBarActions(context, mosqueData, isDark, theme),
+      actions: _buildAppBarActions(context, isDark, theme),
     );
   }
 
@@ -208,21 +208,10 @@ class ClassicHomeScreen extends StatelessWidget {
 
   List<Widget> _buildAppBarActions(
     BuildContext context,
-    dynamic mosqueData,
     bool isDark,
     ThemeData theme,
   ) {
     return [
-      if (mosqueData.showBannerIcon == true)
-        IconButton(
-          onPressed: () => Get.toNamed(RouteHelper.donationTypeList),
-          icon: SvgPicture.asset(
-            Images.Icon_Donated,
-            height: 28,
-            fit: BoxFit.fill,
-            color: isDark ? theme.primaryColor : theme.cardColor,
-          ),
-        ),
       IconButton(
         tooltip: "light_or_dark_mode".tr,
         icon: SvgPicture.asset(
@@ -238,7 +227,6 @@ class ClassicHomeScreen extends StatelessWidget {
 
   Widget _buildBody(
     BuildContext context,
-    dynamic mosqueData,
     PrayerTimeController prayerTimeController,
   ) {
     return SingleChildScrollView(
@@ -250,8 +238,6 @@ class ClassicHomeScreen extends StatelessWidget {
           const SizedBox(height: Dimensions.PADDING_SIZE_EXTRA_SMALL),
           _buildPrayerTimesSection(prayerTimeController),
           const SizedBox(height: Dimensions.PADDING_SIZE_DEFAULT),
-          if (mosqueData.showDonationBanner == true)
-            _buildDonationBanner(context, mosqueData),
           _buildFeaturesGrid(context),
           const SizedBox(height: Dimensions.PADDING_SIZE_DEFAULT * 3),
         ],
@@ -440,43 +426,6 @@ class ClassicHomeScreen extends StatelessWidget {
               : '',
         );
       },
-    );
-  }
-
-  Widget _buildDonationBanner(BuildContext context, dynamic mosqueData) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: Dimensions.PADDING_SIZE_DEFAULT,
-          ),
-          child: GestureDetector(
-            onTap: () => Get.toNamed(RouteHelper.donationTypeList),
-            child: Container(
-              height: 70,
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(Dimensions.RADIUS_DEFAULT),
-                boxShadow: [
-                  BoxShadow(
-                    color: Get.isDarkMode
-                        ? Colors.grey[850]!
-                        : Colors.grey[200]!,
-                    spreadRadius: 1,
-                    blurRadius: 5,
-                  ),
-                ],
-                image: DecorationImage(
-                  image: NetworkImage(mosqueData.donationBanner.toString()),
-                  fit: BoxFit.fitWidth,
-                  onError: (_, _) => const AssetImage(Images.Donate_Now),
-                ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: Dimensions.PADDING_SIZE_DEFAULT),
-      ],
     );
   }
 

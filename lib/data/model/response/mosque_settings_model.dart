@@ -35,9 +35,6 @@ class Data {
   String? currencySymbol;
   String? playStoreUrl;
   String? appStoreUrl;
-  String? donationBanner;
-  bool? showDonationBanner;
-  bool? showBannerIcon;
   String? islamicNameApiKey;
   String? homeLayout;
 
@@ -54,9 +51,6 @@ class Data {
     this.currencySymbol,
     this.playStoreUrl,
     this.appStoreUrl,
-    this.donationBanner,
-    this.showDonationBanner,
-    this.showBannerIcon,
     this.islamicNameApiKey,
     this.homeLayout,
   });
@@ -74,9 +68,6 @@ class Data {
     currencySymbol = json['currency_symbol'];
     playStoreUrl = json['play_store_url'];
     appStoreUrl = json['app_store_url'];
-    donationBanner = json['donation_banner'];
-    showDonationBanner = json['show_donation_banner'];
-    showBannerIcon = json['show_donation_icon'];
     islamicNameApiKey = json['islamic_name_api_key'];
     homeLayout = json['home_layout'];
   }
@@ -95,9 +86,6 @@ class Data {
     data['currency_symbol'] = currencySymbol;
     data['play_store_url'] = playStoreUrl;
     data['app_store_url'] = appStoreUrl;
-    data['donation_banner'] = donationBanner;
-    data['show_donation_banner'] = showDonationBanner;
-    data['show_donation_icon'] = showBannerIcon;
     data['islamic_name_api_key'] = islamicNameApiKey;
     data['home_layout'] = homeLayout;
     return data;

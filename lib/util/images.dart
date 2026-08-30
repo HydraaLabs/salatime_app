@@ -54,12 +54,6 @@ class Images {
   static const String Icon_Alif = '${image_path}alif_icon.svg';
   static const String Icon_Noti_Settings =
       '${image_path}notification_settings.svg';
-  static const String Icon_Previous_Donation =
-      '${image_path}Previous_Donations.svg';
-  static const String Icon_Donation = '${image_path}Donation.svg';
-  static const String Icon_Filter = '${image_path}Filter.svg';
-  static const String Icon_Donated = '${image_path}Donations_Type.svg';
-  static const String Icon_Refresh = '${image_path}refresh.svg';
   static const String Pause_Icon = '${image_path}Pause.svg';
   static const String Stop_Icon = '${image_path}Stop.svg';
   static const String Play_Icon = '${image_path}Play.svg';
@@ -84,7 +78,6 @@ class Images {
   static const String Light_primary = '${image_path}light_primary.png';
   static const String Dark_primary = '${image_path}dark_primary.png';
   static const String Reciter_Person = '${image_path}Reciter_Person.png';
-  static const String Donate_Now = '${image_path}donate_now.png';
   static const String aiAssistant = '${image_path}aiAssistant.png';
 
   //============== MODERN HOME LAYOUT ICONS ==============//
@@ -192,11 +185,6 @@ class Images {
   static const String Icon_select_lan_dark = '${image_path}select_lan_dark.png';
   static const String Icon_select_lan_light =
       '${image_path}select_lan_light.png';
-  static const String Icon_Paypal = '${image_path}Logo_Paypal.png';
-  static const String Icon_Paystack = '${image_path}Logo_Paystack.png';
-  static const String Icon_Razorpay = '${image_path}Logo_Razorpay.png';
-  static const String Icon_SSLCommerz = '${image_path}sslcommerz.png';
-  static const String Icon_Stripe = '${image_path}Logo_Stripe.png';
   static const String placeholder = '${image_path}placeholder.jpg';
   static const String placeholderImage = '${image_path}image_placeholder.png';
 }

@@ -16,7 +16,9 @@ class AppConstants {
   // static const String BASE_URL = "http://127.0.0.1:8000";
 
   // API's and API Kay's
-  @Deprecated('hadithapi.com n\'est plus utilisé — hadiths via CDN jsDelivr (fawazahmed0/hadith-api), voir HadithController')
+  @Deprecated(
+    'hadithapi.com n\'est plus utilisé — hadiths via CDN jsDelivr (fawazahmed0/hadith-api), voir HadithController',
+  )
   static const String HADITH_BASE_URL = 'https://www.hadithapi.com/public';
   static const String NEARBY_MOSQUE_URL =
       'https://maps.googleapis.com/maps/api/place/nearbysearch';
@@ -38,17 +40,15 @@ class AppConstants {
   static const String TODAYS_PRAYER_TIME = "/api/today-prayer-time";
   static const String MOSQUE_SETTINGS = "/api/settings";
   static const String TRANSLATOR = "/api/translators";
-  static const String DONATION_Category = "/api/donation-categories";
-  static const String DONATED_LIST = "/api/donation-list";
-  static const String DONATION_STORE = "/api/donation-store";
-  static const String PAYMENT_METHODS = "/api/payment-methods";
   static const String CITY_LIST = "/api/get-cities";
   static const String RECITERS = "/api/reciters";
   static const String AUDIO_LIST = "/api/reciter-sura/";
   static const String WALLPAPER_LIST = "/api/wallpapers";
 
   //others key
-  @Deprecated('Clé démo hadithapi.com invalide (401) — plus nécessaire avec le CDN jsDelivr')
+  @Deprecated(
+    'Clé démo hadithapi.com invalide (401) — plus nécessaire avec le CDN jsDelivr',
+  )
   static const String HADITH_API_KEY =
       "\$2y\$10\$IpN2jMeSLbrGxZ6zwEu3KAEr1ZmUjwQCYhRbiReqscXswndm";
   static const String MAPS_API_KEY = 'AIzaSyCQc4sar_LVjT8M_vC_ubqCoGwGlR-TU3Q';
@@ -67,8 +67,7 @@ class AppConstants {
   static const String manualCityLng = 'manual_city_lng';
   static const String HOME_LAYOUT_OVERRIDE_KEY = 'home_layout_override';
   static const String QURAN_MILESTONE_GOAL_KEY = 'quran_milestone_daily_goal';
-  static const String QURAN_MILESTONE_PROGRESS_KEY =
-      'quran_milestone_progress';
+  static const String QURAN_MILESTONE_PROGRESS_KEY = 'quran_milestone_progress';
 
   // Language Key
   static const String LANGUAGE_CODE = 'language_code';

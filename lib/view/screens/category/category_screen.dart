@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:zabi/controller/category_controller.dart';
-import 'package:zabi/controller/quran_settings_controller.dart';
 import 'package:zabi/helper/route_helper.dart';
 import 'package:zabi/util/images.dart';
 import 'package:zabi/view/base/custom_app_bar.dart';
@@ -167,21 +166,6 @@ class CategoryScreen extends StatelessWidget {
                                 itemImage: Images.Icon_Haram,
                               ),
 
-                              // donated  item ===>
-                              if (Get.find<SettingsController>()
-                                      .mosqueSettingsApiData!
-                                      .data!
-                                      .showDonationBanner ==
-                                  true)
-                                ListViewItemWidget(
-                                  onPressed: () {
-                                    Get.toNamed(
-                                      RouteHelper.getDonationListPageRoute("1"),
-                                    );
-                                  },
-                                  itemName: "previous_donation".tr,
-                                  itemImage: Images.Icon_Donation,
-                                ),
                               // Wallpaper Section
                               ListViewItemWidget(
                                 onPressed: () {
@@ -321,26 +305,6 @@ class CategoryScreen extends StatelessWidget {
                               itemName: "haram_codes".tr,
                               itemImage: Images.Icon_Haram,
                             ),
-
-                            if (Get.find<SettingsController>()
-                                        .mosqueSettingsApiData!
-                                        .data!
-                                        .showBannerIcon ==
-                                    true ||
-                                Get.find<SettingsController>()
-                                        .mosqueSettingsApiData!
-                                        .data!
-                                        .showDonationBanner ==
-                                    true)
-                              GridViewItemWidget(
-                                onPressed: () {
-                                  Get.toNamed(
-                                    RouteHelper.getDonationListPageRoute("1"),
-                                  );
-                                },
-                                itemName: "previous_donation".tr,
-                                itemImage: Images.Icon_Donation,
-                              ),
 
                             // Wallpaper Section
                             GridViewItemWidget(
