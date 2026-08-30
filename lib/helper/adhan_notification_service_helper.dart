@@ -7,6 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:zabi/util/app_constants.dart';
 
 abstract class AdhanNotificationService {
   // Future<void> checkAndRequestPermissions();
@@ -116,7 +117,9 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
     String? payload,
   }) async {
     final prefs = await SharedPreferences.getInstance();
-    final selectedSound = prefs.getString('selectedSoundName') ?? 'azan_1';
+    final selectedSound =
+        prefs.getString(AppConstants.SELECTED_NOTIFICATION_SOUND_KEY) ??
+        AppConstants.DEFAULT_NOTIFICATION_SOUND;
 
     try {
       final scheduledDate = await _nextInstance(dateTime);
@@ -232,7 +235,10 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
       0,
       title,
       body,
-      _getNotificationDetails(channel: 'default_channel', sound: 'azan_1'),
+      _getNotificationDetails(
+        channel: AppConstants.DEFAULT_NOTIFICATION_SOUND,
+        sound: AppConstants.DEFAULT_NOTIFICATION_SOUND,
+      ),
       payload: 'Default_Sound',
     );
   }

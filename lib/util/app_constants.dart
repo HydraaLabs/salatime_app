@@ -58,6 +58,10 @@ class AppConstants {
   static const String isPrayerTme = 'isPrayerTme';
   static const String saveCityName = 'saveCityName';
   static const String notificationSettingsKey = 'prayer_notification_settings';
+  static const String SELECTED_NOTIFICATION_SOUND_KEY = 'selectedSoundName';
+  static const String DEFAULT_NOTIFICATION_SOUND = 'azan_2';
+  static const String DEFAULT_NOTIFICATION_SOUND_ASSET =
+      'assets/audio/$DEFAULT_NOTIFICATION_SOUND.mp3';
   static const String IS_MANUAL_PRAYER_TIME = 'is_manual_prayer_time';
   static const String manualCityLat = 'manual_city_lat';
   static const String manualCityLng = 'manual_city_lng';

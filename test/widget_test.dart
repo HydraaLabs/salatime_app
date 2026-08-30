@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:zabi/controller/noti_sound_controller.dart';
 import 'package:zabi/controller/package_prayer_time_controller.dart';
 import 'package:zabi/data/api/api_client.dart';
 import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
@@ -32,6 +33,34 @@ void main() {
       expect(translations, isA<Map<String, dynamic>>());
       expect(translations, isNotEmpty);
     }
+  });
+
+  test('Adhan 2 is selected when no notification sound was saved', () async {
+    SharedPreferences.setMockInitialValues({});
+    final controller = NotiSoundController();
+
+    await controller.loadSelectedSound();
+
+    final preferences = await SharedPreferences.getInstance();
+    expect(
+      controller.selectedSound.value,
+      AppConstants.DEFAULT_NOTIFICATION_SOUND_ASSET,
+    );
+    expect(
+      preferences.getString(AppConstants.SELECTED_NOTIFICATION_SOUND_KEY),
+      AppConstants.DEFAULT_NOTIFICATION_SOUND,
+    );
+  });
+
+  test('an existing notification sound choice is preserved', () async {
+    SharedPreferences.setMockInitialValues({
+      AppConstants.SELECTED_NOTIFICATION_SOUND_KEY: 'azan_3',
+    });
+    final controller = NotiSoundController();
+
+    await controller.loadSelectedSound();
+
+    expect(controller.selectedSound.value, 'assets/audio/azan_3.mp3');
   });
 
   testWidgets('active prayer is automatically brought into view', (

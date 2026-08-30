@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:zabi/util/app_constants.dart';
 
 class NotiSoundController extends GetxController {
   var selectedSound = RxnString();
@@ -31,16 +32,21 @@ class NotiSoundController extends GetxController {
 
   Future<void> loadSelectedSound() async {
     final prefs = await SharedPreferences.getInstance();
-    final savedSoundName = prefs.getString('selectedSoundName');
+    final savedSoundName = prefs.getString(
+      AppConstants.SELECTED_NOTIFICATION_SOUND_KEY,
+    );
 
     if (savedSoundName != null &&
         sounds.any((sound) => sound['path']!.contains(savedSoundName))) {
       selectedSound.value = sounds.firstWhere(
-          (sound) => sound['path']!.contains(savedSoundName))['path'];
+        (sound) => sound['path']!.contains(savedSoundName),
+      )['path'];
     } else {
-      selectedSound.value = sounds.first['path'];
+      selectedSound.value = AppConstants.DEFAULT_NOTIFICATION_SOUND_ASSET;
       await prefs.setString(
-          'selectedSoundName', extractFileName(sounds.first['path']!));
+        AppConstants.SELECTED_NOTIFICATION_SOUND_KEY,
+        AppConstants.DEFAULT_NOTIFICATION_SOUND,
+      );
     }
   }
 
@@ -56,7 +62,10 @@ class NotiSoundController extends GetxController {
         print("Selected Sound Name: $fileName");
       }
 
-      await prefs.setString('selectedSoundName', fileName);
+      await prefs.setString(
+        AppConstants.SELECTED_NOTIFICATION_SOUND_KEY,
+        fileName,
+      );
     } else if (path == sounds.first['path']) {
       playSound(path!);
     }
