@@ -13,7 +13,7 @@ import jwt
 import requests
 
 
-LANGUAGES = ("tr-TR", "ur", "id", "ms-MY", "bn-BD", "fa-AF")
+DEFAULT_LANGUAGES = ("tr-TR", "ur", "id", "ms-MY", "bn-BD", "fa-AF")
 SCOPE = "https://www.googleapis.com/auth/androidpublisher"
 TOKEN_URL = "https://oauth2.googleapis.com/token"
 API_ROOT = "https://androidpublisher.googleapis.com/androidpublisher/v3/applications"
@@ -59,10 +59,11 @@ def main() -> int:
     parser.add_argument("--credentials", required=True, type=Path)
     parser.add_argument("--package", default="net.salatime.app")
     parser.add_argument("--assets-root", required=True, type=Path)
+    parser.add_argument("--languages", nargs="+", default=DEFAULT_LANGUAGES)
     args = parser.parse_args()
 
     screenshots: dict[str, list[Path]] = {}
-    for language in LANGUAGES:
+    for language in args.languages:
         files = sorted((args.assets_root / language / "phone-screenshots").glob("*.png"))
         if len(files) != 7:
             raise RuntimeError(f"Expected 7 screenshots for {language}, found {len(files)}")
@@ -112,7 +113,7 @@ def main() -> int:
     verify_id = checked(session.post(edits_url, json={}, timeout=30)).json()["id"]
     verify_url = f"{edits_url}/{verify_id}"
     try:
-        for language in LANGUAGES:
+        for language in args.languages:
             images = checked(
                 session.get(
                     f"{verify_url}/listings/{language}/phoneScreenshots",
