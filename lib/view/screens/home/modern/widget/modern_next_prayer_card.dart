@@ -16,7 +16,12 @@ import 'package:zabi/util/styles.dart';
 
 class ModernNextPrayerCard extends StatefulWidget {
   final PrayerTimeController prayerTimeController;
-  const ModernNextPrayerCard({super.key, required this.prayerTimeController});
+  final DateTime Function() now;
+  const ModernNextPrayerCard({
+    super.key,
+    required this.prayerTimeController,
+    this.now = DateTime.now,
+  });
 
   @override
   State<ModernNextPrayerCard> createState() => _ModernNextPrayerCardState();
@@ -25,6 +30,9 @@ class ModernNextPrayerCard extends StatefulWidget {
 class _ModernNextPrayerCardState extends State<ModernNextPrayerCard> {
   Timer? _ticker;
   Duration _remaining = Duration.zero;
+  final ScrollController _prayerScrollController = ScrollController();
+  int? _positionedPrayerIndex;
+  int? _scheduledPrayerIndex;
 
   @override
   void initState() {
@@ -36,13 +44,50 @@ class _ModernNextPrayerCardState extends State<ModernNextPrayerCard> {
   @override
   void dispose() {
     _ticker?.cancel();
+    _prayerScrollController.dispose();
     super.dispose();
+  }
+
+  void _keepActivePrayerVisible(int activeIndex) {
+    if (_positionedPrayerIndex == activeIndex ||
+        _scheduledPrayerIndex == activeIndex) {
+      return;
+    }
+
+    _scheduledPrayerIndex = activeIndex;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      _scheduledPrayerIndex = null;
+      if (!_prayerScrollController.hasClients) return;
+
+      final position = _prayerScrollController.position;
+      final itemCenter =
+          (activeIndex * _prayerChipExtent) + (_prayerChipWidth / 2);
+      final targetOffset = (itemCenter - (position.viewportDimension / 2))
+          .clamp(0.0, position.maxScrollExtent)
+          .toDouble();
+      final shouldAnimate = _positionedPrayerIndex != null;
+
+      _positionedPrayerIndex = activeIndex;
+      if ((position.pixels - targetOffset).abs() < 0.5) return;
+
+      if (shouldAnimate) {
+        _prayerScrollController.animateTo(
+          targetOffset,
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeOutCubic,
+        );
+      } else {
+        _prayerScrollController.jumpTo(targetOffset);
+      }
+    });
   }
 
   void _recompute() {
     final timeStr = widget.prayerTimeController.currentWaktTime.value;
     try {
-      final now = DateTime.now();
+      final now = widget.now();
       var target = DateFormat('HH:mm').parse(timeStr);
       target = DateTime(
         now.year,
@@ -66,7 +111,7 @@ class _ModernNextPrayerCardState extends State<ModernNextPrayerCard> {
   }
 
   int _activePrayerIndex(List<String?> times) {
-    final now = DateTime.now();
+    final now = widget.now();
     for (var i = 0; i < times.length; i++) {
       final t = times[i];
       if (t == null) continue;
@@ -101,6 +146,7 @@ class _ModernNextPrayerCardState extends State<ModernNextPrayerCard> {
       prayerData?.ishaStart,
     ];
     final activeIndex = _activePrayerIndex(times);
+    _keepActivePrayerVisible(activeIndex);
 
     return Container(
       padding: const EdgeInsets.all(Dimensions.PADDING_SIZE_DEFAULT),
@@ -216,6 +262,7 @@ class _ModernNextPrayerCardState extends State<ModernNextPrayerCard> {
             child: SizedBox(
               height: _chipHeight,
               child: ListView(
+                controller: _prayerScrollController,
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
                 children: [
@@ -266,6 +313,9 @@ class _ModernNextPrayerCardState extends State<ModernNextPrayerCard> {
   }
 
   static const double _chipHeight = 108;
+  static const double _prayerChipWidth = 64;
+  static const double _prayerChipSpacing = 8;
+  static const double _prayerChipExtent = _prayerChipWidth + _prayerChipSpacing;
 
   _ChipStatus _chipStatus(int index, int activeIndex) {
     if (index < activeIndex) return _ChipStatus.passed;
@@ -295,9 +345,11 @@ class _PrayerChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final isActive = status == _ChipStatus.active;
     return Container(
-      width: 64,
+      width: _ModernNextPrayerCardState._prayerChipWidth,
       height: _ModernNextPrayerCardState._chipHeight,
-      margin: const EdgeInsets.only(right: 8),
+      margin: const EdgeInsets.only(
+        right: _ModernNextPrayerCardState._prayerChipSpacing,
+      ),
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       decoration: BoxDecoration(
         color: isActive ? Colors.white : null,

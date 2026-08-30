@@ -1,8 +1,15 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:zabi/controller/package_prayer_time_controller.dart';
+import 'package:zabi/data/api/api_client.dart';
+import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
 import 'package:zabi/util/app_constants.dart';
+import 'package:zabi/view/screens/home/modern/widget/modern_next_prayer_card.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -26,4 +33,63 @@ void main() {
       expect(translations, isNotEmpty);
     }
   });
+
+  testWidgets('active prayer is automatically brought into view', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferences = await SharedPreferences.getInstance();
+    Get.put<SharedPreferences>(preferences);
+    addTearDown(Get.reset);
+    final controller =
+        PrayerTimeController(
+            apiClient: ApiClient(
+              appBaseUrl: AppConstants.BASE_URL,
+              sharedPreferences: preferences,
+            ),
+          )
+          ..currentWaqtName.value = 'Maghrib'
+          ..currentWaktTime.value = '19:51'
+          ..prayerTimeModel = PrayerTimeModel(
+            data: Data(
+              fajrStart: '05:25',
+              zuhrStart: '13:22',
+              asrStart: '17:00',
+              maghribStart: '19:51',
+              ishaStart: '21:13',
+            ),
+          );
+
+    await tester.pumpWidget(
+      GetMaterialApp(
+        translations: _TestTranslations(),
+        locale: const Locale('en', 'US'),
+        home: Scaffold(
+          body: Center(
+            child: SizedBox(
+              width: 360,
+              child: ModernNextPrayerCard(
+                prayerTimeController: controller,
+                now: () => DateTime(2026, 8, 30, 19, 49),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    final prayerList = tester.widget<ListView>(find.byType(ListView));
+    expect(prayerList.controller, isNotNull);
+    expect(prayerList.controller!.offset, greaterThan(0));
+
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+}
+
+class _TestTranslations extends Translations {
+  @override
+  Map<String, Map<String, String>> get keys => {
+    'en_US': {'adhan': 'A'},
+  };
 }
