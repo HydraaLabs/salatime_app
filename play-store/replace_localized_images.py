@@ -86,6 +86,7 @@ def main() -> int:
     parser.add_argument("--package", default="net.salatime.app")
     parser.add_argument("--features", required=True, type=Path)
     parser.add_argument("--screenshots-root", required=True, type=Path)
+    parser.add_argument("--skip-screenshots", action="store_true")
     args = parser.parse_args()
 
     for language in ALL_LANGUAGES:
@@ -93,11 +94,12 @@ def main() -> int:
         if not feature.is_file():
             raise RuntimeError(f"Missing feature graphic: {feature}")
     screenshot_sets: dict[str, list[Path]] = {}
-    for language, folder in SCREENSHOT_FOLDERS.items():
-        files = sorted((args.screenshots_root / folder).glob("*.png"))
-        if len(files) != 7:
-            raise RuntimeError(f"Expected 7 screenshots for {language}, found {len(files)}")
-        screenshot_sets[language] = files
+    if not args.skip_screenshots:
+        for language, folder in SCREENSHOT_FOLDERS.items():
+            files = sorted((args.screenshots_root / folder).glob("*.png"))
+            if len(files) != 7:
+                raise RuntimeError(f"Expected 7 screenshots for {language}, found {len(files)}")
+            screenshot_sets[language] = files
 
     session = requests.Session()
     session.headers.update({"Authorization": f"Bearer {access_token(args.credentials)}"})
