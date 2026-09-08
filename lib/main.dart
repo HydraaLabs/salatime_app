@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zabi/controller/home_layout_controller.dart';
 import 'package:zabi/helper/theme_helper.dart';
@@ -18,8 +19,26 @@ import 'helper/route_helper.dart';
 import 'util/messages.dart';
 import 'view/screens/location/background_location_screen.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await SentryFlutter.init((options) {
+    options.dsn =
+        'https://27e1be168bc55d72f29af823f175dbc5@o4511371910184960.ingest.de.sentry.io/4512053084356688';
+    options.environment = 'production';
+    options.sendDefaultPii = false;
+    options.attachScreenshot = false;
+    options.enablePrintBreadcrumbs = false;
+    options.recordHttpBreadcrumbs = false;
+    options.captureFailedRequests = false;
+    options.captureNativeFailedRequests = false;
+    options.enableUserInteractionBreadcrumbs = false;
+    options.enableUserInteractionTracing = false;
+    options.tracesSampleRate = 0.05;
+  }, appRunner: _bootstrapApp);
+}
+
+Future<void> _bootstrapApp() async {
   // Initialize the AudioHandler
   await AudioServiceHelper.init();
   Map<String, Map<String, String>> languages = await di.init();
@@ -29,7 +48,11 @@ void main() async {
       : await BackgroundLocationScreen.shouldShow()
       ? RouteHelper.backgroundLocation
       : RouteHelper.bottomNavbar;
-  runApp(MyApp(languages: languages, initialRoute: initialRoute));
+  runApp(
+    SentryWidget(
+      child: MyApp(languages: languages, initialRoute: initialRoute),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -55,6 +78,7 @@ class MyApp extends StatelessWidget {
                   locale: localizeController.locale,
                   initialRoute: initialRoute,
                   getPages: RouteHelper.routes,
+                  navigatorObservers: [SentryNavigatorObserver()],
                   defaultTransition: Transition.topLevel,
                   translations: Messages(languages: languages),
                   fallbackLocale: Locale(

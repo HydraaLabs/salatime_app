@@ -8,6 +8,7 @@ environment:
 
 #==== Dependencies start ====#
 dependencies:
+  sentry_flutter: ^9.29.0
   flutter:
     sdk: flutter
 
@@ -56,6 +57,7 @@ dependencies:
 
 #==== Dev Dependencies start ====#
 dev_dependencies:
+  sentry_dart_plugin: ^3.4.0
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
@@ -138,3 +140,10 @@ flutter:
       fonts:
         - asset: assets/font/ReadexPro-Regular.ttf
           weight: 400
+
+sentry:
+  upload_debug_symbols: true
+  upload_source_maps: true
+  name: net.salatime.app
+  project: salamtime
+  org: hydra-x6

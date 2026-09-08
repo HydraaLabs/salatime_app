@@ -109,3 +109,5 @@ app.*.map.json
 # -------------------------------
 .fvm/
 .fvmrc
+
+sentry.properties
