@@ -15,6 +15,9 @@ import 'package:zabi/view/screens/notification/widgets/salat_waqt_repository.dar
 import 'adhan_notification_service_helper.dart';
 
 class SalatWaqtService {
+  static const int _beforeNotificationIdBase = 1000;
+  static const int _afterNotificationIdBase = 2000;
+
   final SalatWaqtRepository _salatWaqtRepository;
 
   SalatWaqtService() : _salatWaqtRepository = SalatWaqtRepository();
@@ -144,7 +147,7 @@ class SalatWaqtService {
   }
 
   static Future<void> initializeSalatWaqt() async {
-    checkNotificationPermission();
+    await checkNotificationPermission();
     final adhanNotificationServices = AdhanNotificationServiceImpl();
     await adhanNotificationServices.initializeNotification();
 
@@ -166,25 +169,110 @@ class SalatWaqtService {
     final salatWaqtService = SalatWaqtService();
     await salatWaqtService.updateSalatWaqt();
 
+    final prefs = await SharedPreferences.getInstance();
+    final beforeEnabled =
+        prefs.getBool(AppConstants.BEFORE_ADHAN_REMINDER_ENABLED_KEY) ?? false;
+    final afterEnabled =
+        prefs.getBool(AppConstants.AFTER_ADHAN_REMINDER_ENABLED_KEY) ?? false;
+    final beforeMinutes =
+        (prefs.getInt(AppConstants.BEFORE_ADHAN_REMINDER_MINUTES_KEY) ??
+                AppConstants.DEFAULT_PRAYER_REMINDER_MINUTES)
+            .clamp(1, 60)
+            .toInt();
+    final afterMinutes =
+        (prefs.getInt(AppConstants.AFTER_ADHAN_REMINDER_MINUTES_KEY) ??
+                AppConstants.DEFAULT_PRAYER_REMINDER_MINUTES)
+            .clamp(1, 60)
+            .toInt();
+    final beforeSound =
+        prefs.getString(AppConstants.BEFORE_ADHAN_REMINDER_SOUND_KEY) ??
+        AppConstants.DEFAULT_PRAYER_REMINDER_SOUND;
+    final afterSound =
+        prefs.getString(AppConstants.AFTER_ADHAN_REMINDER_SOUND_KEY) ??
+        AppConstants.DEFAULT_PRAYER_REMINDER_SOUND;
+
     salatWaqtList = await salatWaqtRepository.getSalatWaqtList();
     for (final salatWaqt in salatWaqtList) {
+      final beforeId = beforeNotificationId(salatWaqt.id);
+      final afterId = afterNotificationId(salatWaqt.id);
       if (salatWaqt.isNotificationEnabled) {
         final time = salatWaqt.time.toLocal();
+        final translatedPrayerName = salatWaqt.name.toLowerCase().tr;
         Get.log(
           'Notification for ${salatWaqt.name}: ${time.toIso8601String().split('T')[0]} => ${time.toIso8601String().split('T')[1]}',
         );
 
         await adhanNotificationServices.scheduleNotification(
           id: salatWaqt.id,
-          title: salatWaqt.name.toLowerCase().tr,
+          title: translatedPrayerName,
           body:
               '${'time_for'.tr} ${salatWaqt.name} ${'started_at'.tr} ${DateFormat.jm().format(time)}',
           dateTime: time,
           payload: time.toIso8601String(),
         );
+
+        if (beforeEnabled) {
+          final reminderTime = reminderDateTime(
+            time,
+            beforeMinutes,
+            before: true,
+          );
+          await adhanNotificationServices.scheduleNotification(
+            id: beforeId,
+            title: 'before_adhan'.tr,
+            body: 'prayer_in_minutes'.trParams({
+              'prayer': translatedPrayerName,
+              'minutes': beforeMinutes.toString(),
+            }),
+            dateTime: reminderTime,
+            payload: 'before:${salatWaqt.id}:${time.toIso8601String()}',
+            sound: beforeSound,
+            channel: 'before_adhan_$beforeSound',
+          );
+        } else {
+          await adhanNotificationServices.cancelNotification(beforeId);
+        }
+
+        if (afterEnabled) {
+          final reminderTime = reminderDateTime(
+            time,
+            afterMinutes,
+            before: false,
+          );
+          await adhanNotificationServices.scheduleNotification(
+            id: afterId,
+            title: 'iqama_reminder_title'.tr,
+            body: 'iqama_reminder_body'.trParams({
+              'prayer': translatedPrayerName,
+            }),
+            dateTime: reminderTime,
+            payload: 'after:${salatWaqt.id}:${time.toIso8601String()}',
+            sound: afterSound,
+            channel: 'after_adhan_$afterSound',
+          );
+        } else {
+          await adhanNotificationServices.cancelNotification(afterId);
+        }
       } else {
         await adhanNotificationServices.cancelNotification(salatWaqt.id);
+        await adhanNotificationServices.cancelNotification(beforeId);
+        await adhanNotificationServices.cancelNotification(afterId);
       }
     }
   }
+
+  static DateTime reminderDateTime(
+    DateTime prayerTime,
+    int minutes, {
+    required bool before,
+  }) {
+    final offset = Duration(minutes: minutes);
+    return before ? prayerTime.subtract(offset) : prayerTime.add(offset);
+  }
+
+  static int beforeNotificationId(int prayerId) =>
+      _beforeNotificationIdBase + prayerId;
+
+  static int afterNotificationId(int prayerId) =>
+      _afterNotificationIdBase + prayerId;
 }

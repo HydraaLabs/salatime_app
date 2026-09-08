@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:zabi/controller/quran_settings_controller.dart';
@@ -16,6 +17,7 @@ import 'package:zabi/view/screens/notification/notification_dw_widget.dart';
 import 'package:zabi/view/screens/prayer_settings/prayer_calculation_settings.dart';
 import 'package:zabi/view/screens/settings/widgets/home_layout_dw_widget.dart';
 import 'package:zabi/view/screens/settings/widgets/item_widgets.dart';
+import 'package:zabi/view/screens/settings/widgets/theme_mode_dw_widget.dart';
 
 class SettingsScreen extends StatefulWidget {
   final bool appBackButton;
@@ -26,6 +28,14 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  late final Future<PackageInfo> _packageInfo;
+
+  @override
+  void initState() {
+    super.initState();
+    _packageInfo = PackageInfo.fromPlatform();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,6 +65,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const LanguageDWWidget(),
 
                   // home screen layout (appearance) section
+                  const ThemeModeDWWidget(),
                   const HomeLayoutDWWidget(),
 
                   // share and rate app section  for android.
@@ -204,6 +215,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ],
                         )
                       : const SizedBox(),
+
+                  FutureBuilder<PackageInfo>(
+                    future: _packageInfo,
+                    builder: (context, snapshot) {
+                      final packageInfo = snapshot.data;
+                      final version = packageInfo == null
+                          ? '…'
+                          : 'version_number'.trParams({
+                              'version': packageInfo.version,
+                              'build': packageInfo.buildNumber,
+                            });
+
+                      return Card(
+                        clipBehavior: Clip.antiAlias,
+                        color: Theme.of(context).cardColor,
+                        shadowColor: Get.isDarkMode
+                            ? Colors.grey[800]
+                            : Colors.grey[200],
+                        child: ListTile(
+                          contentPadding: const EdgeInsetsDirectional.symmetric(
+                            horizontal: Dimensions.PADDING_SIZE_DEFAULT,
+                          ),
+                          leading: Icon(
+                            Icons.info_outline,
+                            color: Theme.of(context).primaryColor,
+                            size: 25,
+                          ),
+                          title: Text(
+                            'about'.tr,
+                            style: const TextStyle(
+                              fontSize: Dimensions.FONT_SIZE_LARGE,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          subtitle: Text(version),
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),

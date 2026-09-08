@@ -9,7 +9,13 @@ class SplashRepo {
 
   Future<bool> initSharedData() {
     if (!sharedPreferences.containsKey(AppConstants.THEME)) {
-      return sharedPreferences.setBool(AppConstants.THEME, false);
+      sharedPreferences.setBool(AppConstants.THEME, false);
+    }
+    if (!sharedPreferences.containsKey(AppConstants.THEME_MODE_KEY)) {
+      return sharedPreferences.setString(
+        AppConstants.THEME_MODE_KEY,
+        'daylight',
+      );
     }
     return Future.value(true);
   }

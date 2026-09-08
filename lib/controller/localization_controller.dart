@@ -9,13 +9,17 @@ class LocalizationController extends GetxController implements GetxService {
   final SharedPreferences sharedPreferences;
   final ApiClient apiClient;
 
-  LocalizationController(
-      {required this.sharedPreferences, required this.apiClient}) {
+  LocalizationController({
+    required this.sharedPreferences,
+    required this.apiClient,
+  }) {
     loadCurrentLanguage();
   }
 
-  Locale _locale = Locale(AppConstants.languages[0].languageCode!,
-      AppConstants.languages[0].countryCode);
+  Locale _locale = Locale(
+    AppConstants.languages[0].languageCode!,
+    AppConstants.languages[0].countryCode,
+  );
 
   List<LanguageModel> _languages = [];
 
@@ -25,12 +29,14 @@ class LocalizationController extends GetxController implements GetxService {
   int _selectedIndex = 0;
   int get selectedIndex => _selectedIndex;
 
-  void loadCurrentLanguage() async {
-    _locale = Locale(
-        sharedPreferences.getString(AppConstants.LANGUAGE_CODE) ??
-            AppConstants.languages[0].languageCode!,
-        sharedPreferences.getString(AppConstants.COUNTRY_CODE) ??
-            AppConstants.languages[0].countryCode);
+  void loadCurrentLanguage() {
+    _locale = resolveLocale(
+      systemLocale: WidgetsBinding.instance.platformDispatcher.locale,
+      savedLanguageCode: sharedPreferences.getString(
+        AppConstants.LANGUAGE_CODE,
+      ),
+      savedCountryCode: sharedPreferences.getString(AppConstants.COUNTRY_CODE),
+    );
 
     for (int index = 0; index < AppConstants.languages.length; index++) {
       if (AppConstants.languages[index].languageCode == _locale.languageCode) {
@@ -43,21 +49,47 @@ class LocalizationController extends GetxController implements GetxService {
     update();
   }
 
+  static Locale resolveLocale({
+    required Locale systemLocale,
+    String? savedLanguageCode,
+    String? savedCountryCode,
+  }) {
+    final preferredLanguageCode =
+        savedLanguageCode ?? systemLocale.languageCode;
+
+    final language = AppConstants.languages.firstWhere(
+      (candidate) => candidate.languageCode == preferredLanguageCode,
+      orElse: () => AppConstants.languages.first,
+    );
+
+    return Locale(
+      language.languageCode!,
+      savedLanguageCode != null
+          ? (savedCountryCode ?? language.countryCode)
+          : language.countryCode,
+    );
+  }
+
   // Set user new selected language
-  void setLanguage(Locale locale, int index) {
+  Future<void> setLanguage(Locale locale, int index) async {
     Get.updateLocale(locale);
     _locale = locale;
 
     _selectedIndex = index;
-    saveLanguage(_locale);
+    await saveLanguage(_locale);
     update();
   }
 
-// Save language in local database
-  void saveLanguage(Locale locale) async {
-    sharedPreferences.setString(
-        AppConstants.LANGUAGE_CODE, locale.languageCode);
-    sharedPreferences.setString(AppConstants.COUNTRY_CODE, locale.countryCode!);
+  // Save language in local database
+  Future<void> saveLanguage(Locale locale) async {
+    await sharedPreferences.setString(
+      AppConstants.LANGUAGE_CODE,
+      locale.languageCode,
+    );
+    await sharedPreferences.setString(
+      AppConstants.COUNTRY_CODE,
+      locale.countryCode!,
+    );
   }
 
   //  User select language index set
@@ -65,8 +97,4 @@ class LocalizationController extends GetxController implements GetxService {
     _selectedIndex = index;
     update();
   }
-
-
-
-
 }

@@ -15,8 +15,6 @@ import 'package:zabi/view/screens/category/category_screen.dart';
 import 'package:zabi/view/screens/compass/compass_screen.dart';
 import 'package:zabi/view/screens/home/home_screen.dart';
 import 'package:zabi/view/screens/nearby_mosque/nearby_mosque_screen.dart';
-import 'package:zabi/view/screens/offline_quran/main_offline_quran_screen.dart';
-import 'package:zabi/view/screens/quran/sura_list_screen.dart';
 
 import 'np_internet_widgets.dart';
 
@@ -49,7 +47,7 @@ class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
 
   void _selectPage(int index) {
     // Prevent access to online-only pages without internet
-    if ((index == 3 || index == 4) && !internetController.hasInternet.value) {
+    if ((index == 2 || index == 3) && !internetController.hasInternet.value) {
       showNoInternetDialog();
       return;
     }
@@ -71,32 +69,22 @@ class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isIOS = Platform.isIOS;
-    final _ = isDark;
+    _pages = [
+      const HomeScreen(),
+      CompassScreen(appBackButton: false, isActive: _selectedPageIndex == 1),
+      const NearbyMosque(appBackButton: false),
+      CategoryScreen(appBackButton: false),
+    ];
 
     return Scaffold(
-      body: Obx(() {
-        _pages = [
-          const HomeScreen(),
-          CompassScreen(
-            appBackButton: false,
-            isActive: _selectedPageIndex == 1,
-          ),
-          internetController.hasInternet.value
-              ? const SuraList(appBackButton: false)
-              : const MainOfflineQuranScreen(appBackButton: false),
-          const NearbyMosque(appBackButton: false),
-          CategoryScreen(appBackButton: false),
-        ];
-        return IndexedStack(
-          index: _selectedPageIndex,
-          children: [
-            for (int i = 0; i < _pages.length; i++)
-              _visitedPages.contains(i) ? _pages[i] : const SizedBox.shrink(),
-          ],
-        );
-      }),
+      body: IndexedStack(
+        index: _selectedPageIndex,
+        children: [
+          for (int i = 0; i < _pages.length; i++)
+            _visitedPages.contains(i) ? _pages[i] : const SizedBox.shrink(),
+        ],
+      ),
       bottomNavigationBar: Obx(() {
         final isModern =
             Get.find<HomeLayoutController>().currentLayout.value ==
@@ -111,173 +99,102 @@ class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
   Widget _buildClassicNavBar(BuildContext context, bool isIOS) {
     final darkMode = Theme.of(context).brightness == Brightness.dark;
     return Container(
-      height: (isIOS ? 70 : 70),
+      height: isIOS ? 76 : 70,
       decoration: BoxDecoration(
         color: darkMode
             ? Theme.of(context).cardColor
             : Theme.of(context).primaryColor,
       ),
-      child: Stack(
-        alignment: Alignment.center,
-        clipBehavior: Clip.none,
-        children: [
-          // Bottom Navigation Items
-          Padding(
-            padding: EdgeInsets.only(bottom: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                // Home
-                Expanded(
-                  child: _buildNavItem(
-                    index: 0,
-                    icon: Images.Icon_Home,
-                    label: "home".tr,
-                  ),
-                ),
-                // Compass
-                Expanded(
-                  child: _buildNavItem(
-                    index: 1,
-                    icon: Images.Icon_Qibla,
-                    label: "compass".tr,
-                  ),
-                ),
-
-                // Spacer for FAB
-                const SizedBox(width: 56),
-                // Nearby Mosque
-                Expanded(
-                  child: _buildNavItem(
-                    index: 3,
-                    icon: Images.Icon_near_mosque,
-                    label: "nearby".tr,
-                  ),
-                ),
-                // Category
-                Expanded(
-                  child: _buildNavItem(
-                    index: 4,
-                    icon: Images.Icon_Category,
-                    label: "category".tr,
-                  ),
-                ),
-              ],
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 6),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Expanded(
+              child: _buildNavItem(
+                index: 0,
+                icon: Images.Icon_Home,
+                label: 'nav_today'.tr,
+              ),
             ),
-          ),
-          _buildQuranFab(
-            background: Theme.of(context).scaffoldBackgroundColor,
-            bubbleColor: darkMode
-                ? Theme.of(context).cardColor.withOpacity(0.8)
-                : Theme.of(context).primaryColor,
-          ),
-        ],
+            Expanded(
+              child: _buildNavItem(
+                index: 1,
+                icon: Images.Icon_Qibla,
+                label: 'nav_qibla'.tr,
+              ),
+            ),
+            Expanded(
+              child: _buildNavItem(
+                index: 2,
+                icon: Images.Icon_near_mosque,
+                label: 'nav_mosques'.tr,
+              ),
+            ),
+            Expanded(
+              child: _buildNavItem(
+                index: 3,
+                icon: Images.Icon_Category,
+                label: 'nav_more'.tr,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildModernNavBar(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.fromLTRB(14, 0, 14, 14),
-      height: 68,
+      height: 76,
       decoration: BoxDecoration(
         color: Theme.of(context).brightness == Brightness.dark
-            ? Theme.of(context).cardColor
-            : Colors.white,
-        borderRadius: BorderRadius.circular(28),
+            ? const Color(0xFF15261E)
+            : AppColorModern.primaryGreenDark,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(22),
+          topRight: Radius.circular(22),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.15),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
+            blurRadius: 14,
+            offset: const Offset(0, -4),
           ),
         ],
       ),
-      child: Stack(
-        alignment: Alignment.center,
-        clipBehavior: Clip.none,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Expanded(
-                child: _buildModernNavItem(
-                  index: 0,
-                  icon: Images.ModernIcon_Home,
-                  label: "home".tr,
-                  tint: false,
-                ),
-              ),
-              Expanded(
-                child: _buildModernNavItem(
-                  index: 1,
-                  icon: Images.ModernIcon_QiblaKaaba,
-                  label: "compass".tr,
-                  tint: false,
-                ),
-              ),
-              const SizedBox(width: 56),
-              Expanded(
-                child: _buildModernNavItem(
-                  index: 3,
-                  icon: Images.Icon_near_mosque,
-                  label: "nearby".tr,
-                ),
-              ),
-              Expanded(
-                child: _buildModernNavItem(
-                  index: 4,
-                  icon: Images.Icon_Category,
-                  label: "category".tr,
-                ),
-              ),
-            ],
+          Expanded(
+            child: _buildModernNavItem(
+              index: 0,
+              icon: Images.ModernIcon_Home,
+              label: 'nav_today'.tr,
+            ),
           ),
-          Positioned(
-            bottom: 34,
-            child: GestureDetector(
-              onTap: () => _selectPage(2),
-              child: SizedBox(
-                width: 60,
-                height: 60,
-                child: SvgPicture.asset(Images.ModernIcon_NavCenterRehal),
-              ),
+          Expanded(
+            child: _buildModernNavItem(
+              index: 1,
+              icon: Images.Icon_Qibla,
+              label: 'nav_qibla'.tr,
+            ),
+          ),
+          Expanded(
+            child: _buildModernNavItem(
+              index: 2,
+              icon: Images.Icon_near_mosque,
+              label: 'nav_mosques'.tr,
+            ),
+          ),
+          Expanded(
+            child: _buildModernNavItem(
+              index: 3,
+              icon: Images.ModernIcon_Menu,
+              label: 'nav_more'.tr,
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildQuranFab({
-    required Color background,
-    required Color bubbleColor,
-    double bottom = 38,
-  }) {
-    return Positioned(
-      bottom: bottom,
-      child: GestureDetector(
-        onTap: () => _selectPage(2),
-        child: Container(
-          padding: const EdgeInsets.all(5),
-          decoration: BoxDecoration(shape: BoxShape.circle, color: background),
-          child: Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: bubbleColor,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Center(child: Image.asset(Images.Nav_quran, height: 30)),
-          ),
-        ),
       ),
     );
   }
@@ -336,26 +253,24 @@ class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
     required int index,
     required String icon,
     required String label,
-    bool tint = true,
   }) {
     final isActive = _selectedPageIndex == index;
-    final color = isActive ? AppColorModern.emerald : Colors.grey;
+    final color = isActive ? const Color(0xFFF9A825) : Colors.white70;
     return GestureDetector(
       onTap: () => _selectPage(index),
-      child: SizedBox(
-        width: double.infinity,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 7),
+        decoration: BoxDecoration(
+          color: isActive ? Colors.black.withOpacity(0.12) : Colors.transparent,
+          borderRadius: BorderRadius.circular(14),
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Opacity(
-              opacity: tint || isActive ? 1 : 0.55,
-              child: SvgPicture.asset(
-                icon,
-                height: 26,
-                color: tint ? color : null,
-              ),
-            ),
+            SvgPicture.asset(icon, height: 25, color: color),
             const SizedBox(height: 4),
             Center(
               child: Text(

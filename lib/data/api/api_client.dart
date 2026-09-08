@@ -22,7 +22,9 @@ class ApiClient extends GetxService {
   // Shared client: in debug builds it accepts user-installed CA certificates
   // (see helper/debug_http_client.dart).
   late final Http.Client _httpClient = appHttpClient;
-  final BaseCacheManager _cacheManager = DefaultCacheManager();
+  BaseCacheManager? _cacheManager;
+  BaseCacheManager get _resolvedCacheManager =>
+      _cacheManager ??= DefaultCacheManager();
 
   static const Duration _staticResponseTtl = Duration(days: 7);
   static const List<String> _staticGetPrefixes = [
@@ -57,7 +59,7 @@ class ApiClient extends GetxService {
     required bool allowExpired,
   }) async {
     try {
-      final cached = await _cacheManager.getFileFromCache(cacheKey);
+      final cached = await _resolvedCacheManager.getFileFromCache(cacheKey);
       if (cached == null ||
           (!allowExpired && cached.validTill.isBefore(DateTime.now()))) {
         return null;
@@ -103,7 +105,7 @@ class ApiClient extends GetxService {
           .timeout(Duration(seconds: timeoutInSeconds));
 
       if (cacheable && response0.statusCode == 200) {
-        await _cacheManager.putFile(
+        await _resolvedCacheManager.putFile(
           cacheKey,
           response0.bodyBytes,
           key: cacheKey,

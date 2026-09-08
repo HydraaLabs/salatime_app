@@ -1,12 +1,12 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
-import 'dart:math' show atan2, cos, pi, sin, tan;
+import 'dart:math' show pi;
 import 'package:flutter/material.dart';
 import 'package:flutter_compass_v2/flutter_compass_v2.dart';
-import 'package:flutter_qiblah/flutter_qiblah.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:zabi/helper/location_helper.dart';
+import 'package:zabi/helper/qiblah_helper.dart';
 import 'package:zabi/shimmer/all_shimmer_loder.dart';
 import 'package:zabi/util/dimensions.dart';
 import 'package:zabi/util/images.dart';
@@ -25,11 +25,7 @@ class _QiblahCompassWidgetState extends State<QiblahCompassWidget> {
   double _previousDevice = 0;
   double _previousQiblah = 0;
 
-  /// Kaaba coordinates (Makkah).
-  static const double _kaabaLat = 21.4225;
-  static const double _kaabaLng = 39.8262;
-
-  Stream<QiblahDirection>? _qiblahStream;
+  Stream<_QiblahReading>? _qiblahStream;
 
   @override
   void initState() {
@@ -46,25 +42,25 @@ class _QiblahCompassWidgetState extends State<QiblahCompassWidget> {
     _qiblahStream = widget.isActive ? _createQiblahStream() : null;
   }
 
-  /// The flutter_qiblah singleton stream ([FlutterQiblah.qiblahStream]) can get
-  /// stuck forever (created once in an error state, or the underlying
+  /// The flutter_qiblah singleton stream can get stuck forever (created once
+  /// in an error state, or the underlying
   /// [Geolocator.getPositionStream] never emits on some devices). Build our own
   /// stream instead: one position fix + live compass events.
-  Stream<QiblahDirection> _createQiblahStream() async* {
+  Stream<_QiblahReading> _createQiblahStream() async* {
     if (!isGeolocatorSupported) {
       throw StateError('location_not_available');
     }
 
-    Position? position = await Geolocator.getLastKnownPosition();
-    position ??= await Geolocator.getCurrentPosition(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.low,
-        timeLimit: Duration(seconds: 4),
-      ),
-    );
-    final offset = _qiblahOffsetFromNorth(
+    final position = await _getBestAvailablePosition();
+    final qiblahBearing = QiblahHelper.bearingFromTrueNorth(
       position.latitude,
       position.longitude,
+    );
+    final declination = await QiblahHelper.magneticDeclination(
+      latitude: position.latitude,
+      longitude: position.longitude,
+      altitude: position.altitude,
+      measuredAt: position.timestamp,
     );
 
     final events = FlutterCompass.events;
@@ -75,14 +71,19 @@ class _QiblahCompassWidgetState extends State<QiblahCompassWidget> {
     DateTime? lastEmission;
     double? lastHeading;
     await for (final event in events) {
-      final heading = event.heading ?? 0.0;
+      final magneticHeading = event.heading;
+      if (magneticHeading == null) continue;
+
+      final trueHeading = QiblahHelper.normalizeDegrees(
+        magneticHeading + declination,
+      );
       final now = DateTime.now();
       final elapsed = lastEmission == null
           ? const Duration(days: 1)
           : now.difference(lastEmission);
       final delta = lastHeading == null
           ? 360.0
-          : (((heading - lastHeading + 540) % 360) - 180).abs();
+          : (((trueHeading - lastHeading + 540) % 360) - 180).abs();
 
       // Android can emit around 30 readings/second. Limiting UI updates keeps
       // the compass responsive without rebuilding the full widget every tick.
@@ -92,26 +93,36 @@ class _QiblahCompassWidgetState extends State<QiblahCompassWidget> {
       }
 
       lastEmission = now;
-      lastHeading = heading;
-      final qiblah = (heading + (360 - offset)) % 360;
-      yield QiblahDirection(qiblah, heading, offset);
+      lastHeading = trueHeading;
+      yield _QiblahReading(
+        trueHeading: trueHeading,
+        qiblahBearing: qiblahBearing,
+        clockwiseAngle: QiblahHelper.clockwiseAngleToQiblah(
+          trueHeading: trueHeading,
+          qiblahBearing: qiblahBearing,
+        ),
+      );
     }
   }
 
-  /// Bearing (degrees from North) from [lat]/[lng] to the Kaaba.
-  double _qiblahOffsetFromNorth(double lat, double lng) {
-    final phi1 = lat * (pi / 180);
-    final phi2 = _kaabaLat * (pi / 180);
-    final deltaLambda = (_kaabaLng - lng) * (pi / 180);
-    final y = sin(deltaLambda);
-    final x = cos(phi1) * tan(phi2) - sin(phi1) * cos(deltaLambda);
-    final bearing = atan2(y, x) * (180 / pi);
-    return (bearing + 360) % 360;
+  Future<Position> _getBestAvailablePosition() async {
+    try {
+      return await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 8),
+        ),
+      );
+    } catch (_) {
+      final lastKnownPosition = await Geolocator.getLastKnownPosition();
+      if (lastKnownPosition != null) return lastKnownPosition;
+      rethrow;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<QiblahDirection>(
+    return StreamBuilder<_QiblahReading>(
       stream: _qiblahStream,
       builder: (_, snapshot) {
         if (snapshot.hasError) {
@@ -131,12 +142,16 @@ class _QiblahCompassWidgetState extends State<QiblahCompassWidget> {
         }
 
         final qiblahDirection = snapshot.data!;
+        final angleToQiblah = QiblahHelper.angularDistanceToQiblah(
+          trueHeading: qiblahDirection.trueHeading,
+          qiblahBearing: qiblahDirection.qiblahBearing,
+        );
         double deviceAngle = _normalizeAngle(
-          qiblahDirection.direction,
+          qiblahDirection.trueHeading,
           _previousDevice,
         );
         double qiblahAngle = _normalizeAngle(
-          qiblahDirection.qiblah,
+          qiblahDirection.clockwiseAngle,
           _previousQiblah,
         );
 
@@ -186,7 +201,7 @@ class _QiblahCompassWidgetState extends State<QiblahCompassWidget> {
                         curve: Curves.easeOutCubic,
                         builder: (_, angle, child) {
                           return Transform.rotate(
-                            angle: (-angle) * (pi / 180),
+                            angle: angle * (pi / 180),
                             child: child,
                           );
                         },
@@ -218,8 +233,7 @@ class _QiblahCompassWidgetState extends State<QiblahCompassWidget> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      "${((qiblahDirection.direction - 285) % 360).toInt()}°",
-                      // "${(qiblahDirection.offset.toInt())}°",
+                      '${angleToQiblah.round()}°',
                       style: robotoMedium.copyWith(
                         fontSize: Dimensions.FONT_SIZE_EXTRA_LARGE,
                         color: Theme.of(context).primaryColor,
@@ -254,4 +268,16 @@ class _QiblahCompassWidgetState extends State<QiblahCompassWidget> {
     }
     return current;
   }
+}
+
+class _QiblahReading {
+  final double trueHeading;
+  final double qiblahBearing;
+  final double clockwiseAngle;
+
+  const _QiblahReading({
+    required this.trueHeading,
+    required this.qiblahBearing,
+    required this.clockwiseAngle,
+  });
 }

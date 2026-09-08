@@ -10,7 +10,7 @@ class AppConstants {
   // main base url
   // static const String BASE_URL = "https://zabi.theme29.com";
   // static const String BASE_URL = "https://zabi-dev.theme29.com";
-  // Backend production (nœud .17, via HAProxy)
+  // Backend production (Cloudflare vers l'hébergement OVH autorisé)
   static const String BASE_URL = "https://salatime.net";
   // Backend local (php artisan serve). Sur émulateur Android, utiliser http://10.0.2.2:8000
   // static const String BASE_URL = "http://127.0.0.1:8000";
@@ -38,6 +38,7 @@ class AppConstants {
   static const String SIFAT_NAME_DETAILES = "/api/sifat-name-details/";
   static const String HARAM_FOOD_LIST = "/api/haram-code-list";
   static const String TODAYS_PRAYER_TIME = "/api/today-prayer-time";
+  static const String PRAYER_TIME_CALENDAR = "/api/prayer-time-calendar";
   static const String MOSQUE_SETTINGS = "/api/settings";
   static const String TRANSLATOR = "/api/translators";
   static const String CITY_LIST = "/api/get-cities";
@@ -55,6 +56,11 @@ class AppConstants {
 
   // Shared Key
   static const String THEME = 'theme';
+  static const String THEME_MODE_KEY = 'theme_mode';
+  static const String DAYLIGHT_SUNRISE_KEY = 'daylight_sunrise';
+  static const String DAYLIGHT_SUNSET_KEY = 'daylight_sunset';
+  static const String FIRST_LAUNCH_SETUP_COMPLETE_KEY =
+      'first_launch_setup_complete_v1';
   static const String isPrayerTme = 'isPrayerTme';
   static const String saveCityName = 'saveCityName';
   static const String notificationSettingsKey = 'prayer_notification_settings';
@@ -62,6 +68,22 @@ class AppConstants {
   static const String DEFAULT_NOTIFICATION_SOUND = 'azan_2';
   static const String DEFAULT_NOTIFICATION_SOUND_ASSET =
       'assets/audio/$DEFAULT_NOTIFICATION_SOUND.mp3';
+  static const String BEFORE_ADHAN_REMINDER_ENABLED_KEY =
+      'before_adhan_reminder_enabled';
+  static const String AFTER_ADHAN_REMINDER_ENABLED_KEY =
+      'after_adhan_reminder_enabled';
+  static const String BEFORE_ADHAN_REMINDER_MINUTES_KEY =
+      'before_adhan_reminder_minutes';
+  static const String AFTER_ADHAN_REMINDER_MINUTES_KEY =
+      'after_adhan_reminder_minutes';
+  static const String BEFORE_ADHAN_REMINDER_SOUND_KEY =
+      'before_adhan_reminder_sound';
+  static const String AFTER_ADHAN_REMINDER_SOUND_KEY =
+      'after_adhan_reminder_sound';
+  static const int DEFAULT_PRAYER_REMINDER_MINUTES = 5;
+  static const String DEFAULT_PRAYER_REMINDER_SOUND = 'noti_beep';
+  static const String DEFAULT_PRAYER_REMINDER_SOUND_ASSET =
+      'assets/audio/$DEFAULT_PRAYER_REMINDER_SOUND.mp3';
   static const String IS_MANUAL_PRAYER_TIME = 'is_manual_prayer_time';
   static const String manualCityLat = 'manual_city_lat';
   static const String manualCityLng = 'manual_city_lng';

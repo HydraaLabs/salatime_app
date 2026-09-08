@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:zabi/controller/noti_sound_controller.dart';
 import 'package:zabi/helper/salat_waqt_service.dart';
 import 'package:zabi/util/dimensions.dart';
@@ -19,8 +18,10 @@ class NotificationSoundSelector extends StatefulWidget {
 class _NotificationSoundSelectorState extends State<NotificationSoundSelector> {
   @override
   void dispose() {
+    if (Get.isRegistered<NotiSoundController>()) {
+      Get.find<NotiSoundController>().stopSound();
+    }
     super.dispose();
-    AudioPlayer().dispose();
   }
 
   @override
@@ -63,16 +64,26 @@ class _NotificationSoundSelectorState extends State<NotificationSoundSelector> {
                     ),
                     child: RadioListTile(
                       title: Text(
-                        notiController.sounds[index]['name']!,
+                        notiController.sounds[index]['labelKey']!.tr,
                         style: robotoMedium.copyWith(
                           fontSize: Dimensions.FONT_SIZE_LARGE,
                         ),
                       ),
                       value: notiController.sounds[index]['path'],
                       groupValue: notiController.selectedSound.value,
-                      onChanged: (value) {
-                        notiController.selectSound(value);
-                        SalatWaqtService.initializeSalatWaqt();
+                      secondary: IconButton(
+                        tooltip: 'preview_sound'.tr,
+                        onPressed: () => notiController.playSound(
+                          notiController.sounds[index]['path']!,
+                        ),
+                        icon: Icon(
+                          Icons.play_circle_outline,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                      onChanged: (value) async {
+                        await notiController.selectSound(value);
+                        await SalatWaqtService.initializeSalatWaqt();
                       },
                     ),
                   ),

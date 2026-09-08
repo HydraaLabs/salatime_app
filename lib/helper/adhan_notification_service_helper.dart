@@ -18,6 +18,8 @@ abstract class AdhanNotificationService {
     required String body,
     required DateTime dateTime,
     String? payload,
+    String? sound,
+    String? channel,
   });
   Future<void> cancelNotification(int id);
   Future<List<PendingNotificationRequest>> getPendingNotifications();
@@ -30,7 +32,7 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin;
 
   AdhanNotificationServiceImpl()
-      : _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin() {
+    : _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin() {
     tz.initializeTimeZones();
   }
 
@@ -50,27 +52,25 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
 
     final DarwinInitializationSettings initializationSettingsDarwin =
         DarwinInitializationSettings(
-      onDidReceiveLocalNotification: _onDidReceiveLocalNotification,
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-      defaultPresentAlert: true,
-      defaultPresentBadge: true,
-      defaultPresentSound: true,
-    );
+          onDidReceiveLocalNotification: _onDidReceiveLocalNotification,
+          requestAlertPermission: true,
+          requestBadgePermission: true,
+          requestSoundPermission: true,
+          defaultPresentAlert: true,
+          defaultPresentBadge: true,
+          defaultPresentSound: true,
+        );
 
     const LinuxInitializationSettings initializationSettingsLinux =
-        LinuxInitializationSettings(
-      defaultActionName: 'Open notification',
-    );
+        LinuxInitializationSettings(defaultActionName: 'Open notification');
 
     final InitializationSettings initializationSettings =
         InitializationSettings(
-      android: initializationSettingsAndroid,
-      iOS: initializationSettingsDarwin,
-      macOS: initializationSettingsDarwin,
-      linux: initializationSettingsLinux,
-    );
+          android: initializationSettingsAndroid,
+          iOS: initializationSettingsDarwin,
+          macOS: initializationSettingsDarwin,
+          linux: initializationSettingsLinux,
+        );
 
     await _flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
@@ -79,10 +79,13 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
     );
 
     if (Platform.isAndroid) {
-      final androidVersion = int.tryParse(Platform.operatingSystemVersion
-              .replaceAll(RegExp(r'[^0-9.]'), '')
-              .split('.')
-              .first) ??
+      final androidVersion =
+          int.tryParse(
+            Platform.operatingSystemVersion
+                .replaceAll(RegExp(r'[^0-9.]'), '')
+                .split('.')
+                .first,
+          ) ??
           0;
 
       if (androidVersion >= 13) {
@@ -94,12 +97,9 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
     } else if (Platform.isIOS) {
       await _flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<
-              IOSFlutterLocalNotificationsPlugin>()
-          ?.requestPermissions(
-            alert: true,
-            badge: true,
-            sound: true,
-          );
+            IOSFlutterLocalNotificationsPlugin
+          >()
+          ?.requestPermissions(alert: true, badge: true, sound: true);
     }
   }
 
@@ -115,11 +115,15 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
     required String body,
     required DateTime dateTime,
     String? payload,
+    String? sound,
+    String? channel,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final selectedSound =
+        sound ??
         prefs.getString(AppConstants.SELECTED_NOTIFICATION_SOUND_KEY) ??
         AppConstants.DEFAULT_NOTIFICATION_SOUND;
+    final selectedChannel = channel ?? 'adhan_$selectedSound';
 
     try {
       final scheduledDate = await _nextInstance(dateTime);
@@ -128,7 +132,7 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
         title,
         body,
         scheduledDate,
-        _getNotificationDetails(sound: selectedSound, channel: selectedSound),
+        _getNotificationDetails(sound: selectedSound, channel: selectedChannel),
         androidScheduleMode: AndroidScheduleMode.exact,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,

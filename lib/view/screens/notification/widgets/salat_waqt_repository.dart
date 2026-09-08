@@ -37,12 +37,21 @@ class SalatWaqtRepository {
     final jsonString = jsonEncode(list);
 
     final prefs = await SharedPreferences.getInstance();
-    prefs.setString(_salatWaqtKey, jsonString);
+    await prefs.setString(_salatWaqtKey, jsonString);
+  }
+
+  Future<SalatWaqt?> setNotificationEnabled(int id, bool enabled) async {
+    final prayer = await getSalatWaqtById(id);
+    if (prayer == null) return null;
+
+    prayer.isNotificationEnabled = enabled;
+    await saveSalatWaqt(prayer);
+    return prayer;
   }
 
   Future<void> clear() async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.remove(_salatWaqtKey);
+    await prefs.remove(_salatWaqtKey);
   }
 
   Future<void> seedSalatWaqt() async {
@@ -50,7 +59,7 @@ class SalatWaqtRepository {
     final jsonString = jsonEncode(list);
 
     final prefs = await SharedPreferences.getInstance();
-    prefs.setString(_salatWaqtKey, jsonString);
+    await prefs.setString(_salatWaqtKey, jsonString);
   }
 
   List<SalatWaqt> _defaultSalatWaqtList() {

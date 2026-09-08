@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get/get.dart';
+import 'package:zabi/controller/package_prayer_time_controller.dart';
 import 'package:zabi/view/base/custom_snackbar.dart';
 
 class InternetController extends GetxController {
@@ -31,6 +34,9 @@ class InternetController extends GetxController {
           showCustomSnackBar('online_back_message'.tr, isError: false);
         }
         hasInternet.value = true;
+        if (Get.isRegistered<PrayerTimeController>()) {
+          unawaited(Get.find<PrayerTimeController>().warmPrayerTimeCache());
+        }
       }
     });
   }

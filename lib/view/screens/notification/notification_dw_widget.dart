@@ -1,16 +1,20 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:zabi/controller/localization_controller.dart';
 import 'package:zabi/helper/adhan_notification_service_helper.dart';
+import 'package:zabi/helper/salat_waqt_service.dart';
+import 'package:zabi/service/first_launch_setup_service.dart';
 import 'package:zabi/util/dimensions.dart';
 import 'package:zabi/util/images.dart';
 import 'package:zabi/util/styles.dart';
 import 'package:zabi/view/screens/notification/widgets/audio_select_widget.dart';
+import 'package:zabi/view/screens/notification/widgets/prayer_reminder_settings_widget.dart';
 import 'package:zabi/view/screens/notification/widgets/salat_waqt.dart';
 import 'package:zabi/view/screens/notification/widgets/salat_waqt_repository.dart';
 
@@ -52,6 +56,21 @@ class _NofificationDWWidgetState extends State<NofificationDWWidget> {
     setState(() {});
   }
 
+  Future<void> _requestBatteryAccess() async {
+    final granted =
+        await FirstLaunchSetupService.requestBatteryOptimizationExemption();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          granted
+              ? 'battery_optimization_granted'.tr
+              : 'battery_optimization_not_granted'.tr,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return GetBuilder<LocalizationController>(
@@ -68,9 +87,7 @@ class _NofificationDWWidgetState extends State<NofificationDWWidget> {
               collapsedShape: const RoundedRectangleBorder(
                 side: BorderSide.none,
               ),
-              shape: const RoundedRectangleBorder(
-                side: BorderSide.none,
-              ),
+              shape: const RoundedRectangleBorder(side: BorderSide.none),
               expansionAnimationStyle: AnimationStyle(
                 duration: const Duration(milliseconds: 500),
               ),
@@ -86,9 +103,7 @@ class _NofificationDWWidgetState extends State<NofificationDWWidget> {
                         height: 25,
                         color: Theme.of(context).primaryColor,
                       ),
-                      const SizedBox(
-                        width: Dimensions.PADDING_SIZE_DEFAULT,
-                      ),
+                      const SizedBox(width: Dimensions.PADDING_SIZE_DEFAULT),
                       Text(
                         "notification_settings".tr,
                         style: robotoMedium.copyWith(
@@ -102,7 +117,8 @@ class _NofificationDWWidgetState extends State<NofificationDWWidget> {
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: Dimensions.FONT_SIZE_DEFAULT),
+                    horizontal: Dimensions.FONT_SIZE_DEFAULT,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -116,6 +132,14 @@ class _NofificationDWWidgetState extends State<NofificationDWWidget> {
                         'go_to_settings_page_message'.tr,
                         style: robotoMedium.copyWith(),
                       ),
+                      if (Platform.isAndroid) ...[
+                        const SizedBox(height: 10),
+                        OutlinedButton.icon(
+                          onPressed: _requestBatteryAccess,
+                          icon: const Icon(Icons.battery_saver_outlined),
+                          label: Text('allow_background_activity'.tr),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -132,8 +156,9 @@ class _NofificationDWWidgetState extends State<NofificationDWWidget> {
                           ? Colors.grey[800]!
                           : Colors.grey[200]!,
                       shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(Dimensions.RADIUS_DEFAULT),
+                        borderRadius: BorderRadius.circular(
+                          Dimensions.RADIUS_DEFAULT,
+                        ),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -141,7 +166,8 @@ class _NofificationDWWidgetState extends State<NofificationDWWidget> {
                           Row(
                             children: [
                               const SizedBox(
-                                  width: Dimensions.PADDING_SIZE_DEFAULT),
+                                width: Dimensions.PADDING_SIZE_DEFAULT,
+                              ),
                               Text(
                                 salat.name.toLowerCase().tr,
                                 style: robotoMedium,
@@ -151,29 +177,19 @@ class _NofificationDWWidgetState extends State<NofificationDWWidget> {
                           Switch(
                             activeColor: Theme.of(context).primaryColor,
                             activeTrackColor: Theme.of(context).primaryColor,
-                            inactiveThumbColor:
-                                Theme.of(context).colorScheme.error,
-                            inactiveTrackColor:
-                                Theme.of(context).colorScheme.error,
+                            inactiveThumbColor: Theme.of(
+                              context,
+                            ).colorScheme.error,
+                            inactiveTrackColor: Theme.of(
+                              context,
+                            ).colorScheme.error,
                             value: salat.isNotificationEnabled,
                             onChanged: (value) async {
                               salat.isNotificationEnabled = value;
 
                               await _salatWaqtRepository.saveSalatWaqt(salat);
 
-                              if (value) {
-                                await _adhanNotificationService
-                                    .scheduleNotification(
-                                        id: salat.id,
-                                        title: salat.name.tr,
-                                        body:
-                                            '${'time_for'.tr} ${salat.name} ${'started_at'.tr} ${DateFormat.jm().format(salat.time)}',
-                                        dateTime: salat.time,
-                                        payload: salat.time.toIso8601String());
-                              } else {
-                                await _adhanNotificationService
-                                    .cancelNotification(salat.id);
-                              }
+                              await SalatWaqtService.initializeSalatWaqt();
 
                               await getSalatList();
                               await getNotification();
@@ -184,6 +200,7 @@ class _NofificationDWWidgetState extends State<NofificationDWWidget> {
                     );
                   },
                 ),
+                const PrayerReminderSettingsWidget(),
                 const NotificationSoundSelector(),
               ],
             ),

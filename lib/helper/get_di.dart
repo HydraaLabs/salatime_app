@@ -24,7 +24,6 @@ import 'package:zabi/controller/prayer_time_adjustment.dart';
 import 'package:zabi/controller/quran_controller.dart';
 import 'package:zabi/controller/quran_milestone_controller.dart';
 import 'package:zabi/controller/quran_settings_controller.dart';
-import 'package:zabi/controller/splash_controller.dart';
 import 'package:zabi/controller/theme_controller.dart';
 import 'package:zabi/controller/wallpaper_controller.dart';
 import 'package:zabi/controller/zakat_calculator_controller.dart';
@@ -36,7 +35,6 @@ import 'package:zabi/data/repository/dua_list_repo.dart';
 import 'package:zabi/data/repository/islamic_name_repo.dart';
 import 'package:zabi/data/repository/quran_setting_repo.dart';
 import 'package:zabi/data/repository/sifatname_list_repo.dart';
-import 'package:zabi/data/repository/splash_repo.dart';
 import 'package:zabi/data/repository/wallpaper_repo.dart';
 import 'package:zabi/util/app_constants.dart';
 
@@ -53,9 +51,6 @@ Future<Map<String, Map<String, String>>> init() async {
   );
 
   // Repository
-  Get.lazyPut(
-    () => SplashRepo(sharedPreferences: Get.find(), apiClient: Get.find()),
-  );
   Get.lazyPut(
     () => DuaRepo(sharedPreferences: Get.find(), apiClient: Get.find()),
   );
@@ -110,7 +105,6 @@ Future<Map<String, Map<String, String>>> init() async {
 
   // old controller
   Get.lazyPut(() => ThemeController(sharedPreferences: Get.find()));
-  Get.lazyPut(() => SplashController(splashRepo: Get.find()));
   Get.lazyPut(() => HadithController());
   Get.lazyPut(() => NearbyMosqueController());
   Get.lazyPut(

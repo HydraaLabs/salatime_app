@@ -17,23 +17,25 @@ import 'package:zabi/view/screens/hadith/hadith_details_screen.dart';
 import 'package:zabi/view/screens/haram_ingredients_food/haram_food_detaile_info.dart';
 import 'package:zabi/view/screens/haram_ingredients_food/haram_ingredients_food.dart';
 import 'package:zabi/view/screens/home/home_screen.dart';
+import 'package:zabi/view/screens/location/background_location_screen.dart';
 import 'package:zabi/view/screens/name_generator/islamic_name_generator_screen.dart';
 import 'package:zabi/view/screens/nearby_mosque/nearby_mosque_screen.dart';
+import 'package:zabi/view/screens/onboarding/first_launch_setup_screen.dart';
 import 'package:zabi/view/screens/prayer_adjustment/prayer_adjustment_screen.dart';
 import 'package:zabi/view/screens/quran/sura_detaile_screen.dart';
 import 'package:zabi/view/screens/quran/sura_list_screen.dart';
 import 'package:zabi/view/screens/settings/settings_screen.dart';
 import 'package:zabi/view/screens/sifat_name/sifat_name_details_screen.dart';
 import 'package:zabi/view/screens/sifat_name/sifat_name_screen.dart';
-import 'package:zabi/view/screens/splash/splash_screen.dart';
 import 'package:zabi/view/screens/wallpapers/wallpaper_screen.dart';
 import 'package:zabi/view/screens/zakat/zakat_calculator.dart';
 import 'package:zabi/view/screens/zakat/zakat_detaile.dart';
 
 class RouteHelper {
-  static String initial = "/";
   static String home = "/home";
   static String bottomNavbar = "/bottomNavbar";
+  static String firstLaunchSetup = "/firstLaunchSetup";
+  static String backgroundLocation = "/backgroundLocation";
   static String dhikr = "/dhikr";
   static String dhikrCount = "/dhikrCount";
   static String addDhikr = "/addDhikr";
@@ -62,7 +64,6 @@ class RouteHelper {
   static String prayerAdjustment = "/prayerAdjustment";
   static String aiNameGenerator = "/aiNameGenerator";
 
-  static String getInitialRoute() => initial;
   static String getHomeRoute() => home;
   static String getBottomNavbarRoute() => bottomNavbar;
   static String getDhikrRoute() => dhikr;
@@ -95,8 +96,13 @@ class RouteHelper {
 
   static List<GetPage> routes = [
     GetPage(
-      name: initial,
-      page: () => const SplashScreen(),
+      name: firstLaunchSetup,
+      page: () => const FirstLaunchSetupScreen(),
+      transition: Transition.fadeIn,
+    ),
+    GetPage(
+      name: backgroundLocation,
+      page: () => const BackgroundLocationScreen(),
       transition: Transition.cupertinoDialog,
     ),
     GetPage(
