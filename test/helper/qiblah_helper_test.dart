@@ -52,5 +52,11 @@ void main() {
         closeTo(95.79, 0.001),
       );
     });
+
+    test('compensates the bundled compass artwork north offset', () {
+      expect(QiblahHelper.compassDialHeading(0), closeTo(22.5, 0.001));
+      expect(QiblahHelper.compassDialHeading(90), closeTo(112.5, 0.001));
+      expect(QiblahHelper.compassDialHeading(350), closeTo(12.5, 0.001));
+    });
   });
 }

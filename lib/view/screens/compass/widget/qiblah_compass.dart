@@ -147,7 +147,7 @@ class _QiblahCompassWidgetState extends State<QiblahCompassWidget> {
           qiblahBearing: qiblahDirection.qiblahBearing,
         );
         double deviceAngle = _normalizeAngle(
-          qiblahDirection.trueHeading,
+          QiblahHelper.compassDialHeading(qiblahDirection.trueHeading),
           _previousDevice,
         );
         double qiblahAngle = _normalizeAngle(
@@ -233,7 +233,8 @@ class _QiblahCompassWidgetState extends State<QiblahCompassWidget> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      '${angleToQiblah.round()}°',
+                      '${'qibla_compass'.tr} · '
+                      '${qiblahDirection.qiblahBearing.round()}°',
                       style: robotoMedium.copyWith(
                         fontSize: Dimensions.FONT_SIZE_EXTRA_LARGE,
                         color: Theme.of(context).primaryColor,
@@ -241,7 +242,8 @@ class _QiblahCompassWidgetState extends State<QiblahCompassWidget> {
                     ),
                     const SizedBox(height: 2.0),
                     Text(
-                      'device_angle_to_qibla'.tr,
+                      '${angleToQiblah.round()}° · '
+                      '${'device_angle_to_qibla'.tr}',
                       style: robotoMedium.copyWith(
                         fontSize: Dimensions.FONT_SIZE_DEFAULT,
                       ),

@@ -9,6 +9,11 @@ class QiblahHelper {
   static const double kaabaLatitude = 21.4225;
   static const double kaabaLongitude = 39.8262;
 
+  /// The bundled compass artwork has its North marker drawn 22.5 degrees
+  /// clockwise from the top of the image. Include that fixed artwork offset
+  /// when rotating the dial so the visible N marker still follows true north.
+  static const double compassArtworkNorthOffset = 22.5;
+
   static const MethodChannel _geomagneticChannel = MethodChannel(
     'net.salatime.app/geomagnetic',
   );
@@ -69,6 +74,10 @@ class QiblahHelper {
       qiblahBearing: qiblahBearing,
     );
     return clockwise > 180 ? 360 - clockwise : clockwise;
+  }
+
+  static double compassDialHeading(double trueHeading) {
+    return normalizeDegrees(trueHeading + compassArtworkNorthOffset);
   }
 
   static double normalizeDegrees(double angle) => (angle + 360) % 360;
