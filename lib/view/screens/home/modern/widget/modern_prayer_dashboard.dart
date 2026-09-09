@@ -312,8 +312,8 @@ class _ModernPrayerDashboardState extends State<ModernPrayerDashboard> {
     final hijriDateText = translateText(
       '${hijri.hDay} ${'hijri_month_${hijri.hMonth}'.tr} ${hijri.hYear}',
     );
-    final gregorianDateText = materialLocalizations.formatFullDate(
-      _selectedDate,
+    final gregorianDateText = translateText(
+      materialLocalizations.formatFullDate(_selectedDate),
     );
 
     return Column(

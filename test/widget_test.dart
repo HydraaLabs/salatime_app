@@ -15,6 +15,7 @@ import 'package:zabi/data/api/api_client.dart';
 import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
 import 'package:zabi/helper/route_helper.dart';
 import 'package:zabi/helper/salat_waqt_service.dart';
+import 'package:zabi/helper/translator_helper.dart';
 import 'package:zabi/service/first_launch_setup_service.dart';
 import 'package:zabi/util/app_constants.dart';
 import 'package:zabi/view/screens/home/modern/widget/modern_daily_hadith_card.dart';
@@ -29,6 +30,13 @@ void main() {
   test('SalaTime application identity is configured', () {
     expect(AppConstants.APP_NAME, 'SalaTime');
     expect(Uri.parse(AppConstants.BASE_URL).host, 'salatime.net');
+  });
+
+  test('localized interface numerals are displayed with western digits', () {
+    expect(translateText('0123456789'), '0123456789');
+    expect(translateText('٠١٢٣٤٥٦٧٨٩'), '0123456789');
+    expect(translateText('۰۱۲۳۴۵۶۷۸۹'), '0123456789');
+    expect(translateText('الساعة ٠٥:٣١'), 'الساعة 05:31');
   });
 
   test('every supported language has a bundled translation file', () async {
