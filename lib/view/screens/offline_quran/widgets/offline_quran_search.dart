@@ -1,6 +1,5 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
@@ -13,15 +12,29 @@ import 'package:zabi/view/screens/offline_quran/offline_surah_detail_screen.dart
 
 import '../../../../controller/quran_settings_controller.dart';
 
-class OfflineQuranSearchScreen extends StatelessWidget {
-  OfflineQuranSearchScreen({super.key});
+class OfflineQuranSearchScreen extends StatefulWidget {
+  const OfflineQuranSearchScreen({super.key});
 
-  final OfflineQuranController ctrl = Get.put(OfflineQuranController());
+  @override
+  State<OfflineQuranSearchScreen> createState() =>
+      _OfflineQuranSearchScreenState();
+}
+
+class _OfflineQuranSearchScreenState extends State<OfflineQuranSearchScreen> {
+  late final OfflineQuranController ctrl;
+
+  @override
+  void initState() {
+    super.initState();
+    ctrl = Get.isRegistered<OfflineQuranController>()
+        ? Get.find<OfflineQuranController>()
+        : Get.put(OfflineQuranController());
+    ctrl.clearSearch();
+    ctrl.initLoader();
+  }
 
   @override
   Widget build(BuildContext context) {
-    ctrl.initLoader();
-    ctrl.clearSearch();
     return Scaffold(
       appBar: SearchableAppBar(),
       body: Column(
@@ -165,13 +178,27 @@ class OfflineQuranSearchScreen extends StatelessWidget {
   }
 }
 
-class SearchableAppBar extends StatelessWidget implements PreferredSizeWidget {
+class SearchableAppBar extends StatefulWidget implements PreferredSizeWidget {
   final bool isBackButtonExist;
 
-  SearchableAppBar({super.key, this.isBackButtonExist = true});
+  const SearchableAppBar({super.key, this.isBackButtonExist = true});
 
-  final OfflineQuranController ctrl = Get.put(OfflineQuranController());
+  @override
+  Size get preferredSize => Size.fromHeight(GetPlatform.isDesktop ? 70 : 56);
+
+  @override
+  State<SearchableAppBar> createState() => _SearchableAppBarState();
+}
+
+class _SearchableAppBarState extends State<SearchableAppBar> {
+  final OfflineQuranController ctrl = Get.find<OfflineQuranController>();
   final TextEditingController searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -180,7 +207,7 @@ class SearchableAppBar extends StatelessWidget implements PreferredSizeWidget {
           ? Theme.of(context).cardColor
           : Theme.of(context).primaryColor,
       elevation: 0,
-      leading: isBackButtonExist
+      leading: widget.isBackButtonExist
           ? IconButton(
               icon: Icon(
                 Icons.arrow_back_ios,
@@ -202,9 +229,7 @@ class SearchableAppBar extends StatelessWidget implements PreferredSizeWidget {
               controller: searchController,
               autofocus: true,
               onChanged: (v) {
-                if (kDebugMode) {
-                  print("search data =====> $v");
-                }
+                setState(() {});
                 ctrl.search(v);
               },
               textAlign: TextAlign.right,
@@ -235,9 +260,9 @@ class SearchableAppBar extends StatelessWidget implements PreferredSizeWidget {
                 suffixIcon: searchController.text.isNotEmpty
                     ? IconButton(
                         onPressed: () {
+                          searchController.clear();
                           ctrl.clearSearch();
-                          // Remove focus when clearing search
-                          FocusScope.of(context).unfocus();
+                          setState(() {});
                         },
                         icon: const Icon(Icons.close),
                       )
@@ -249,7 +274,4 @@ class SearchableAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
     );
   }
-
-  @override
-  Size get preferredSize => Size.fromHeight(GetPlatform.isDesktop ? 70 : 56);
 }

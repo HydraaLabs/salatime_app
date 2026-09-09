@@ -61,8 +61,11 @@ class ModernQuickActions extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 16,
+            runSpacing: 8,
             children: [
               Text(
                 'quick_actions'.tr,
@@ -97,7 +100,12 @@ class ModernQuickActions extends StatelessWidget {
           ),
           const SizedBox(height: Dimensions.PADDING_SIZE_SMALL),
           SizedBox(
-            height: 86,
+            height:
+                64 +
+                MediaQuery.textScalerOf(
+                      context,
+                    ).scale(Dimensions.FONT_SIZE_EXTRA_SMALL) *
+                    3,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
@@ -147,7 +155,7 @@ class _QuickActionTile extends StatelessWidget {
       borderRadius: BorderRadius.circular(Dimensions.RADIUS_LARGE),
       onTap: () => Get.toNamed(route),
       child: SizedBox(
-        width: 64,
+        width: 64 * MediaQuery.textScalerOf(context).scale(12) / 12,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -165,13 +173,15 @@ class _QuickActionTile extends StatelessWidget {
                   children: [
                     SvgPicture.asset(
                       icon,
+                      width: 32,
+                      height: 32,
                       color: tint ? AppColorModern.emerald : null,
                     ),
                     const SizedBox(height: 6),
                     Text(
                       label,
                       textAlign: TextAlign.center,
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: robotoRegular.copyWith(
                         fontSize: Dimensions.FONT_SIZE_EXTRA_SMALL,

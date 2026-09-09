@@ -30,6 +30,12 @@ class _MainOfflineQuranScreenState extends State<MainOfflineQuranScreen>
   }
 
   @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       // Appbar start ===>

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:audio_service/audio_service.dart';
@@ -16,7 +17,8 @@ import 'package:zabi/util/app_constants.dart';
 class AudioPlayerController extends GetxController {
   final ApiClient apiClient;
 
-  AudioPlayerController({required this.apiClient});
+  AudioPlayerController({required this.apiClient, AudioHandler? audioHandler})
+    : _audioHandler = audioHandler ?? AudioServiceHelper.audioHandler;
 
   // Reciter API call
   RxBool isRecitersLoading = false.obs;
@@ -37,8 +39,7 @@ class AudioPlayerController extends GetxController {
       );
 
       if (response.statusCode == 200) {
-        final parsed =
-            Mp3QuranResponse.fromJson(jsonDecode(response.body));
+        final parsed = Mp3QuranResponse.fromJson(jsonDecode(response.body));
         recitersMp3 = parsed.reciters ?? [];
 
         // Map into the legacy RecitersModel shape so the UI stays unchanged
@@ -46,11 +47,7 @@ class AudioPlayerController extends GetxController {
           'result': true,
           'message': 'Data fetched successfully',
           'data': recitersMp3
-              .map((r) => {
-                    'id': r.id,
-                    'name': r.name,
-                    'profile_picture': null,
-                  })
+              .map((r) => {'id': r.id, 'name': r.name, 'profile_picture': null})
               .toList(),
         });
         if (kDebugMode) {
@@ -88,7 +85,8 @@ class AudioPlayerController extends GetxController {
 
       final reciterId = int.tryParse(id);
       final reciter = recitersMp3.firstWhereOrNull((r) => r.id == reciterId);
-      final moshaf = selectedMoshaf ??
+      final moshaf =
+          selectedMoshaf ??
           (reciter?.moshaf?.isNotEmpty == true ? reciter!.moshaf!.first : null);
 
       if (reciter == null || moshaf == null) {
@@ -102,14 +100,15 @@ class AudioPlayerController extends GetxController {
       final suraNames = await _loadSuraNames();
 
       audioData = moshaf.surahList
-          .map((suraNumber) => {
-                'path': moshaf.suraUrl(suraNumber),
-                'sura_name':
-                    suraNames[suraNumber] ?? 'Sura $suraNumber',
-                'reciter_name': reciter.name,
-                'duration': null,
-                'reciter_avatar': '',
-              })
+          .map(
+            (suraNumber) => {
+              'path': moshaf.suraUrl(suraNumber),
+              'sura_name': suraNames[suraNumber] ?? 'Sura $suraNumber',
+              'reciter_name': reciter.name,
+              'duration': null,
+              'reciter_avatar': '',
+            },
+          )
           .toList();
 
       if (kDebugMode) {
@@ -137,7 +136,7 @@ class AudioPlayerController extends GetxController {
       return {
         for (var sura in data)
           if (sura.id != null)
-            sura.id!: (sura.translateName ?? sura.arabicName ?? '')
+            sura.id!: (sura.translateName ?? sura.arabicName ?? ''),
       };
     } catch (e) {
       if (kDebugMode) {
@@ -148,7 +147,59 @@ class AudioPlayerController extends GetxController {
   }
 
   // Audio player controller starts
-  final AudioHandler _audioHandler = AudioServiceHelper.audioHandler;
+  final AudioHandler _audioHandler;
+  StreamSubscription<MediaItem?>? _mediaItemSubscription;
+  StreamSubscription<PlaybackState>? _playbackSubscription;
+
+  @override
+  void onInit() {
+    super.onInit();
+    // Subscribe once, even when the user changes reciter repeatedly.
+    _mediaItemSubscription = _audioHandler.mediaItem.listen((item) {
+      currentMediaItem.value = item;
+      duration.value = item?.duration ?? Duration.zero;
+      // Refresh the UI
+      update();
+    });
+
+    // Listen to playback state changes
+    _playbackSubscription = _audioHandler.playbackState.listen((state) async {
+      isPlaying.value = state.playing;
+
+      // Update position and handle buffering or paused states
+      position.value = state.updatePosition;
+      update();
+
+      if (state.processingState == AudioProcessingState.ready) {
+        duration.value = currentMediaItem.value?.duration ?? Duration.zero;
+      }
+
+      // Automatically play the first audio if the last one is finished
+      if (state.processingState == AudioProcessingState.completed &&
+          audioList.isNotEmpty) {
+        // Loop modes are handled natively by just_audio; here only the
+        // "no repeat" case needs a decision at the end of the queue.
+        if (loopMode.value == LoopMode.off &&
+            currentMediaItem.value == audioList.last) {
+          await _audioHandler.pause();
+          Get.back();
+        } else {
+          // Skip to next if not the last audio
+          await _audioHandler.skipToNext();
+        }
+      }
+
+      update();
+    });
+  }
+
+  @override
+  void onClose() {
+    unawaited(_mediaItemSubscription?.cancel());
+    unawaited(_playbackSubscription?.cancel());
+    super.onClose();
+  }
+
   final RxList<MediaItem> audioList = <MediaItem>[].obs;
   final Rx<MediaItem?> currentMediaItem = Rx<MediaItem?>(null);
   final RxBool isLoading = false.obs;
@@ -164,8 +215,8 @@ class AudioPlayerController extends GetxController {
     final next = loopMode.value == LoopMode.off
         ? LoopMode.all
         : loopMode.value == LoopMode.all
-            ? LoopMode.one
-            : LoopMode.off;
+        ? LoopMode.one
+        : LoopMode.off;
     loopMode.value = next;
     if (_audioHandler is AudioPlayerHandler) {
       await _audioHandler.setLoopMode(next);
@@ -217,8 +268,8 @@ class AudioPlayerController extends GetxController {
         // Handle duration safely
         final int? audioDuration = audio['duration'] != null
             ? audio['duration'] is int
-                ? audio['duration']
-                : int.tryParse(audio['duration'].toString())
+                  ? audio['duration']
+                  : int.tryParse(audio['duration'].toString())
             : 0;
 
         final mediaItem = MediaItem(
@@ -227,7 +278,8 @@ class AudioPlayerController extends GetxController {
           title: audio['sura_name'] ?? 'Unknown Title',
           artist: audio['reciter_name'] ?? 'Unknown Artist',
           duration: Duration(
-              milliseconds: audioDuration ?? 0), // Ensure this is a Duration
+            milliseconds: audioDuration ?? 0,
+          ), // Ensure this is a Duration
           artUri: Uri.tryParse(audio['reciter_avatar'] ?? ''),
         );
         audioList.add(mediaItem);
@@ -237,47 +289,6 @@ class AudioPlayerController extends GetxController {
       if (audioList.isNotEmpty) {
         currentMediaItem.value = audioList[0];
         await _audioHandler.updateQueue(audioList.toList());
-
-        // Listen to media item changes
-        _audioHandler.mediaItem.listen((item) {
-          currentMediaItem.value = item;
-          duration.value = item?.duration ?? Duration.zero;
-          // Refresh the UI
-          update();
-        });
-
-        // Listen to playback state changes
-        _audioHandler.playbackState.listen((state) async {
-          isPlaying.value = state.playing;
-
-          // Update position and handle buffering or paused states
-          position.value = state.updatePosition;
-          update();
-
-          if (state.processingState == AudioProcessingState.ready) {
-            duration.value = currentMediaItem.value?.duration ?? Duration.zero;
-          }
-
-          // Automatically play the first audio if the last one is finished
-          if (state.processingState == AudioProcessingState.completed) {
-            // Loop modes are handled natively by just_audio; here only the
-            // "no repeat" case needs a decision at the end of the queue.
-            if (loopMode.value == LoopMode.off &&
-                currentMediaItem.value == audioList.last) {
-              await _audioHandler.pause();
-              Get.back();
-            } else {
-              // Skip to next if not the last audio
-              await _audioHandler.skipToNext();
-            }
-          }
-          // if (state.processingState == AudioProcessingState.completed ||
-          //     state.processingState == AudioProcessingState.ready) {
-          //   AudioServiceHelper.init();
-          // }
-
-          update();
-        });
       }
     } catch (e) {
       if (kDebugMode) {

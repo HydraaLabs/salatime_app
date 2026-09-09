@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print
 
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +13,10 @@ import 'package:zabi/helper/offline_quran_loader.dart';
 import 'package:zabi/view/screens/offline_quran/offline_surah_detail_screen.dart';
 
 class OfflineQuranController extends GetxController {
+  OfflineQuranController({QuranLoader? loader})
+    : _loader = loader ?? QuranLoader.instance;
+
+  final QuranLoader _loader;
   RxBool isLoading = true.obs;
   RxList<OfflineSurahListModel> surahList = <OfflineSurahListModel>[].obs;
 
@@ -130,99 +135,61 @@ class OfflineQuranController extends GetxController {
   final results = <Map<String, dynamic>>[].obs; // search results
   final isQuranSearching = false.obs;
 
-  @override
-  void onInit() {
-    super.onInit();
-    initLoader();
+  Future<void>? _loadingVerses;
+  String _query = '';
+  Timer? _searchDebounce;
+
+  // Load the search index only when search is opened, not when reading a surah.
+  Future<void> initLoader() {
+    if (verses.isNotEmpty) return Future.value();
+    return _loadingVerses ??= _loadSearchIndex();
   }
 
-  Future<void> initLoader() async {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      isQuranSearching.value = true;
-    });
-    await QuranLoader.instance.loadAllVerses();
-    verses.assignAll(QuranLoader.instance.allVerses);
-    isQuranSearching.value = false;
+  Future<void> _loadSearchIndex() async {
+    isQuranSearching.value = true;
+    try {
+      await _loader.loadAllVerses();
+      if (isClosed) return;
+      verses.assignAll(_loader.allVerses);
+      _runSearch();
+    } catch (error) {
+      debugPrint('Unable to load offline search: $error');
+    } finally {
+      _loadingVerses = null;
+      if (!isClosed) isQuranSearching.value = false;
+    }
   }
 
-  /// Search query on cached verses. Case-insensitive, supports Arabic or translation.
-  void search(String q) {
-    final query = removeDiacritics(q.trim().toLowerCase());
-    print('search data =====> $query');
-
-    if (query.isEmpty) {
+  void search(String query) {
+    _query = normalizeQuranSearch(query);
+    _searchDebounce?.cancel();
+    if (_query.isEmpty) {
       results.clear();
       return;
     }
+    _searchDebounce = Timer(const Duration(milliseconds: 180), _runSearch);
+  }
 
-    final filtered = verses.where((v) {
-      final arabic = removeDiacritics((v['arabic_name'] ?? '').toString());
-      final noTashkeel = removeDiacritics(
-        (v['text_without_taskeel'] ?? '').toString(),
-      );
-      final translated = removeDiacritics(
-        (v['translated_name'] ?? '').toString(),
-      );
-      final chapterName = removeDiacritics(
-        ((v['chapter'] ?? {})['arabic_name'] ?? '').toString(),
-      );
-
-      return arabic.contains(query) ||
-          noTashkeel.contains(query) ||
-          translated.contains(query) ||
-          chapterName.contains(query);
-    }).toList();
-
-    results.assignAll(filtered);
-    print('Search found: ${filtered.length} results');
+  void _runSearch() {
+    if (isClosed) return;
+    results.assignAll(
+      _query.isEmpty
+          ? <Map<String, dynamic>>[]
+          : verses.where(
+              (verse) => (verse['_searchText'] as String).contains(_query),
+            ),
+    );
   }
 
   void clearSearch() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      isQuranSearching.value = false;
-
-      results.clear();
-      update();
-    });
+    _query = '';
+    _searchDebounce?.cancel();
+    results.clear();
   }
 
-  String removeDiacritics(String input) {
-    // Step 1: Normalize presentation forms (Arabic special letters)
-    const arabicMap = {
-      'أ': 'ا',
-      'إ': 'ا',
-      'آ': 'ا',
-      'ٱ': 'ا',
-      'ء': '',
-      'ؤ': 'و',
-      'ئ': 'ي',
-      'ة': 'ه',
-      'ى': 'ي',
-      '٠': '0',
-      '١': '1',
-      '٢': '2',
-      '٣': '3',
-      '٤': '4',
-      '٥': '5',
-      '٦': '6',
-      '٧': '7',
-      '٨': '8',
-      '٩': '9',
-    };
-
-    // Step 2: Replace each special char
-    String normalized = input;
-    arabicMap.forEach((key, value) {
-      normalized = normalized.replaceAll(key, value);
-    });
-
-    // Step 3: Remove tashkeel / diacritics
-    final diacriticsRegex = RegExp(
-      r'[\u0610-\u061A\u064B-\u065F\u06D6-\u06ED]',
-    );
-    normalized = normalized.replaceAll(diacriticsRegex, '');
-
-    // Step 4: Trim and lowercase for safety
-    return normalized.trim().toLowerCase();
+  @override
+  void onClose() {
+    _searchDebounce?.cancel();
+    super.onClose();
   }
 }

@@ -1,49 +1,74 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:zabi/controller/package_prayer_time_controller.dart';
 import 'package:zabi/view/base/custom_snackbar.dart';
 
 class InternetController extends GetxController {
-  // Reactive variable to track internet state
-  var hasInternet = true.obs;
+  InternetController({Connectivity? connectivity})
+    : _connectivity = connectivity ?? Connectivity();
 
-  late final Connectivity _connectivity;
-  late final Stream<List<ConnectivityResult>> _connectivityStream;
+  final hasInternet = true.obs;
+  final Connectivity _connectivity;
+  StreamSubscription<List<ConnectivityResult>>? _subscription;
+  int _eventVersion = 0;
+
+  static bool hasConnection(List<ConnectivityResult> results) =>
+      results.any((result) => result != ConnectivityResult.none);
 
   @override
   void onInit() {
     super.onInit();
-    _connectivity = Connectivity();
-    _connectivityStream = _connectivity.onConnectivityChanged;
+    _subscription = _connectivity.onConnectivityChanged.listen(
+      (results) {
+        _eventVersion++;
+        _applyConnection(results, notify: true);
+      },
+      onError: (Object error) {
+        debugPrint('Connectivity listener unavailable: $error');
+      },
+    );
+    unawaited(checkConnection());
+  }
 
-    // Initial check
-    checkConnection();
+  void _applyConnection(
+    List<ConnectivityResult> results, {
+    bool notify = false,
+  }) {
+    if (isClosed) return;
+    final connected = hasConnection(results);
+    final changed = hasInternet.value != connected;
+    hasInternet.value = connected;
+    if (!changed) return;
 
-    // Listen for connectivity changes
-    _connectivityStream.listen((List<ConnectivityResult> results) {
-      final hasConnection =
-          results.isNotEmpty && results.first != ConnectivityResult.none;
-
-      if (!hasConnection) {
-        hasInternet.value = false;
-        showCustomSnackBar('offline_message'.tr, isError: true);
-      } else {
-        if (hasInternet.value == false) {
-          showCustomSnackBar('online_back_message'.tr, isError: false);
-        }
-        hasInternet.value = true;
-        if (Get.isRegistered<PrayerTimeController>()) {
-          unawaited(Get.find<PrayerTimeController>().warmPrayerTimeCache());
-        }
-      }
-    });
+    // Native events can arrive before the navigator has been mounted.
+    if (notify && Get.overlayContext != null) {
+      showCustomSnackBar(
+        connected ? 'online_back_message'.tr : 'offline_message'.tr,
+        isError: !connected,
+      );
+    }
+    if (connected && Get.isRegistered<PrayerTimeController>()) {
+      unawaited(Get.find<PrayerTimeController>().warmPrayerTimeCache());
+    }
   }
 
   Future<void> checkConnection() async {
-    final results = await _connectivity.checkConnectivity();
-    hasInternet.value =
-        results.isNotEmpty && results.first != ConnectivityResult.none;
+    final version = _eventVersion;
+    try {
+      final results = await _connectivity.checkConnectivity();
+      // A slow initial check must not overwrite a more recent stream event.
+      if (version == _eventVersion) _applyConnection(results);
+    } catch (error) {
+      debugPrint('Connectivity check unavailable: $error');
+    }
+  }
+
+  @override
+  void onClose() {
+    unawaited(_subscription?.cancel());
+    super.onClose();
   }
 }

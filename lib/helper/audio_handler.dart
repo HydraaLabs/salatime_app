@@ -5,27 +5,38 @@ import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 
 class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
-  final AudioPlayer _player = AudioPlayer();
+  final AudioPlayer _player;
   final List<MediaItem> _mediaItems = [];
-  final ConcatenatingAudioSource _playlist =
-      ConcatenatingAudioSource(children: []);
+  final ConcatenatingAudioSource _playlist = ConcatenatingAudioSource(
+    children: [],
+  );
 
-  AudioPlayerHandler() {
+  AudioPlayerHandler({AudioPlayer? player})
+    : _player = player ?? AudioPlayer() {
     _initializePlayer();
   }
 
-  Future<void> _initializePlayer() async {
-    _player.playbackEventStream.map(_transformEvent).pipe(playbackState);
+  void _initializePlayer() {
+    _player.playbackEventStream
+        .map(_transformEvent)
+        .listen(playbackState.add, onError: playbackState.addError);
+    // Stream current index and update the mediaItem when needed
+    _player.currentIndexStream.listen((index) {
+      if (index != null && index >= 0 && index < _mediaItems.length) {
+        mediaItem.add(_mediaItems[index]);
+      }
+    });
   }
 
   // Load audio fetched from API into the audio player
   Future<void> loadAudioFromApi(List<dynamic> audioData) async {
     _mediaItems.clear();
-    _playlist.clear();
+    await _playlist.clear();
+    final sources = <AudioSource>[];
 
     for (var audio in audioData) {
       final audioSource = AudioSource.uri(Uri.parse(audio['path']));
-      _playlist.add(audioSource);
+      sources.add(audioSource);
 
       final mediaItem = MediaItem(
         id: audio['path'],
@@ -37,6 +48,7 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
       );
       _mediaItems.add(mediaItem);
     }
+    await _playlist.addAll(sources);
     try {
       await _player.setAudioSource(_playlist);
     } catch (e) {
@@ -44,18 +56,11 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
         print('Error setting audio source: $e');
       }
     }
-    queue.add(_mediaItems);
+    queue.add(List<MediaItem>.unmodifiable(_mediaItems));
 
     if (_mediaItems.isNotEmpty) {
       mediaItem.add(_mediaItems[0]);
     }
-
-    // Stream current index and update the mediaItem when needed
-    _player.currentIndexStream.listen((index) {
-      if (index != null && index < _mediaItems.length) {
-        mediaItem.add(_mediaItems[index]);
-      }
-    });
   }
 
   @override
@@ -79,7 +84,8 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
   @override
   Future<void> stop() async {
     await _player.stop();
-    await _player.dispose();
+    // The handler is shared for the app lifetime; stop must allow later play.
+    await super.stop();
   }
 
   Future<void> setLoopMode(LoopMode mode) => _player.setLoopMode(mode);

@@ -23,11 +23,19 @@ class LocationAutoUpdateService {
   /// Minimum displacement (meters) before prayer times are recomputed.
   static const double _distanceFilterMeters = 3000;
 
-  static StreamSubscription<Position>? _subscription;
+  static StreamSubscription<void>? _subscription;
+  static Future<void>? _starting;
+  static int _generation = 0;
 
   /// Starts the position watcher if the user opted in and the permission is
   /// granted. Safe to call multiple times — only one watcher ever runs.
-  static Future<void> start() async {
+  static Future<void> start() {
+    return _starting ??= _start(
+      _generation,
+    ).whenComplete(() => _starting = null);
+  }
+
+  static Future<void> _start(int generation) async {
     if (_subscription != null) return;
     if (!isGeolocatorSupported) return;
 
@@ -40,34 +48,50 @@ class LocationAutoUpdateService {
       if (!await Permission.location.isGranted) return;
     }
 
-    final lastLat = prefs.getDouble(_lastLatKey);
-    final lastLng = prefs.getDouble(_lastLngKey);
+    if (generation != _generation) return;
+    var lastLat = prefs.getDouble(_lastLatKey);
+    var lastLng = prefs.getDouble(_lastLngKey);
 
-    _subscription = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.low,
-        distanceFilter: _distanceFilterMeters ~/ 2,
-      ),
-    ).listen((position) async {
-      final moved = lastLat == null ||
-          lastLng == null ||
-          Geolocator.distanceBetween(
-                lastLat,
-                lastLng,
-                position.latitude,
-                position.longitude,
-              ) >=
-              _distanceFilterMeters;
-      if (!moved) return;
+    _subscription =
+        Geolocator.getPositionStream(
+              locationSettings: const LocationSettings(
+                accuracy: LocationAccuracy.low,
+                distanceFilter: _distanceFilterMeters ~/ 2,
+              ),
+            )
+            .asyncMap<void>((position) async {
+              if (generation != _generation) return;
+              final previousLat = lastLat;
+              final previousLng = lastLng;
+              final moved =
+                  previousLat == null ||
+                  previousLng == null ||
+                  Geolocator.distanceBetween(
+                        previousLat,
+                        previousLng,
+                        position.latitude,
+                        position.longitude,
+                      ) >=
+                      _distanceFilterMeters;
+              if (!moved) return;
 
-      await prefs.setDouble(_lastLatKey, position.latitude);
-      await prefs.setDouble(_lastLngKey, position.longitude);
-      await _refreshPrayerTimes();
-    }, onError: (Object e) {
-      if (kDebugMode) {
-        print('LocationAutoUpdateService stream error: $e');
-      }
-    });
+              // asyncMap serializes updates while a network request is in flight.
+              if (!await _refreshPrayerTimes() || generation != _generation) {
+                return;
+              }
+              lastLat = position.latitude;
+              lastLng = position.longitude;
+              await prefs.setDouble(_lastLatKey, position.latitude);
+              await prefs.setDouble(_lastLngKey, position.longitude);
+            })
+            .listen(
+              (_) {},
+              onError: (Object e) {
+                if (kDebugMode) {
+                  print('LocationAutoUpdateService stream error: $e');
+                }
+              },
+            );
 
     if (kDebugMode) {
       print('LocationAutoUpdateService started');
@@ -75,26 +99,32 @@ class LocationAutoUpdateService {
   }
 
   static Future<void> stop() async {
-    await _subscription?.cancel();
+    _generation++;
+    final subscription = _subscription;
     _subscription = null;
+    await subscription?.cancel();
+    await _starting;
   }
 
   /// Re-fetch prayer times for the current position and reschedule adhan.
-  static Future<void> _refreshPrayerTimes() async {
+  static Future<bool> _refreshPrayerTimes() async {
     try {
       final prayerTimeController = Get.find<PrayerTimeController>();
-      await prayerTimeController.fetchPrayerTime(
+      final prayerTimes = await prayerTimeController.fetchPrayerTime(
         reload: false,
         isManualPrayerTme: false,
       );
+      if (prayerTimes == null) return false;
       await SalatWaqtService.initializeSalatWaqt();
       if (kDebugMode) {
         print('Prayer times refreshed after location change');
       }
+      return true;
     } catch (e) {
       if (kDebugMode) {
         print('LocationAutoUpdateService refresh failed: $e');
       }
+      return false;
     }
   }
 

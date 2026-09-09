@@ -60,7 +60,7 @@ class MyApp extends StatelessWidget {
   final String initialRoute;
   MyApp({super.key, required this.languages, required this.initialRoute});
 
-  final InternetController internetController = Get.put(InternetController());
+  final InternetController internetController = Get.find<InternetController>();
 
   @override
   Widget build(BuildContext context) {
