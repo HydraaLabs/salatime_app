@@ -259,6 +259,7 @@ class SalatWaqtService {
         await adhanNotificationServices.cancelNotification(afterId);
       }
     }
+    await adhanNotificationServices.retireLegacyBadgeChannels();
   }
 
   static DateTime reminderDateTime(

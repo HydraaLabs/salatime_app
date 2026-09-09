@@ -30,6 +30,8 @@ abstract class AdhanNotificationService {
 
 class AdhanNotificationServiceImpl implements AdhanNotificationService {
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin;
+  final List<String> _legacyChannelsToRetire = [];
+  bool _schedulingFailed = false;
 
   AdhanNotificationServiceImpl()
     : _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin() {
@@ -54,10 +56,10 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
         DarwinInitializationSettings(
           onDidReceiveLocalNotification: _onDidReceiveLocalNotification,
           requestAlertPermission: true,
-          requestBadgePermission: true,
+          requestBadgePermission: false,
           requestSoundPermission: true,
           defaultPresentAlert: true,
-          defaultPresentBadge: true,
+          defaultPresentBadge: false,
           defaultPresentSound: true,
         );
 
@@ -77,6 +79,7 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
       onDidReceiveNotificationResponse: _onDidReceiveNotificationResponse,
       onDidReceiveBackgroundNotificationResponse: _notificationTapBackground,
     );
+    await _prepareChannelsWithoutBadges();
 
     if (Platform.isAndroid) {
       final androidVersion =
@@ -99,8 +102,63 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
           .resolvePlatformSpecificImplementation<
             IOSFlutterLocalNotificationsPlugin
           >()
-          ?.requestPermissions(alert: true, badge: true, sound: true);
+          ?.requestPermissions(alert: true, badge: false, sound: true);
     }
+  }
+
+  static String _channelWithoutBadge(String id) => '${id}_no_badge_v1';
+
+  static bool _isLegacyPrayerChannel(String id) => RegExp(
+    r'^(?:(?:before_|after_)?adhan_)?(?:azan_[123]|noti_1|noti_beep(?:_beep)?)$',
+  ).hasMatch(id);
+
+  Future<void> _prepareChannelsWithoutBadges() async {
+    final android = _flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    if (android == null) return;
+    final channels = await android.getNotificationChannels() ?? [];
+    _legacyChannelsToRetire.clear();
+    _schedulingFailed = false;
+    for (final old in channels.where((c) => _isLegacyPrayerChannel(c.id))) {
+      // Android cannot change badge policy on an existing channel. Preserve
+      // the user's sound, vibration and disabled-channel settings in its replacement.
+      if (!channels.any((c) => c.id == _channelWithoutBadge(old.id))) {
+        await android.createNotificationChannel(
+          AndroidNotificationChannel(
+            _channelWithoutBadge(old.id),
+            old.name,
+            description: old.description,
+            groupId: old.groupId,
+            importance: old.importance,
+            playSound: old.playSound,
+            sound: old.sound,
+            enableVibration: old.enableVibration,
+            vibrationPattern: old.vibrationPattern,
+            enableLights: old.enableLights,
+            ledColor: old.ledColor,
+            audioAttributesUsage: old.audioAttributesUsage,
+            showBadge: false,
+          ),
+        );
+      }
+      _legacyChannelsToRetire.add(old.id);
+    }
+  }
+
+  /// Remove delivered legacy notifications (and their launcher count) only
+  /// after all prayer alarms have been rescheduled onto the replacement channels.
+  Future<void> retireLegacyBadgeChannels() async {
+    if (_schedulingFailed) return;
+    final android = _flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    for (final id in _legacyChannelsToRetire) {
+      await android?.deleteNotificationChannel(id);
+    }
+    _legacyChannelsToRetire.clear();
   }
 
   // @override
@@ -139,6 +197,7 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
         payload: payload,
       );
     } catch (e) {
+      _schedulingFailed = true;
       // Scheduling can fail on platforms without full support
       // (e.g. Linux desktop) — log and continue instead of crashing.
       debugPrint('Failed to schedule notification $id: $e');
@@ -211,8 +270,10 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
     final androidSound = sound;
     return NotificationDetails(
       android: AndroidNotificationDetails(
-        channel ?? 'channelId',
+        _channelWithoutBadge(channel ?? 'channelId'),
         channel ?? 'channelName',
+        channelShowBadge: false,
+        number: 0,
         importance: Importance.max,
         priority: Priority.max,
         sound: RawResourceAndroidNotificationSound(androidSound),
@@ -224,7 +285,8 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
       iOS: DarwinNotificationDetails(
         presentAlert: true,
         presentSound: true,
-        presentBadge: true,
+        presentBadge: false,
+        badgeNumber: 0,
         sound: iosSound,
       ),
     );

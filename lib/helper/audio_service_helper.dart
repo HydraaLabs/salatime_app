@@ -15,6 +15,7 @@ class AudioServiceHelper {
         androidNotificationChannelName: 'Audio Playback',
         androidNotificationIcon: 'mipmap/launcher_icon',
         androidNotificationOngoing: true,
+        androidShowNotificationBadge: false,
         androidStopForegroundOnPause: true,
         androidNotificationClickStartsActivity: true,
       ),
