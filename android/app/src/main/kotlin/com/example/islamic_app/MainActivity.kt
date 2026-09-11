@@ -6,6 +6,11 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : AudioServiceFragmentActivity() {
+    override fun onResume() {
+        super.onResume()
+        LauncherBadgeCleaner.clearDeliveredNotifications(this)
+    }
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
