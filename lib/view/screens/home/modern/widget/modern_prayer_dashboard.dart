@@ -318,6 +318,15 @@ class _ModernPrayerDashboardState extends State<ModernPrayerDashboard> {
 
     return Column(
       children: [
+        if (displayedModel?.calculatedLocally ?? false)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Text(
+              'prayer_times_calculated_locally'.tr,
+              style: Theme.of(context).textTheme.bodySmall,
+              textAlign: TextAlign.center,
+            ),
+          ),
         SizedBox(
           height: 351,
           child: Stack(

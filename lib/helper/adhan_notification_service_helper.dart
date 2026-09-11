@@ -1,18 +1,19 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:zabi/util/app_constants.dart';
+import 'package:zabi/helper/local_prayer_calculator.dart';
 
 abstract class AdhanNotificationService {
   // Future<void> checkAndRequestPermissions();
   Future<void> initializeNotification();
-  Future<void> scheduleNotification({
+  Future<bool> scheduleNotification({
     required int id,
     required String title,
     required String body,
@@ -32,10 +33,14 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin;
   final List<String> _legacyChannelsToRetire = [];
   bool _schedulingFailed = false;
+  bool get schedulingFailed => _schedulingFailed;
+  bool usedInexactAlarms = false;
+  tz.Location? _location;
+  bool? _exactAllowed;
 
   AdhanNotificationServiceImpl()
     : _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin() {
-    tz.initializeTimeZones();
+    LocalPrayerCalculator.initializeTimeZones();
   }
 
   // Future<void> _checkNotificationPermission() async {
@@ -167,7 +172,7 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
   // }
 
   @override
-  Future<void> scheduleNotification({
+  Future<bool> scheduleNotification({
     required int id,
     required String title,
     required String body,
@@ -184,39 +189,54 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
     final selectedChannel = channel ?? 'adhan_$selectedSound';
 
     try {
-      final scheduledDate = await _nextInstance(dateTime);
-      await _flutterLocalNotificationsPlugin.zonedSchedule(
-        id,
-        title,
-        body,
-        scheduledDate,
-        _getNotificationDetails(sound: selectedSound, channel: selectedChannel),
-        androidScheduleMode: AndroidScheduleMode.exact,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-        payload: payload,
-      );
+      // Never turn a missed occurrence into tomorrow's prayer at today's time.
+      if (!dateTime.isAfter(DateTime.now())) return false;
+      _location ??= tz.getLocation(await FlutterTimezone.getLocalTimezone());
+      final scheduledDate = dateTime is tz.TZDateTime
+          ? dateTime
+          : tz.TZDateTime.from(dateTime, _location!);
+      final android = _flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
+      final exactAllowed = _exactAllowed ??=
+          await android?.canScheduleExactNotifications() ?? true;
+      var mode = exactAllowed
+          ? AndroidScheduleMode.exactAllowWhileIdle
+          : AndroidScheduleMode.inexactAllowWhileIdle;
+      Future<void> schedule(AndroidScheduleMode schedulingMode) =>
+          _flutterLocalNotificationsPlugin.zonedSchedule(
+            id,
+            title,
+            body,
+            scheduledDate,
+            _getNotificationDetails(
+              sound: selectedSound,
+              channel: selectedChannel,
+            ),
+            androidScheduleMode: schedulingMode,
+            uiLocalNotificationDateInterpretation:
+                UILocalNotificationDateInterpretation.absoluteTime,
+            payload: payload,
+          );
+      try {
+        await schedule(mode);
+      } on PlatformException catch (error) {
+        // The permission can be revoked between the check and registration.
+        if (error.code != 'exact_alarms_not_permitted') rethrow;
+        _exactAllowed = false;
+        mode = AndroidScheduleMode.inexactAllowWhileIdle;
+        await schedule(mode);
+      }
+      usedInexactAlarms |= mode == AndroidScheduleMode.inexactAllowWhileIdle;
+      return true;
     } catch (e) {
       _schedulingFailed = true;
       // Scheduling can fail on platforms without full support
       // (e.g. Linux desktop) — log and continue instead of crashing.
       debugPrint('Failed to schedule notification $id: $e');
+      return false;
     }
-  }
-
-  Future<tz.TZDateTime> _nextInstance(DateTime dateTime) async {
-    final String timeZoneName = await FlutterTimezone.getLocalTimezone();
-    final tz.TZDateTime scheduledDateTime = tz.TZDateTime.from(
-      dateTime,
-      tz.getLocation(timeZoneName),
-    );
-
-    final tzNow = tz.TZDateTime.now(tz.getLocation(timeZoneName));
-
-    if (scheduledDateTime.isBefore(tzNow)) {
-      return scheduledDateTime.add(const Duration(days: 1));
-    }
-    return scheduledDateTime;
   }
 
   @override

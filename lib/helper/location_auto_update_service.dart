@@ -74,6 +74,7 @@ class LocationAutoUpdateService {
                       ) >=
                       _distanceFilterMeters;
               if (!moved) return;
+              Get.find<PrayerTimeController>().useCurrentPosition(position);
 
               // asyncMap serializes updates while a network request is in flight.
               if (!await _refreshPrayerTimes() || generation != _generation) {

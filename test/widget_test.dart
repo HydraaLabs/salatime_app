@@ -129,81 +129,80 @@ void main() {
     expect(translations['magrib'], 'Al-maghrib');
   });
 
-  test('prayer times are cached by date and calculation context', () async {
+  test(
+    'manual timetables are cached by date and calculation context',
+    () async {
+      SharedPreferences.setMockInitialValues({
+        AppConstants.IS_MANUAL_PRAYER_TIME: true,
+        AppConstants.isPrayerTme: true,
+        AppConstants.saveCityName: 'Fes',
+        'selectedCalculationMethod': '21',
+        'selectedPrayerMadhab': 'STANDARD',
+      });
+      final preferences = await SharedPreferences.getInstance();
+      const timezoneChannel = MethodChannel('flutter_timezone');
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+            timezoneChannel,
+            (_) async => 'Africa/Casablanca',
+          );
+      addTearDown(
+        () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(timezoneChannel, null),
+      );
+
+      final firstApi = _CountingPrayerApiClient(preferences);
+      final firstController = PrayerTimeController(apiClient: firstApi);
+      final requestedDate = DateTime(2026, 9, 7);
+
+      final first = await firstController.fetchPrayerTime(
+        reload: false,
+        isManualPrayerTme: true,
+        manualCity: 'Fes',
+        date: requestedDate,
+        applyResult: false,
+      );
+      final second = await firstController.fetchPrayerTime(
+        reload: false,
+        isManualPrayerTme: true,
+        manualCity: 'Fes',
+        date: requestedDate,
+        applyResult: false,
+      );
+
+      expect(first?.data?.date, '2026-09-07');
+      expect(second?.data?.date, '2026-09-07');
+      expect(firstApi.callCount, 1);
+
+      final secondApi = _CountingPrayerApiClient(preferences);
+      final secondController = PrayerTimeController(apiClient: secondApi);
+      final restored = await secondController.fetchPrayerTime(
+        reload: false,
+        isManualPrayerTme: true,
+        manualCity: 'Fes',
+        date: requestedDate,
+        applyResult: false,
+      );
+      expect(restored?.data?.date, '2026-09-07');
+      expect(secondApi.callCount, 0);
+
+      await secondController.fetchPrayerTime(
+        reload: false,
+        isManualPrayerTme: true,
+        manualCity: 'Fes',
+        date: DateTime(2026, 10, 23),
+        applyResult: false,
+      );
+      expect(secondApi.callCount, 1);
+      expect(secondApi.requestedDates, ['2026-10-23']);
+    },
+  );
+
+  test('manual prayer calendar is filled ahead and reused offline', () async {
     SharedPreferences.setMockInitialValues({
       AppConstants.IS_MANUAL_PRAYER_TIME: true,
       AppConstants.isPrayerTme: true,
       AppConstants.saveCityName: 'Fes',
-      AppConstants.manualCityLat: 34.0331,
-      AppConstants.manualCityLng: -5.0003,
-      'selectedCalculationMethod': '21',
-      'selectedPrayerMadhab': 'STANDARD',
-    });
-    final preferences = await SharedPreferences.getInstance();
-    const timezoneChannel = MethodChannel('flutter_timezone');
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-          timezoneChannel,
-          (_) async => 'Africa/Casablanca',
-        );
-    addTearDown(
-      () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(timezoneChannel, null),
-    );
-
-    final firstApi = _CountingPrayerApiClient(preferences);
-    final firstController = PrayerTimeController(apiClient: firstApi);
-    final requestedDate = DateTime(2026, 9, 7);
-
-    final first = await firstController.fetchPrayerTime(
-      reload: false,
-      isManualPrayerTme: true,
-      manualCity: 'Fes',
-      date: requestedDate,
-      applyResult: false,
-    );
-    final second = await firstController.fetchPrayerTime(
-      reload: false,
-      isManualPrayerTme: true,
-      manualCity: 'Fes',
-      date: requestedDate,
-      applyResult: false,
-    );
-
-    expect(first?.data?.date, '2026-09-07');
-    expect(second?.data?.date, '2026-09-07');
-    expect(firstApi.callCount, 1);
-
-    final secondApi = _CountingPrayerApiClient(preferences);
-    final secondController = PrayerTimeController(apiClient: secondApi);
-    final restored = await secondController.fetchPrayerTime(
-      reload: false,
-      isManualPrayerTme: true,
-      manualCity: 'Fes',
-      date: requestedDate,
-      applyResult: false,
-    );
-    expect(restored?.data?.date, '2026-09-07');
-    expect(secondApi.callCount, 0);
-
-    await secondController.fetchPrayerTime(
-      reload: false,
-      isManualPrayerTme: true,
-      manualCity: 'Fes',
-      date: DateTime(2026, 10, 23),
-      applyResult: false,
-    );
-    expect(secondApi.callCount, 1);
-    expect(secondApi.requestedDates, ['2026-10-23']);
-  });
-
-  test('offline prayer calendar is filled ahead and reused', () async {
-    SharedPreferences.setMockInitialValues({
-      AppConstants.IS_MANUAL_PRAYER_TIME: true,
-      AppConstants.isPrayerTme: true,
-      AppConstants.saveCityName: 'Fes',
-      AppConstants.manualCityLat: 34.0331,
-      AppConstants.manualCityLng: -5.0003,
       'selectedCalculationMethod': '21',
       'selectedPrayerMadhab': 'STANDARD',
     });
@@ -693,8 +692,6 @@ void main() {
       AppConstants.IS_MANUAL_PRAYER_TIME: true,
       AppConstants.isPrayerTme: true,
       AppConstants.saveCityName: 'Fes',
-      AppConstants.manualCityLat: 34.0331,
-      AppConstants.manualCityLng: -5.0003,
       'selectedCalculationMethod': '21',
       'selectedPrayerMadhab': 'STANDARD',
     });

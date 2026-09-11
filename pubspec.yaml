@@ -32,7 +32,8 @@ dependencies:
   #  prayers_times: ^0.0.6
   share_plus: ^11.1.0
   permission_handler: ^12.0.1
-  flutter_local_notifications: ^17.1.2
+  # Native alarm recovery adapter targets this version's persisted format.
+  flutter_local_notifications: 17.2.4
   timezone: ^0.9.3
   flutter_qiblah: ^3.1.0+1
   shimmer: ^3.0.0
@@ -51,6 +52,7 @@ dependencies:
   latlong2: ^0.10.1
   flutter_compass_v2: ^1.0.3
   package_info_plus: ^9.0.1
+  adhan: ^2.0.0+1
 
   # just_audio: ^0.9.38
   # path_provider: ^2.1.3

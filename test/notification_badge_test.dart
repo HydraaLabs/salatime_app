@@ -13,6 +13,8 @@ void main() {
   final calls = <MethodCall>[];
   var failScheduling = false;
   var existingReplacement = false;
+  var exactAllowed = true;
+  var revokeBeforeScheduling = false;
   Map<String, Object> channel(String id) => {
     'id': id,
     'name': 'Prayer',
@@ -30,12 +32,16 @@ void main() {
     calls.clear();
     failScheduling = false;
     existingReplacement = false;
+    exactAllowed = true;
+    revokeBeforeScheduling = false;
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(notifications, (call) async {
           calls.add(call);
           switch (call.method) {
             case 'initialize':
               return true;
+            case 'canScheduleExactNotifications':
+              return exactAllowed;
             case 'getNotificationChannels':
               return [
                 channel('adhan_azan_2'),
@@ -46,7 +52,10 @@ void main() {
                 if (existingReplacement) channel('adhan_azan_2_no_badge_v1'),
               ];
             case 'zonedSchedule':
-              if (failScheduling) {
+              if (failScheduling ||
+                  (revokeBeforeScheduling &&
+                      call.arguments['platformSpecifics']['scheduleMode'] ==
+                          'exactAllowWhileIdle')) {
                 throw PlatformException(code: 'exact_alarms_not_permitted');
               }
           }
@@ -54,6 +63,49 @@ void main() {
         });
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(timezone, (_) async => 'UTC');
+  });
+
+  test(
+    'denied exact permission and revocation both retain an inexact idle alarm',
+    () async {
+      for (final deniedBeforeCheck in [true, false]) {
+        calls.clear();
+        exactAllowed = !deniedBeforeCheck;
+        revokeBeforeScheduling = !deniedBeforeCheck;
+        final service = AdhanNotificationServiceImpl();
+        final ok = await service.scheduleNotification(
+          id: 42,
+          title: 'Fajr',
+          body: 'Prayer',
+          dateTime: DateTime.now().add(const Duration(hours: 1)),
+        );
+        expect(ok, isTrue);
+        expect(service.usedInexactAlarms, isTrue);
+        expect(service.schedulingFailed, isFalse);
+        final schedules = calls
+            .where((c) => c.method == 'zonedSchedule')
+            .toList();
+        expect(schedules, hasLength(deniedBeforeCheck ? 1 : 2));
+        expect(
+          schedules.last.arguments['platformSpecifics']['scheduleMode'],
+          'inexactAllowWhileIdle',
+        );
+      }
+    },
+  );
+
+  test('a past occurrence is not silently moved to tomorrow', () async {
+    final service = AdhanNotificationServiceImpl();
+    expect(
+      await service.scheduleNotification(
+        id: 42,
+        title: 'Fajr',
+        body: 'Prayer',
+        dateTime: DateTime.now().subtract(const Duration(minutes: 1)),
+      ),
+      isFalse,
+    );
+    expect(calls.where((c) => c.method == 'zonedSchedule'), isEmpty);
   });
   tearDown(() {
     debugDefaultTargetPlatformOverride = null;

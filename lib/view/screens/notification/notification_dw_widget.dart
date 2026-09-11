@@ -17,6 +17,7 @@ import 'package:zabi/view/screens/notification/widgets/audio_select_widget.dart'
 import 'package:zabi/view/screens/notification/widgets/prayer_reminder_settings_widget.dart';
 import 'package:zabi/view/screens/notification/widgets/salat_waqt.dart';
 import 'package:zabi/view/screens/notification/widgets/salat_waqt_repository.dart';
+import 'package:zabi/view/screens/notification/upcoming_prayer_alarms_screen.dart';
 
 class NofificationDWWidget extends StatefulWidget {
   const NofificationDWWidget({super.key});
@@ -44,6 +45,7 @@ class _NofificationDWWidgetState extends State<NofificationDWWidget> {
 
   Future<void> getSalatList() async {
     salatList = await _salatWaqtRepository.getSalatWaqtList();
+    if (!mounted) return;
     setState(() {});
   }
 
@@ -53,6 +55,7 @@ class _NofificationDWWidgetState extends State<NofificationDWWidget> {
   Future<void> getNotification() async {
     pendingList = await _adhanNotificationService.getPendingNotifications();
     activeList = await _adhanNotificationService.getActiveNotifications();
+    if (!mounted) return;
     setState(() {});
   }
 
@@ -115,6 +118,12 @@ class _NofificationDWWidgetState extends State<NofificationDWWidget> {
                 ],
               ),
               children: [
+                ListTile(
+                  leading: const Icon(Icons.event_available),
+                  title: Text('upcoming_prayer_alarms'.tr),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => Get.to(() => const UpcomingPrayerAlarmsScreen()),
+                ),
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: Dimensions.FONT_SIZE_DEFAULT,

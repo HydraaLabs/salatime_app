@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:zabi/controller/home_layout_controller.dart';
@@ -17,11 +18,52 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
+  Timer? _midnight;
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _armMidnightRefresh();
     _loadInitialData();
+  }
+
+  void _armMidnightRefresh() {
+    _midnight?.cancel();
+    final now = DateTime.now();
+    _midnight = Timer(
+      DateTime(now.year, now.month, now.day + 1).difference(now),
+      () {
+        if (!mounted) return;
+        _refreshAlarms();
+        _armMidnightRefresh();
+      },
+    );
+  }
+
+  void _refreshAlarms() {
+    unawaited(
+      SalatWaqtService.initializeSalatWaqt().catchError((Object error) {
+        Get.log('Unable to refresh prayer alarms: $error');
+      }),
+    );
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refreshAlarms();
+      _armMidnightRefresh();
+    } else if (state == AppLifecycleState.paused) {
+      _midnight?.cancel();
+    }
+  }
+
+  @override
+  void dispose() {
+    _midnight?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   void _loadInitialData() {
@@ -39,8 +81,8 @@ class _HomeScreenState extends State<HomeScreen> {
       prayerTimeController.loadPrayerTimeSettings();
 
       // 3. Init adjustment
-      Get.find<PrayerTimeAdjustmentController>().init();
-      SalatWaqtService.initializeSalatWaqt();
+      await Get.find<PrayerTimeAdjustmentController>().init();
+      _refreshAlarms();
 
       // 4. Adapt adhan times when the user moves (if opted in)
       LocationAutoUpdateService.start();

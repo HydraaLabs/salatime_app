@@ -237,10 +237,10 @@ class PrayerTimeCalculationSettings extends StatelessWidget {
                                   .selectedCalculationMethod,
                               hintText: 'choose_a_prayer_key'.tr,
                               dropdownHeight: 500,
-                              onChange: (value) {
-                                prayerTimeController
+                              onChange: (value) async {
+                                await prayerTimeController
                                     .setSelectedCalculationMethod(value);
-                                SalatWaqtService.initializeSalatWaqt();
+                                await SalatWaqtService.initializeSalatWaqt();
                               },
                             ),
                             const SizedBox(
@@ -264,11 +264,10 @@ class PrayerTimeCalculationSettings extends StatelessWidget {
                               borderColor: Theme.of(
                                 context,
                               ).disabledColor.withOpacity(0.5),
-                              onChange: (value) {
-                                prayerTimeController.setSelectedPrayerMadhab(
-                                  value,
-                                );
-                                SalatWaqtService.initializeSalatWaqt();
+                              onChange: (value) async {
+                                await prayerTimeController
+                                    .setSelectedPrayerMadhab(value);
+                                await SalatWaqtService.initializeSalatWaqt();
                               },
                             ),
                             const SizedBox(

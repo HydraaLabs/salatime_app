@@ -19,6 +19,7 @@ import 'package:zabi/data/model/response/city_suggestion_model.dart';
 import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
 import 'package:zabi/controller/theme_controller.dart';
 import 'package:zabi/helper/location_helper.dart';
+import 'package:zabi/helper/local_prayer_calculator.dart';
 import 'package:zabi/util/app_constants.dart';
 import 'package:zabi/view/base/custom_snackbar.dart';
 
@@ -52,6 +53,7 @@ class PrayerTimeController extends GetxController implements GetxService {
   double? longitude;
   String? saveLocalStoreCity;
   Position? _lastPosition;
+  void useCurrentPosition(Position position) => _lastPosition = position;
   static const String _prayerTimeCachePrefix = 'prayer_time_response_cache_v1_';
   static const String _prayerTimeCacheIndexKey =
       'prayer_time_response_cache_v1_index';
@@ -69,6 +71,10 @@ class PrayerTimeController extends GetxController implements GetxService {
   final Map<String, Future<int>> _pendingPrayerCalendarRequests = {};
   Map<String, dynamic>? _lastPrayerTimeRequestTemplate;
   bool _isWarmingPrayerTimeCache = false;
+  DateTime? _remoteRetryAfter;
+
+  String? get prayerTimeZone =>
+      _lastPrayerTimeRequestTemplate?['timezone'] as String?;
 
   Future<Position> _resolvePosition() async {
     final inMemory = _lastPosition;
@@ -397,6 +403,7 @@ class PrayerTimeController extends GetxController implements GetxService {
       final keyParts = jsonDecode(cacheKey) as List<dynamic>;
       if (data.date == null || data.date != keyParts[1]) return false;
     }
+    final validClock = RegExp(r'^(?:[01]?\d|2[0-3]):[0-5]\d$');
     return [
       data.fajrStart,
       data.sunrise,
@@ -404,7 +411,9 @@ class PrayerTimeController extends GetxController implements GetxService {
       data.asrStart,
       data.maghribStart,
       data.ishaStart,
-    ].every((value) => value != null && value != '0:00' && value.contains(':'));
+    ].every(
+      (value) => value != null && value != '0:00' && validClock.hasMatch(value),
+    );
   }
 
   void _rememberPrayerTime(String cacheKey, PrayerTimeModel model) {
@@ -437,35 +446,48 @@ class PrayerTimeController extends GetxController implements GetxService {
 
   Future<PrayerTimeModel?> _loadPrayerTime(
     SharedPreferences prefs,
-    Map<String, dynamic> requestBody,
-  ) async {
+    Map<String, dynamic> requestBody, {
+    bool allowNetwork = true,
+  }) async {
+    if (requestBody['type'] == 'automatic') {
+      return LocalPrayerCalculator.calculate(requestBody);
+    }
     final cacheKey = _prayerTimeCacheKey(requestBody);
     final cached = await _cachedPrayerTime(prefs, cacheKey);
     if (cached != null) return cached;
-
-    // One calendar request fills J-7 through J+45, including the requested
-    // date. The legacy daily endpoint remains a narrow fallback while backend
-    // deployments propagate through caches and proxies.
-    await _loadPrayerTimeCalendar(prefs, requestBody);
-    final calendarValue = await _cachedPrayerTime(prefs, cacheKey);
-    if (calendarValue != null) return calendarValue;
+    if (!allowNetwork ||
+        (_remoteRetryAfter?.isAfter(DateTime.now()) ?? false)) {
+      return null;
+    }
 
     final pending = _pendingPrayerTimeRequests[cacheKey];
     if (pending != null) return pending;
 
     final request = () async {
-      final response = await apiClient.postData(
-        AppConstants.TODAYS_PRAYER_TIME,
-        requestBody,
-      );
-      if (response.statusCode != 200) return null;
-
-      final model = PrayerTimeModel.fromJson(response.body);
-      if (!_isUsablePrayerTime(model, expectedDate: '${requestBody['date']}')) {
-        return null;
+      try {
+        await _loadPrayerTimeCalendar(prefs, requestBody);
+        final calendarValue = await _cachedPrayerTime(prefs, cacheKey);
+        if (calendarValue != null) return calendarValue;
+        final response = await apiClient
+            .postData(AppConstants.TODAYS_PRAYER_TIME, requestBody)
+            .timeout(const Duration(seconds: 4));
+        if (response.statusCode == 200 &&
+            response.body is Map<String, dynamic>) {
+          final model = PrayerTimeModel.fromJson(response.body);
+          if (_isUsablePrayerTime(
+            model,
+            expectedDate: '${requestBody['date']}',
+          )) {
+            await _storePrayerTime(prefs, cacheKey, model);
+            return model;
+          }
+        }
+      } catch (error) {
+        debugPrint('Prayer calendar unavailable: $error');
       }
-      await _storePrayerTime(prefs, cacheKey, model);
-      return model;
+      _remoteRetryAfter = DateTime.now().add(const Duration(minutes: 2));
+      // A manually maintained timetable must not be replaced by invented times.
+      return null;
     }();
     _pendingPrayerTimeRequests[cacheKey] = request;
     try {
@@ -491,10 +513,9 @@ class PrayerTimeController extends GetxController implements GetxService {
     if (pending != null) return pending;
 
     final request = () async {
-      final response = await apiClient.postData(
-        AppConstants.PRAYER_TIME_CALENDAR,
-        requestBody,
-      );
+      final response = await apiClient
+          .postData(AppConstants.PRAYER_TIME_CALENDAR, requestBody)
+          .timeout(const Duration(seconds: 5));
       if (response.statusCode != 200 || response.body is! Map) return 0;
 
       final responseBody = Map<String, dynamic>.from(response.body as Map);
@@ -550,6 +571,9 @@ class PrayerTimeController extends GetxController implements GetxService {
     _pendingPrayerCalendarRequests[pendingKey] = request;
     try {
       return await request;
+    } catch (error) {
+      debugPrint('Prayer calendar sync failed: $error');
+      return 0;
     } finally {
       _pendingPrayerCalendarRequests.remove(pendingKey);
     }
@@ -561,7 +585,10 @@ class PrayerTimeController extends GetxController implements GetxService {
   /// for a date and calculation context; a failed request preserves every
   /// previously cached value.
   Future<int> warmPrayerTimeCache({DateTime? now}) async {
-    if (_isWarmingPrayerTimeCache || _lastPrayerTimeRequestTemplate == null) {
+    if (_isWarmingPrayerTimeCache ||
+        _lastPrayerTimeRequestTemplate == null ||
+        _lastPrayerTimeRequestTemplate?['type'] == 'automatic' ||
+        (_remoteRetryAfter?.isAfter(DateTime.now()) ?? false)) {
       return 0;
     }
 
@@ -578,7 +605,7 @@ class PrayerTimeController extends GetxController implements GetxService {
         return 0;
       }
 
-      return _loadPrayerTimeCalendar(prefs, {
+      return await _loadPrayerTimeCalendar(prefs, {
         ...template,
         'date': DateFormat('yyyy-MM-dd').format(today),
       });
@@ -594,8 +621,19 @@ class PrayerTimeController extends GetxController implements GetxService {
         date.day == today.day;
   }
 
-  Future<PrayerTimeModel?> getPrayerTimeForDate(DateTime date) async {
+  Future<PrayerTimeModel?> getPrayerTimeForDate(
+    DateTime date, {
+    bool allowNetwork = true,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
+    final template = _lastPrayerTimeRequestTemplate;
+    if (template != null) {
+      return _loadPrayerTime(prefs, {
+        ...template,
+        'date': DateFormat('yyyy-MM-dd').format(date),
+      }, allowNetwork: allowNetwork);
+    }
+    if (!allowNetwork) return null;
     final manualMode =
         prefs.getBool(AppConstants.IS_MANUAL_PRAYER_TIME) ??
         isManualPrayerTime.value;
@@ -639,8 +677,8 @@ class PrayerTimeController extends GetxController implements GetxService {
       Position? position;
       double? fallbackLatitude;
       double? fallbackLongitude;
-      if (useManualCityCoords) {
-        // No GPS fix needed, the city coordinates are used below.
+      if (isManualPrayerTme) {
+        // Neither a saved city nor a manually maintained timetable needs GPS.
       } else if (isGeolocatorSupported) {
         try {
           position = await _resolvePosition();

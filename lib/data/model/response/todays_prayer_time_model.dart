@@ -2,10 +2,17 @@ class PrayerTimeModel {
   bool? status;
   String? message;
   Data? data;
+  bool calculatedLocally;
 
-  PrayerTimeModel({this.status, this.message, this.data});
+  PrayerTimeModel({
+    this.status,
+    this.message,
+    this.data,
+    this.calculatedLocally = false,
+  });
 
-  PrayerTimeModel.fromJson(Map<String, dynamic> json) {
+  PrayerTimeModel.fromJson(Map<String, dynamic> json)
+    : calculatedLocally = json['calculated_locally'] == true {
     status = json['status'];
     message = json['message'];
     data = json['data'] != null ? Data.fromJson(json['data']) : null;
@@ -15,6 +22,7 @@ class PrayerTimeModel {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['status'] = status;
     data['message'] = message;
+    if (calculatedLocally) data['calculated_locally'] = true;
     if (this.data != null) {
       data['data'] = this.data!.toJson();
     }

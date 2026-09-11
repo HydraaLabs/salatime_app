@@ -14,6 +14,19 @@ class MainActivity : AudioServiceFragmentActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "net.salatime.app/prayer_schedule")
+            .setMethodCallHandler { call, result ->
+                if (call.method == "update") {
+                    val preferences = getSharedPreferences("salatime_prayer_widget", MODE_PRIVATE).edit()
+                    for (key in listOf("alarms", "prayers", "city", "nextLabel", "emptyLabel", "missedTitle", "missedBody")) {
+                        call.argument<String>(key)?.let { preferences.putString(key, it) }
+                    }
+                    preferences.apply()
+                    PrayerWidgetProvider.refreshAll(this)
+                    result.success(null)
+                } else result.notImplemented()
+            }
+
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
             "net.salatime.app/geomagnetic"
