@@ -44,6 +44,15 @@ public class SalaTimeAdhanService extends Service {
     @Override public IBinder onBind(Intent intent) { return null; }
 
     @Override public int onStartCommand(Intent intent, int flags, int startId) {
+        try {
+            return startPlayback(intent);
+        } finally {
+            // startPlayback either owns a playback wake lock or has stopped.
+            SalaTimeAlarmWakeLock.complete(intent);
+        }
+    }
+
+    private int startPlayback(Intent intent) {
         if (intent == null) { stopSelf(); return START_NOT_STICKY; }
         if (STOP.equals(intent.getAction())) {
             finishPlayback("audio_stopped");
@@ -68,7 +77,9 @@ public class SalaTimeAdhanService extends Service {
             startForeground(details.id, notification);
 
             // Re-check after service startup; Android can also delay this step.
-            if (!"on_time".equals(SalaTimePrayerAlarms.deliveryPolicy(payload, System.currentTimeMillis()))) {
+            long startedAt = System.currentTimeMillis();
+            if (!"on_time".equals(SalaTimePrayerAlarms.deliveryPolicy(payload, startedAt))) {
+                SalaTimePrayerAlarms.record(this, payload, startedAt, "late_silent");
                 finishPlayback("late_silent");
                 return START_NOT_STICKY;
             }

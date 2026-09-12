@@ -34,6 +34,9 @@ astronomiques ; les ajustements enregistrés par l’utilisateur s’appliquent 
   Il respecte les notifications/canaux désactivés, le volume nul et la priorité
   audio des appels. Fin, arrêt, erreur et perte de priorité libèrent le lecteur,
   la priorité audio et le verrou de veille ; durée maximale de huit minutes.
+- Un verrou de démarrage de 60 secondes maximum protège le passage du récepteur
+  au service. Il est libéré dès que le lecteur prend le relais ou si le démarrage
+  échoue. Le récepteur des alarmes utilise la file prioritaire Android.
 - Aucun système ne peut garantir une alarme après un arrêt forcé de l’app par
   l’utilisateur ou certains blocages constructeur. Ces cas nécessitent des essais
   sur appareil ; les tests unitaires ne constituent pas une validation matérielle.
@@ -121,3 +124,9 @@ et le renouvellement de 450 alarmes sous une limite simulée de 500.
 Le test dans l’interface a été contrôlé en français à 360 × 800 et texte × 1,5.
 Aucun appareil Android connecté : le déclenchement sur le Samsung de
 l’utilisateur, notamment après une nuit de veille, reste à vérifier.
+
+La [comparaison du code d’Al-Azan et Five Prayers](prayer-background-reference-audit-2026-09-12.md)
+documente la protection supplémentaire ajoutée en 1.0.14, le test reproduisant
+son absence et les limites de validation. Cette version passe 44 tests Android
+et 79 tests Flutter, avec analyse sans problème ; aucune validation matérielle
+Samsung n’est revendiquée.

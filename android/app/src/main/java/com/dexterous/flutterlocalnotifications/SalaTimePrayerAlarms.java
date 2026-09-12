@@ -91,6 +91,7 @@ public final class SalaTimePrayerAlarms {
         if (payload == null || payload.getLong("at") <= now) return null;
         int id = row.getInt("id");
         Intent intent = new Intent(context, SalaTimePrayerAlarmReceiver.class)
+                .addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
                 .putExtra("id", id).putExtra("at", payload.getLong("at"));
         PendingIntent pending = PendingIntent.getBroadcast(context, id, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);

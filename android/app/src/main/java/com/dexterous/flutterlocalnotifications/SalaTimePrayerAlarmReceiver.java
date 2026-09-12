@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.util.Log;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.core.content.ContextCompat;
 import com.dexterous.flutterlocalnotifications.models.NotificationDetails;
 import org.json.JSONObject;
 
@@ -38,7 +37,7 @@ public class SalaTimePrayerAlarmReceiver extends BroadcastReceiver {
             } else if ("adhan".equals(payload.getString("kind"))
                     && details.sound != null && details.sound.startsWith("azan_")) {
                 try {
-                    ContextCompat.startForegroundService(context,
+                    SalaTimeAlarmWakeLock.start(context,
                             new Intent(context, SalaTimeAdhanService.class)
                                     .putExtra("notification", row.toString()));
                 } catch (RuntimeException unavailable) {
