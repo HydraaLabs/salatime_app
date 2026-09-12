@@ -86,8 +86,9 @@ d’annoncer ce comportement comme vérifié matériellement.
 - Taille locale et métadonnées Drive relues : **92 233 096 octets**.
 - SHA-256 local : `bd59f814b18dd7dd89409c8a1ff2b7d77cc596ff6606b2388ba7baeae1d63f2b`.
 - [APK 1.0.14 sur Google Drive](https://drive.google.com/file/d/1pbUcmE-6UvUi6DOesyyh_lBm2kpyT9nx/view?usp=drivesdk).
-- Cette livraison est un APK de test ; aucun envoi de la version 1.0.14+17 à
-  Google Play ou Shorebird n’a été réalisé.
+- Cet APK de test a précédé la publication de la version complète avec
+  Shorebird. Les artefacts et confirmations de publication sont consignés
+  dans le [compte rendu de la version 1.0.14](release-1.0.14.md).
 
 ## Sources
 
