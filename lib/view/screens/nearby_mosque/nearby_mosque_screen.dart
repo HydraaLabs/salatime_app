@@ -6,10 +6,10 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:zabi/controller/nearby_mosque_controller.dart';
+import 'package:zabi/helper/mosque_directions.dart';
 import 'package:zabi/helper/translator_helper.dart';
 import 'package:zabi/shimmer/all_shimmer_loder.dart';
 import 'package:zabi/view/base/custom_app_bar.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:zabi/view/base/custom_snackbar.dart';
 import 'package:zabi/view/base/location_error_widget.dart';
 import '../../../util/dimensions.dart';
@@ -62,6 +62,15 @@ class _NearbyMosqueState extends State<NearbyMosque> {
     final location = place["geometry"]?["location"];
     if (location == null) return;
     _mapController.move(LatLng(location["lat"], location["lng"]), 15);
+  }
+
+  Future<void> _openDirections(double latitude, double longitude) async {
+    final opened = await openMosqueDirections(
+      latitude: latitude,
+      longitude: longitude,
+    );
+    if (!mounted || opened) return;
+    showCustomSnackBar('unable_to_open_directions'.tr, isError: true);
   }
 
   @override
@@ -260,24 +269,11 @@ class _NearbyMosqueState extends State<NearbyMosque> {
                                         fontSize: Dimensions.FONT_SIZE_SMALL,
                                       ),
                                     ),
-                                    trailing: GestureDetector(
-                                      onTap: () async {
-                                        final url =
-                                            'https://www.google.com/maps/search/?api=1&query=$lat,$lng';
-                                        final canLaunchUrl = await canLaunch(
-                                          url,
-                                        );
-
-                                        if (canLaunchUrl) {
-                                          await launch(url);
-                                        } else {
-                                          showCustomSnackBar(
-                                            "please_try_again".tr,
-                                            isError: true,
-                                          );
-                                        }
-                                      },
-                                      child: SvgPicture.asset(
+                                    trailing: IconButton(
+                                      tooltip: 'get_directions'.tr,
+                                      onPressed: () =>
+                                          _openDirections(lat, lng),
+                                      icon: SvgPicture.asset(
                                         Images.Icon_Right_Arrow,
                                         color: Theme.of(context).primaryColor,
                                         height: 30,

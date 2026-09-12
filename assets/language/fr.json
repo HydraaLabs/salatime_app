@@ -1,4 +1,6 @@
 {
+  "get_directions": "Itinéraire",
+  "unable_to_open_directions": "Impossible d’ouvrir l’itinéraire pour le moment.",
   "app_name": "Zabi",
   "todays_Prayer_Time_in": "Prise de la prière aujourd'hui dans",
   "todays_Prayer_Time": "Prise de la prière aujourd'hui",

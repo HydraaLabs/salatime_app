@@ -1,4 +1,6 @@
 {
+  "get_directions": "Directions",
+  "unable_to_open_directions": "Unable to open directions right now.",
   "app_name": "Zabi",
   "todays_Prayer_Time_in": "Today's Prayer Time in",
   "todays_Prayer_Time": "Today's Prayer Time",
