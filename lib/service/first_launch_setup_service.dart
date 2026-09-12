@@ -1,9 +1,11 @@
+import 'personal_notification_sounds.dart';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zabi/controller/noti_sound_controller.dart';
+import 'package:zabi/helper/prayer_notification_preferences.dart';
 import 'package:zabi/util/app_constants.dart';
 import 'package:zabi/view/screens/notification/widgets/salat_waqt_repository.dart';
 
@@ -16,6 +18,16 @@ class FirstLaunchSetupService {
       !(preferences.getBool(AppConstants.FIRST_LAUNCH_SETUP_COMPLETE_KEY) ??
           false);
 
+  /// The per-prayer pages persist as the user edits. Finishing setup must not
+  /// overwrite them with the previous single-sound/global-switch settings.
+  Future<void> completeConfiguredNotifications() async {
+    await PrayerNotificationPreferences.load(preferences);
+    await preferences.setBool(
+      AppConstants.FIRST_LAUNCH_SETUP_COMPLETE_KEY,
+      true,
+    );
+  }
+
   Future<void> complete({
     required bool adhanEnabled,
     required bool beforeEnabled,
@@ -26,6 +38,7 @@ class FirstLaunchSetupService {
     String beforeSound = AppConstants.DEFAULT_PRAYER_REMINDER_SOUND,
     String afterSound = AppConstants.DEFAULT_PRAYER_REMINDER_SOUND,
   }) async {
+    await PersonalNotificationSounds.load(preferences);
     final validBeforeMinutes = _validMinutes(beforeMinutes);
     final validAfterMinutes = _validMinutes(afterMinutes);
     final remindersCanRun = adhanEnabled;
@@ -49,7 +62,8 @@ class FirstLaunchSetupService {
     final validAdhanSound =
         NotiSoundController.availableSounds.any(
           (sound) =>
-              sound['key'] == adhanSound && adhanSound.startsWith('azan_'),
+              sound['key'] == adhanSound &&
+              NotiSoundController.isAdhan(adhanSound),
         )
         ? adhanSound
         : AppConstants.DEFAULT_NOTIFICATION_SOUND;

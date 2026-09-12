@@ -1,3 +1,4 @@
+import 'brand_colors.dart';
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
@@ -6,27 +7,27 @@ ThemeData light = ThemeData(
   useMaterial3: false,
   fontFamily: 'Roboto',
   primaryColor: AppColor.primaryColor,
-  scaffoldBackgroundColor: const Color(0xFFfafafa),
+  scaffoldBackgroundColor: BrandColors.canvas,
   disabledColor: const Color(0xFFA0A4A8),
   brightness: Brightness.light,
   hintColor: const Color(0xFF9F9F9F),
   cardColor: Colors.white,
   colorScheme: ColorScheme.fromSeed(
-    seedColor: const Color(0xFF232f3e),
+    seedColor: BrandColors.primary,
     brightness: Brightness.light,
-    primary: const Color(0xFF232f3e),
+    primary: BrandColors.primary,
     error: const Color(0xFFE84D4F),
   ),
   primarySwatch: AppColor.primarySwatchValueColor,
 );
 
 class AppColor {
-  static const int primarySwatchValue = 0xFF232f3e;
-  static const Color primaryColor = Color(0xFF232f3e);
+  static const int primarySwatchValue = BrandColors.primaryValue;
+  static const Color primaryColor = BrandColors.primary;
   static const Color cardColor = Colors.white;
   static const Color blueColor = Color(0xFF1e2a40);
   static const Color goldColor = Color(0xFFf9a825);
-  static const Color greenColorBG = Color(0xFF1a3a2a);
+  static const Color greenColorBG = BrandColors.primary;
   static const Color greenColorText = Color(0xFF81c784);
 
   static const Color tealColorBG = Color(0xFF80cbc4);

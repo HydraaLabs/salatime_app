@@ -11,12 +11,14 @@ import 'package:zabi/view/screens/compass/widget/qibla_map.dart';
 
 class CompassScreen extends StatefulWidget {
   final bool appBackButton;
+  final VoidCallback? onBackPressed;
   final bool isActive;
 
   const CompassScreen({
     super.key,
     required this.appBackButton,
     this.isActive = true,
+    this.onBackPressed,
   });
 
   @override
@@ -74,7 +76,8 @@ class _CompassScreenState extends State<CompassScreen> {
       // Appbar start ===>
       appBar: CustomAppBar(
         title: 'qibla_compass'.tr,
-        isBackButtonExist: widget.appBackButton == true ? true : false,
+        isBackButtonExist: widget.appBackButton,
+        onBackPressed: widget.onBackPressed,
         actions: [
           IconButton(
             tooltip: (_showMap ? 'qibla_compass' : 'qibla_map').tr,

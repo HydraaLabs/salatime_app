@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:zabi/service/personal_notification_sounds.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -92,6 +94,55 @@ void main() {
           'inexactAllowWhileIdle',
         );
       }
+    },
+  );
+
+  test(
+    'personal sounds restore into each notification channel without badges',
+    () async {
+      final key = 'custom_${List.filled(64, 'a').join()}';
+      final uri = 'content://net.salatime.app.personal-sounds/sounds/$key.mp3';
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+        PersonalNotificationSounds.storageKey,
+        jsonEncode([
+          {'key': key, 'name': 'My audio', 'path': uri},
+        ]),
+      );
+      PersonalNotificationSounds.sounds.clear();
+      final service = AdhanNotificationServiceImpl();
+      for (final type in ['adhan', 'before_adhan', 'after_adhan']) {
+        expect(
+          await service.scheduleNotification(
+            id: 42,
+            title: 'Prayer',
+            body: 'Time',
+            dateTime: DateTime.now().add(const Duration(hours: 1)),
+            sound: key,
+            channel: '${type}_$key',
+          ),
+          isTrue,
+        );
+        final details = calls
+            .lastWhere((c) => c.method == 'zonedSchedule')
+            .arguments['platformSpecifics'];
+        expect(details['sound'], uri);
+        expect(details['playSound'], isTrue);
+        expect(details['channelShowBadge'], isFalse);
+      }
+      await prefs.remove(PersonalNotificationSounds.storageKey);
+      await service.scheduleNotification(
+        id: 42,
+        title: 'Prayer',
+        body: 'Time',
+        dateTime: DateTime.now().add(const Duration(hours: 1)),
+        sound: key,
+      );
+      final missing = calls
+          .lastWhere((c) => c.method == 'zonedSchedule')
+          .arguments['platformSpecifics'];
+      expect(missing['playSound'], isFalse);
+      expect(missing['sound'], isNull);
     },
   );
 

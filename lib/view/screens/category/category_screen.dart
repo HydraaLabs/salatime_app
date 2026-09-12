@@ -14,7 +14,8 @@ import '../../../util/dimensions.dart';
 
 class CategoryScreen extends StatelessWidget {
   final bool appBackButton;
-  CategoryScreen({super.key, required this.appBackButton});
+  final VoidCallback? onBackPressed;
+  CategoryScreen({super.key, required this.appBackButton, this.onBackPressed});
   final CategoryListController categoryListController = Get.put(
     CategoryListController(),
   );
@@ -25,7 +26,8 @@ class CategoryScreen extends StatelessWidget {
       // Appbar start ===>
       appBar: CustomAppBar(
         title: 'all_category'.tr,
-        isBackButtonExist: appBackButton == true ? true : false,
+        isBackButtonExist: appBackButton,
+        onBackPressed: onBackPressed,
         actions: [
           GetBuilder<CategoryListController>(
             builder: (categoryListController) {

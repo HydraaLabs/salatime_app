@@ -31,9 +31,20 @@ public final class SalaTimePrayerAlarms {
         try {
             JSONObject payload = new JSONObject(notification.optString("payload", ""));
             int id = notification.getInt("id");
-            int prayerId = payload.getInt("prayerId");
             String kind = payload.getString("kind");
-            if (id < 10000000 || payload.getInt("id") != id || prayerId < 1 || prayerId > 5
+            if ("extra_reminder".equals(kind)) {
+                if (id < 20000000 || id >= 30000000 || payload.getInt("id") != id
+                        || payload.getLong("at") <= 0
+                        || !payload.optString("type").matches("duha|lastThird|friday|morning|evening|mondayThursday|whiteDays|fajrAlarm|bedtime|middleNight|monday|thursday")
+                        || !payload.optString("date").matches("[0-9]{4}-[0-9]{2}-[0-9]{2}")) return null;
+                java.text.SimpleDateFormat date = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.ROOT);
+                date.setLenient(false);
+                date.parse(payload.getString("date"));
+                return payload;
+            }
+            int prayerId = payload.getInt("prayerId");
+            if (id < 10000000 || payload.getInt("id") != id || prayerId < 1 || prayerId > 6
+                    || (prayerId == 6 && !"sunrise".equals(payload.optString("prayer")))
                     || payload.getLong("at") <= 0
                     || !(kind.equals("adhan") || kind.equals("before") || kind.equals("after"))) return null;
             return payload;

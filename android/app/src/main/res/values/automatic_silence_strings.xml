@@ -1,0 +1,6 @@
+<resources>
+    <string name="automatic_silence_rule">Prayer silence · SalaTime</string>
+    <string name="automatic_silence_description">SalaTime silences calls and notifications during the prayer periods you choose. Alarms remain allowed. Manage the start, duration and prayers in SalaTime settings. Other Android modes and manual changes remain in effect.</string>
+    <string name="automatic_silence_open">Open SalaTime</string>
+    <string name="automatic_silence_disable">Disable prayer silence</string>
+</resources>

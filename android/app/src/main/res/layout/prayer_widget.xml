@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root" android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="@drawable/prayer_widget_background" android:clipToOutline="true">
+    android:clipToOutline="true">
+    <ImageView android:id="@+id/widget_background" android:layout_width="match_parent" android:layout_height="match_parent" android:src="@drawable/prayer_widget_background" android:scaleType="fitXY" android:importantForAccessibility="no" />
     <!-- Reuse the same illustration as the in-app prayer header. Keeping it
          aligned to the end preserves the mosque at narrow widget sizes. -->
-    <ImageView android:layout_width="240dp" android:layout_height="match_parent" android:layout_gravity="right"
+    <ImageView android:id="@+id/widget_illustration" android:layout_width="240dp" android:layout_height="match_parent" android:layout_gravity="right"
         android:src="@drawable/prayer_widget_mosque" android:scaleType="centerCrop" android:alpha="0.42"
         android:importantForAccessibility="no" />
 <LinearLayout
@@ -13,25 +14,29 @@
     android:paddingTop="7dp" android:paddingBottom="7dp">
     <LinearLayout android:layout_width="0dp" android:layout_weight="1.1" android:layout_height="wrap_content" android:orientation="vertical">
         <TextView android:id="@+id/widget_title" android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:text="@string/prayer_widget_next_label" android:textColor="#365342" android:textSize="10sp" android:fontFamily="sans-serif-medium"
+            android:text="@string/prayer_widget_next_label" android:textColor="#4C7A50" android:textSize="10sp" android:fontFamily="sans-serif-medium"
             android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" />
         <TextView android:id="@+id/widget_prayer" android:layout_width="match_parent" android:layout_height="29dp" android:layout_marginTop="2dp"
-            android:text="@string/prayer_widget_preview_prayer" android:textColor="#174D39" android:textSize="23sp" android:fontFamily="sans-serif-medium"
+            android:text="@string/prayer_widget_preview_prayer" android:textColor="#2F5233" android:textSize="23sp" android:fontFamily="sans-serif-medium"
             android:autoSizeTextType="uniform" android:autoSizeMinTextSize="14sp" android:autoSizeMaxTextSize="23sp"
             android:autoSizeStepGranularity="1sp" android:includeFontPadding="false" android:gravity="center_vertical"
             android:maxLines="1" android:ellipsize="end" />
         <TextView android:id="@+id/widget_city" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp"
-            android:textColor="#365342" android:textSize="11sp" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" />
+            android:textColor="#4C7A50" android:textSize="11sp" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" />
     </LinearLayout>
     <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical"
         android:layout_marginStart="8dp" android:gravity="end">
+        <Chronometer android:id="@+id/widget_countdown" android:layout_width="match_parent" android:layout_height="42dp"
+            android:textColor="#2F5233" android:textSize="26sp" android:fontFamily="sans-serif" android:gravity="end|center_vertical"
+            android:visibility="gone" android:maxLines="1" android:autoSizeTextType="uniform"
+            android:autoSizeMinTextSize="12sp" android:autoSizeMaxTextSize="26sp" android:autoSizeStepGranularity="1sp" />
         <TextView android:id="@+id/widget_time" android:layout_width="match_parent" android:layout_height="42dp"
-            android:text="05:36" android:textColor="#174D39" android:textSize="36sp" android:fontFamily="sans-serif"
+            android:text="05:36" android:textColor="#2F5233" android:textSize="36sp" android:fontFamily="sans-serif"
             android:autoSizeTextType="uniform" android:autoSizeMinTextSize="16sp" android:autoSizeMaxTextSize="36sp"
             android:autoSizeStepGranularity="1sp" android:includeFontPadding="false" android:gravity="end|center_vertical"
             android:fontFeatureSettings="tnum" android:maxLines="1" />
         <TextView android:id="@+id/widget_date" android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:textColor="#365342" android:textSize="10sp" android:includeFontPadding="false" android:gravity="end"
+            android:textColor="#4C7A50" android:textSize="10sp" android:includeFontPadding="false" android:gravity="end"
             android:maxLines="1" android:ellipsize="end" />
     </LinearLayout>
 </LinearLayout>

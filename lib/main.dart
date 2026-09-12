@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'package:zabi/service/preference_cloud_sync.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -53,6 +56,8 @@ Future<void> _bootstrapApp() async {
       child: MyApp(languages: languages, initialRoute: initialRoute),
     ),
   );
+  // Account/cloud failures never block offline prayer times or onboarding.
+  unawaited(PreferenceCloudSync.instance.initialize().catchError((_) {}));
 }
 
 class MyApp extends StatelessWidget {
@@ -76,6 +81,15 @@ class MyApp extends StatelessWidget {
                   navigatorKey: Get.key,
                   theme: getAppTheme(themeController.darkTheme),
                   locale: localizeController.locale,
+                  localizationsDelegates: GlobalMaterialLocalizations.delegates,
+                  supportedLocales: AppConstants.languages
+                      .map(
+                        (language) => Locale(
+                          language.languageCode!,
+                          language.countryCode,
+                        ),
+                      )
+                      .toList(),
                   initialRoute: initialRoute,
                   getPages: RouteHelper.routes,
                   navigatorObservers: [SentryNavigatorObserver()],

@@ -1,4 +1,6 @@
+import 'package:zabi/service/personal_notification_sounds.dart';
 import 'dart:io';
+import 'notification_sound_catalog.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -54,16 +56,16 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
   // }
 
   @override
-  Future<void> initializeNotification() async {
+  Future<void> initializeNotification({bool requestPermissions = true}) async {
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings("@mipmap/launcher_icon");
 
     final DarwinInitializationSettings initializationSettingsDarwin =
         DarwinInitializationSettings(
           onDidReceiveLocalNotification: _onDidReceiveLocalNotification,
-          requestAlertPermission: true,
+          requestAlertPermission: requestPermissions,
           requestBadgePermission: false,
-          requestSoundPermission: true,
+          requestSoundPermission: requestPermissions,
           defaultPresentAlert: true,
           defaultPresentBadge: false,
           defaultPresentSound: true,
@@ -86,6 +88,8 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
       onDidReceiveBackgroundNotificationResponse: _notificationTapBackground,
     );
     await _prepareChannelsWithoutBadges();
+
+    if (!requestPermissions) return;
 
     if (Platform.isAndroid) {
       final androidVersion =
@@ -114,9 +118,10 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
 
   static String _channelWithoutBadge(String id) => '${id}_no_badge_v1';
 
-  static bool _isLegacyPrayerChannel(String id) => RegExp(
-    r'^(?:(?:before_|after_)?adhan_)?(?:azan_[123]|noti_1|noti_beep(?:_beep)?)$',
-  ).hasMatch(id);
+  static bool _isLegacyPrayerChannel(String id) {
+    final key = id.replaceFirst(RegExp(r'^(?:before_|after_)?adhan_'), '');
+    return NotificationSoundCatalog.contains(key);
+  }
 
   Future<void> _prepareChannelsWithoutBadges() async {
     final android = _flutterLocalNotificationsPlugin
@@ -183,6 +188,7 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
     String? channel,
   }) async {
     final prefs = await SharedPreferences.getInstance();
+    await PersonalNotificationSounds.load(prefs);
     final selectedSound =
         sound ??
         prefs.getString(AppConstants.SELECTED_NOTIFICATION_SOUND_KEY) ??
@@ -302,7 +308,12 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
     String? sound,
     int? when,
   }) {
-    final iosSound = '$sound.aiff';
+    final personal = PersonalNotificationSounds.find(sound);
+    final silent =
+        sound == 'silent' ||
+        (sound?.startsWith('custom_') == true &&
+            (!PersonalNotificationSounds.supported || personal == null));
+    final iosSound = silent ? null : '$sound.aiff';
     final androidSound = sound;
     return NotificationDetails(
       android: AndroidNotificationDetails(
@@ -317,15 +328,19 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
         audioAttributesUsage: channel?.startsWith('adhan_') ?? false
             ? AudioAttributesUsage.alarm
             : AudioAttributesUsage.notification,
-        sound: RawResourceAndroidNotificationSound(androidSound),
-        playSound: true,
+        sound: silent
+            ? null
+            : personal != null
+            ? UriAndroidNotificationSound(personal['path']!)
+            : RawResourceAndroidNotificationSound(androidSound),
+        playSound: !silent,
         enableVibration: true,
         largeIcon: const DrawableResourceAndroidBitmap('dark_icon'),
         colorized: true,
       ),
       iOS: DarwinNotificationDetails(
         presentAlert: true,
-        presentSound: true,
+        presentSound: !silent,
         presentBadge: false,
         badgeNumber: 0,
         sound: iosSound,

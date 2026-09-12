@@ -13,20 +13,31 @@ import 'package:zabi/util/images.dart';
 import 'package:zabi/util/styles.dart';
 import 'package:zabi/view/screens/category/category_screen.dart';
 import 'package:zabi/view/screens/compass/compass_screen.dart';
+import 'package:zabi/view/screens/dhikr/dhikr_screen.dart';
 import 'package:zabi/view/screens/home/home_screen.dart';
 import 'package:zabi/view/screens/nearby_mosque/nearby_mosque_screen.dart';
 
 import 'np_internet_widgets.dart';
 
 class BottomNavbarScreen extends StatefulWidget {
-  const BottomNavbarScreen({super.key});
+  const BottomNavbarScreen({super.key, this.pageBuilder});
+
+  /// Allows the shell to host alternate page content without changing navigation.
+  final Widget Function(
+    BuildContext context,
+    int index,
+    bool isActive,
+    VoidCallback returnHome,
+  )?
+  pageBuilder;
 
   @override
   State<BottomNavbarScreen> createState() => _BottomNavbarScreenState();
 }
 
 class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
-  late List<Widget> _pages;
+  final Map<int, Widget> _pages = {};
+  static const int _pageCount = 5;
   int _selectedPageIndex = 0;
 
   // Pages already visited are kept alive in the IndexedStack; unvisited
@@ -47,7 +58,7 @@ class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
 
   void _selectPage(int index) {
     // Prevent access to online-only pages without internet
-    if ((index == 2 || index == 3) && !internetController.hasInternet.value) {
+    if ((index == 3 || index == 4) && !internetController.hasInternet.value) {
       showNoInternetDialog();
       return;
     }
@@ -67,32 +78,64 @@ class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
     return baseSize * clampedScale;
   }
 
+  void _returnHome() {
+    if (_selectedPageIndex == 0) return;
+    setState(() => _selectedPageIndex = 0);
+  }
+
+  Widget _page(BuildContext context, int index) {
+    final active = index == _selectedPageIndex;
+    if (widget.pageBuilder != null) {
+      return widget.pageBuilder!(context, index, active, _returnHome);
+    }
+    // Only the compass needs a new activation flag. Retaining the other widget
+    // instances avoids restarting their work when returning to the home page.
+    if (index == 1) {
+      return CompassScreen(
+        appBackButton: true,
+        isActive: active,
+        onBackPressed: _returnHome,
+      );
+    }
+    return _pages.putIfAbsent(
+      index,
+      () => switch (index) {
+        0 => const HomeScreen(),
+        2 => DhikrScreen(appBackButton: true, onBackPressed: _returnHome),
+        3 => NearbyMosque(appBackButton: true, onBackPressed: _returnHome),
+        4 => CategoryScreen(appBackButton: true, onBackPressed: _returnHome),
+        _ => throw RangeError.index(index, List.filled(_pageCount, null)),
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isIOS = Platform.isIOS;
-    _pages = [
-      const HomeScreen(),
-      CompassScreen(appBackButton: false, isActive: _selectedPageIndex == 1),
-      const NearbyMosque(appBackButton: false),
-      CategoryScreen(appBackButton: false),
-    ];
-
-    return Scaffold(
-      body: IndexedStack(
-        index: _selectedPageIndex,
-        children: [
-          for (int i = 0; i < _pages.length; i++)
-            _visitedPages.contains(i) ? _pages[i] : const SizedBox.shrink(),
-        ],
+    return PopScope<Object?>(
+      canPop: _selectedPageIndex == 0,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) _returnHome();
+      },
+      child: Scaffold(
+        body: IndexedStack(
+          index: _selectedPageIndex,
+          children: [
+            for (int i = 0; i < _pageCount; i++)
+              _visitedPages.contains(i)
+                  ? _page(context, i)
+                  : const SizedBox.shrink(),
+          ],
+        ),
+        bottomNavigationBar: Obx(() {
+          final isModern =
+              Get.find<HomeLayoutController>().currentLayout.value ==
+              HomeLayoutController.modern;
+          return isModern
+              ? _buildModernNavBar(context)
+              : _buildClassicNavBar(context, isIOS);
+        }),
       ),
-      bottomNavigationBar: Obx(() {
-        final isModern =
-            Get.find<HomeLayoutController>().currentLayout.value ==
-            HomeLayoutController.modern;
-        return isModern
-            ? _buildModernNavBar(context)
-            : _buildClassicNavBar(context, isIOS);
-      }),
     );
   }
 
@@ -112,13 +155,6 @@ class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
           children: [
             Expanded(
               child: _buildNavItem(
-                index: 0,
-                icon: Images.Icon_Home,
-                label: 'nav_today'.tr,
-              ),
-            ),
-            Expanded(
-              child: _buildNavItem(
                 index: 1,
                 icon: Images.Icon_Qibla,
                 label: 'nav_qibla'.tr,
@@ -127,13 +163,20 @@ class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
             Expanded(
               child: _buildNavItem(
                 index: 2,
+                icon: Images.Icon_Dikir,
+                label: 'nav_dhikr'.tr,
+              ),
+            ),
+            Expanded(
+              child: _buildNavItem(
+                index: 3,
                 icon: Images.Icon_near_mosque,
                 label: 'nav_mosques'.tr,
               ),
             ),
             Expanded(
               child: _buildNavItem(
-                index: 3,
+                index: 4,
                 icon: Images.Icon_Category,
                 label: 'nav_more'.tr,
               ),
@@ -168,13 +211,6 @@ class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
         children: [
           Expanded(
             child: _buildModernNavItem(
-              index: 0,
-              icon: Images.ModernIcon_Home,
-              label: 'nav_today'.tr,
-            ),
-          ),
-          Expanded(
-            child: _buildModernNavItem(
               index: 1,
               icon: Images.Icon_Qibla,
               label: 'nav_qibla'.tr,
@@ -183,13 +219,20 @@ class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
           Expanded(
             child: _buildModernNavItem(
               index: 2,
+              icon: Images.ModernIcon_Dhikr,
+              label: 'nav_dhikr'.tr,
+            ),
+          ),
+          Expanded(
+            child: _buildModernNavItem(
+              index: 3,
               icon: Images.Icon_near_mosque,
               label: 'nav_mosques'.tr,
             ),
           ),
           Expanded(
             child: _buildModernNavItem(
-              index: 3,
+              index: 4,
               icon: Images.ModernIcon_Menu,
               label: 'nav_more'.tr,
             ),
@@ -204,36 +247,20 @@ class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
     required String icon,
     required String label,
   }) {
-    return GestureDetector(
-      onTap: () => _selectPage(index),
-      child: SizedBox(
-        width: double.infinity,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SvgPicture.asset(
-              icon,
-              height: 30,
-              color: _selectedPageIndex == index
-                  ? Theme.of(context).brightness == Brightness.dark
-                        ? Theme.of(context).primaryColor
-                        : Theme.of(context).cardColor
-                  : Theme.of(context).brightness == Brightness.dark
-                  ? Theme.of(context).primaryColor.withOpacity(0.6)
-                  : Theme.of(context).cardColor.withOpacity(0.6),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              maxLines: 1,
-              softWrap: false,
-              overflow: TextOverflow.ellipsis,
-              style: robotoMedium.copyWith(
-                fontSize: _responsiveFontSize(
-                  context,
-                  Dimensions.FONT_SIZE_SMALL,
-                ),
-                height: 1.0,
+    return Semantics(
+      key: ValueKey('bottom-nav-item-$index'),
+      button: true,
+      selected: _selectedPageIndex == index,
+      child: GestureDetector(
+        onTap: () => _selectPage(index),
+        child: SizedBox(
+          width: double.infinity,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset(
+                icon,
+                height: 30,
                 color: _selectedPageIndex == index
                     ? Theme.of(context).brightness == Brightness.dark
                           ? Theme.of(context).primaryColor
@@ -242,8 +269,29 @@ class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
                     ? Theme.of(context).primaryColor.withOpacity(0.6)
                     : Theme.of(context).cardColor.withOpacity(0.6),
               ),
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(
+                label,
+                maxLines: 1,
+                softWrap: false,
+                overflow: TextOverflow.ellipsis,
+                style: robotoMedium.copyWith(
+                  fontSize: _responsiveFontSize(
+                    context,
+                    Dimensions.FONT_SIZE_SMALL,
+                  ),
+                  height: 1.0,
+                  color: _selectedPageIndex == index
+                      ? Theme.of(context).brightness == Brightness.dark
+                            ? Theme.of(context).primaryColor
+                            : Theme.of(context).cardColor
+                      : Theme.of(context).brightness == Brightness.dark
+                      ? Theme.of(context).primaryColor.withOpacity(0.6)
+                      : Theme.of(context).cardColor.withOpacity(0.6),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -256,40 +304,47 @@ class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
   }) {
     final isActive = _selectedPageIndex == index;
     final color = isActive ? const Color(0xFFF9A825) : Colors.white70;
-    return GestureDetector(
-      onTap: () => _selectPage(index),
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 7),
-        decoration: BoxDecoration(
-          color: isActive ? Colors.black.withOpacity(0.12) : Colors.transparent,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SvgPicture.asset(icon, height: 25, color: color),
-            const SizedBox(height: 4),
-            Center(
-              child: Text(
-                label,
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                softWrap: false,
-                overflow: TextOverflow.ellipsis,
-                style: robotoMedium.copyWith(
-                  fontSize: _responsiveFontSize(
-                    context,
-                    Dimensions.FONT_SIZE_SMALL,
+    return Semantics(
+      key: ValueKey('bottom-nav-item-$index'),
+      button: true,
+      selected: _selectedPageIndex == index,
+      child: GestureDetector(
+        onTap: () => _selectPage(index),
+        behavior: HitTestBehavior.opaque,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 7),
+          decoration: BoxDecoration(
+            color: isActive
+                ? Colors.black.withOpacity(0.12)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SvgPicture.asset(icon, height: 25, color: color),
+              const SizedBox(height: 4),
+              Center(
+                child: Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  softWrap: false,
+                  overflow: TextOverflow.ellipsis,
+                  style: robotoMedium.copyWith(
+                    fontSize: _responsiveFontSize(
+                      context,
+                      Dimensions.FONT_SIZE_SMALL,
+                    ),
+                    height: 1.0,
+                    color: color,
                   ),
-                  height: 1.0,
-                  color: color,
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

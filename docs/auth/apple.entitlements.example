@@ -1,0 +1,4 @@
+<!-- Merge into the app's signing entitlements only after enabling the capability
+     for its actual App ID and refreshing the provisioning profile. -->
+<key>com.apple.developer.applesignin</key>
+<array><string>Default</string></array>

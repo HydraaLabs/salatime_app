@@ -6,6 +6,39 @@ import 'package:zabi/helper/adhan_notification_service_helper.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   test(
+    'cloud restore initializes iOS without any permission request',
+    () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      const channel = MethodChannel(
+        'dexterous.com/flutter/local_notifications',
+      );
+      final calls = <MethodCall>[];
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, (call) async {
+            calls.add(call);
+            return call.method == 'initialize' ? true : null;
+          });
+      addTearDown(() {
+        debugDefaultTargetPlatformOverride = null;
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(channel, null);
+      });
+      await AdhanNotificationServiceImpl().initializeNotification(
+        requestPermissions: false,
+      );
+      final initialization = calls
+          .singleWhere((call) => call.method == 'initialize')
+          .arguments;
+      expect(initialization['requestAlertPermission'], false);
+      expect(initialization['requestSoundPermission'], false);
+      expect(initialization['requestBadgePermission'], false);
+      expect(
+        calls.where((call) => call.method == 'requestPermissions'),
+        isEmpty,
+      );
+    },
+  );
+  test(
     'iOS notifications keep alerts and sound without incrementing the badge',
     () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.iOS;

@@ -1,0 +1,7 @@
+<!-- Merge this dictionary into CFBundleURLTypes after replacing the marker with
+     the actual REVERSED_CLIENT_ID from this app's iOS OAuth client. -->
+<dict>
+    <key>CFBundleTypeRole</key><string>Editor</string>
+    <key>CFBundleURLSchemes</key>
+    <array><string>REPLACE_WITH_REAL_REVERSED_CLIENT_ID</string></array>
+</dict>

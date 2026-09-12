@@ -1,3 +1,4 @@
+import 'package:zabi/view/screens/daily/daily_verse_card.dart';
 // ignore_for_file: deprecated_member_use
 
 import 'dart:ui';
@@ -7,6 +8,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:zabi/controller/internet_check_controller.dart';
 import 'package:zabi/controller/package_prayer_time_controller.dart';
+import 'package:zabi/controller/prayer_time_adjustment.dart';
 import 'package:zabi/controller/quran_settings_controller.dart';
 import 'package:zabi/controller/theme_controller.dart';
 import 'package:zabi/helper/date_converter.dart';
@@ -47,7 +49,7 @@ class ClassicHomeScreen extends StatelessWidget {
                   ? null
                   : _buildAppBar(context, mosqueData, prayerTimeController),
               body: SafeArea(
-                top: false,
+                top: true,
                 child: isLoading || mosqueData == null && !hasInternet
                     ? const DashbordShimmerScreen()
                     : _buildBody(context, prayerTimeController),
@@ -235,6 +237,7 @@ class ClassicHomeScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const BannerWidget(),
+          const DailyVerseCard(),
           const SizedBox(height: Dimensions.PADDING_SIZE_EXTRA_SMALL),
           _buildPrayerTimesSection(prayerTimeController),
           const SizedBox(height: Dimensions.PADDING_SIZE_DEFAULT),
@@ -296,6 +299,7 @@ class ClassicHomeScreen extends StatelessWidget {
           rightPrayer: _buildPrayerCard(
             icon: Images.Sunrise,
             name: 'sunrise'.tr,
+            prayerKey: 'sunrise',
             time: prayerData?.sunrise ?? "00:00",
             is24HourFormat: is24HourFormat,
             isSunrise: true,
@@ -395,12 +399,9 @@ class ClassicHomeScreen extends StatelessWidget {
     String? prayerKey,
     bool isSunrise = false,
   }) {
-    return GetBuilder<PrayerTimeController>(
-      builder: (prayerController) {
-        final isManual = prayerController.isManualPrayerTime.value;
-
-        // Don't apply adjustment if manual prayer times are active
-        final adjustedTime = (prayerKey != null && !isManual)
+    return GetBuilder<PrayerTimeAdjustmentController>(
+      builder: (_) {
+        final adjustedTime = prayerKey != null
             ? TimeAdjustmentHelper().getDisplayTime(
                 prayerKey: prayerKey,
                 defaultTime: time,
@@ -418,10 +419,10 @@ class ClassicHomeScreen extends StatelessWidget {
           jamah: displayTime,
           isSunrise: isSunrise,
           sunriseStart: isSunrise ? displayTime : "00:00",
-          isAdjusted: (prayerKey != null && !isManual)
+          isAdjusted: prayerKey != null
               ? TimeAdjustmentHelper().isTimeAdjusted(prayerKey)
               : false,
-          adjustmentText: (prayerKey != null && !isManual)
+          adjustmentText: prayerKey != null
               ? TimeAdjustmentHelper().getAdjustmentText(prayerKey)
               : '',
         );

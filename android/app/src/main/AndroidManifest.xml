@@ -17,6 +17,9 @@
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
 
+    <!-- Optional prayer silence uses an app-owned Android Do Not Disturb rule. -->
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY"/>
+
     <!-- Notifications -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
@@ -38,7 +41,19 @@
         android:name="${applicationName}"
         android:label="SalaTime"
         android:supportsRtl="true"
+        android:fullBackupContent="@xml/auth_backup_rules"
+        android:dataExtractionRules="@xml/auth_data_extraction_rules"
         android:icon="@mipmap/launcher_icon">
+
+        <activity android:name="com.aboutyou.dart_packages.sign_in_with_apple.SignInWithAppleCallback" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="signinwithapple" />
+                <data android:path="callback" />
+            </intent-filter>
+        </activity>
 
         <!-- FileProvider for sharing images etc. -->
         <provider
@@ -52,7 +67,11 @@
         </provider>
 
         <!-- Notification receivers -->
-        <receiver android:exported="true" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
+        <provider android:name=".PersonalSoundProvider" android:authorities="${applicationId}.personal-sounds"
+            android:exported="false" android:grantUriPermissions="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/personal_sound_paths" />
+        </provider>
+        <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.SalaTimePrayerAlarmReceiver" />
         <service android:exported="false" android:name="com.dexterous.flutterlocalnotifications.SalaTimeAdhanService"
             android:foregroundServiceType="mediaPlayback" />
@@ -65,13 +84,39 @@
                 <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED"/>
             </intent-filter>
         </receiver>
+        <receiver android:exported="false" android:name=".SmallPrayerWidgetProvider" android:label="@string/prayer_widget_small">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/prayer_widget_small_info" />
+        </receiver>
+        <receiver android:exported="false" android:name=".LargePrayerWidgetProvider" android:label="@string/prayer_widget_large">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/prayer_widget_large_info" />
+        </receiver>
         <receiver android:exported="false" android:name=".PrayerWidgetProvider" android:label="SalaTime">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
             </intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/prayer_widget_info"/>
         </receiver>
-        <receiver android:exported="true" android:name="com.dexterous.flutterlocalnotifications.ActionBroadcastReceiver" />
+        <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ActionBroadcastReceiver" />
+
+        <receiver android:name=".AutomaticSilenceReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+                <action android:name="android.intent.action.TIME_SET"/>
+                <action android:name="android.intent.action.TIMEZONE_CHANGED"/>
+                <action android:name="android.app.action.NOTIFICATION_POLICY_ACCESS_GRANTED_CHANGED"/>
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED"/>
+                <action android:name="android.app.action.AUTOMATIC_ZEN_RULE_STATUS_CHANGED"/>
+            </intent-filter>
+        </receiver>
+        <activity android:name=".SilenceRuleSettingsActivity" android:exported="true" android:theme="@style/NormalTheme">
+            <intent-filter>
+                <action android:name="android.app.action.AUTOMATIC_ZEN_RULE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
 
         <!-- Main Flutter Activity -->
         <activity

@@ -1,3 +1,5 @@
+import 'package:zabi/helper/prayer_notification_preferences.dart';
+import 'package:zabi/view/screens/notification/widgets/sound_selection_field.dart';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -359,13 +361,12 @@ void main() {
   );
 
   testWidgets(
-    'first-launch setup hides disabled reminder sounds and allows independent choices',
+    'first-launch opens the same dedicated notification pages with prayer defaults',
     (tester) async {
       tester.view.physicalSize = const Size(360, 800);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
-
       SharedPreferences.setMockInitialValues({});
       final preferences = await SharedPreferences.getInstance();
       Get.put(
@@ -378,94 +379,79 @@ void main() {
         ),
       );
       addTearDown(Get.reset);
-
       String? previewedSound;
       await tester.pumpWidget(
         GetMaterialApp(
           translations: _OnboardingTestTranslations(),
           locale: const Locale('en', 'US'),
           home: FirstLaunchSetupScreen(
-            soundPreview: (assetPath) async => previewedSound = assetPath,
+            soundPreview: (path) async => previewedSound = path,
           ),
         ),
       );
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 100));
-
-      expect(find.text('Welcome to SalaTime'), findsOneWidget);
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Next'));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 400));
-
-      expect(find.text('Before Adhan'), findsOneWidget);
-      expect(find.text('After Adhan'), findsOneWidget);
-      expect(find.text('5 minutes'), findsNothing);
-      expect(
-        tester.widget<SwitchListTile>(find.byType(SwitchListTile).at(1)).value,
-        isFalse,
-      );
-      expect(
-        tester.widget<SwitchListTile>(find.byType(SwitchListTile).at(2)).value,
-        isFalse,
-      );
-      expect(
-        find.byKey(const Key('onboarding_adhan_preview_button')),
-        findsOneWidget,
-      );
-
-      final adhanToggle = find.byType(SwitchListTile).first;
-      if (!tester.widget<SwitchListTile>(adhanToggle).value) {
-        await tester.tap(adhanToggle);
-        await tester.pump();
-      }
-      await tester.ensureVisible(
-        find.byKey(const Key('onboarding_adhan_preview_button')),
-      );
       await tester.pumpAndSettle();
-      await tester.tap(
-        find.byKey(const Key('onboarding_adhan_preview_button')),
-      );
-      await tester.pump();
-      expect(previewedSound, AppConstants.DEFAULT_NOTIFICATION_SOUND_ASSET);
-      for (final kind in ['before', 'after']) {
-        final toggle = find.byType(SwitchListTile).at(kind == 'before' ? 1 : 2);
-        await tester.ensureVisible(toggle);
-        await tester.tap(toggle);
-        await tester.pumpAndSettle();
-        expect(
-          find.byKey(Key('onboarding_${kind}_preview_button')),
-          findsOneWidget,
-        );
-      }
-      for (final choice in {
-        'adhan': 'azan_3',
-        'before': 'noti_beep_beep',
-        'after': 'noti_1',
-      }.entries) {
-        final field = find.byWidgetPredicate(
-          (w) =>
-              w is DropdownButtonFormField<String> &&
-              w.key.toString().contains('onboarding_${choice.key}_sound_'),
-        );
-        tester.widget<DropdownButtonFormField<String>>(field).onChanged!(
-          choice.value,
-        );
-        await tester.pumpAndSettle();
-        expect(
-          find.byKey(
-            ValueKey('onboarding_${choice.key}_sound_${choice.value}'),
-          ),
-          findsOneWidget,
-        );
-        expect(previewedSound, 'assets/audio/${choice.value}.mp3');
-      }
-      await tester.ensureVisible(adhanToggle);
-      await tester.tap(adhanToggle);
+      expect(find.byType(SwitchListTile), findsNothing);
+      final before = find.byKey(const ValueKey('notification_category_before'));
+      await tester.ensureVisible(before);
+      await tester.tap(before);
       await tester.pumpAndSettle();
-      expect(find.byType(DropdownButtonFormField<String>), findsNothing);
-
+      final defaults = await PrayerNotificationPreferences.load();
+      expect(
+        defaults
+            .where(
+              (s) =>
+                  s.phase == PrayerNotificationPhase.before &&
+                  s.prayer != PrayerNotificationPrayer.sunrise,
+            )
+            .every((s) => s.enabled),
+        isTrue,
+      );
+      expect(
+        defaults
+            .where((s) => s.prayer == PrayerNotificationPrayer.sunrise)
+            .every((s) => !s.enabled),
+        isTrue,
+      );
+      expect(
+        tester
+            .widget<SwitchListTile>(
+              find.byKey(const ValueKey('notification_before_fajr')),
+            )
+            .value,
+        isTrue,
+      );
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      final adhan = find.byKey(const ValueKey('notification_category_adhan'));
+      await tester.ensureVisible(adhan);
+      await tester.tap(adhan);
+      await tester.pumpAndSettle();
+      final sound = tester.widget<SoundSelectionField>(
+        find.byKey(const ValueKey('notification_sound_adhan_fajr')),
+      );
+      expect(sound.selectedKey, 'moatheni_on_prayer_fajr');
+      await sound.onPreview!(sound.selectedKey);
+      expect(previewedSound, 'assets/audio/moatheni_on_prayer_fajr.mp3');
+      final change = (await PrayerNotificationPreferences.load()).firstWhere(
+        (s) =>
+            s.phase == PrayerNotificationPhase.after &&
+            s.prayer == PrayerNotificationPrayer.asr,
+      );
+      await PrayerNotificationPreferences.save(
+        change.copyWith(enabled: true, sound: 'moatheni_ring2', minutes: 22),
+      );
+      await FirstLaunchSetupService(
+        preferences,
+      ).completeConfiguredNotifications();
+      final saved = (await PrayerNotificationPreferences.load()).firstWhere(
+        (s) => s.phase == change.phase && s.prayer == change.prayer,
+      );
+      expect(saved.sound, 'moatheni_ring2');
+      expect(saved.minutes, 22);
+      expect(saved.enabled, isTrue);
       expect(tester.takeException(), isNull);
-
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pump();
     },
@@ -674,6 +660,57 @@ void main() {
     );
   });
 
+  testWidgets('home switches from elapsed time to next prayer at 90 minutes', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    Get.put<SharedPreferences>(prefs);
+    addTearDown(Get.reset);
+    final controller =
+        PrayerTimeController(
+            apiClient: ApiClient(
+              appBaseUrl: AppConstants.BASE_URL,
+              sharedPreferences: prefs,
+            ),
+          )
+          ..currentWaqtName.value = 'Maghrib'
+          ..currentWaktTime.value = '19:39'
+          ..prayerTimeModel = PrayerTimeModel(
+            data: Data(
+              date: '2026-09-12',
+              asrStart: '16:00',
+              maghribStart: '19:39',
+            ),
+          );
+    var now = DateTime(2026, 9, 12, 17, 29, 59);
+    await tester.pumpWidget(
+      GetMaterialApp(
+        translations: _PrayerDashboardTestTranslations(),
+        locale: const Locale('en', 'US'),
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: ModernPrayerDashboard(
+              prayerTimeController: controller,
+              now: () => now,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    expect(find.text('Time since Asr'), findsOneWidget);
+    expect(find.text('01:29:59'), findsOneWidget);
+    now = DateTime(2026, 9, 12, 17, 30);
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('Time since Asr'), findsNothing);
+    expect(find.text('Next prayer'), findsOneWidget);
+    expect(find.text('in 02:09:00'), findsOneWidget);
+    expect(controller.currentWaqtName.value, 'Maghrib');
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
   testWidgets('a home bell toggles only its prayer notifications', (
     tester,
   ) async {
@@ -760,15 +797,36 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    final prayers = await repository.getSalatWaqtList();
+    final prayers = await PrayerNotificationPreferences.load();
     expect(
-      prayers.singleWhere((prayer) => prayer.id == 1).isNotificationEnabled,
+      prayers
+          .singleWhere(
+            (prayer) =>
+                prayer.prayer == PrayerNotificationPrayer.fajr &&
+                prayer.phase == PrayerNotificationPhase.adhan,
+          )
+          .enabled,
       isFalse,
     );
     expect(
       prayers
-          .where((prayer) => prayer.id != 1)
-          .every((prayer) => prayer.isNotificationEnabled),
+          .where(
+            (prayer) =>
+                prayer.prayer == PrayerNotificationPrayer.fajr &&
+                prayer.phase != PrayerNotificationPhase.adhan,
+          )
+          .every((prayer) => prayer.enabled),
+      isTrue,
+    );
+    expect(
+      prayers
+          .where(
+            (prayer) =>
+                prayer.prayer != PrayerNotificationPrayer.fajr &&
+                prayer.prayer != PrayerNotificationPrayer.sunrise &&
+                prayer.phase == PrayerNotificationPhase.adhan,
+          )
+          .every((prayer) => prayer.enabled),
       isTrue,
     );
     expect(rescheduleCount, 1);
@@ -1028,6 +1086,7 @@ class _PrayerDashboardTestTranslations extends Translations {
     'en_US': {
       'next_prayer': 'Next prayer',
       'countdown_prefix': 'in',
+      'time_since_prayer': 'Time since @prayer',
       'previous_day': 'Previous day',
       'next_day': 'Next day',
       'hijri_month_3': "Rabi' al-Awwal",
@@ -1051,6 +1110,10 @@ class _OnboardingTestTranslations extends Translations {
       'onboarding_welcome_body': 'Setup body',
       'onboarding_language_label': 'Application language',
       'onboarding_settings_title': 'Prayer notifications',
+      'notification_sound_label': 'Sound',
+      'notification_time_label': 'Time',
+      'on_adhan': 'On Adhan',
+      'other_notifications': 'Other notifications',
       'onboarding_settings_body': 'Settings body',
       'onboarding_enable_adhan': 'Enable the Adhan',
       'onboarding_enable_adhan_description': 'Enable prayer Adhan',

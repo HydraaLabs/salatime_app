@@ -18,7 +18,12 @@ import '../../../util/styles.dart';
 
 class NearbyMosque extends StatefulWidget {
   final bool appBackButton;
-  const NearbyMosque({super.key, required this.appBackButton});
+  final VoidCallback? onBackPressed;
+  const NearbyMosque({
+    super.key,
+    required this.appBackButton,
+    this.onBackPressed,
+  });
 
   @override
   State<NearbyMosque> createState() => _NearbyMosqueState();
@@ -86,7 +91,8 @@ class _NearbyMosqueState extends State<NearbyMosque> {
       // Appbar start ===>
       appBar: CustomAppBar(
         title: 'nearby_mosque'.tr,
-        isBackButtonExist: widget.appBackButton == true ? true : false,
+        isBackButtonExist: widget.appBackButton,
+        onBackPressed: widget.onBackPressed,
       ),
 
       // body start ==>

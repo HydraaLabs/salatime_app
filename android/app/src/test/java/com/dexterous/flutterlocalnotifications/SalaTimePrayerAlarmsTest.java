@@ -203,6 +203,84 @@ public class SalaTimePrayerAlarmsTest {
         }
     }
 
+    @Test public void bundledMoatheniSoundsPlayForAdhanAndUnsafeResourcesAreRejected() {
+        NotificationDetails d = details();
+        for (String sound : new String[] {"moatheni_water", "moatheni_short3", "noti_beep"}) {
+            assertTrue(com.example.zabi.BundledNotificationSounds.contains(sound));
+            d.sound = sound;
+            assertEquals(Uri.parse("android.resource://" + app.getPackageName() + "/raw/" + sound),
+                    SalaTimeAdhanService.playableSound(app, d));
+        }
+        for (String sound : new String[] {"silent", "azan_999", "moatheni_unknown", "../private", "content://foreign/audio", null}) {
+            d.sound = sound;
+            assertNull(SalaTimeAdhanService.playableSound(app, d));
+        }
+        d.sound = "moatheni_short3";
+        if (Build.VERSION.SDK_INT >= 26) {
+            NotificationChannel channel = new NotificationChannel(d.channelId, "Muted", NotificationManager.IMPORTANCE_HIGH);
+            channel.setSound(null, null);
+            ((NotificationManager) app.getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
+            assertNull(SalaTimeAdhanService.playableSound(app, d));
+        }
+    }
+
+    @Test public void sunriseIsASeparateValidatedNotificationAndDoesNotAliasFajr() throws Exception {
+        JSONObject row = row(now + 600000, "adhan");
+        JSONObject payload = new JSONObject(row.getString("payload"));
+        payload.put("prayerId", 6);
+        row.put("payload", payload.toString());
+        assertNull(SalaTimePrayerAlarms.prayer(row));
+        payload.put("prayer", "sunrise");
+        row.put("payload", payload.toString());
+        assertEquals(6, SalaTimePrayerAlarms.prayer(row).getInt("prayerId"));
+        payload.put("prayerId", 7);
+        row.put("payload", payload.toString());
+        assertNull(SalaTimePrayerAlarms.prayer(row));
+    }
+
+    @Test public void extraRemindersRouteWithoutPrayerIdAndExpireWhenStale() throws Exception {
+        JSONObject payload = new JSONObject().put("id", 20207100).put("kind", "extra_reminder")
+                .put("type", "duha").put("date", "2026-09-12").put("at", now + 60000);
+        JSONObject row = new JSONObject().put("id", 20207100).put("payload", payload.toString());
+        assertNotNull(SalaTimePrayerAlarms.prayer(row));
+        assertEquals("on_time", SalaTimePrayerAlarms.deliveryPolicy(payload, now + 60000));
+        assertEquals("expired", SalaTimePrayerAlarms.deliveryPolicy(payload, now + 181000));
+        payload.put("date", "2026-99-99");
+        row.put("payload", payload.toString());
+        assertNull(SalaTimePrayerAlarms.prayer(row));
+        payload.put("date", "2026-09-12").put("type", "foreign");
+        row.put("payload", payload.toString());
+        assertNull(SalaTimePrayerAlarms.prayer(row));
+    }
+
+    @Test public void newExtraReminderTypesRouteFromBothStableIdBanks() throws Exception {
+        String[] types = {"fajrAlarm", "bedtime", "middleNight", "monday", "thursday"};
+        for (int i = 0; i < types.length; i++) {
+            int id = (i < 3 ? 21207100 : 20207100) + i;
+            JSONObject payload = new JSONObject().put("id", id).put("kind", "extra_reminder")
+                    .put("type", types[i]).put("date", "2026-09-12").put("at", now + 60000);
+            JSONObject row = new JSONObject().put("id", id).put("payload", payload.toString());
+            assertNotNull(types[i], SalaTimePrayerAlarms.prayer(row));
+            assertEquals("exactAllowWhileIdle", SalaTimePrayerAlarms.register(app, row, now));
+            assertNotNull(SalaTimePrayerAlarms.operation(app, id, false));
+        }
+    }
+
+    @Test public void personalAdhanUsesPrivateUriAndRespectsMutedChannel() throws Exception {
+        NotificationDetails d = details();
+        d.sound = "content://" + app.getPackageName() + ".personal-sounds/sounds/custom_"
+                + new String(new char[64]).replace('\0', 'a') + ".mp3";
+        assertEquals(Uri.parse(d.sound), SalaTimeAdhanService.playableSound(app, d));
+        if (Build.VERSION.SDK_INT >= 26) {
+            NotificationChannel channel = new NotificationChannel(d.channelId, "Muted", NotificationManager.IMPORTANCE_HIGH);
+            channel.setSound(null, null);
+            ((NotificationManager) app.getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
+            assertNull(SalaTimeAdhanService.playableSound(app, d));
+        }
+        d.playSound = false;
+        assertNull(SalaTimeAdhanService.playableSound(app, d));
+    }
+
     @Test public void fullAdhanUsesAlarmAudioAndReleasesResourcesOnStop() throws Exception {
         assertPlaybackFinishes(true);
     }

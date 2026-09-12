@@ -1,3 +1,6 @@
+import 'package:zabi/service/preference_cloud_sync.dart';
+import 'package:zabi/helper/prayer_notification_preferences.dart';
+import 'package:zabi/controller/prayer_time_adjustment.dart';
 // ignore_for_file: deprecated_member_use
 
 import 'dart:async';
@@ -5,11 +8,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:hijri/hijri_calendar.dart';
-import 'package:intl/intl.dart';
+import 'package:zabi/helper/islamic_calendar.dart';
 import 'package:zabi/controller/package_prayer_time_controller.dart';
 import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
 import 'package:zabi/helper/date_converter.dart';
+import 'package:zabi/helper/prayer_display_phase.dart';
 import 'package:zabi/helper/salat_waqt_service.dart';
 import 'package:zabi/helper/translator_helper.dart';
 import 'package:zabi/theme/modern_light_theme.dart';
@@ -40,21 +43,32 @@ class ModernPrayerDashboard extends StatefulWidget {
 class _ModernPrayerDashboardState extends State<ModernPrayerDashboard> {
   Timer? _ticker;
   Duration? _remaining;
-  late final SalatWaqtRepository _notificationRepository;
-  final Map<int, bool> _notificationStates = {};
+  PrayerDisplayPhase? _phase;
+  Data? _previousDay;
+  Data? _nextDay;
+  PrayerDisplayPhase? _nextPrayer;
+  DateTime? _previousDayRequested;
+  PrayerTimeModel? _neighborModel;
+  Object? _neighborContext;
+  bool _loadingNeighbors = false;
+  StreamSubscription<void>? _notificationChanges;
+  final Map<PrayerNotificationPrayer, bool> _notificationStates = {};
   final Set<int> _updatingPrayerIds = {};
   bool _notificationStatesLoaded = false;
   late DateTime _selectedDate;
+  late DateTime _lastToday;
   PrayerTimeModel? _displayedPrayerTimeModel;
   bool _isChangingDate = false;
 
   @override
   void initState() {
     super.initState();
-    _notificationRepository =
-        widget.notificationRepository ?? SalatWaqtRepository();
+    _notificationChanges = PrayerNotificationPreferences.changes.listen((_) {
+      if (mounted) unawaited(_loadNotificationStates());
+    });
     final now = widget.now();
     _selectedDate = DateTime(now.year, now.month, now.day);
+    _lastToday = _selectedDate;
     _displayedPrayerTimeModel = widget.prayerTimeController.prayerTimeModel;
     _recomputeCountdown();
     unawaited(_loadNotificationStates());
@@ -66,19 +80,15 @@ class _ModernPrayerDashboardState extends State<ModernPrayerDashboard> {
 
   Future<void> _loadNotificationStates() async {
     try {
-      var prayers = await _notificationRepository.getSalatWaqtList();
-      if (prayers.isEmpty) {
-        await _notificationRepository.seedSalatWaqt();
-        prayers = await _notificationRepository.getSalatWaqtList();
-      }
+      final prayers = await PrayerNotificationPreferences.load();
       if (!mounted) return;
       setState(() {
         _notificationStates
           ..clear()
           ..addEntries(
-            prayers.map(
-              (prayer) => MapEntry(prayer.id, prayer.isNotificationEnabled),
-            ),
+            prayers
+                .where((p) => p.phase == PrayerNotificationPhase.adhan)
+                .map((prayer) => MapEntry(prayer.prayer, prayer.enabled)),
           );
         _notificationStatesLoaded = true;
       });
@@ -95,34 +105,32 @@ class _ModernPrayerDashboardState extends State<ModernPrayerDashboard> {
       return;
     }
 
-    final previousValue = _notificationStates[prayerId] ?? false;
+    final selectedPrayer = PrayerNotificationPrayer.fromLegacyId(
+      prayerId,
+      date: _selectedDate,
+    );
+    final previousValue = _notificationStates[selectedPrayer] ?? false;
     final nextValue = !previousValue;
+    PreferenceCloudSync.instance.noteLocalChange();
     setState(() {
-      _notificationStates[prayerId] = nextValue;
+      _notificationStates[selectedPrayer] = nextValue;
       _updatingPrayerIds.add(prayerId);
     });
 
     var saved = false;
     try {
-      final savedPrayer = await _notificationRepository.setNotificationEnabled(
-        prayerId,
+      await PrayerNotificationPreferences.setPrayerAdhanEnabled(
+        selectedPrayer,
         nextValue,
       );
-      if (savedPrayer == null) {
-        throw StateError('Prayer notification $prayerId was not found');
-      }
       saved = true;
+      PreferenceCloudSync.instance.noteLocalChange();
 
-      final reschedule = widget.rescheduleNotifications;
-      if (reschedule != null) {
-        await reschedule();
-      } else {
-        await SalatWaqtService.initializeSalatWaqt();
-      }
+      unawaited(_refreshPrayerNotifications(nextValue));
     } catch (error) {
       Get.log('Failed to update prayer notification $prayerId: $error');
       if (!saved && mounted) {
-        setState(() => _notificationStates[prayerId] = previousValue);
+        setState(() => _notificationStates[selectedPrayer] = previousValue);
       }
     } finally {
       if (mounted) {
@@ -131,21 +139,116 @@ class _ModernPrayerDashboardState extends State<ModernPrayerDashboard> {
     }
   }
 
+  Future<void> _refreshPrayerNotifications(bool enabled) async {
+    try {
+      if (enabled) await SalatWaqtService.checkNotificationPermission();
+      await (widget.rescheduleNotifications?.call() ??
+          SalatWaqtService.requestRefresh());
+    } catch (error) {
+      Get.log('Failed to refresh prayer notifications: $error');
+    }
+  }
+
   @override
   void dispose() {
+    unawaited(_notificationChanges?.cancel());
     _ticker?.cancel();
     super.dispose();
   }
 
-  void _recomputeCountdown() {
-    final target = _dateTimeForClock(
-      widget.prayerTimeController.currentWaktTime.value,
-      widget.now(),
+  Object get _currentNeighborContext {
+    final controller = widget.prayerTimeController;
+    return (
+      controller.latitude,
+      controller.longitude,
+      controller.isManualPrayerTime.value,
+      controller.saveAddress.value,
+      controller.currentAddress.value,
+      controller.selectedCalculationMethod,
+      controller.selectedPrayerMadhab,
+      controller.prayerTimeZone,
     );
+  }
+
+  void _recomputeCountdown() {
+    final now = widget.now();
+    final currentModel = widget.prayerTimeController.prayerTimeModel;
+    if (!_isSameDate(_lastToday, now)) {
+      if (!_isChangingDate && _isSameDate(_selectedDate, _lastToday)) {
+        _selectedDate = DateTime(now.year, now.month, now.day);
+        _displayedPrayerTimeModel = currentModel;
+      }
+      _lastToday = DateTime(now.year, now.month, now.day);
+    }
+    final currentContext = _currentNeighborContext;
+    final changedContext =
+        !identical(_neighborModel, currentModel) ||
+        _neighborContext != currentContext;
+    if (changedContext) {
+      _previousDay = null;
+      _nextDay = null;
+    }
+    if (!_loadingNeighbors &&
+        (_previousDayRequested == null ||
+            !_isSameDate(_previousDayRequested!, now) ||
+            changedContext ||
+            ((_nextDay == null || _previousDay == null) &&
+                now.difference(_previousDayRequested!).inMinutes >= 1))) {
+      _previousDayRequested = now;
+      _neighborModel = currentModel;
+      _neighborContext = currentContext;
+      _loadingNeighbors = true;
+      unawaited(_loadPreviousDay(now, currentModel, currentContext));
+    }
+    final phase = PrayerDisplayPhase.resolve(
+      now,
+      widget.prayerTimeController.prayerTimeModel?.data,
+      previousDay: _previousDay,
+      adjustments: PrayerTimeAdjustmentController.displayOffsets,
+    );
+    final nextPrayer = PrayerDisplayPhase.next(now, [
+      _previousDay,
+      widget.prayerTimeController.prayerTimeModel?.data,
+      _nextDay,
+    ], adjustments: PrayerTimeAdjustmentController.displayOffsets);
+    final target = nextPrayer?.startedAt;
     if (!mounted) return;
     setState(() {
-      _remaining = target?.difference(widget.now());
+      _phase = phase;
+      _nextPrayer = nextPrayer;
+      _remaining = phase?.elapsed ?? target?.difference(now);
     });
+  }
+
+  Future<void> _loadPreviousDay(
+    DateTime now,
+    PrayerTimeModel? model,
+    Object context,
+  ) async {
+    bool isCurrent() =>
+        mounted &&
+        _isSameDate(now, widget.now()) &&
+        identical(model, widget.prayerTimeController.prayerTimeModel) &&
+        context == _currentNeighborContext;
+    try {
+      final previous = await widget.prayerTimeController.getPrayerTimeForDate(
+        DateTime(now.year, now.month, now.day - 1),
+        allowNetwork: false,
+      );
+      if (!isCurrent()) return;
+      final next = await widget.prayerTimeController.getPrayerTimeForDate(
+        DateTime(now.year, now.month, now.day + 1),
+        allowNetwork: false,
+      );
+      if (!isCurrent()) return;
+      _previousDay = previous?.data;
+      _nextDay = next?.data;
+    } catch (_) {
+      // Keep the next-prayer display when neighboring dates are unavailable.
+    } finally {
+      _loadingNeighbors = false;
+    }
+    if (mounted) _recomputeCountdown();
   }
 
   static bool _isSameDate(DateTime first, DateTime second) {
@@ -198,24 +301,6 @@ class _ModernPrayerDashboardState extends State<ModernPrayerDashboard> {
     }
   }
 
-  static DateTime? _dateTimeForClock(String? value, DateTime now) {
-    if (value == null || value.trim().isEmpty || value == '--') return null;
-    try {
-      final parsed = DateFormat('HH:mm').parse(value.trim());
-      var result = DateTime(
-        now.year,
-        now.month,
-        now.day,
-        parsed.hour,
-        parsed.minute,
-      );
-      if (!result.isAfter(now)) result = result.add(const Duration(days: 1));
-      return result;
-    } catch (_) {
-      return null;
-    }
-  }
-
   String get _countdownText {
     final remaining = _remaining;
     if (remaining == null) return '--:--:--';
@@ -227,7 +312,9 @@ class _ModernPrayerDashboardState extends State<ModernPrayerDashboard> {
   }
 
   List<_PrayerEntry> _prayers(PrayerTimeModel? prayerTimeModel) {
-    final data = prayerTimeModel?.data;
+    final data = PrayerTimeAdjustmentController.adjustedDay(
+      prayerTimeModel?.data,
+    );
     return [
       _PrayerEntry(
         notificationId: 1,
@@ -236,13 +323,14 @@ class _ModernPrayerDashboardState extends State<ModernPrayerDashboard> {
         icon: Images.ModernPrayer_FajrSunrise,
       ),
       _PrayerEntry(
+        notificationId: 6,
         labelKey: 'sunrise',
         time: data?.sunrise,
         icon: Images.Sunrise,
       ),
       _PrayerEntry(
         notificationId: 2,
-        labelKey: data?.isJumma == true ? 'jumuah' : 'dhuhr',
+        labelKey: _selectedDate.weekday == DateTime.friday ? 'jumuah' : 'dhuhr',
         time: data?.zuhrStart,
         icon: Images.ModernPrayer_DhuhrSun,
       ),
@@ -268,32 +356,21 @@ class _ModernPrayerDashboardState extends State<ModernPrayerDashboard> {
   }
 
   int _nextPrayerIndex(List<_PrayerEntry> prayers) {
-    final now = widget.now();
-    for (var index = 0; index < prayers.length; index++) {
-      final time = prayers[index].time;
-      if (time == null || time == '--') continue;
-      try {
-        final parsed = DateFormat('HH:mm').parse(time);
-        final candidate = DateTime(
-          now.year,
-          now.month,
-          now.day,
-          parsed.hour,
-          parsed.minute,
-        );
-        if (candidate.isAfter(now)) return index;
-      } catch (_) {
-        continue;
-      }
-    }
-    return 0;
+    final selected = _phase?.prayerKey ?? _nextPrayer?.prayerKey;
+    return prayers.indexWhere((prayer) => prayer.labelKey == selected);
   }
 
   String _location() {
-    final saved = widget.prayerTimeController.saveAddress.value.trim();
-    if (saved.isNotEmpty && saved != '--') return saved;
-    final current = widget.prayerTimeController.currentAddress.value.trim();
-    if (current.isNotEmpty && current != '--') return current;
+    final controller = widget.prayerTimeController;
+    final preferred = controller.isManualPrayerTime.value
+        ? controller.saveAddress.value
+        : controller.currentAddress.value;
+    final fallback = controller.isManualPrayerTime.value
+        ? controller.currentAddress.value
+        : controller.saveAddress.value;
+    for (final value in [preferred, fallback]) {
+      if (value.trim().isNotEmpty && value.trim() != '--') return value.trim();
+    }
     return 'SalaTime';
   }
 
@@ -308,7 +385,7 @@ class _ModernPrayerDashboardState extends State<ModernPrayerDashboard> {
     final activeIndex = isShowingToday ? _nextPrayerIndex(prayers) : -1;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final materialLocalizations = MaterialLocalizations.of(context);
-    final hijri = HijriCalendar.fromDate(_selectedDate);
+    final hijri = IslamicCalendarPreferences.date(_selectedDate);
     final hijriDateText = translateText(
       '${hijri.hDay} ${'hijri_month_${hijri.hMonth}'.tr} ${hijri.hYear}',
     );
@@ -318,21 +395,16 @@ class _ModernPrayerDashboardState extends State<ModernPrayerDashboard> {
 
     return Column(
       children: [
-        if (displayedModel?.calculatedLocally ?? false)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Text(
-              'prayer_times_calculated_locally'.tr,
-              style: Theme.of(context).textTheme.bodySmall,
-              textAlign: TextAlign.center,
-            ),
-          ),
         SizedBox(
           height: 351,
           child: Stack(
             children: [
               _PrayerHero(
-                prayerName: widget.prayerTimeController.currentWaqtName.value,
+                prayerName:
+                    _phase?.prayerKey.tr ??
+                    _nextPrayer?.prayerKey.tr ??
+                    'next_prayer'.tr,
+                elapsed: _phase != null,
                 countdown: translateText(_countdownText),
                 location: _location(),
                 isDark: isDark,
@@ -381,7 +453,10 @@ class _ModernPrayerDashboardState extends State<ModernPrayerDashboard> {
                       widget.prayerTimeController.is24HourFormat.value,
                   notificationEnabled: prayers[index].notificationId == null
                       ? null
-                      : _notificationStates[prayers[index].notificationId!],
+                      : _notificationStates[PrayerNotificationPrayer.fromLegacyId(
+                          prayers[index].notificationId!,
+                          date: _selectedDate,
+                        )],
                   notificationUpdating:
                       prayers[index].notificationId != null &&
                       _updatingPrayerIds.contains(
@@ -411,12 +486,14 @@ class _PrayerHero extends StatelessWidget {
   final String countdown;
   final String location;
   final bool isDark;
+  final bool elapsed;
 
   const _PrayerHero({
     required this.prayerName,
     required this.countdown,
     required this.location,
     required this.isDark,
+    required this.elapsed,
   });
 
   @override
@@ -437,7 +514,7 @@ class _PrayerHero extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: isDark
-                    ? const [Color(0xE615261E), Color(0xB31B5E3F)]
+                    ? const [Color(0xE615261E), Color(0xB32F5233)]
                     : const [Color(0xDB2F5233), Color(0x994C7A50)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -452,32 +529,43 @@ class _PrayerHero extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'next_prayer'.tr,
+                    elapsed
+                        ? 'time_since_prayer'.trParams({'prayer': prayerName})
+                        : 'next_prayer'.tr,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: robotoMedium.copyWith(
                       color: Colors.white.withOpacity(0.88),
                       fontSize: Dimensions.FONT_SIZE_LARGE,
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    prayerName == '--' ? '—' : prayerName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: robotoBold.copyWith(
-                      color: Colors.white,
-                      fontSize: 48,
-                      height: 1.1,
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      elapsed
+                          ? countdown
+                          : (prayerName == '--' ? '—' : prayerName),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: robotoBold.copyWith(
+                        color: Colors.white,
+                        fontSize: 48,
+                        height: 1.1,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    '${'countdown_prefix'.tr} $countdown',
-                    style: robotoRegular.copyWith(
-                      color: Colors.white,
-                      fontSize: Dimensions.FONT_SIZE_OVER_LARGE,
-                      letterSpacing: 0.5,
+                  if (!elapsed)
+                    Text(
+                      '${'countdown_prefix'.tr} $countdown',
+                      style: robotoRegular.copyWith(
+                        color: Colors.white,
+                        fontSize: Dimensions.FONT_SIZE_OVER_LARGE,
+                        letterSpacing: 0.5,
+                      ),
                     ),
-                  ),
                   const SizedBox(height: 18),
                   Row(
                     mainAxisSize: MainAxisSize.min,
@@ -648,9 +736,9 @@ class _PrayerRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final foreground = isActive
-        ? AppColorModern.primaryGreenDark
-        : Theme.of(context).textTheme.bodyLarge?.color;
+    final theme = Theme.of(context);
+    final accent = theme.colorScheme.primary;
+    final foreground = isActive ? accent : theme.textTheme.bodyLarge?.color;
     final time = prayer.time == null
         ? '--:--'
         : DateConverter.formatPrayerTime(prayer.time!, is24HourFormat);
@@ -660,8 +748,8 @@ class _PrayerRow extends StatelessWidget {
       height: 58,
       padding: const EdgeInsetsDirectional.fromSTEB(14, 0, 12, 0),
       color: isActive
-          ? (Get.isDarkMode
-                ? AppColorModern.emerald.withOpacity(0.18)
+          ? (theme.brightness == Brightness.dark
+                ? accent.withOpacity(0.18)
                 : AppColorModern.chipGreenBackground)
           : Colors.transparent,
       child: Row(
@@ -669,7 +757,7 @@ class _PrayerRow extends StatelessWidget {
           SizedBox(
             width: 30,
             height: 30,
-            child: SvgPicture.asset(prayer.icon, color: AppColorModern.emerald),
+            child: SvgPicture.asset(prayer.icon, color: accent),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -699,7 +787,7 @@ class _PrayerRow extends StatelessWidget {
                       padding: const EdgeInsets.all(12),
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: AppColorModern.emerald,
+                        color: accent,
                       ),
                     )
                   : IconButton(
@@ -720,8 +808,8 @@ class _PrayerRow extends StatelessWidget {
                             : Icons.notifications_none_rounded,
                         size: 23,
                         color: notificationEnabled == true
-                            ? AppColorModern.emerald
-                            : Theme.of(context).hintColor,
+                            ? accent
+                            : theme.hintColor,
                       ),
                     ),
             )

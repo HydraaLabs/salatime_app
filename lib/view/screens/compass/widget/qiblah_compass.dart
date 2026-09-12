@@ -1,16 +1,13 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
-import 'dart:math' show pi;
 import 'package:flutter/material.dart';
+import 'qibla_dial_view.dart';
 import 'package:flutter_compass_v2/flutter_compass_v2.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:zabi/helper/location_helper.dart';
 import 'package:zabi/helper/qiblah_helper.dart';
 import 'package:zabi/shimmer/all_shimmer_loder.dart';
-import 'package:zabi/util/dimensions.dart';
-import 'package:zabi/util/images.dart';
-import 'package:zabi/util/styles.dart';
 
 class QiblahCompassWidget extends StatefulWidget {
   final bool isActive;
@@ -72,7 +69,7 @@ class _QiblahCompassWidgetState extends State<QiblahCompassWidget> {
     double? lastHeading;
     await for (final event in events) {
       final magneticHeading = event.heading;
-      if (magneticHeading == null) continue;
+      if (magneticHeading == null || !magneticHeading.isFinite) continue;
 
       final trueHeading = QiblahHelper.normalizeDegrees(
         magneticHeading + declination,
@@ -142,12 +139,8 @@ class _QiblahCompassWidgetState extends State<QiblahCompassWidget> {
         }
 
         final qiblahDirection = snapshot.data!;
-        final angleToQiblah = QiblahHelper.angularDistanceToQiblah(
-          trueHeading: qiblahDirection.trueHeading,
-          qiblahBearing: qiblahDirection.qiblahBearing,
-        );
         double deviceAngle = _normalizeAngle(
-          QiblahHelper.compassDialHeading(qiblahDirection.trueHeading),
+          qiblahDirection.trueHeading,
           _previousDevice,
         );
         double qiblahAngle = _normalizeAngle(
@@ -155,120 +148,21 @@ class _QiblahCompassWidgetState extends State<QiblahCompassWidget> {
           _previousQiblah,
         );
 
-        final previousDevice = _previousDevice;
-        final previousQiblah = _previousQiblah;
         _previousDevice = deviceAngle;
         _previousQiblah = qiblahAngle;
 
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: RepaintBoundary(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      // Compass background (rotates with device)
-                      TweenAnimationBuilder<double>(
-                        tween: Tween<double>(
-                          begin: previousDevice,
-                          end: deviceAngle,
-                        ),
-                        duration: const Duration(milliseconds: 140),
-                        curve: Curves.easeOutCubic,
-                        builder: (_, angle, child) {
-                          return Transform.rotate(
-                            angle: (-angle) * (pi / 180),
-                            child: child,
-                          );
-                        },
-                        child: Image.asset(
-                          Images.Compass,
-                          height: 330,
-                          fit: BoxFit.fill,
-                          color: Theme.of(context).primaryColor,
-                        ),
-                      ),
-                      // Needle (rotates towards Qiblah)
-                      TweenAnimationBuilder<double>(
-                        tween: Tween<double>(
-                          begin: previousQiblah,
-                          end: qiblahAngle,
-                        ),
-                        duration: const Duration(milliseconds: 160),
-                        curve: Curves.easeOutCubic,
-                        builder: (_, angle, child) {
-                          return Transform.rotate(
-                            angle: angle * (pi / 180),
-                            child: child,
-                          );
-                        },
-                        child: Image.asset(
-                          Images.Compass_Needle,
-                          height: 400,
-                          fit: BoxFit.fill,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32.0,
-                  vertical: 10.0,
-                ),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Theme.of(context).hintColor.withOpacity(0.05),
-                      Theme.of(context).hintColor.withOpacity(0.10),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(18.0),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '${'qibla_compass'.tr} · '
-                      '${qiblahDirection.qiblahBearing.round()}°',
-                      style: robotoMedium.copyWith(
-                        fontSize: Dimensions.FONT_SIZE_EXTRA_LARGE,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    ),
-                    const SizedBox(height: 2.0),
-                    Text(
-                      '${angleToQiblah.round()}° · '
-                      '${'device_angle_to_qibla'.tr}',
-                      style: robotoMedium.copyWith(
-                        fontSize: Dimensions.FONT_SIZE_DEFAULT,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 40.0),
-            ],
-          ),
+        return QiblaDialView(
+          heading: qiblahDirection.trueHeading,
+          bearing: qiblahDirection.qiblahBearing,
+          deviceAngle: deviceAngle,
+          needleAngle: qiblahAngle,
         );
       },
     );
   }
 
   double _normalizeAngle(double current, double previous) {
-    double diff = current - previous;
-    if (diff.abs() > 180) {
-      if (diff > 0) {
-        current -= 360;
-      } else {
-        current += 360;
-      }
-    }
-    return current;
+    return previous + (current - previous + 540) % 360 - 180;
   }
 }
 

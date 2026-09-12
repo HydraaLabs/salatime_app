@@ -1,3 +1,4 @@
+import 'package:zabi/helper/islamic_calendar.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -25,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _armMidnightRefresh();
+    unawaited(IslamicCalendarPreferences.initialize());
     _loadInitialData();
   }
 

@@ -92,6 +92,15 @@ void main() {
             ),
           );
           await tester.pumpAndSettle();
+          expect(
+            find.byKey(const PageStorageKey('appearance-settings')),
+            findsOneWidget,
+          );
+          expect(find.byType(ExpansionTile), findsOneWidget);
+          expect(find.byType(RadioListTile<String>), findsNothing);
+          final heading = find.text(strings['theme_mode_title']!);
+          await tester.tap(heading);
+          await tester.pumpAndSettle();
           for (final key in [
             'theme_mode_light',
             'theme_mode_dark',
@@ -99,7 +108,6 @@ void main() {
           ]) {
             expect(find.text(strings[key]!), findsOneWidget);
           }
-          expect(find.byType(ExpansionTile), findsNothing);
 
           Future<void> select(String mode, Brightness brightness) async {
             final option = find.byWidgetPredicate(
@@ -138,6 +146,36 @@ void main() {
           }
 
           await select(ThemeController.dark, Brightness.dark);
+          await tester.ensureVisible(heading);
+          await tester.tap(heading);
+          await tester.pumpAndSettle();
+          expect(find.byType(RadioListTile<String>), findsNothing);
+          expect(controller.mode, ThemeController.dark);
+          expect(
+            prefs.getString(AppConstants.THEME_MODE_KEY),
+            ThemeController.dark,
+          );
+          await tester.tap(heading);
+          await tester.pumpAndSettle();
+          final selectedDark = find.byWidgetPredicate(
+            (widget) =>
+                widget is RadioListTile<String> &&
+                widget.value == ThemeController.dark,
+          );
+          final semantics = tester.ensureSemantics();
+          await tester.pump();
+          try {
+            expect(
+              tester
+                  .getSemantics(selectedDark)
+                  .getSemanticsData()
+                  .flagsCollection
+                  .isChecked,
+              ui.CheckedState.isTrue,
+            );
+          } finally {
+            semantics.dispose();
+          }
           await controller.updateDaylightTimes('07:00', '19:00');
           controller.refreshForCurrentTime();
           expect(controller.darkTheme, isTrue);

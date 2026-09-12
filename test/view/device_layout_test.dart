@@ -118,19 +118,24 @@ void main() {
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
         await capture('onboarding-sounds');
-        for (final index in [1, 2]) {
-          final toggle = find.byType(SwitchListTile).at(index);
-          await tester.ensureVisible(toggle);
-          await tester.tap(toggle);
+        for (final phase in ['before', 'adhan', 'after']) {
+          final category = find.byKey(ValueKey('notification_category_$phase'));
+          await tester.ensureVisible(category);
+          await tester.tap(category);
           await tester.pumpAndSettle();
           expect(tester.takeException(), isNull);
+          expect(
+            find.byKey(ValueKey('notification_${phase}_fajr')),
+            findsOneWidget,
+          );
+          await tester.ensureVisible(
+            find.byKey(ValueKey('notification_sound_${phase}_fajr')),
+          );
+          await tester.pumpAndSettle();
+          expect(tester.takeException(), isNull);
+          await tester.pageBack();
+          await tester.pumpAndSettle();
         }
-        await tester.ensureVisible(
-          find.byKey(const Key('onboarding_after_preview_button')),
-        );
-        await tester.pumpAndSettle();
-        expect(tester.takeException(), isNull);
-        await capture('onboarding-reminder-sounds');
         await tester.pumpWidget(
           app(
             const Scaffold(

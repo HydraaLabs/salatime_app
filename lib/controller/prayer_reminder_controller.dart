@@ -1,3 +1,5 @@
+import 'package:zabi/service/personal_notification_sounds.dart';
+import 'dart:async';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -42,6 +44,7 @@ class PrayerReminderController extends GetxController {
 
   Future<void> loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
+    await PersonalNotificationSounds.load(prefs);
     beforeEnabled.value =
         prefs.getBool(AppConstants.BEFORE_ADHAN_REMINDER_ENABLED_KEY) ?? false;
     afterEnabled.value =
@@ -129,15 +132,31 @@ class PrayerReminderController extends GetxController {
         : AppConstants.DEFAULT_PRAYER_REMINDER_SOUND;
   }
 
+  Future<void> previewSound(String sound) => _previewSound(sound);
+
+  Future<void> stopPreview() async {
+    try {
+      await _audioPlayer?.stop();
+    } catch (_) {
+      // Navigation remains available if the audio backend is unavailable.
+    }
+  }
+
   Future<void> _previewSound(String sound) async {
     try {
+      await _audioPlayer?.stop();
+      if (sound == 'silent') return;
       final option = sounds.firstWhere((item) => item['key'] == sound);
       if (_soundPreview != null) {
         await _soundPreview(option['path']!);
         return;
       }
-      await _audioPlayer?.setAsset(option['path']!);
-      await _audioPlayer?.play();
+      if (sound.startsWith('custom_')) {
+        await _audioPlayer?.setUrl(option['path']!);
+      } else {
+        await _audioPlayer?.setAsset(option['path']!);
+      }
+      unawaited(_audioPlayer?.play());
     } catch (_) {
       // A preview failure must not prevent saving or scheduling the reminder.
     }

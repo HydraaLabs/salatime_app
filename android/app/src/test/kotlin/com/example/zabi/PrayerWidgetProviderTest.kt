@@ -19,6 +19,28 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33], manifest = Config.NONE, application = Application::class)
 class PrayerWidgetProviderTest {
+    @org.junit.Before fun legacyClockOption() {
+        RuntimeEnvironment.getApplication().getSharedPreferences("salatime_widget_options", 0).edit().clear()
+            .putBoolean("countdown", false).apply()
+    }
+    @Test fun elapsedPrayerWinsForNinetyMinutesThenNextPrayerTakesOver() {
+        val app = RuntimeEnvironment.getApplication()
+        val at = java.time.Instant.parse("2026-09-12T16:00:00Z").toEpochMilli()
+        app.getSharedPreferences("salatime_prayer_widget", 0).edit().clear()
+            .putString("prayers", JSONArray().put(JSONObject().put("at", at).put("name", "Asr"))
+                .put(JSONObject().put("at", at + 3 * 3600000).put("name", "Maghrib")).toString())
+            .putString("sinceLabel", "Temps écoulé depuis @prayer").apply()
+        app.getSharedPreferences("salatime_widget_options", 0).edit().clear().putBoolean("seconds", false).apply()
+        val elapsed = PrayerWidgetProvider.createViews(app, false, at + 34 * 60000).apply(app, FrameLayout(app))
+        assertEquals("Asr", elapsed.findViewById<TextView>(R.id.widget_prayer).text.toString())
+        assertEquals("Temps écoulé depuis", elapsed.findViewById<TextView>(R.id.widget_title).text.toString())
+        assertEquals("Asr", elapsed.findViewById<TextView>(R.id.widget_prayer).text.toString())
+        assertEquals("00:34", elapsed.findViewById<TextView>(R.id.widget_time).text.toString())
+        val next = PrayerWidgetProvider.createViews(app, false, at + 90 * 60000).apply(app, FrameLayout(app))
+        assertEquals("Maghrib", next.findViewById<TextView>(R.id.widget_prayer).text.toString())
+        assertEquals("01:30", next.findViewById<TextView>(R.id.widget_time).text.toString())
+    }
+
     @Test fun widgetSelectsFuturePrayerWithoutLaunchingFlutter() {
         val app = RuntimeEnvironment.getApplication()
         val now = System.currentTimeMillis()
@@ -76,4 +98,26 @@ class PrayerWidgetProviderTest {
         assertTrue(date.startsWith("PM · "))
         assertTrue(date.contains("12"))
     }
+    @Test fun widgetOptionsKeepTextOpaqueAndEnableNativeCountdown() {
+        val app = RuntimeEnvironment.getApplication()
+        val now = System.currentTimeMillis()
+        app.getSharedPreferences("salatime_prayer_widget", 0).edit().clear()
+            .putString("prayers", JSONArray().put(JSONObject().put("at", now + 3600000).put("name", "Asr")).toString()).apply()
+        app.getSharedPreferences("salatime_widget_options", 0).edit().clear()
+            .putBoolean("countdown", true).putBoolean("city", false).putBoolean("date", false)
+            .putBoolean("illustration", false).putInt("opacity", 40).apply()
+        for (expanded in listOf(false, true)) {
+            val view = PrayerWidgetProvider.createViews(app, expanded, now).apply(app, FrameLayout(app))
+            assertEquals(View.GONE, view.findViewById<View>(R.id.widget_time).visibility)
+            assertEquals(View.GONE, view.findViewById<View>(R.id.widget_city).visibility)
+            assertEquals(View.GONE, view.findViewById<View>(R.id.widget_date).visibility)
+            assertEquals(View.GONE, view.findViewById<View>(R.id.widget_illustration).visibility)
+            assertEquals(102, view.findViewById<android.widget.ImageView>(R.id.widget_background).imageAlpha)
+            val timer = view.findViewById<android.widget.Chronometer>(R.id.widget_countdown)
+            assertEquals(View.VISIBLE, timer.visibility)
+            assertTrue(timer.isCountDown)
+            assertTrue(kotlin.math.abs(timer.base - android.os.SystemClock.elapsedRealtime() - 3600000) < 2000)
+        }
+    }
+
 }

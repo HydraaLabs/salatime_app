@@ -154,7 +154,8 @@ public class SalaTimeAdhanService extends Service {
                 return channel.getSound();
             }
         }
-        return details.sound != null && details.sound.matches("azan_[123]")
+        if (com.example.zabi.PersonalSoundFiles.isSoundUri(context, details.sound)) return Uri.parse(details.sound);
+        return com.example.zabi.BundledNotificationSounds.contains(details.sound) && !"silent".equals(details.sound)
                 ? Uri.parse("android.resource://" + context.getPackageName() + "/raw/" + details.sound) : null;
     }
 

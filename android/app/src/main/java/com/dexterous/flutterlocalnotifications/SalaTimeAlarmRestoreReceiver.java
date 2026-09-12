@@ -50,14 +50,11 @@ public class SalaTimeAlarmRestoreReceiver extends BroadcastReceiver {
         boolean missed = false;
         for (int i = 0; i < old.length(); i++) {
             JSONObject notification = old.getJSONObject(i);
-            JSONObject payload;
-            try { payload = new JSONObject(notification.optString("payload", "")); }
-            catch (Exception ignored) { future.put(notification); continue; }
-            int id = notification.optInt("id", -1);
-            if (id < 10000000 || payload.optInt("id", -2) != id || !payload.has("at") || !payload.has("prayerId")) {
-                future.put(notification);
-                continue;
-            }
+            // Use the same ownership/shape check as native delivery. Extra reminders
+            // intentionally have no prayerId and must also be pruned/downgraded at boot.
+            JSONObject payload = SalaTimePrayerAlarms.prayer(notification);
+            if (payload == null) { future.put(notification); continue; }
+            int id = notification.getInt("id");
             if (payload.getLong("at") <= now) {
                 SalaTimePrayerAlarms.cancel(context, id);
                 SalaTimePrayerAlarms.cancelLegacy(context, id);

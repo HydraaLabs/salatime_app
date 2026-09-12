@@ -1,215 +1,202 @@
-// ignore_for_file: must_be_immutable, deprecated_member_use
-
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:hijri/hijri_calendar.dart';
-import 'package:intl/intl.dart';
+import 'package:zabi/helper/islamic_calendar.dart';
 import 'package:zabi/controller/package_prayer_time_controller.dart';
-import 'package:zabi/controller/quran_settings_controller.dart';
-import 'package:zabi/helper/date_converter.dart';
+import 'package:zabi/controller/prayer_time_adjustment.dart';
+import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
+import 'package:zabi/helper/prayer_display_phase.dart';
 import 'package:zabi/helper/translator_helper.dart';
+import 'package:zabi/theme/brand_colors.dart';
+import 'package:zabi/util/images.dart';
 
-import '../../../../../util/dimensions.dart';
-import '../../../../../util/images.dart';
-import '../../../../../util/styles.dart';
-
-class BannerWidget extends StatelessWidget {
+class BannerWidget extends StatefulWidget {
   const BannerWidget({super.key});
+  @override
+  State<BannerWidget> createState() => _BannerWidgetState();
+}
+
+class _BannerWidgetState extends State<BannerWidget> {
+  Timer? _timer;
+  Data? previous;
+  Data? tomorrow;
+  DateTime? loadedDay;
+  PrayerTimeModel? loadedModel;
+  Object? loadedContext;
+  DateTime? lastAttempt;
+  bool loadingDays = false;
+  final controller = Get.find<PrayerTimeController>();
+  @override
+  void initState() {
+    super.initState();
+    _tick();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _tick());
+  }
+
+  Object get currentContext => (
+    controller.latitude,
+    controller.longitude,
+    controller.isManualPrayerTime.value,
+    controller.saveAddress.value,
+    controller.currentAddress.value,
+    controller.selectedCalculationMethod,
+    controller.selectedPrayerMadhab,
+    controller.prayerTimeZone,
+  );
+
+  void _tick() {
+    final now = DateTime.now();
+    final day = DateTime(now.year, now.month, now.day);
+    final model = controller.prayerTimeModel;
+    final context = currentContext;
+    final changedContext =
+        !identical(loadedModel, model) || loadedContext != context;
+    if (changedContext) {
+      previous = null;
+      tomorrow = null;
+    }
+    if (!loadingDays &&
+        (loadedDay != day ||
+            changedContext ||
+            ((previous == null || tomorrow == null) &&
+                (lastAttempt == null ||
+                    now.difference(lastAttempt!).inMinutes >= 1)))) {
+      loadedDay = day;
+      loadedModel = model;
+      loadedContext = context;
+      lastAttempt = now;
+      loadingDays = true;
+      unawaited(_loadDays(day, model, context));
+    }
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _loadDays(
+    DateTime day,
+    PrayerTimeModel? model,
+    Object context,
+  ) async {
+    bool isCurrent() =>
+        mounted &&
+        loadedDay == day &&
+        identical(model, controller.prayerTimeModel) &&
+        context == currentContext;
+    try {
+      final before = await controller.getPrayerTimeForDate(
+        DateTime(day.year, day.month, day.day - 1),
+        allowNetwork: false,
+      );
+      if (!isCurrent()) return;
+      final after = await controller.getPrayerTimeForDate(
+        DateTime(day.year, day.month, day.day + 1),
+        allowNetwork: false,
+      );
+      if (!isCurrent()) return;
+      setState(() {
+        previous = before?.data;
+        tomorrow = after?.data;
+      });
+    } catch (_) {
+      // Cached neighbors can be retried after the current location is loaded.
+    } finally {
+      loadingDays = false;
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<SettingsController>(
-      builder: (settingsController) {
-        final is24HourFormat =
-            Get.find<PrayerTimeController>().is24HourFormat.value;
-        return Obx(() {
-          return Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Get.isDarkMode
-                  ? Theme.of(context).cardColor
-                  : Theme.of(context).primaryColor,
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(Dimensions.PADDING_SIZE_DEFAULT),
-                bottomRight: Radius.circular(Dimensions.PADDING_SIZE_DEFAULT),
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.only(
-                left: Dimensions.PADDING_SIZE_DEFAULT,
-                right: Dimensions.PADDING_SIZE_DEFAULT,
-              ),
+    final now = DateTime.now();
+    final day = controller.prayerTimeModel?.data;
+    final adjustments = PrayerTimeAdjustmentController.displayOffsets;
+    final phase = PrayerDisplayPhase.resolve(
+      now,
+      day,
+      previousDay: previous,
+      adjustments: adjustments,
+    );
+    final next = PrayerDisplayPhase.next(now, [
+      previous,
+      day,
+      tomorrow,
+    ], adjustments: adjustments);
+    final name = phase?.prayerKey.tr ?? next?.prayerKey.tr ?? 'next_prayer'.tr;
+    final time = phase?.elapsed ?? next?.startedAt.difference(now);
+    final hijri = IslamicCalendarPreferences.date(now);
+    final label = phase == null
+        ? 'next_prayer'.tr
+        : 'time_since_prayer'.trParams({'prayer': name});
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: const BoxDecoration(
+        color: BrandColors.primary,
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) => Row(
+          children: [
+            Expanded(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Next jama'ah section
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Expanded(
-                        flex: 7,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(
-                              "next_prayer".tr,
-                              style: robotoRegular.copyWith(
-                                fontSize: Dimensions.FONT_SIZE_DEFAULT,
-                                color: Theme.of(context).hintColor,
-                              ),
-                            ),
-                            const SizedBox(
-                              height: Dimensions.PADDING_SIZE_EXTRA_SMALL,
-                            ),
-
-                            // wakt time and name
-                            Row(
-                              children: [
-                                Text(
-                                  "${Get.find<PrayerTimeController>().currentWaqtName.value} ",
-                                  style: robotoRegular.copyWith(
-                                    fontSize:
-                                        Dimensions.FONT_SIZE_OVER_LARGE + 2,
-                                    fontWeight: FontWeight.bold,
-                                    color: Get.isDarkMode
-                                        ? null
-                                        : Theme.of(context).cardColor,
-                                  ),
-                                ),
-                                Container(
-                                  height: 20,
-                                  width: 0.5,
-                                  color: Theme.of(context).hintColor,
-                                ),
-                                Text(
-                                  " ${translateText(DateConverter.formatPrayerTime(Get.find<PrayerTimeController>().currentWaktTime.value, is24HourFormat))}",
-                                  style: robotoRegular.copyWith(
-                                    fontSize:
-                                        Dimensions.FONT_SIZE_OVER_LARGE + 2,
-                                    fontWeight: FontWeight.bold,
-                                    color: Get.isDarkMode
-                                        ? null
-                                        : Theme.of(context).cardColor,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(
-                              height: Dimensions.PADDING_SIZE_EXTRA_LARGE,
-                            ),
-
-                            // today's date
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                bottom: Dimensions.FONT_SIZE_DEFAULT,
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  // calender image
-                                  SvgPicture.asset(
-                                    Images.Icon_Calender,
-                                    color: Theme.of(context).hintColor,
-                                    height: 20,
-                                    fit: BoxFit.fill,
-                                  ),
-                                  const SizedBox(
-                                    width: Dimensions.PADDING_SIZE_EXTRA_SMALL,
-                                  ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      // english date
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          border: Border(
-                                            bottom: BorderSide(
-                                              color: Theme.of(
-                                                context,
-                                              ).hintColor.withOpacity(0.8),
-                                              width: .6,
-                                            ),
-                                          ),
-                                        ),
-                                        child: Text(
-                                          translateText(
-                                            DateFormat.yMMMEd().format(
-                                              DateTime.now(),
-                                            ),
-                                          ),
-                                          style: robotoRegular.copyWith(
-                                            fontSize:
-                                                Dimensions.FONT_SIZE_DEFAULT,
-                                            color: Theme.of(context).hintColor,
-                                          ),
-                                        ),
-                                      ),
-                                      // arabic date
-                                      Text(
-                                        translateText(
-                                          "${HijriCalendar.fromDate(DateTime.now()).toFormat('dd MMMM yyyy')} ",
-                                        ),
-                                        style: robotoRegular.copyWith(
-                                          fontSize:
-                                              Dimensions.FONT_SIZE_DEFAULT - 3,
-                                          color: Theme.of(context).hintColor,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+                  Text(
+                    label,
+                    style: const TextStyle(color: Colors.white70, fontSize: 16),
+                  ),
+                  if (phase == null)
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
                       ),
-                      FadeInImage(
-                        placeholderFilterQuality: FilterQuality.none,
-                        image:
-                            settingsController.mosqueSettingsApiData == null ||
-                                settingsController
-                                        .mosqueSettingsApiData!
-                                        .data ==
-                                    null ||
-                                settingsController
-                                        .mosqueSettingsApiData!
-                                        .data!
-                                        .appLogo ==
-                                    null
-                            ? const AssetImage(Images.Banner_Image)
-                            : NetworkImage(
-                                settingsController
-                                    .mosqueSettingsApiData!
-                                    .data!
-                                    .appLogo
-                                    .toString(),
-                              ),
-                        placeholder: Get.isDarkMode
-                            ? const AssetImage(Images.Dark_primary)
-                            : const AssetImage(Images.Light_primary),
-                        imageErrorBuilder: (context, error, stackTrace) {
-                          return Image.asset(
-                            Images.Banner_Image,
-                            fit: BoxFit.fill,
-                            height: 130,
-                            width: 150,
-                          );
-                        },
-                        fit: BoxFit.fill,
-                        height: 130,
-                        width: 150,
+                    ),
+                  const SizedBox(height: 8),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      translateText(
+                        time == null
+                            ? '--:--:--'
+                            : PrayerDisplayPhase.format(time),
                       ),
-                    ],
+                      textDirection: TextDirection.ltr,
+                      style: const TextStyle(color: Colors.white, fontSize: 34),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    MaterialLocalizations.of(context).formatFullDate(now),
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                  Text(
+                    translateText(
+                      '${hijri.hDay} ${'hijri_month_${hijri.hMonth}'.tr} ${hijri.hYear}',
+                    ),
+                    style: const TextStyle(color: Colors.white70),
                   ),
                 ],
               ),
             ),
-          );
-        });
-      },
+            if (constraints.maxWidth >= 460) ...[
+              const SizedBox(width: 20),
+              Image.asset(
+                Images.Banner_Image,
+                width: 130,
+                height: 120,
+                fit: BoxFit.contain,
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }

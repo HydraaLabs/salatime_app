@@ -20,7 +20,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
-class PrayerWidgetProvider : AppWidgetProvider() {
+open class PrayerWidgetProvider : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
         refreshAll(context)
     }
@@ -35,13 +35,13 @@ class PrayerWidgetProvider : AppWidgetProvider() {
     }
 
     override fun onDisabled(context: Context) {
-        (context.getSystemService(Context.ALARM_SERVICE) as AlarmManager).cancel(refreshIntent(context))
+        refreshAll(context)
     }
 
     companion object {
         private const val REFRESH = "net.salatime.app.WIDGET_REFRESH"
-        private const val GREEN = 0xFF174D39.toInt()
-        private const val MUTED = 0xFF365342.toInt()
+        private const val GREEN = 0xFF2F5233.toInt()
+        private const val MUTED = 0xFF4C7A50.toInt()
         private const val WHITE = 0xFFFAF5E9.toInt()
         private val slots = intArrayOf(R.id.widget_slot_0, R.id.widget_slot_1, R.id.widget_slot_2, R.id.widget_slot_3, R.id.widget_slot_4)
         private val names = intArrayOf(R.id.widget_slot_name_0, R.id.widget_slot_name_1, R.id.widget_slot_name_2, R.id.widget_slot_name_3, R.id.widget_slot_name_4)
@@ -88,18 +88,28 @@ class PrayerWidgetProvider : AppWidgetProvider() {
                 SimpleDateFormat(pattern, locale).apply { timeZone = zone }
             }.format(Date(at))
             val prayers = readPrayers(context)
+            val options = context.getSharedPreferences("salatime_widget_options", Context.MODE_PRIVATE)
+            val showCountdown = options.getBoolean("countdown", true)
             val next = prayers.firstOrNull { it.optLong("at") > now }
+            val recent = prayers.lastOrNull { it.optLong("at") <= now && now - it.optLong("at") < 90 * 60000 }
+            val elapsed = showCountdown && recent != null
+            val displayed = if (elapsed) recent else next
             val views = RemoteViews(context.packageName, if (expanded) R.layout.prayer_widget_expanded else R.layout.prayer_widget)
             val city = prefs.getString("city", "") ?: ""
-            val title = prefs.getString("nextLabel", context.getString(R.string.prayer_widget_next_label))
-            val prayer = next?.optString("name") ?: "SalaTime"
-            val at = next?.optLong("at")
+            val prayer = displayed?.optString("name") ?: "SalaTime"
+            val sinceTemplate = prefs.getString("sinceLabel", context.getString(R.string.prayer_widget_since_label))!!
+            val title = if (elapsed) sinceTemplate.replace("@prayer", prayer)
+                else prefs.getString("nextLabel", context.getString(R.string.prayer_widget_next_label))
+            val at = displayed?.optLong("at")
             val timeText = at?.let { format(if (hour24) "HH:mm" else "h:mm", it) } ?: "—:—"
             val period = if (at != null && !hour24) format("a", at) else ""
             val date = at?.let { format(android.text.format.DateFormat.getBestDateTimePattern(locale, "EEEdMMM"), it) } ?: ""
             val empty = prefs.getString("emptyLabel", context.getString(R.string.prayer_widget_open_label))
-            views.setInt(R.id.widget_root, "setLayoutDirection", if (locale.language == "ar") View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR)
-            views.setTextViewText(R.id.widget_title, if (next == null) empty else title)
+            views.setInt(R.id.widget_root, "setLayoutDirection", if (locale.language in listOf("ar", "fa", "ur")) View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR)
+            // The prayer name already occupies the next line; repeating it here
+            // truncates the useful elapsed-time label on narrow launchers.
+            val visibleTitle = if (elapsed) sinceTemplate.replace("@prayer", "").trim() else title
+            views.setTextViewText(R.id.widget_title, if (displayed == null) empty else visibleTitle)
             views.setTextViewText(R.id.widget_city, city)
             views.setTextViewText(R.id.widget_prayer, prayer)
             views.setTextViewText(R.id.widget_time, timeText)
@@ -108,6 +118,7 @@ class PrayerWidgetProvider : AppWidgetProvider() {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
                 views.setTextViewTextSize(R.id.widget_prayer, TypedValue.COMPLEX_UNIT_SP, 16f)
                 views.setTextViewTextSize(R.id.widget_time, TypedValue.COMPLEX_UNIT_SP, 24f)
+                views.setTextViewTextSize(R.id.widget_countdown, TypedValue.COMPLEX_UNIT_SP, 14f)
             }
             views.setTextViewText(R.id.widget_date, if (expanded || period.isEmpty()) date else "$period · $date")
             if (expanded) {
@@ -115,9 +126,9 @@ class PrayerWidgetProvider : AppWidgetProvider() {
                 views.setViewVisibility(R.id.widget_period, if (period.isEmpty()) View.GONE else View.VISIBLE)
                 // The strip and the date both follow the next prayer's calendar day,
                 // so after Isha it consistently shows tomorrow, in the selected city's zone.
-                val dateKey = at?.let { format("yyyy-MM-dd", it) }
+                val dateKey = displayed?.optString("date")?.takeIf { it.isNotEmpty() } ?: at?.let { format("yyyy-MM-dd", it) }
                 val day = if (at == null) emptyList() else prayers.filter {
-                    format("yyyy-MM-dd", it.optLong("at")) == dateKey
+                    (it.optString("date").takeIf { date -> date.isNotEmpty() } ?: format("yyyy-MM-dd", it.optLong("at"))) == dateKey
                 }.take(5)
                 views.setViewVisibility(R.id.widget_day_schedule, if (day.isEmpty()) View.GONE else View.VISIBLE)
                 for (i in slots.indices) {
@@ -133,6 +144,24 @@ class PrayerWidgetProvider : AppWidgetProvider() {
                     views.setTextColor(times[i], if (selected) WHITE else GREEN)
                 }
             }
+            views.setViewVisibility(R.id.widget_city, if (options.getBoolean("city", true)) View.VISIBLE else View.GONE)
+            views.setViewVisibility(R.id.widget_date, if (options.getBoolean("date", true)) View.VISIBLE else View.GONE)
+            views.setViewVisibility(R.id.widget_illustration, if (options.getBoolean("illustration", true) && options.getInt("opacity", 100) > 0) View.VISIBLE else View.GONE)
+            views.setInt(R.id.widget_background, "setImageAlpha", options.getInt("opacity", 100).coerceIn(0, 100) * 255 / 100)
+            val countdown = displayed != null && showCountdown
+            if (countdown) {
+                if (expanded) views.setViewVisibility(R.id.widget_period, View.GONE)
+                else views.setTextViewText(R.id.widget_date, date)
+            }
+            val seconds = options.getBoolean("seconds", true)
+            if (countdown && !seconds) {
+                val minutes = (if (elapsed) (now - (at ?: now)) / 60000 else ((at ?: now) - now + 59999) / 60000).coerceAtLeast(0)
+                views.setTextViewText(R.id.widget_time, String.format(locale, "%02d:%02d", minutes / 60, minutes % 60))
+            }
+            views.setViewVisibility(R.id.widget_time, if (countdown && seconds) View.GONE else View.VISIBLE)
+            views.setViewVisibility(R.id.widget_countdown, if (countdown && seconds) View.VISIBLE else View.GONE)
+            views.setChronometerCountDown(R.id.widget_countdown, !elapsed)
+            views.setChronometer(R.id.widget_countdown, android.os.SystemClock.elapsedRealtime() + ((at ?: now) - now), null, countdown && seconds)
             views.setContentDescription(R.id.widget_root, if (at == null) "$empty. $city" else "$title, $prayer, $timeText $period, $date, $city")
             views.setOnClickPendingIntent(R.id.widget_root, openApp(context))
             return views
@@ -147,17 +176,49 @@ class PrayerWidgetProvider : AppWidgetProvider() {
 
         @JvmStatic fun refreshAll(context: Context) {
             val manager = AppWidgetManager.getInstance(context)
-            val ids = manager.getAppWidgetIds(ComponentName(context, PrayerWidgetProvider::class.java))
-            if (ids.isEmpty()) return
             val now = System.currentTimeMillis()
-            for (id in ids) manager.updateAppWidget(id, responsiveViews(context, manager.getAppWidgetOptions(id), now))
-            val at = readPrayers(context).firstOrNull { it.optLong("at") > now }?.optLong("at")
+            var hasWidgets = false
+            for (provider in listOf(PrayerWidgetProvider::class.java, SmallPrayerWidgetProvider::class.java, LargePrayerWidgetProvider::class.java)) {
+                for (id in manager.getAppWidgetIds(ComponentName(context, provider))) {
+                    hasWidgets = true
+                    val views = when (provider) {
+                        SmallPrayerWidgetProvider::class.java -> createViews(context, false, now)
+                        LargePrayerWidgetProvider::class.java -> createViews(context, true, now)
+                        else -> responsiveViews(context, manager.getAppWidgetOptions(id), now)
+                    }
+                    manager.updateAppWidget(id, views)
+                }
+            }
+            if (!hasWidgets) {
+                (context.getSystemService(Context.ALARM_SERVICE) as AlarmManager).cancel(refreshIntent(context))
+                return
+            }
+            val all = readPrayers(context)
+            val nextAt = all.firstOrNull { it.optLong("at") > now }?.optLong("at")
+            val recentAt = all.lastOrNull { it.optLong("at") <= now && now - it.optLong("at") < 90 * 60000 }?.optLong("at")
+            val options = context.getSharedPreferences("salatime_widget_options", Context.MODE_PRIVATE)
+            val expiry = if (options.getBoolean("countdown", true)) recentAt?.plus(90 * 60000) else null
+            val at = listOfNotNull(nextAt, expiry).minOrNull()
             val alarm = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             alarm.cancel(refreshIntent(context))
             if (at != null) {
-                // Widget refresh is cosmetic: no exact-alarm or wake lock permission.
-                alarm.setWindow(AlarmManager.RTC, at + 1000, 10 * 60 * 1000L, refreshIntent(context))
+                val minuteCountdown = options.getBoolean("countdown", true) && !options.getBoolean("seconds", true)
+                val refreshAt = if (minuteCountdown) minOf(at, now + 60000) else at
+                // Non-wakeup refresh: the native chronometer handles second ticks.
+                try {
+                    if (Build.VERSION.SDK_INT < 31 || alarm.canScheduleExactAlarms()) {
+                        alarm.setExact(AlarmManager.RTC, refreshAt, refreshIntent(context))
+                    } else {
+                        alarm.set(AlarmManager.RTC, refreshAt, refreshIntent(context))
+                    }
+                } catch (_: SecurityException) {
+                    // Exact access may be revoked between the check and scheduling.
+                    alarm.set(AlarmManager.RTC, refreshAt, refreshIntent(context))
+                }
             }
         }
     }
 }
+
+class SmallPrayerWidgetProvider : PrayerWidgetProvider()
+class LargePrayerWidgetProvider : PrayerWidgetProvider()

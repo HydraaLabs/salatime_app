@@ -1,6 +1,11 @@
+import 'package:zabi/view/screens/account/account_screen.dart';
+import 'package:zabi/view/screens/reminders/daily_prayer_markers_screen.dart';
+import 'package:zabi/view/screens/islamic_calendar/islamic_calendar_screen.dart';
+import 'package:zabi/view/screens/prayer_share/prayer_share_screen.dart';
 // ignore_for_file: deprecated_member_use
 
 import 'dart:io';
+import 'widgets/prayer_widget_settings.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -55,11 +60,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: Column(
                 children: [
                   const SizedBox(height: Dimensions.PADDING_SIZE_EXTRA_SMALL),
+                  const AccountSettingsCard(),
                   // Prayer Time Calculation Settings Section
                   const PrayerTimeCalculationSettings(),
 
                   // Notification section
                   const NofificationDWWidget(),
+                  Card(
+                    child: ListTile(
+                      leading: Icon(
+                        Icons.wb_twilight_outlined,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      title: Text('daily_markers_title'.tr),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () =>
+                          Get.to(() => const DailyPrayerMarkersScreen()),
+                    ),
+                  ),
+                  Card(
+                    child: ListTile(
+                      leading: Icon(
+                        Icons.calendar_month_outlined,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      title: Text('islamic_calendar_title'.tr),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => Get.to(() => const IslamicCalendarScreen()),
+                    ),
+                  ),
+                  Card(
+                    child: ListTile(
+                      leading: Icon(
+                        Icons.ios_share_outlined,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      title: Text('prayer_share_title'.tr),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => Get.to(() => const PrayerShareScreen()),
+                    ),
+                  ),
 
                   // select language section
                   const LanguageDWWidget(),
@@ -67,6 +107,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   // home screen layout (appearance) section
                   const ThemeModeDWWidget(),
                   const HomeLayoutDWWidget(),
+                  if (Platform.isAndroid) const PrayerWidgetSettings(),
 
                   // share and rate app section  for android.
                   Platform.isAndroid

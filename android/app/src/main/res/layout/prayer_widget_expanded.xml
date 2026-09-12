@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root" android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="@drawable/prayer_widget_background" android:clipToOutline="true">
+    android:clipToOutline="true">
+    <ImageView android:id="@+id/widget_background" android:layout_width="match_parent" android:layout_height="match_parent" android:src="@drawable/prayer_widget_background" android:scaleType="fitXY" android:importantForAccessibility="no" />
     <!-- Reuse the same illustration as the in-app prayer header. Keeping it
          aligned to the end preserves the mosque at narrow widget sizes. -->
-    <ImageView android:layout_width="470dp" android:layout_height="match_parent" android:layout_gravity="right"
+    <ImageView android:id="@+id/widget_illustration" android:layout_width="470dp" android:layout_height="match_parent" android:layout_gravity="right"
         android:src="@drawable/prayer_widget_mosque" android:scaleType="centerCrop" android:alpha="0.42"
         android:importantForAccessibility="no" />
 <LinearLayout
@@ -13,89 +14,93 @@
     <LinearLayout android:layout_width="match_parent" android:layout_height="18dp" android:orientation="horizontal" android:gravity="center_vertical">
         <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/prayer_widget_moon" android:importantForAccessibility="no" />
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp"
-            android:text="SalaTime" android:textSize="12sp" android:fontFamily="sans-serif-medium" android:textColor="#174D39" android:includeFontPadding="false" />
+            android:text="SalaTime" android:textSize="12sp" android:fontFamily="sans-serif-medium" android:textColor="#2F5233" android:includeFontPadding="false" />
         <TextView android:id="@+id/widget_city" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginStart="12dp"
-            android:gravity="end" android:textColor="#365342" android:textSize="11sp" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" />
+            android:gravity="end" android:textColor="#4C7A50" android:textSize="11sp" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" />
     </LinearLayout>
     <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
         android:orientation="horizontal" android:gravity="center_vertical" android:paddingTop="4dp" android:paddingBottom="4dp">
         <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
             <TextView android:id="@+id/widget_title" android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:text="@string/prayer_widget_next_label" android:textColor="#365342" android:textSize="10sp" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" />
+                android:text="@string/prayer_widget_next_label" android:textColor="#4C7A50" android:textSize="10sp" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" />
             <TextView android:id="@+id/widget_prayer" android:layout_width="match_parent" android:layout_height="31dp" android:layout_marginTop="3dp"
-                android:text="@string/prayer_widget_preview_prayer" android:textColor="#174D39" android:textSize="25sp" android:fontFamily="sans-serif-medium"
+                android:text="@string/prayer_widget_preview_prayer" android:textColor="#2F5233" android:textSize="25sp" android:fontFamily="sans-serif-medium"
                 android:autoSizeTextType="uniform" android:autoSizeMinTextSize="14sp" android:autoSizeMaxTextSize="25sp"
                 android:autoSizeStepGranularity="1sp" android:includeFontPadding="false" android:gravity="center_vertical"
                 android:maxLines="1" android:ellipsize="end" />
             <TextView android:id="@+id/widget_date" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp"
-                android:textColor="#365342" android:textSize="10sp" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" />
+                android:textColor="#4C7A50" android:textSize="10sp" android:includeFontPadding="false" android:maxLines="1" android:ellipsize="end" />
         </LinearLayout>
         <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
             android:layout_marginStart="8dp" android:orientation="vertical" android:gravity="end">
-            <TextView android:id="@+id/widget_time" android:layout_width="match_parent" android:layout_height="49dp"
-                android:text="05:36" android:textColor="#174D39" android:textSize="42sp" android:fontFamily="sans-serif"
+            <Chronometer android:id="@+id/widget_countdown" android:layout_width="match_parent" android:layout_height="42dp"
+            android:textColor="#2F5233" android:textSize="26sp" android:fontFamily="sans-serif" android:gravity="end|center_vertical"
+            android:visibility="gone" android:maxLines="1" android:autoSizeTextType="uniform"
+            android:autoSizeMinTextSize="12sp" android:autoSizeMaxTextSize="26sp" android:autoSizeStepGranularity="1sp" />
+        <TextView android:id="@+id/widget_time" android:layout_width="match_parent" android:layout_height="49dp"
+                android:text="05:36" android:textColor="#2F5233" android:textSize="42sp" android:fontFamily="sans-serif"
                 android:autoSizeTextType="uniform" android:autoSizeMinTextSize="16sp" android:autoSizeMaxTextSize="42sp"
                 android:autoSizeStepGranularity="1sp" android:includeFontPadding="false" android:gravity="end|center_vertical"
                 android:fontFeatureSettings="tnum" android:maxLines="1" />
             <TextView android:id="@+id/widget_period" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:textColor="#365342" android:textSize="10sp" android:includeFontPadding="false" />
+                android:textColor="#4C7A50" android:textSize="10sp" android:includeFontPadding="false" />
         </LinearLayout>
     </LinearLayout>
     <LinearLayout android:id="@+id/widget_day_schedule" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-        <ImageView android:layout_width="match_parent" android:layout_height="1dp" android:background="#1A174D39" android:importantForAccessibility="no" />
+        <ImageView android:layout_width="match_parent" android:layout_height="1dp" android:background="#1A2F5233" android:importantForAccessibility="no" />
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:orientation="horizontal" android:background="@drawable/prayer_widget_schedule_background">
         <LinearLayout android:id="@+id/widget_slot_0" android:layout_width="0dp" android:layout_weight="1"
             android:layout_height="44dp" android:orientation="vertical" android:gravity="center" android:paddingStart="2dp" android:paddingEnd="2dp">
             <TextView android:id="@+id/widget_slot_name_0" android:layout_width="match_parent" android:layout_height="14dp"
-                android:textColor="#365342" android:textSize="10sp" android:gravity="center" android:includeFontPadding="false"
+                android:textColor="#4C7A50" android:textSize="10sp" android:gravity="center" android:includeFontPadding="false"
                 android:autoSizeTextType="uniform" android:autoSizeMinTextSize="8sp" android:autoSizeMaxTextSize="10sp"
                 android:autoSizeStepGranularity="1sp" android:maxLines="1" android:ellipsize="end" />
             <TextView android:id="@+id/widget_slot_time_0" android:layout_width="match_parent" android:layout_height="18dp" android:layout_marginTop="2dp"
-                android:textColor="#174D39" android:textSize="12sp" android:fontFamily="sans-serif-medium" android:gravity="center"
+                android:textColor="#2F5233" android:textSize="12sp" android:fontFamily="sans-serif-medium" android:gravity="center"
                 android:autoSizeTextType="uniform" android:autoSizeMinTextSize="8sp" android:autoSizeMaxTextSize="12sp"
                 android:autoSizeStepGranularity="1sp" android:includeFontPadding="false" android:fontFeatureSettings="tnum" android:maxLines="1" />
         </LinearLayout>
         <LinearLayout android:id="@+id/widget_slot_1" android:layout_width="0dp" android:layout_weight="1"
             android:layout_height="44dp" android:orientation="vertical" android:gravity="center" android:paddingStart="2dp" android:paddingEnd="2dp">
             <TextView android:id="@+id/widget_slot_name_1" android:layout_width="match_parent" android:layout_height="14dp"
-                android:textColor="#365342" android:textSize="10sp" android:gravity="center" android:includeFontPadding="false"
+                android:textColor="#4C7A50" android:textSize="10sp" android:gravity="center" android:includeFontPadding="false"
                 android:autoSizeTextType="uniform" android:autoSizeMinTextSize="8sp" android:autoSizeMaxTextSize="10sp"
                 android:autoSizeStepGranularity="1sp" android:maxLines="1" android:ellipsize="end" />
             <TextView android:id="@+id/widget_slot_time_1" android:layout_width="match_parent" android:layout_height="18dp" android:layout_marginTop="2dp"
-                android:textColor="#174D39" android:textSize="12sp" android:fontFamily="sans-serif-medium" android:gravity="center"
+                android:textColor="#2F5233" android:textSize="12sp" android:fontFamily="sans-serif-medium" android:gravity="center"
                 android:autoSizeTextType="uniform" android:autoSizeMinTextSize="8sp" android:autoSizeMaxTextSize="12sp"
                 android:autoSizeStepGranularity="1sp" android:includeFontPadding="false" android:fontFeatureSettings="tnum" android:maxLines="1" />
         </LinearLayout>
         <LinearLayout android:id="@+id/widget_slot_2" android:layout_width="0dp" android:layout_weight="1"
             android:layout_height="44dp" android:orientation="vertical" android:gravity="center" android:paddingStart="2dp" android:paddingEnd="2dp">
             <TextView android:id="@+id/widget_slot_name_2" android:layout_width="match_parent" android:layout_height="14dp"
-                android:textColor="#365342" android:textSize="10sp" android:gravity="center" android:includeFontPadding="false"
+                android:textColor="#4C7A50" android:textSize="10sp" android:gravity="center" android:includeFontPadding="false"
                 android:autoSizeTextType="uniform" android:autoSizeMinTextSize="8sp" android:autoSizeMaxTextSize="10sp"
                 android:autoSizeStepGranularity="1sp" android:maxLines="1" android:ellipsize="end" />
             <TextView android:id="@+id/widget_slot_time_2" android:layout_width="match_parent" android:layout_height="18dp" android:layout_marginTop="2dp"
-                android:textColor="#174D39" android:textSize="12sp" android:fontFamily="sans-serif-medium" android:gravity="center"
+                android:textColor="#2F5233" android:textSize="12sp" android:fontFamily="sans-serif-medium" android:gravity="center"
                 android:autoSizeTextType="uniform" android:autoSizeMinTextSize="8sp" android:autoSizeMaxTextSize="12sp"
                 android:autoSizeStepGranularity="1sp" android:includeFontPadding="false" android:fontFeatureSettings="tnum" android:maxLines="1" />
         </LinearLayout>
         <LinearLayout android:id="@+id/widget_slot_3" android:layout_width="0dp" android:layout_weight="1"
             android:layout_height="44dp" android:orientation="vertical" android:gravity="center" android:paddingStart="2dp" android:paddingEnd="2dp">
             <TextView android:id="@+id/widget_slot_name_3" android:layout_width="match_parent" android:layout_height="14dp"
-                android:textColor="#365342" android:textSize="10sp" android:gravity="center" android:includeFontPadding="false"
+                android:textColor="#4C7A50" android:textSize="10sp" android:gravity="center" android:includeFontPadding="false"
                 android:autoSizeTextType="uniform" android:autoSizeMinTextSize="8sp" android:autoSizeMaxTextSize="10sp"
                 android:autoSizeStepGranularity="1sp" android:maxLines="1" android:ellipsize="end" />
             <TextView android:id="@+id/widget_slot_time_3" android:layout_width="match_parent" android:layout_height="18dp" android:layout_marginTop="2dp"
-                android:textColor="#174D39" android:textSize="12sp" android:fontFamily="sans-serif-medium" android:gravity="center"
+                android:textColor="#2F5233" android:textSize="12sp" android:fontFamily="sans-serif-medium" android:gravity="center"
                 android:autoSizeTextType="uniform" android:autoSizeMinTextSize="8sp" android:autoSizeMaxTextSize="12sp"
                 android:autoSizeStepGranularity="1sp" android:includeFontPadding="false" android:fontFeatureSettings="tnum" android:maxLines="1" />
         </LinearLayout>
         <LinearLayout android:id="@+id/widget_slot_4" android:layout_width="0dp" android:layout_weight="1"
             android:layout_height="44dp" android:orientation="vertical" android:gravity="center" android:paddingStart="2dp" android:paddingEnd="2dp">
             <TextView android:id="@+id/widget_slot_name_4" android:layout_width="match_parent" android:layout_height="14dp"
-                android:textColor="#365342" android:textSize="10sp" android:gravity="center" android:includeFontPadding="false"
+                android:textColor="#4C7A50" android:textSize="10sp" android:gravity="center" android:includeFontPadding="false"
                 android:autoSizeTextType="uniform" android:autoSizeMinTextSize="8sp" android:autoSizeMaxTextSize="10sp"
                 android:autoSizeStepGranularity="1sp" android:maxLines="1" android:ellipsize="end" />
             <TextView android:id="@+id/widget_slot_time_4" android:layout_width="match_parent" android:layout_height="18dp" android:layout_marginTop="2dp"
-                android:textColor="#174D39" android:textSize="12sp" android:fontFamily="sans-serif-medium" android:gravity="center"
+                android:textColor="#2F5233" android:textSize="12sp" android:fontFamily="sans-serif-medium" android:gravity="center"
                 android:autoSizeTextType="uniform" android:autoSizeMinTextSize="8sp" android:autoSizeMaxTextSize="12sp"
                 android:autoSizeStepGranularity="1sp" android:includeFontPadding="false" android:fontFeatureSettings="tnum" android:maxLines="1" />
         </LinearLayout>

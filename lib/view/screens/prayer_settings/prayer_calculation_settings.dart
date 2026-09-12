@@ -5,6 +5,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:zabi/controller/package_prayer_time_controller.dart';
 import 'package:zabi/helper/route_helper.dart';
+import 'package:zabi/helper/prayer_calculation_methods.dart';
+import 'package:zabi/view/screens/prayer_settings/calculation_method_screen.dart';
 import 'package:zabi/helper/salat_waqt_service.dart';
 import 'package:zabi/util/dimensions.dart';
 import 'package:zabi/util/images.dart';
@@ -13,23 +15,37 @@ import 'package:zabi/view/screens/prayer_settings/widget/custom_prayer_dropdown.
 
 import 'widget/custom_city_widget.dart';
 
-class PrayerTimeCalculationSettings extends StatelessWidget {
+class PrayerTimeCalculationSettings extends StatefulWidget {
   const PrayerTimeCalculationSettings({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      Get.find<PrayerTimeController>().getLocation();
-      Get.find<PrayerTimeController>().cityCategoryListData();
-      Get.find<PrayerTimeController>().fetchPrayerTime();
-    });
-    Get.put(PrayerTimeController(apiClient: Get.find()));
-    Get.find<PrayerTimeController>().loadPrayerTimeSettings();
-    Get.find<PrayerTimeController>().loadSwitchValue();
+  State<PrayerTimeCalculationSettings> createState() =>
+      _PrayerTimeCalculationSettingsState();
+}
 
+class _PrayerTimeCalculationSettingsState
+    extends State<PrayerTimeCalculationSettings> {
+  @override
+  void initState() {
+    super.initState();
+    final controller = Get.isRegistered<PrayerTimeController>()
+        ? Get.find<PrayerTimeController>()
+        : Get.put(PrayerTimeController(apiClient: Get.find()));
+    controller.loadPrayerTimeSettings();
+    controller.loadSwitchValue();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      controller.cityCategoryListData();
+      controller.refreshConfiguredPrayerTime().catchError((Object error) {
+        debugPrint('Configured prayer time refresh failed: $error');
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return GetBuilder<PrayerTimeController>(
       builder: (prayerTimeController) {
-        prayerTimeController.loadPrayerTimeSettings();
         return ListTile(
           minVerticalPadding: 0,
           contentPadding: const EdgeInsets.all(5),
@@ -48,25 +64,22 @@ class PrayerTimeCalculationSettings extends StatelessWidget {
               ),
               clipBehavior: Clip.antiAlias,
               title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      SvgPicture.asset(
-                        Images.Icon_Ramadan_Time,
-                        width: 25,
-                        height: 25,
-                        fit: BoxFit.fill,
-                        color: Theme.of(context).primaryColor,
+                  SvgPicture.asset(
+                    Images.Icon_Ramadan_Time,
+                    width: 25,
+                    height: 25,
+                    fit: BoxFit.fill,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  const SizedBox(width: Dimensions.PADDING_SIZE_DEFAULT),
+                  Expanded(
+                    child: Text(
+                      "prayer_time_settings".tr,
+                      style: robotoMedium.copyWith(
+                        fontSize: Dimensions.FONT_SIZE_LARGE,
                       ),
-                      const SizedBox(width: Dimensions.PADDING_SIZE_DEFAULT),
-                      Text(
-                        "prayer_time_settings".tr,
-                        style: robotoMedium.copyWith(
-                          fontSize: Dimensions.FONT_SIZE_LARGE,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ],
               ),
@@ -88,9 +101,6 @@ class PrayerTimeCalculationSettings extends StatelessWidget {
                       ),
                       const SizedBox(height: Dimensions.PADDING_SIZE_SMALL),
                       Container(
-                        padding: const EdgeInsets.only(
-                          left: Dimensions.PADDING_SIZE_GRID_SMALL,
-                        ),
                         decoration: BoxDecoration(
                           color: Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(
@@ -103,35 +113,29 @@ class PrayerTimeCalculationSettings extends StatelessWidget {
                             width: 1,
                           ),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  'show_prayer_time_formation_as_a_24_hr_clock'
-                                      .tr,
-                                  style: robotoMedium.copyWith(
-                                    fontSize: Dimensions.FONT_SIZE_DEFAULT,
-                                  ),
-                                ),
-                              ],
+                        child: Obx(
+                          () => SwitchListTile(
+                            contentPadding: const EdgeInsetsDirectional.only(
+                              start: Dimensions.PADDING_SIZE_GRID_SMALL,
+                              end: Dimensions.PADDING_SIZE_EXTRA_SMALL,
                             ),
-                            Switch(
-                              activeColor: Theme.of(context).primaryColor,
-                              activeTrackColor: Theme.of(context).primaryColor,
-                              inactiveThumbColor: Theme.of(
-                                context,
-                              ).colorScheme.error,
-                              inactiveTrackColor: Theme.of(
-                                context,
-                              ).colorScheme.error,
-                              value: prayerTimeController.is24HourFormat.value,
-                              onChanged: (value) async {
-                                prayerTimeController.updateSwitchValue(value);
-                              },
+                            title: Text(
+                              'show_prayer_time_formation_as_a_24_hr_clock'.tr,
+                              style: robotoMedium.copyWith(
+                                fontSize: Dimensions.FONT_SIZE_DEFAULT,
+                              ),
                             ),
-                          ],
+                            activeColor: Theme.of(context).primaryColor,
+                            activeTrackColor: Theme.of(context).primaryColor,
+                            inactiveThumbColor: Theme.of(
+                              context,
+                            ).colorScheme.error,
+                            inactiveTrackColor: Theme.of(
+                              context,
+                            ).colorScheme.error,
+                            value: prayerTimeController.is24HourFormat.value,
+                            onChanged: prayerTimeController.updateSwitchValue,
+                          ),
                         ),
                       ),
                       const SizedBox(height: Dimensions.PADDING_SIZE_SMALL),
@@ -165,8 +169,8 @@ class PrayerTimeCalculationSettings extends StatelessWidget {
                                 );
                               },
                         child: Container(
-                          height: 50,
-                          width: Get.width,
+                          constraints: const BoxConstraints(minHeight: 50),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(
                               Dimensions.RADIUS_DEFAULT,
@@ -181,23 +185,26 @@ class PrayerTimeCalculationSettings extends StatelessWidget {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Padding(
-                                padding: const EdgeInsetsDirectional.only(
-                                  start: Dimensions.PADDING_SIZE_DEFAULT,
-                                ),
-                                child: Obx(
-                                  () => Text(
-                                    prayerTimeController
-                                            .saveAddress
-                                            .value
-                                            .isNotEmpty
-                                        ? prayerTimeController.saveAddress.value
-                                              .toString()
-                                        : prayerTimeController
-                                              .currentAddress
-                                              .value,
-                                    style: robotoMedium.copyWith(
-                                      fontSize: Dimensions.FONT_SIZE_DEFAULT,
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsetsDirectional.only(
+                                    start: Dimensions.PADDING_SIZE_DEFAULT,
+                                  ),
+                                  child: Obx(
+                                    () => Text(
+                                      prayerTimeController
+                                              .saveAddress
+                                              .value
+                                              .isNotEmpty
+                                          ? prayerTimeController
+                                                .saveAddress
+                                                .value
+                                          : prayerTimeController
+                                                .currentAddress
+                                                .value,
+                                      style: robotoMedium.copyWith(
+                                        fontSize: Dimensions.FONT_SIZE_DEFAULT,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -217,35 +224,60 @@ class PrayerTimeCalculationSettings extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: Dimensions.PADDING_SIZE_SMALL),
+                      Text(
+                        'calculation_method_title'.tr,
+                        style: robotoMedium.copyWith(
+                          fontSize: Dimensions.FONT_SIZE_DEFAULT,
+                        ),
+                      ),
+                      const SizedBox(height: Dimensions.PADDING_SIZE_SMALL),
+                      ListTile(
+                        key: const ValueKey(
+                          'calculation-method-settings-entry',
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: Dimensions.PADDING_SIZE_DEFAULT,
+                          vertical: Dimensions.PADDING_SIZE_SMALL,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            Dimensions.RADIUS_DEFAULT,
+                          ),
+                          side: BorderSide(
+                            color: Theme.of(
+                              context,
+                            ).primaryColor.withValues(alpha: .5),
+                          ),
+                        ),
+                        title: Text(
+                          calculationMethodLabel(
+                            PrayerCalculationMethods.byId(
+                                  prayerTimeController
+                                      .selectedCalculationMethod,
+                                ) ??
+                                PrayerCalculationMethods.byId(
+                                  PrayerCalculationMethods.defaultId,
+                                )!,
+                          ),
+                          style: robotoMedium.copyWith(
+                            fontSize: Dimensions.FONT_SIZE_DEFAULT,
+                          ),
+                        ),
+                        trailing: Icon(
+                          Icons.chevron_right,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => const CalculationMethodScreen(),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: Dimensions.PADDING_SIZE_SMALL),
                       if (prayerTimeController.isPrayerTimes.value == false)
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Text(
-                              'prayer_method_settings'.tr,
-                              style: robotoMedium.copyWith(
-                                fontSize: Dimensions.FONT_SIZE_DEFAULT,
-                              ),
-                            ),
-                            const SizedBox(
-                              height: Dimensions.PADDING_SIZE_SMALL,
-                            ),
-                            CustomPrayerSettingDropDown(
-                              dwItems: prayerTimeController.calculationMethod,
-                              dwValue: prayerTimeController
-                                  .selectedCalculationMethod,
-                              hintText: 'choose_a_prayer_key'.tr,
-                              dropdownHeight: 500,
-                              onChange: (value) async {
-                                await prayerTimeController
-                                    .setSelectedCalculationMethod(value);
-                                await SalatWaqtService.initializeSalatWaqt();
-                              },
-                            ),
-                            const SizedBox(
-                              height: Dimensions.PADDING_SIZE_SMALL,
-                            ),
                             Text(
                               'prayer_madhab_settings'.tr,
                               style: robotoMedium.copyWith(

@@ -1,0 +1,1299 @@
+{
+  "sourceApplication": "com.mahmoud.android.Adani",
+  "sourceVersion": "3.0.5 (63)",
+  "sourceApkSha256": "24ab1a89bede8d9a31ac77a105e94349bf76c3318b356a477f7d0dd7637169f4",
+  "sounds": [
+    {
+      "key": "azan_2",
+      "source": "abolbaset.mp3",
+      "sha256": "45c01a6f942f3c0db30933f27948343f24c7491f94d84952479801e29ca28b56",
+      "durationSeconds": 161.712,
+      "category": "adhan",
+      "labels": {
+        "en": "Abdel Basit Abdel Samad",
+        "fr": "Abdel Basit Abdel Samad",
+        "ar": "عبد الباسط عبد الصمد",
+        "bn": "Abdel Basit Abdel Samad",
+        "es": "Abdel Basit Abdel Samad",
+        "fa": "Abdel Basit Abdel Samad",
+        "id": "Abdel Basit Abdel Samad",
+        "ms": "Abdel Basit Abdel Samad",
+        "tr": "Abdel Basit Abdel Samad",
+        "ur": "Abdel Basit Abdel Samad"
+      }
+    },
+    {
+      "key": "moatheni_alsurihy",
+      "source": "alsurihy.mp3",
+      "sha256": "1ddefae931361b6c0899c609d94024c41e14e21e765c36095ab42b525377b464",
+      "durationSeconds": 192.835918,
+      "category": "adhan",
+      "labels": {
+        "en": "Abdulmajeed Alsurihy",
+        "fr": "Abdulmajeed Alsurihy",
+        "ar": "عبد المجيد السريحي",
+        "bn": "Abdulmajeed Alsurihy",
+        "es": "Abdulmajeed Alsurihy",
+        "fa": "Abdulmajeed Alsurihy",
+        "id": "Abdulmajeed Alsurihy",
+        "ms": "Abdulmajeed Alsurihy",
+        "tr": "Abdulmajeed Alsurihy",
+        "ur": "Abdulmajeed Alsurihy"
+      }
+    },
+    {
+      "key": "azan_1",
+      "source": "ali_mullah.mp3",
+      "sha256": "446a10319bb014e128fa4239361c77c31aabf21c498f77aebb234703e91abead",
+      "durationSeconds": 165.825306,
+      "category": "adhan",
+      "labels": {
+        "en": "Ali Mullah",
+        "fr": "Ali Mullah",
+        "ar": "علي ملا",
+        "bn": "Ali Mullah",
+        "es": "Ali Mullah",
+        "fa": "Ali Mullah",
+        "id": "Ali Mullah",
+        "ms": "Ali Mullah",
+        "tr": "Ali Mullah",
+        "ur": "Ali Mullah"
+      }
+    },
+    {
+      "key": "moatheni_hamd",
+      "source": "hamd.mp3",
+      "sha256": "005df6ad1f89d900091b71a345fbf1193f1d5f0188fa35a97a9481b840de2c79",
+      "durationSeconds": 188.395102,
+      "category": "adhan",
+      "labels": {
+        "en": "Hamd Aldighriri",
+        "fr": "Hamd Aldighriri",
+        "ar": "حمد الدغريري",
+        "bn": "Hamd Aldighriri",
+        "es": "Hamd Aldighriri",
+        "fa": "Hamd Aldighriri",
+        "id": "Hamd Aldighriri",
+        "ms": "Hamd Aldighriri",
+        "tr": "Hamd Aldighriri",
+        "ur": "Hamd Aldighriri"
+      }
+    },
+    {
+      "key": "moatheni_hijazi",
+      "source": "hijazi.mp3",
+      "sha256": "3f441723eded7f432f288b7c7c240d6a123d7125eaa7e1fda0864ef21ee7f19c",
+      "durationSeconds": 172.094694,
+      "category": "adhan",
+      "labels": {
+        "en": "Hijazi Athan",
+        "fr": "Hijazi Athan",
+        "ar": "أذان حجازي",
+        "bn": "Hijazi Athan",
+        "es": "Hijazi Athan",
+        "fa": "Hijazi Athan",
+        "id": "Hijazi Athan",
+        "ms": "Hijazi Athan",
+        "tr": "Hijazi Athan",
+        "ur": "Hijazi Athan"
+      }
+    },
+    {
+      "key": "azan_3",
+      "source": "dookaly.mp3",
+      "sha256": "614a84413d31e7d584debc6d493c5d58be484c6ea6e16ea36cdd460974fc688d",
+      "durationSeconds": 114.860408,
+      "category": "adhan",
+      "labels": {
+        "en": "Mohammad Dookaly",
+        "fr": "Mohammad Dookaly",
+        "ar": "محمد الدوكالي",
+        "bn": "Mohammad Dookaly",
+        "es": "Mohammad Dookaly",
+        "fa": "Mohammad Dookaly",
+        "id": "Mohammad Dookaly",
+        "ms": "Mohammad Dookaly",
+        "tr": "Mohammad Dookaly",
+        "ur": "Mohammad Dookaly"
+      }
+    },
+    {
+      "key": "moatheni_qasas",
+      "source": "qasas.mp3",
+      "sha256": "b9b378cc1f79cd0d3cd84becc0fb686dffb655d936a271c65e5333b1a72d1de9",
+      "durationSeconds": 242.599184,
+      "category": "adhan",
+      "labels": {
+        "en": "Mohammad Qassas",
+        "fr": "Mohammad Qassas",
+        "ar": "محمد قصاص",
+        "bn": "Mohammad Qassas",
+        "es": "Mohammad Qassas",
+        "fa": "Mohammad Qassas",
+        "id": "Mohammad Qassas",
+        "ms": "Mohammad Qassas",
+        "tr": "Mohammad Qassas",
+        "ur": "Mohammad Qassas"
+      }
+    },
+    {
+      "key": "moatheni_naser",
+      "source": "naser.mp3",
+      "sha256": "15af401de1617d64862fcceedf0a81297214d613a1df516861b4235f7fef11e9",
+      "durationSeconds": 132.362449,
+      "category": "adhan",
+      "labels": {
+        "en": "Nasser Al Qatami",
+        "fr": "Nasser Al Qatami",
+        "ar": "ناصر القطامي",
+        "bn": "Nasser Al Qatami",
+        "es": "Nasser Al Qatami",
+        "fa": "Nasser Al Qatami",
+        "id": "Nasser Al Qatami",
+        "ms": "Nasser Al Qatami",
+        "tr": "Nasser Al Qatami",
+        "ur": "Nasser Al Qatami"
+      }
+    },
+    {
+      "key": "moatheni_salah",
+      "source": "salah.mp3",
+      "sha256": "b3958c0457cfbd64be98b411b106c1b6db35e50ddf1d8d33119ca40496aa124e",
+      "durationSeconds": 88.973061,
+      "category": "adhan",
+      "labels": {
+        "en": "Salah Adeeb",
+        "fr": "Salah Adeeb",
+        "ar": "صلاح الذيب",
+        "bn": "Salah Adeeb",
+        "es": "Salah Adeeb",
+        "fa": "Salah Adeeb",
+        "id": "Salah Adeeb",
+        "ms": "Salah Adeeb",
+        "tr": "Salah Adeeb",
+        "ur": "Salah Adeeb"
+      }
+    },
+    {
+      "key": "moatheni_salah_fajr",
+      "source": "salah_fajr.mp3",
+      "sha256": "625e69de2db4f36aef55b4405c1eb70aff7b6b129fec617443d6f5525a24250a",
+      "durationSeconds": 101.302857,
+      "category": "adhan",
+      "labels": {
+        "en": "Salah Al-Dhib — Fajr",
+        "fr": "Salah Al-Dhib — Fajr",
+        "ar": "صلاح الذيب — الفجر",
+        "bn": "Salah Al-Dhib — Fajr",
+        "es": "Salah Al-Dhib — Fajr",
+        "fa": "Salah Al-Dhib — Fajr",
+        "id": "Salah Al-Dhib — Fajr",
+        "ms": "Salah Al-Dhib — Fajr",
+        "tr": "Salah Al-Dhib — Fajr",
+        "ur": "Salah Al-Dhib — Fajr"
+      }
+    },
+    {
+      "key": "moatheni_albany",
+      "source": "albany.mp3",
+      "sha256": "06e621d9f1bb70c87163cde924b5c69db190d1ba0fa59fea53136c98a1cea382",
+      "durationSeconds": 91.245714,
+      "category": "adhan",
+      "labels": {
+        "en": "Sheikh Albany",
+        "fr": "Sheikh Albany",
+        "ar": "الشيخ الألباني",
+        "bn": "Sheikh Albany",
+        "es": "Sheikh Albany",
+        "fa": "Sheikh Albany",
+        "id": "Sheikh Albany",
+        "ms": "Sheikh Albany",
+        "tr": "Sheikh Albany",
+        "ur": "Sheikh Albany"
+      }
+    },
+    {
+      "key": "moatheni_after_prayer_sunrise",
+      "source": "after_prayer_sunrise.mp3",
+      "sha256": "b77f7e2414ae1ed4e18f7b9a03f77125d31ad93ff7281ba71437ec51327308ee",
+      "durationSeconds": 0.756,
+      "category": "reminder",
+      "labels": {
+        "en": "After sunrise",
+        "fr": "Après : lever du soleil",
+        "ar": "بعد الشروق",
+        "bn": "After sunrise",
+        "es": "After sunrise",
+        "fa": "After sunrise",
+        "id": "After sunrise",
+        "ms": "After sunrise",
+        "tr": "After sunrise",
+        "ur": "After sunrise"
+      }
+    },
+    {
+      "key": "moatheni_on_prayer_asr",
+      "source": "on_prayer_asr.mp3",
+      "sha256": "ced55684bb4c88c6e2b611c9044c46e87d50ae2265af30f811436a8180e0439c",
+      "durationSeconds": 2.649143,
+      "category": "reminder",
+      "labels": {
+        "en": "Asr time",
+        "fr": "Asr : c’est l’heure",
+        "ar": "موعد أذان العصر",
+        "bn": "Asr time",
+        "es": "Asr time",
+        "fa": "Asr time",
+        "id": "Asr time",
+        "ms": "Asr time",
+        "tr": "Asr time",
+        "ur": "Asr time"
+      }
+    },
+    {
+      "key": "moatheni_before_prayer_asr",
+      "source": "before_prayer_asr.mp3",
+      "sha256": "82ed55f5e165a24f75704586fd06387872a41467e42ea4138612847b28030815",
+      "durationSeconds": 2.745143,
+      "category": "reminder",
+      "labels": {
+        "en": "Before Asr",
+        "fr": "Avant : Asr",
+        "ar": "اقترب أذان العصر",
+        "bn": "Before Asr",
+        "es": "Before Asr",
+        "fa": "Before Asr",
+        "id": "Before Asr",
+        "ms": "Before Asr",
+        "tr": "Before Asr",
+        "ur": "Before Asr"
+      }
+    },
+    {
+      "key": "moatheni_before_prayer_dhuhr",
+      "source": "before_prayer_dhuhr.mp3",
+      "sha256": "4da336a7ff347221236749f02d727fbde4c525dee2171140b4950a5511a14d91",
+      "durationSeconds": 2.625143,
+      "category": "reminder",
+      "labels": {
+        "en": "Before Dhuhr",
+        "fr": "Avant : Dohr",
+        "ar": "اقترب أذان الظهر",
+        "bn": "Before Dhuhr",
+        "es": "Before Dhuhr",
+        "fa": "Before Dhuhr",
+        "id": "Before Dhuhr",
+        "ms": "Before Dhuhr",
+        "tr": "Before Dhuhr",
+        "ur": "Before Dhuhr"
+      }
+    },
+    {
+      "key": "moatheni_before_prayer_fajr",
+      "source": "before_prayer_fajr.mp3",
+      "sha256": "960a7a020e66b2ab0e6c4b4ef2916286e3bbdfa7f372ae90fd1cc9c0cdb48e9f",
+      "durationSeconds": 2.697143,
+      "category": "reminder",
+      "labels": {
+        "en": "Before Fajr",
+        "fr": "Avant : Fajr",
+        "ar": "اقترب أذان الفجر",
+        "bn": "Before Fajr",
+        "es": "Before Fajr",
+        "fa": "Before Fajr",
+        "id": "Before Fajr",
+        "ms": "Before Fajr",
+        "tr": "Before Fajr",
+        "ur": "Before Fajr"
+      }
+    },
+    {
+      "key": "moatheni_before_prayer_isha",
+      "source": "before_prayer_isha.mp3",
+      "sha256": "0e6cdccd45d98bfcd2b1221b8cb234b29ca3356f241c5b58875d78390ea63a39",
+      "durationSeconds": 2.745143,
+      "category": "reminder",
+      "labels": {
+        "en": "Before Isha",
+        "fr": "Avant : Icha",
+        "ar": "اقترب أذان العشاء",
+        "bn": "Before Isha",
+        "es": "Before Isha",
+        "fa": "Before Isha",
+        "id": "Before Isha",
+        "ms": "Before Isha",
+        "tr": "Before Isha",
+        "ur": "Before Isha"
+      }
+    },
+    {
+      "key": "moatheni_before_prayer_jumaa",
+      "source": "before_prayer_jumaa.mp3",
+      "sha256": "aa3045dfb40fbf57d888b4be01ea392036b9d4d3697ecd832bc2ecd8b495ab2b",
+      "durationSeconds": 2.769143,
+      "category": "reminder",
+      "labels": {
+        "en": "Before Jumuah",
+        "fr": "Avant : vendredi",
+        "ar": "اقترب أذان الجمعة",
+        "bn": "Before Jumuah",
+        "es": "Before Jumuah",
+        "fa": "Before Jumuah",
+        "id": "Before Jumuah",
+        "ms": "Before Jumuah",
+        "tr": "Before Jumuah",
+        "ur": "Before Jumuah"
+      }
+    },
+    {
+      "key": "moatheni_before_prayer_maghrib",
+      "source": "before_prayer_maghrib.mp3",
+      "sha256": "cd46c0ad415d8be2e694a84ad4803bfa0e735c1576c17fd72691784844e2e93e",
+      "durationSeconds": 2.925714,
+      "category": "reminder",
+      "labels": {
+        "en": "Before Maghrib",
+        "fr": "Avant : Maghrib",
+        "ar": "اقترب أذان المغرب",
+        "bn": "Before Maghrib",
+        "es": "Before Maghrib",
+        "fa": "Before Maghrib",
+        "id": "Before Maghrib",
+        "ms": "Before Maghrib",
+        "tr": "Before Maghrib",
+        "ur": "Before Maghrib"
+      }
+    },
+    {
+      "key": "moatheni_before_prayer_sunrise",
+      "source": "before_prayer_sunrise.mp3",
+      "sha256": "b77f7e2414ae1ed4e18f7b9a03f77125d31ad93ff7281ba71437ec51327308ee",
+      "durationSeconds": 0.756,
+      "category": "reminder",
+      "labels": {
+        "en": "Before sunrise",
+        "fr": "Avant : lever du soleil",
+        "ar": "اقترب وقت الشروق",
+        "bn": "Before sunrise",
+        "es": "Before sunrise",
+        "fa": "Before sunrise",
+        "id": "Before sunrise",
+        "ms": "Before sunrise",
+        "tr": "Before sunrise",
+        "ur": "Before sunrise"
+      }
+    },
+    {
+      "key": "moatheni_before_lastthird",
+      "source": "before_lastthird.mp3",
+      "sha256": "75b64117126dc9261f5306b1e58b0bafec03ddae21d243a8b5d21d549d9c0636",
+      "durationSeconds": 2.889143,
+      "category": "reminder",
+      "labels": {
+        "en": "Before the last third of the night",
+        "fr": "Avant le dernier tiers de la nuit",
+        "ar": "قبل الثلث الأخير من الليل",
+        "bn": "Before the last third of the night",
+        "es": "Before the last third of the night",
+        "fa": "Before the last third of the night",
+        "id": "Before the last third of the night",
+        "ms": "Before the last third of the night",
+        "tr": "Before the last third of the night",
+        "ur": "Before the last third of the night"
+      }
+    },
+    {
+      "key": "moatheni_short_sound",
+      "source": "short_sound.mp3",
+      "sha256": "e2f92ea2f899b931eabf2981e3917f04f985797f11592d42c77388d7f573fcb4",
+      "durationSeconds": 2.16,
+      "category": "reminder",
+      "labels": {
+        "en": "Bi-Tune",
+        "fr": "Double tonalité",
+        "ar": "نغمة زوجية",
+        "bn": "Bi-Tune",
+        "es": "Bi-Tune",
+        "fa": "Bi-Tune",
+        "id": "Bi-Tune",
+        "ms": "Bi-Tune",
+        "tr": "Bi-Tune",
+        "ur": "Bi-Tune"
+      }
+    },
+    {
+      "key": "moatheni_bird",
+      "source": "bird.mp3",
+      "sha256": "c06540303d9e1a918a848228b24383d40a59136bd2b1193e96ae657800c4ef6c",
+      "durationSeconds": 3.578776,
+      "category": "reminder",
+      "labels": {
+        "en": "Bird",
+        "fr": "Oiseau",
+        "ar": "طائر",
+        "bn": "Bird",
+        "es": "Bird",
+        "fa": "Bird",
+        "id": "Bird",
+        "ms": "Bird",
+        "tr": "Bird",
+        "ur": "Bird"
+      }
+    },
+    {
+      "key": "moatheni_on_prayer_dhuhr",
+      "source": "on_prayer_dhuhr.mp3",
+      "sha256": "b54fe8f0bc32f1ca6bc652ce58c02b7eda1df73041bc5555310547afac26bbb0",
+      "durationSeconds": 2.721143,
+      "category": "reminder",
+      "labels": {
+        "en": "Dhuhr time",
+        "fr": "Dohr : c’est l’heure",
+        "ar": "موعد أذان الظهر",
+        "bn": "Dhuhr time",
+        "es": "Dhuhr time",
+        "fa": "Dhuhr time",
+        "id": "Dhuhr time",
+        "ms": "Dhuhr time",
+        "tr": "Dhuhr time",
+        "ur": "Dhuhr time"
+      }
+    },
+    {
+      "key": "moatheni_duha",
+      "source": "duha.mp3",
+      "sha256": "2a3754ca414447c585d685d1f47f2646652b0c84d3c7fae094c1def38d7ac462",
+      "durationSeconds": 1.977143,
+      "category": "reminder",
+      "labels": {
+        "en": "Duha",
+        "fr": "Prière de Duha",
+        "ar": "الضحى",
+        "bn": "Duha",
+        "es": "Duha",
+        "fa": "Duha",
+        "id": "Duha",
+        "ms": "Duha",
+        "tr": "Duha",
+        "ur": "Duha"
+      }
+    },
+    {
+      "key": "noti_1",
+      "source": "eqama1.mp3",
+      "sha256": "f926c815c6016d78e403d479c799b9906acc5ef0c0e26bf07b0102165068fdc6",
+      "durationSeconds": 29.518367,
+      "category": "reminder",
+      "labels": {
+        "en": "Eqama 1",
+        "fr": "Iqama 1",
+        "ar": "إقامة 1",
+        "bn": "Eqama 1",
+        "es": "Eqama 1",
+        "fa": "Eqama 1",
+        "id": "Eqama 1",
+        "ms": "Eqama 1",
+        "tr": "Eqama 1",
+        "ur": "Eqama 1"
+      }
+    },
+    {
+      "key": "moatheni_eqama2",
+      "source": "eqama2.mp3",
+      "sha256": "78ede2b9f4a3891d168d11438260b70d2ea75ff0b987bc0348616dcd173fad0a",
+      "durationSeconds": 6.426122,
+      "category": "reminder",
+      "labels": {
+        "en": "Eqama 2",
+        "fr": "Iqama 2",
+        "ar": "إقامة 2",
+        "bn": "Eqama 2",
+        "es": "Eqama 2",
+        "fa": "Eqama 2",
+        "id": "Eqama 2",
+        "ms": "Eqama 2",
+        "tr": "Eqama 2",
+        "ur": "Eqama 2"
+      }
+    },
+    {
+      "key": "moatheni_evening_azkar1",
+      "source": "evening_azkar1.mp3",
+      "sha256": "0b077fe5bcc85c28875f84dcff797bdf38f3bb2c71a952538f5040d2f031432d",
+      "durationSeconds": 1.933061,
+      "category": "reminder",
+      "labels": {
+        "en": "Evening athkar 1",
+        "fr": "Invocations du soir 1",
+        "ar": "أذكار المساء 1",
+        "bn": "Evening athkar 1",
+        "es": "Evening athkar 1",
+        "fa": "Evening athkar 1",
+        "id": "Evening athkar 1",
+        "ms": "Evening athkar 1",
+        "tr": "Evening athkar 1",
+        "ur": "Evening athkar 1"
+      }
+    },
+    {
+      "key": "moatheni_evening_azkar2",
+      "source": "evening_azkar2.mp3",
+      "sha256": "8cddd4e673938808b31e89a7f1c31f7ffca597f1ae71eb8c2319304fa4a9a140",
+      "durationSeconds": 5.929796,
+      "category": "reminder",
+      "labels": {
+        "en": "Evening athkar 2",
+        "fr": "Invocations du soir 2",
+        "ar": "أذكار المساء 2",
+        "bn": "Evening athkar 2",
+        "es": "Evening athkar 2",
+        "fa": "Evening athkar 2",
+        "id": "Evening athkar 2",
+        "ms": "Evening athkar 2",
+        "tr": "Evening athkar 2",
+        "ur": "Evening athkar 2"
+      }
+    },
+    {
+      "key": "moatheni_fajr_alarm",
+      "source": "fajr_alarm.mp3",
+      "sha256": "bfb4f116249ec122b89dcdebf50ed0ec1670078b31694c8c19dff839cc62eba1",
+      "durationSeconds": 1.689143,
+      "category": "reminder",
+      "labels": {
+        "en": "Fajr alarm",
+        "fr": "Annonce du Fajr",
+        "ar": "تنبيه الفجر",
+        "bn": "Fajr alarm",
+        "es": "Fajr alarm",
+        "fa": "Fajr alarm",
+        "id": "Fajr alarm",
+        "ms": "Fajr alarm",
+        "tr": "Fajr alarm",
+        "ur": "Fajr alarm"
+      }
+    },
+    {
+      "key": "moatheni_ring5",
+      "source": "ring5.mp3",
+      "sha256": "5642a1dce7f11758122a37978ee74ada1e0bece25e0d85274ac83616967322d3",
+      "durationSeconds": 204.24,
+      "category": "reminder",
+      "labels": {
+        "en": "Fajr alarm 5",
+        "fr": "Réveil du Fajr 5",
+        "ar": "منبه الفجر 5",
+        "bn": "Fajr alarm 5",
+        "es": "Fajr alarm 5",
+        "fa": "Fajr alarm 5",
+        "id": "Fajr alarm 5",
+        "ms": "Fajr alarm 5",
+        "tr": "Fajr alarm 5",
+        "ur": "Fajr alarm 5"
+      }
+    },
+    {
+      "key": "moatheni_ring1",
+      "source": "ring1.mp3",
+      "sha256": "7ab6f43fe80096e0f25112f68394bf6146d61e86d48c0236c86d0f1f8a026a1b",
+      "durationSeconds": 29.04,
+      "category": "reminder",
+      "labels": {
+        "en": "Fajr alert 1",
+        "fr": "Réveil du Fajr 1",
+        "ar": "منبه الفجر 1",
+        "bn": "Fajr alert 1",
+        "es": "Fajr alert 1",
+        "fa": "Fajr alert 1",
+        "id": "Fajr alert 1",
+        "ms": "Fajr alert 1",
+        "tr": "Fajr alert 1",
+        "ur": "Fajr alert 1"
+      }
+    },
+    {
+      "key": "moatheni_ring2",
+      "source": "ring2.mp3",
+      "sha256": "630371fd64c0dc30fcc84a8056ba83bcac3d8c1c3b124c6ee8b246079b9aeba3",
+      "durationSeconds": 29.184,
+      "category": "reminder",
+      "labels": {
+        "en": "Fajr alert 2",
+        "fr": "Réveil du Fajr 2",
+        "ar": "منبه الفجر 2",
+        "bn": "Fajr alert 2",
+        "es": "Fajr alert 2",
+        "fa": "Fajr alert 2",
+        "id": "Fajr alert 2",
+        "ms": "Fajr alert 2",
+        "tr": "Fajr alert 2",
+        "ur": "Fajr alert 2"
+      }
+    },
+    {
+      "key": "moatheni_ring3",
+      "source": "ring3.mp3",
+      "sha256": "43efc55d85d901e6ce18b43c3d4e8bdf598f7627fa4670843a9e09ea9fe900eb",
+      "durationSeconds": 29.413878,
+      "category": "reminder",
+      "labels": {
+        "en": "Fajr alert 3",
+        "fr": "Réveil du Fajr 3",
+        "ar": "منبه الفجر 3",
+        "bn": "Fajr alert 3",
+        "es": "Fajr alert 3",
+        "fa": "Fajr alert 3",
+        "id": "Fajr alert 3",
+        "ms": "Fajr alert 3",
+        "tr": "Fajr alert 3",
+        "ur": "Fajr alert 3"
+      }
+    },
+    {
+      "key": "moatheni_ring4",
+      "source": "ring4.mp3",
+      "sha256": "11daa78e49242f92ead5e7059f790d7d270169bc8ee919a35da9e30c903c39ed",
+      "durationSeconds": 27.062857,
+      "category": "reminder",
+      "labels": {
+        "en": "Fajr alert 4",
+        "fr": "Réveil du Fajr 4",
+        "ar": "منبه الفجر 4",
+        "bn": "Fajr alert 4",
+        "es": "Fajr alert 4",
+        "fa": "Fajr alert 4",
+        "id": "Fajr alert 4",
+        "ms": "Fajr alert 4",
+        "tr": "Fajr alert 4",
+        "ur": "Fajr alert 4"
+      }
+    },
+    {
+      "key": "moatheni_on_prayer_fajr",
+      "source": "on_prayer_fajr.mp3",
+      "sha256": "9fa5251c776621dfff7f26b6babe0d8365eda510d8bccbd954fb63fe3a281160",
+      "durationSeconds": 2.937143,
+      "category": "reminder",
+      "labels": {
+        "en": "Fajr time",
+        "fr": "Fajr : c’est l’heure",
+        "ar": "موعد أذان الفجر",
+        "bn": "Fajr time",
+        "es": "Fajr time",
+        "fa": "Fajr time",
+        "id": "Fajr time",
+        "ms": "Fajr time",
+        "tr": "Fajr time",
+        "ur": "Fajr time"
+      }
+    },
+    {
+      "key": "moatheni_heya_falah",
+      "source": "heya_falah.mp3",
+      "sha256": "493daaad434c367f9727e9b4d1005ea44a9a320b722f34bec6f15118d1fb9b62",
+      "durationSeconds": 20.244898,
+      "category": "reminder",
+      "labels": {
+        "en": "Falah",
+        "fr": "Hayya ‘ala l-falah",
+        "ar": "حي على الفلاح",
+        "bn": "Falah",
+        "es": "Falah",
+        "fa": "Falah",
+        "id": "Falah",
+        "ms": "Falah",
+        "tr": "Falah",
+        "ur": "Falah"
+      }
+    },
+    {
+      "key": "moatheni_fasting_hadeath",
+      "source": "fasting_hadeath.mp3",
+      "sha256": "cd92328b43cc7a9db8960ef97b08558a99fc1ab19b71d62069a0018f8da7aec9",
+      "durationSeconds": 10.370612,
+      "category": "reminder",
+      "labels": {
+        "en": "Fasting hadeath",
+        "fr": "Hadith sur le jeûne",
+        "ar": "حديث الصيام",
+        "bn": "Fasting hadeath",
+        "es": "Fasting hadeath",
+        "fa": "Fasting hadeath",
+        "id": "Fasting hadeath",
+        "ms": "Fasting hadeath",
+        "tr": "Fasting hadeath",
+        "ur": "Fasting hadeath"
+      }
+    },
+    {
+      "key": "moatheni_after_prayer_asr",
+      "source": "after_prayer_asr.mp3",
+      "sha256": "6a74ee5b9a693b2ac7779e5a7906409a5c70be24b1a78bb76f350a1df4728e35",
+      "durationSeconds": 2.832,
+      "category": "reminder",
+      "labels": {
+        "en": "Iqama: Asr",
+        "fr": "Iqama : Asr",
+        "ar": "إقامة صلاة العصر",
+        "bn": "Iqama: Asr",
+        "es": "Iqama: Asr",
+        "fa": "Iqama: Asr",
+        "id": "Iqama: Asr",
+        "ms": "Iqama: Asr",
+        "tr": "Iqama: Asr",
+        "ur": "Iqama: Asr"
+      }
+    },
+    {
+      "key": "moatheni_after_prayer_dhuhr",
+      "source": "after_prayer_dhuhr.mp3",
+      "sha256": "f4f29dee7df96eb1c8c3a2c05aac4a7ca2b9a85b14c18175493e423549e9473b",
+      "durationSeconds": 2.769143,
+      "category": "reminder",
+      "labels": {
+        "en": "Iqama: Dhuhr",
+        "fr": "Iqama : Dohr",
+        "ar": "إقامة صلاة الظهر",
+        "bn": "Iqama: Dhuhr",
+        "es": "Iqama: Dhuhr",
+        "fa": "Iqama: Dhuhr",
+        "id": "Iqama: Dhuhr",
+        "ms": "Iqama: Dhuhr",
+        "tr": "Iqama: Dhuhr",
+        "ur": "Iqama: Dhuhr"
+      }
+    },
+    {
+      "key": "moatheni_after_prayer_fajr",
+      "source": "after_prayer_fajr.mp3",
+      "sha256": "969b0982c52b12203670cf0c28cb0464ab75ec243c2aee2b382d1a5da1649a5c",
+      "durationSeconds": 2.937143,
+      "category": "reminder",
+      "labels": {
+        "en": "Iqama: Fajr",
+        "fr": "Iqama : Fajr",
+        "ar": "إقامة صلاة الفجر",
+        "bn": "Iqama: Fajr",
+        "es": "Iqama: Fajr",
+        "fa": "Iqama: Fajr",
+        "id": "Iqama: Fajr",
+        "ms": "Iqama: Fajr",
+        "tr": "Iqama: Fajr",
+        "ur": "Iqama: Fajr"
+      }
+    },
+    {
+      "key": "moatheni_after_prayer_isha",
+      "source": "after_prayer_isha.mp3",
+      "sha256": "b6ff372eb08ebe2abdbdeef7846bacaa7402c3f9463f3b238d300b7c5006420d",
+      "durationSeconds": 2.937143,
+      "category": "reminder",
+      "labels": {
+        "en": "Iqama: Isha",
+        "fr": "Iqama : Icha",
+        "ar": "إقامة صلاة العشاء",
+        "bn": "Iqama: Isha",
+        "es": "Iqama: Isha",
+        "fa": "Iqama: Isha",
+        "id": "Iqama: Isha",
+        "ms": "Iqama: Isha",
+        "tr": "Iqama: Isha",
+        "ur": "Iqama: Isha"
+      }
+    },
+    {
+      "key": "moatheni_after_prayer_jumaa",
+      "source": "after_prayer_jumaa.mp3",
+      "sha256": "5f5d8629ec27ac8f47f2d014c419007ea5215471afa3a27c7c1e74bf9e07ffef",
+      "durationSeconds": 2.88,
+      "category": "reminder",
+      "labels": {
+        "en": "Iqama: Jumuah",
+        "fr": "Iqama : vendredi",
+        "ar": "إقامة صلاة الجمعة",
+        "bn": "Iqama: Jumuah",
+        "es": "Iqama: Jumuah",
+        "fa": "Iqama: Jumuah",
+        "id": "Iqama: Jumuah",
+        "ms": "Iqama: Jumuah",
+        "tr": "Iqama: Jumuah",
+        "ur": "Iqama: Jumuah"
+      }
+    },
+    {
+      "key": "moatheni_after_prayer_maghrib",
+      "source": "after_prayer_maghrib.mp3",
+      "sha256": "c9ed85470a84b5de39849e7ad1eb1e42b6eb6b9ac325630b678f213bca96952c",
+      "durationSeconds": 2.889143,
+      "category": "reminder",
+      "labels": {
+        "en": "Iqama: Maghrib",
+        "fr": "Iqama : Maghrib",
+        "ar": "إقامة صلاة المغرب",
+        "bn": "Iqama: Maghrib",
+        "es": "Iqama: Maghrib",
+        "fa": "Iqama: Maghrib",
+        "id": "Iqama: Maghrib",
+        "ms": "Iqama: Maghrib",
+        "tr": "Iqama: Maghrib",
+        "ur": "Iqama: Maghrib"
+      }
+    },
+    {
+      "key": "moatheni_on_prayer_isha",
+      "source": "on_prayer_isha.mp3",
+      "sha256": "92046285f7e4fe017c6daf0859c4003027ff05be9d01b028a898cbf47435a512",
+      "durationSeconds": 2.721143,
+      "category": "reminder",
+      "labels": {
+        "en": "Isha time",
+        "fr": "Icha : c’est l’heure",
+        "ar": "موعد أذان العشاء",
+        "bn": "Isha time",
+        "es": "Isha time",
+        "fa": "Isha time",
+        "id": "Isha time",
+        "ms": "Isha time",
+        "tr": "Isha time",
+        "ur": "Isha time"
+      }
+    },
+    {
+      "key": "moatheni_jumaa_hour",
+      "source": "jumaa_hour.mp3",
+      "sha256": "79228f31b0a35b2113de61d1255a6d6c12556103c66707b66e6878d683b126f7",
+      "durationSeconds": 2.745143,
+      "category": "reminder",
+      "labels": {
+        "en": "Jumaa hour",
+        "fr": "Rappel du vendredi",
+        "ar": "ساعة الجمعة",
+        "bn": "Jumaa hour",
+        "es": "Jumaa hour",
+        "fa": "Jumaa hour",
+        "id": "Jumaa hour",
+        "ms": "Jumaa hour",
+        "tr": "Jumaa hour",
+        "ur": "Jumaa hour"
+      }
+    },
+    {
+      "key": "moatheni_on_prayer_jumaa",
+      "source": "on_prayer_jumaa.mp3",
+      "sha256": "28aade1640d578b069d6d784c1aa49f0e98fa51101525c0e34322510e96c8309",
+      "durationSeconds": 2.913143,
+      "category": "reminder",
+      "labels": {
+        "en": "Jumuah time",
+        "fr": "vendredi : c’est l’heure",
+        "ar": "موعد أذان الجمعة",
+        "bn": "Jumuah time",
+        "es": "Jumuah time",
+        "fa": "Jumuah time",
+        "id": "Jumuah time",
+        "ms": "Jumuah time",
+        "tr": "Jumuah time",
+        "ur": "Jumuah time"
+      }
+    },
+    {
+      "key": "moatheni_last_third",
+      "source": "last_third.mp3",
+      "sha256": "136cffa6b0cea1ca183872a87fe9798ab51c5be8dc2d335d4bb92ece6b73eaca",
+      "durationSeconds": 2.049143,
+      "category": "reminder",
+      "labels": {
+        "en": "Last third",
+        "fr": "Dernier tiers de la nuit",
+        "ar": "الثلث الأخير",
+        "bn": "Last third",
+        "es": "Last third",
+        "fa": "Last third",
+        "id": "Last third",
+        "ms": "Last third",
+        "tr": "Last third",
+        "ur": "Last third"
+      }
+    },
+    {
+      "key": "moatheni_on_prayer_maghrib",
+      "source": "on_prayer_maghrib.mp3",
+      "sha256": "696415ea53426bb2a3ddf1b5d53c0d1b938ebe271132e5994a424ec8dc5428e6",
+      "durationSeconds": 2.937143,
+      "category": "reminder",
+      "labels": {
+        "en": "Maghrib time",
+        "fr": "Maghrib : c’est l’heure",
+        "ar": "موعد أذان المغرب",
+        "bn": "Maghrib time",
+        "es": "Maghrib time",
+        "fa": "Maghrib time",
+        "id": "Maghrib time",
+        "ms": "Maghrib time",
+        "tr": "Maghrib time",
+        "ur": "Maghrib time"
+      }
+    },
+    {
+      "key": "moatheni_midnight",
+      "source": "midnight.mp3",
+      "sha256": "935399f9c16bd059d5f12e490b67085fedc11b3858acdf0844db1c4a0c0bb5e5",
+      "durationSeconds": 2.638367,
+      "category": "reminder",
+      "labels": {
+        "en": "Midnight",
+        "fr": "Milieu de la nuit",
+        "ar": "نصف الليل",
+        "bn": "Midnight",
+        "es": "Midnight",
+        "fa": "Midnight",
+        "id": "Midnight",
+        "ms": "Midnight",
+        "tr": "Midnight",
+        "ur": "Midnight"
+      }
+    },
+    {
+      "key": "moatheni_monday_fasting",
+      "source": "monday_fasting.mp3",
+      "sha256": "4909767cfd6fa954b45ebe037a74689611ea8b6ff82a2280f25636e76ca3fb3b",
+      "durationSeconds": 3.225143,
+      "category": "reminder",
+      "labels": {
+        "en": "Monday fasting",
+        "fr": "Jeûne du lundi",
+        "ar": "صيام الاثنين",
+        "bn": "Monday fasting",
+        "es": "Monday fasting",
+        "fa": "Monday fasting",
+        "id": "Monday fasting",
+        "ms": "Monday fasting",
+        "tr": "Monday fasting",
+        "ur": "Monday fasting"
+      }
+    },
+    {
+      "key": "moatheni_morning_azkar1",
+      "source": "morning_azkar1.mp3",
+      "sha256": "92c4253403eb641bbd68a79ed0d0f738093198bff085c08ca2266ef916d87091",
+      "durationSeconds": 2.097143,
+      "category": "reminder",
+      "labels": {
+        "en": "Morning athkar 1",
+        "fr": "Invocations du matin 1",
+        "ar": "أذكار الصباح 1",
+        "bn": "Morning athkar 1",
+        "es": "Morning athkar 1",
+        "fa": "Morning athkar 1",
+        "id": "Morning athkar 1",
+        "ms": "Morning athkar 1",
+        "tr": "Morning athkar 1",
+        "ur": "Morning athkar 1"
+      }
+    },
+    {
+      "key": "moatheni_morning_azkar2",
+      "source": "morning_azkar2.mp3",
+      "sha256": "55295cfc2f8be1d0eaa3e3d77d946ee2372b8f8124ff020d3d5b80b7f4cd055b",
+      "durationSeconds": 6.19102,
+      "category": "reminder",
+      "labels": {
+        "en": "Morning athkar 2",
+        "fr": "Invocations du matin 2",
+        "ar": "أذكار الصباح 2",
+        "bn": "Morning athkar 2",
+        "es": "Morning athkar 2",
+        "fa": "Morning athkar 2",
+        "id": "Morning athkar 2",
+        "ms": "Morning athkar 2",
+        "tr": "Morning athkar 2",
+        "ur": "Morning athkar 2"
+      }
+    },
+    {
+      "key": "moatheni_heya_salah",
+      "source": "heya_salah.mp3",
+      "sha256": "870ecc251b217491eb7fca29c2abd8f9d947fb3714c7a5f40be6d895cb7edc7c",
+      "durationSeconds": 21.002449,
+      "category": "reminder",
+      "labels": {
+        "en": "Salah",
+        "fr": "Hayya ‘ala s-salah",
+        "ar": "حي على الصلاة",
+        "bn": "Salah",
+        "es": "Salah",
+        "fa": "Salah",
+        "id": "Salah",
+        "ms": "Salah",
+        "tr": "Salah",
+        "ur": "Salah"
+      }
+    },
+    {
+      "key": "moatheni_silent_switch",
+      "source": "silent_switch.mp3",
+      "sha256": "4a2e24444932108bdc0c30286e84137b41e6471702d2a8f38e1cdf8e5e322321",
+      "durationSeconds": 0.287347,
+      "category": "reminder",
+      "labels": {
+        "en": "Silent mode tone",
+        "fr": "Tonalité du mode silencieux",
+        "ar": "نغمة الوضع الصامت",
+        "bn": "Silent mode tone",
+        "es": "Silent mode tone",
+        "fa": "Silent mode tone",
+        "id": "Silent mode tone",
+        "ms": "Silent mode tone",
+        "tr": "Silent mode tone",
+        "ur": "Silent mode tone"
+      }
+    },
+    {
+      "key": "moatheni_silent_sound",
+      "source": "silent_sound.mp3",
+      "sha256": "b77f7e2414ae1ed4e18f7b9a03f77125d31ad93ff7281ba71437ec51327308ee",
+      "durationSeconds": 0.756,
+      "category": "reminder",
+      "labels": {
+        "en": "Silently",
+        "fr": "Enregistrement silencieux",
+        "ar": "بدون صوت",
+        "bn": "Silently",
+        "es": "Silently",
+        "fa": "Silently",
+        "id": "Silently",
+        "ms": "Silently",
+        "tr": "Silently",
+        "ur": "Silently"
+      }
+    },
+    {
+      "key": "moatheni_sleep_azkar",
+      "source": "sleep_azkar.mp3",
+      "sha256": "1cbaf2f79b28ea34d5d1bcf3e6cf6d699fc0163c94cbe654e9194454230a75e1",
+      "durationSeconds": 1.697959,
+      "category": "reminder",
+      "labels": {
+        "en": "Sleep athkar",
+        "fr": "Invocations avant de dormir",
+        "ar": "أذكار النوم",
+        "bn": "Sleep athkar",
+        "es": "Sleep athkar",
+        "fa": "Sleep athkar",
+        "id": "Sleep athkar",
+        "ms": "Sleep athkar",
+        "tr": "Sleep athkar",
+        "ur": "Sleep athkar"
+      }
+    },
+    {
+      "key": "moatheni_takbeer",
+      "source": "takbeer.mp3",
+      "sha256": "1dc0f64e3437ec6f171e2df55cb6c47acdabe95d4bb1a5ec4f27a4ea1646da57",
+      "durationSeconds": 5.112,
+      "category": "reminder",
+      "labels": {
+        "en": "Takbeer",
+        "fr": "Takbeer",
+        "ar": "تكبيرة",
+        "bn": "Takbeer",
+        "es": "Takbeer",
+        "fa": "Takbeer",
+        "id": "Takbeer",
+        "ms": "Takbeer",
+        "tr": "Takbeer",
+        "ur": "Takbeer"
+      }
+    },
+    {
+      "key": "moatheni_tasbeeh",
+      "source": "tasbeeh.mp3",
+      "sha256": "328a7681d4e5298f90e18f47385fe5a8e3fd62d25a733689a3885b5f22ec4c81",
+      "durationSeconds": 3.395918,
+      "category": "reminder",
+      "labels": {
+        "en": "Tasbeeh",
+        "fr": "Tasbeeh",
+        "ar": "تسبيحة",
+        "bn": "Tasbeeh",
+        "es": "Tasbeeh",
+        "fa": "Tasbeeh",
+        "id": "Tasbeeh",
+        "ms": "Tasbeeh",
+        "tr": "Tasbeeh",
+        "ur": "Tasbeeh"
+      }
+    },
+    {
+      "key": "moatheni_telephone",
+      "source": "telephone.mp3",
+      "sha256": "5d830563a3e29d21f4d29da656c11006ecd900cf35872bbfd395b2b5b6206263",
+      "durationSeconds": 0.914286,
+      "category": "reminder",
+      "labels": {
+        "en": "Telephone",
+        "fr": "Téléphone",
+        "ar": "هاتف",
+        "bn": "Telephone",
+        "es": "Telephone",
+        "fa": "Telephone",
+        "id": "Telephone",
+        "ms": "Telephone",
+        "tr": "Telephone",
+        "ur": "Telephone"
+      }
+    },
+    {
+      "key": "moatheni_thursday_fasting",
+      "source": "thursday_fasting.mp3",
+      "sha256": "87826d53350fccb25350956d3047cf31adaa820c0207fa8683fc0ed17f69783d",
+      "durationSeconds": 3.393143,
+      "category": "reminder",
+      "labels": {
+        "en": "Thursday fasting",
+        "fr": "Jeûne du jeudi",
+        "ar": "صيام الخميس",
+        "bn": "Thursday fasting",
+        "es": "Thursday fasting",
+        "fa": "Thursday fasting",
+        "id": "Thursday fasting",
+        "ms": "Thursday fasting",
+        "tr": "Thursday fasting",
+        "ur": "Thursday fasting"
+      }
+    },
+    {
+      "key": "noti_beep",
+      "source": "short1.mp3",
+      "sha256": "99f20627d0009d98127490e626e30083e2409422db063180cf6b4bfd56afd2d7",
+      "durationSeconds": 2.220408,
+      "category": "reminder",
+      "labels": {
+        "en": "Tone 1",
+        "fr": "Tonalité 1",
+        "ar": "نغمة 1",
+        "bn": "Tone 1",
+        "es": "Tone 1",
+        "fa": "Tone 1",
+        "id": "Tone 1",
+        "ms": "Tone 1",
+        "tr": "Tone 1",
+        "ur": "Tone 1"
+      }
+    },
+    {
+      "key": "noti_beep_beep",
+      "source": "short2.mp3",
+      "sha256": "dbd7ec4dda42cf5a51b920b67b3ca9752ef69e32217311c9582fe641dd58f3e2",
+      "durationSeconds": 2.011429,
+      "category": "reminder",
+      "labels": {
+        "en": "Tone 2",
+        "fr": "Tonalité 2",
+        "ar": "نغمة 2",
+        "bn": "Tone 2",
+        "es": "Tone 2",
+        "fa": "Tone 2",
+        "id": "Tone 2",
+        "ms": "Tone 2",
+        "tr": "Tone 2",
+        "ur": "Tone 2"
+      }
+    },
+    {
+      "key": "moatheni_short3",
+      "source": "short3.mp3",
+      "sha256": "4b5b48343963c21377a0e68feef6794735e95b27f193a01757c254b9226a7347",
+      "durationSeconds": 2.037551,
+      "category": "reminder",
+      "labels": {
+        "en": "Tone 3",
+        "fr": "Tonalité 3",
+        "ar": "نغمة 3",
+        "bn": "Tone 3",
+        "es": "Tone 3",
+        "fa": "Tone 3",
+        "id": "Tone 3",
+        "ms": "Tone 3",
+        "tr": "Tone 3",
+        "ur": "Tone 3"
+      }
+    },
+    {
+      "key": "moatheni_short4",
+      "source": "short4.mp3",
+      "sha256": "646517bdd2ee5d5cf99ce1d82c0dbfcd8c523dc31dafeb04ce7cff455bf27707",
+      "durationSeconds": 0.72,
+      "category": "reminder",
+      "labels": {
+        "en": "Tone 4",
+        "fr": "Tonalité 4",
+        "ar": "نغمة 4",
+        "bn": "Tone 4",
+        "es": "Tone 4",
+        "fa": "Tone 4",
+        "id": "Tone 4",
+        "ms": "Tone 4",
+        "tr": "Tone 4",
+        "ur": "Tone 4"
+      }
+    },
+    {
+      "key": "moatheni_water",
+      "source": "water.mp3",
+      "sha256": "eb2e11c13d11427b57c000cbfb3c294287e0161922fe2ec617d171b44bb68d64",
+      "durationSeconds": 5.720816,
+      "category": "reminder",
+      "labels": {
+        "en": "Water",
+        "fr": "Eau",
+        "ar": "مياه",
+        "bn": "Water",
+        "es": "Water",
+        "fa": "Water",
+        "id": "Water",
+        "ms": "Water",
+        "tr": "Water",
+        "ur": "Water"
+      }
+    },
+    {
+      "key": "moatheni_white_days",
+      "source": "white_days.mp3",
+      "sha256": "c3ff63fb193d5d10b5b6994faaa63231958619d742728b80d9bd0e51c5dc917f",
+      "durationSeconds": 4.281143,
+      "category": "reminder",
+      "labels": {
+        "en": "White days",
+        "fr": "Jours blancs",
+        "ar": "الأيام البيض",
+        "bn": "White days",
+        "es": "White days",
+        "fa": "White days",
+        "id": "White days",
+        "ms": "White days",
+        "tr": "White days",
+        "ur": "White days"
+      }
+    },
+    {
+      "key": "moatheni_on_prayer_sunrise",
+      "source": "on_prayer_sunrise.mp3",
+      "sha256": "b77f7e2414ae1ed4e18f7b9a03f77125d31ad93ff7281ba71437ec51327308ee",
+      "durationSeconds": 0.756,
+      "category": "reminder",
+      "labels": {
+        "en": "sunrise time",
+        "fr": "lever du soleil : c’est l’heure",
+        "ar": "وقت الشروق",
+        "bn": "sunrise time",
+        "es": "sunrise time",
+        "fa": "sunrise time",
+        "id": "sunrise time",
+        "ms": "sunrise time",
+        "tr": "sunrise time",
+        "ur": "sunrise time"
+      }
+    }
+  ]
+}

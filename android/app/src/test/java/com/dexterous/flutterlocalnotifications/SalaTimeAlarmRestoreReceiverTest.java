@@ -45,4 +45,66 @@ public class SalaTimeAlarmRestoreReceiverTest {
         JSONObject restored = new JSONArray(app.getSharedPreferences("scheduled_notifications", 0).getString("scheduled_notifications", "[]")).getJSONObject(0);
         assertEquals("exactAllowWhileIdle", restored.getString("scheduleMode"));
     }
+    private JSONObject extra(int id, long at) throws Exception {
+        return new JSONObject().put("id", id).put("scheduleMode", "exactAllowWhileIdle")
+            .put("payload", new JSONObject().put("id", id).put("at", at)
+                .put("kind", "extra_reminder").put("type", "morning").put("date", "2026-09-12").toString());
+    }
+    @Test public void expiredExtraRemindersAreDroppedBeforePluginRescheduling() throws Exception {
+        Context app = RuntimeEnvironment.getApplication();
+        JSONObject expired = extra(22000001, 100);
+        JSONObject upcoming = extra(22000002, 1000);
+        JSONObject unrelated = new JSONObject().put("id", 8).put("payload", "unrelated");
+        app.getSharedPreferences("scheduled_notifications", 0).edit().putString("scheduled_notifications",
+            new JSONArray().put(expired).put(upcoming).put(unrelated).toString()).commit();
+        // Missed extra reminders do not create a misleading "missed prayer" notification.
+        assertFalse(SalaTimeAlarmRestoreReceiver.repairCache(app, 500));
+        JSONArray restored = new JSONArray(app.getSharedPreferences("scheduled_notifications", 0)
+            .getString("scheduled_notifications", "[]"));
+        assertEquals(2, restored.length());
+        assertEquals(22000002, restored.getJSONObject(0).getInt("id"));
+        assertEquals(8, restored.getJSONObject(1).getInt("id"));
+    }
+    @Test public void newlySupportedExtrasRestoreAndExpireLikeExistingReminders() throws Exception {
+        Context app = RuntimeEnvironment.getApplication();
+        org.robolectric.shadows.ShadowAlarmManager.setCanScheduleExactAlarms(false);
+        JSONArray rows = new JSONArray();
+        String[] types = {"fajrAlarm", "bedtime", "middleNight", "monday", "thursday"};
+        for (int i = 0; i < types.length; i++) {
+            for (boolean expired : new boolean[] {true, false}) {
+                int id = 21207100 + i * 10 + (expired ? 0 : 1);
+                JSONObject row = extra(id, expired ? 100 : 1000);
+                JSONObject payload = new JSONObject(row.getString("payload"));
+                payload.put("type", types[i]);
+                rows.put(row.put("payload", payload.toString()));
+            }
+        }
+        app.getSharedPreferences("scheduled_notifications", 0).edit()
+            .putString("scheduled_notifications", rows.toString()).commit();
+        assertFalse(SalaTimeAlarmRestoreReceiver.repairCache(app, 500));
+        JSONArray restored = new JSONArray(app.getSharedPreferences("scheduled_notifications", 0)
+            .getString("scheduled_notifications", "[]"));
+        assertEquals(types.length, restored.length());
+        for (int i = 0; i < restored.length(); i++) {
+            assertEquals("inexactAllowWhileIdle", restored.getJSONObject(i).getString("scheduleMode"));
+            assertEquals(types[i], new JSONObject(restored.getJSONObject(i).getString("payload")).getString("type"));
+        }
+    }
+
+    @Test public void futureExtraRemindersFollowExactPermissionChanges() throws Exception {
+        Context app = RuntimeEnvironment.getApplication();
+        org.robolectric.shadows.ShadowAlarmManager.setCanScheduleExactAlarms(false);
+        app.getSharedPreferences("scheduled_notifications", 0).edit().putString("scheduled_notifications",
+            new JSONArray().put(extra(22000002, 1000)).toString()).commit();
+        SalaTimeAlarmRestoreReceiver.repairCache(app, 500);
+        JSONObject restored = new JSONArray(app.getSharedPreferences("scheduled_notifications", 0)
+            .getString("scheduled_notifications", "[]")).getJSONObject(0);
+        assertEquals("inexactAllowWhileIdle", restored.getString("scheduleMode"));
+        org.robolectric.shadows.ShadowAlarmManager.setCanScheduleExactAlarms(true);
+        SalaTimeAlarmRestoreReceiver.repairCache(app, 500);
+        restored = new JSONArray(app.getSharedPreferences("scheduled_notifications", 0)
+            .getString("scheduled_notifications", "[]")).getJSONObject(0);
+        assertEquals("exactAllowWhileIdle", restored.getString("scheduleMode"));
+    }
+
 }

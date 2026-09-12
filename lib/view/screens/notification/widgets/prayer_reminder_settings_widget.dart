@@ -1,3 +1,5 @@
+import 'import_sound_button.dart';
+import 'sound_selection_field.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:zabi/controller/prayer_reminder_controller.dart';
@@ -128,25 +130,17 @@ class _ReminderCard extends StatelessWidget {
                     },
                   ),
                   const SizedBox(height: Dimensions.PADDING_SIZE_DEFAULT),
-                  DropdownButtonFormField<String>(
-                    initialValue: sound,
-                    isExpanded: true,
-                    decoration: _inputDecoration(
-                      context,
-                      'reminder_sound'.tr,
-                      Icons.notifications_active_outlined,
-                    ),
-                    items: controller.sounds
-                        .map(
-                          (option) => DropdownMenuItem<String>(
-                            value: option['key'],
-                            child: Text(option['labelKey']!.tr),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (value) {
-                      if (value != null) controller.setSound(type, value);
-                    },
+                  SoundSelectionField(
+                    selectedKey: sound,
+                    label: 'reminder_sound'.tr,
+                    sounds: controller.sounds,
+                    onPreview: controller.previewSound,
+                    onStopPreview: controller.stopPreview,
+                    onChanged: (value) => controller.setSound(type, value),
+                  ),
+                  ImportSoundButton(
+                    onImported: (sound) =>
+                        controller.setSound(type, sound['key']!),
                   ),
                 ],
               ),

@@ -35,7 +35,7 @@ public class SalaTimePrayerAlarmReceiver extends BroadcastReceiver {
             if ("late_silent".equals(policy)) {
                 showSilent(context, details);
             } else if ("adhan".equals(payload.getString("kind"))
-                    && details.sound != null && details.sound.startsWith("azan_")) {
+                    && details.sound != null && ((com.example.zabi.BundledNotificationSounds.contains(details.sound) && !"silent".equals(details.sound)) || com.example.zabi.PersonalSoundFiles.isSoundUri(context, details.sound))) {
                 try {
                     SalaTimeAlarmWakeLock.start(context,
                             new Intent(context, SalaTimeAdhanService.class)

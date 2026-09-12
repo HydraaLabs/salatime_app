@@ -3,4 +3,7 @@
     <string name="prayer_widget_next_label">الصلاة القادمة</string>
     <string name="prayer_widget_open_label">افتح SalaTime لتحديث المواقيت</string>
     <string name="prayer_widget_preview_prayer">الفجر</string>
+    <string name="prayer_widget_small">SalaTime · صغير</string>
+    <string name="prayer_widget_large">SalaTime · كبير</string>
+    <string name="prayer_widget_since_label">مضى على @prayer</string>
 </resources>

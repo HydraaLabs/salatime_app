@@ -83,6 +83,12 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Opt-in companion install for hardware QA without replacing Play data.
+            if (project.hasProperty('salatimePreview')) {
+                applicationIdSuffix '.preview'
+            }
+        }
         release {
             signingConfig signingConfigs.release
             shrinkResources false

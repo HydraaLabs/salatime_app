@@ -91,7 +91,31 @@ class CustomPrayerSettingDropDown extends StatelessWidget {
           ),
           isExpanded: true,
           isDense: true,
+          itemHeight: null,
           value: dwValue,
+          selectedItemBuilder: (context) => dwItems
+              .map<Widget>(
+                (item) => Padding(
+                  padding: const EdgeInsetsDirectional.only(
+                    start: Dimensions.PADDING_SIZE_DEFAULT,
+                  ),
+                  child: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Tooltip(
+                      message: item['value'],
+                      child: Text(
+                        item['value'],
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: robotoMedium.copyWith(
+                          fontSize: Dimensions.FONT_SIZE_DEFAULT,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              )
+              .toList(),
           onChanged: (newValue) {
             onChange(newValue);
           },
@@ -102,6 +126,8 @@ class CustomPrayerSettingDropDown extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsetsDirectional.only(
                       start: Dimensions.PADDING_SIZE_DEFAULT,
+                      top: Dimensions.PADDING_SIZE_SMALL,
+                      bottom: Dimensions.PADDING_SIZE_SMALL,
                     ),
                     child: Text(
                       item['value'],
@@ -109,8 +135,6 @@ class CustomPrayerSettingDropDown extends StatelessWidget {
                       style: robotoMedium.copyWith(
                         fontSize: Dimensions.FONT_SIZE_DEFAULT,
                       ),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
                     ),
                   ),
                 ),

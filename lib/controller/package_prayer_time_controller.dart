@@ -1,3 +1,4 @@
+import 'prayer_time_adjustment.dart';
 // ignore_for_file: avoid_print, deprecated_member_use, strict_top_level_inference
 
 import 'dart:async';
@@ -19,7 +20,11 @@ import 'package:zabi/data/model/response/city_suggestion_model.dart';
 import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
 import 'package:zabi/controller/theme_controller.dart';
 import 'package:zabi/helper/location_helper.dart';
+import 'package:zabi/helper/location_auto_update_service.dart';
 import 'package:zabi/helper/local_prayer_calculator.dart';
+import 'package:zabi/helper/prayer_calculation_methods.dart';
+import 'package:zabi/helper/salat_waqt_service.dart';
+import 'package:zabi/service/preference_cloud_sync.dart';
 import 'package:zabi/util/app_constants.dart';
 import 'package:zabi/view/base/custom_snackbar.dart';
 
@@ -241,34 +246,16 @@ class PrayerTimeController extends GetxController implements GetxService {
     }
   }
 
-  // Calculation Methods
-  final List<Map<String, String>> _calculationMethod = [
-    {'id': '0', 'value': 'JAFARI'},
-    {'id': '1', 'value': 'KARACHI'},
-    {'id': '2', 'value': 'ISNA'},
-    {'id': '3', 'value': 'MWL'},
-    {'id': '4', 'value': 'MAKKAH'},
-    {'id': '5', 'value': 'EGYPT'},
-    {'id': '7', 'value': 'TEHRAN'},
-    {'id': '8', 'value': 'GULF'},
-    {'id': '9', 'value': 'KUWAIT'},
-    {'id': '10', 'value': 'QATAR'},
-    {'id': '11', 'value': 'SINGAPORE'},
-    {'id': '12', 'value': 'FRANCE'},
-    {'id': '13', 'value': 'TURKEY'},
-    {'id': '14', 'value': 'RUSSIA'},
-    {'id': '15', 'value': 'MOONSIGHTING'},
-    {'id': '16', 'value': 'DUBAI'},
-    {'id': '17', 'value': 'JAKIM'},
-    {'id': '18', 'value': 'TUNISIA'},
-    {'id': '19', 'value': 'ALGERIA'},
-    {'id': '20', 'value': 'KEMENAG'},
-    {'id': '21', 'value': 'MOROCCO'},
-    {'id': '22', 'value': 'PORTUGAL'},
-    {'id': '23', 'value': 'JORDAN'},
+  List<Map<String, String>> get calculationMethod => [
+    for (final method in PrayerCalculationMethods.all)
+      {'id': method.id, 'value': method.fallbackName},
   ];
 
-  List<Map<String, String>> get calculationMethod => _calculationMethod;
+  bool get usesManualPrayerTimetable =>
+      _lastPrayerTimeRequestTemplate?['type'] == 'manual';
+
+  Future<void> _methodWrites = Future<void>.value();
+  int _calculationRevision = 0;
   String? _selectedCalculationMethod;
   String? get selectedCalculationMethod => _selectedCalculationMethod;
 
@@ -285,20 +272,21 @@ class PrayerTimeController extends GetxController implements GetxService {
 
   /// Load the settings from local storage or set default values.
   Future<void> loadPrayerTimeSettings() async {
+    await _methodWrites;
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     isManualPrayerTime.value =
         prefs.getBool(AppConstants.IS_MANUAL_PRAYER_TIME) ?? false;
 
-    // Load Calculation Method
-    String? savedMethod = prefs.getString('selectedCalculationMethod');
-    if (savedMethod == null) {
-      Map<String, String> defaultMethod = {'id': '1', 'value': 'KARACHI'};
-      await prefs.setString('selectedCalculationMethod', defaultMethod['id']!);
-      _selectedCalculationMethod = defaultMethod['id'];
-    } else {
-      _selectedCalculationMethod = savedMethod;
+    final savedMethod = prefs.getString('selectedCalculationMethod');
+    final method = PrayerCalculationMethods.contains(savedMethod)
+        ? savedMethod!
+        : PrayerCalculationMethods.defaultId;
+    if (savedMethod != method) {
+      await prefs.setString('selectedCalculationMethod', method);
     }
+    if (_selectedCalculationMethod != method) _calculationRevision++;
+    _selectedCalculationMethod = method;
 
     // Load Prayer Madhab
     String? savedMadhab = prefs.getString('selectedPrayerMadhab');
@@ -316,14 +304,57 @@ class PrayerTimeController extends GetxController implements GetxService {
     update();
   }
 
-  /// Set a new calculation method and save it in local storage.
+  /// Persist a validated method without starting device or network work.
   Future<void> setSelectedCalculationMethod(String? value) async {
-    if (value != null) {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('selectedCalculationMethod', value);
-      _selectedCalculationMethod = value;
-      update();
+    if (value == null) return;
+    if (!PrayerCalculationMethods.contains(value)) {
+      throw ArgumentError.value(value, 'value', 'Unknown calculation method');
     }
+    final write = _methodWrites.then((_) => _persistCalculationMethod(value));
+    _methodWrites = write.catchError((Object _) {});
+    await write;
+  }
+
+  Future<void> _persistCalculationMethod(String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    final previous = prefs.getString('selectedCalculationMethod');
+    try {
+      if (!await prefs.setString('selectedCalculationMethod', value)) {
+        throw StateError('Calculation method could not be saved');
+      }
+    } catch (_) {
+      // SharedPreferences updates its memory cache before writing to the device.
+      try {
+        if (previous == null) {
+          await prefs.remove('selectedCalculationMethod');
+        } else {
+          await prefs.setString('selectedCalculationMethod', previous);
+        }
+      } catch (_) {
+        // Keep the original persistence error visible to the selection screen.
+      }
+      rethrow;
+    }
+    if (_selectedCalculationMethod != value) _calculationRevision++;
+    _selectedCalculationMethod = value;
+    update();
+  }
+
+  /// A settings tap waits only for local persistence. Recalculation uses the
+  /// existing passive scheduler; cloud upload keeps its one-minute quiet period.
+  Future<void> selectCalculationMethod(String id) async {
+    if (!PrayerCalculationMethods.contains(id)) {
+      throw ArgumentError.value(id, 'id', 'Unknown calculation method');
+    }
+    PreferenceCloudSync.instance.noteLocalChange();
+    await setSelectedCalculationMethod(id);
+    PreferenceCloudSync.instance.noteLocalChange();
+    unawaited(
+      SalatWaqtService.requestRefresh().catchError((Object error) {
+        // The scheduler persists its failure status for the alarm diagnostics.
+        debugPrint('Calculation method refresh failed: $error');
+      }),
+    );
   }
 
   /// Set a new prayer Madhab and save it in local storage.
@@ -355,14 +386,50 @@ class PrayerTimeController extends GetxController implements GetxService {
       automatic
           ? _normalizedCoordinate(requestBody['lng'])
           : requestBody['lng'],
-      requestBody['prayer_method'],
-      requestBody['school'],
+      automatic ? requestBody['prayer_method'] : null,
+      automatic ? requestBody['school'] : null,
       requestBody['timezone'],
     ]);
   }
 
   String _prayerTimeStorageKey(String cacheKey) {
     return '$_prayerTimeCachePrefix${base64Url.encode(utf8.encode(cacheKey))}';
+  }
+
+  Iterable<String> _legacyManualCacheKeys(
+    SharedPreferences prefs,
+    String cacheKey,
+  ) sync* {
+    final requested = jsonDecode(cacheKey) as List;
+    if (requested[0] != 'manual' ||
+        requested[5] != null ||
+        requested[6] != null) {
+      return;
+    }
+    // Older releases keyed city timetables by method and school even though
+    // neither changes published times. Match the same date/city/zone only.
+    final candidates = <String>{
+      ...?prefs.getStringList(_prayerTimeCacheIndexKey)?.reversed,
+      ...prefs.getKeys().where((key) => key.startsWith(_prayerTimeCachePrefix)),
+    };
+    for (final storageKey in candidates) {
+      if (!storageKey.startsWith(_prayerTimeCachePrefix)) continue;
+      try {
+        final oldKey = utf8.decode(
+          base64Url.decode(storageKey.substring(_prayerTimeCachePrefix.length)),
+        );
+        if (oldKey == cacheKey) continue;
+        final parts = jsonDecode(oldKey);
+        if (parts is! List || parts.length != 8 || parts[0] != 'manual') {
+          continue;
+        }
+        parts[5] = null;
+        parts[6] = null;
+        if (jsonEncode(parts) == cacheKey) yield oldKey;
+      } catch (_) {
+        // Ignore unrelated or malformed legacy cache entries.
+      }
+    }
   }
 
   Future<PrayerTimeModel?> _cachedPrayerTime(
@@ -374,7 +441,16 @@ class PrayerTimeController extends GetxController implements GetxService {
 
     final storageKey = _prayerTimeStorageKey(cacheKey);
     final storedValue = prefs.getString(storageKey);
-    if (storedValue == null) return null;
+    if (storedValue == null) {
+      for (final oldKey in _legacyManualCacheKeys(prefs, cacheKey)) {
+        final legacy = await _cachedPrayerTime(prefs, oldKey);
+        if (legacy != null) {
+          _rememberPrayerTime(cacheKey, legacy);
+          return legacy;
+        }
+      }
+      return null;
+    }
 
     try {
       final decoded = jsonDecode(storedValue) as Map<String, dynamic>;
@@ -621,6 +697,88 @@ class PrayerTimeController extends GetxController implements GetxService {
         date.day == today.day;
   }
 
+  Future<Map<String, dynamic>?> _restoreConfiguredTemplate(
+    SharedPreferences prefs,
+  ) async {
+    final useAutomaticLocation =
+        prefs.getBool(LocationAutoUpdateService.enabledKey) ?? false;
+    final manual =
+        !useAutomaticLocation &&
+        (prefs.getBool(AppConstants.isPrayerTme) ??
+            prefs.getBool(AppConstants.IS_MANUAL_PRAYER_TIME) ??
+            false);
+    final city = prefs.getString(AppConstants.saveCityName);
+    final lat = manual
+        ? prefs.getDouble(AppConstants.manualCityLat)
+        : _lastPosition?.latitude ?? prefs.getDouble(_automaticLatitudeKey);
+    final lng = manual
+        ? prefs.getDouble(AppConstants.manualCityLng)
+        : _lastPosition?.longitude ?? prefs.getDouble(_automaticLongitudeKey);
+    final coordinates =
+        lat != null &&
+        lng != null &&
+        lat.isFinite &&
+        lng.isFinite &&
+        lat.abs() <= 90 &&
+        lng.abs() <= 180;
+    if (!coordinates && (!manual || city == null || city.trim().isEmpty)) {
+      return null;
+    }
+    final zone = await FlutterTimezone.getLocalTimezone();
+    isManualPrayerTime.value = manual;
+    if (manual) {
+      saveAddress.value = city ?? '';
+    } else {
+      currentAddress.value =
+          prefs.getString(_automaticCityKey) ?? currentAddress.value;
+    }
+    return {
+      'type': coordinates ? 'automatic' : 'manual',
+      'city': manual ? city : currentAddress.value,
+      'lat': coordinates ? '$lat' : '',
+      'lng': coordinates ? '$lng' : '',
+      'prayer_method': _selectedCalculationMethod,
+      'school': _selectedPrayerMadhab,
+      'timezone': zone,
+    };
+  }
+
+  /// Reload cloud preferences using only the already configured city/template.
+  /// Never opens a location/notification permission dialog or requests GPS.
+  Future<void> refreshConfiguredPrayerTime() async {
+    await loadPrayerTimeSettings();
+    final revision = _calculationRevision;
+    final prefs = await SharedPreferences.getInstance();
+    final template =
+        _lastPrayerTimeRequestTemplate ??
+        await _restoreConfiguredTemplate(prefs);
+    if (template == null || revision != _calculationRevision) return;
+    // A city's published timetable is independent of calculation preferences.
+    // Preserve its cache identity when saving a method for future local use.
+    _lastPrayerTimeRequestTemplate = template['type'] == 'manual'
+        ? template
+        : {
+            ...template,
+            'prayer_method': _selectedCalculationMethod,
+            'school': _selectedPrayerMadhab,
+          };
+    final model = await getPrayerTimeForDate(
+      DateTime.now(),
+      allowNetwork: false,
+    );
+    if (model != null && revision == _calculationRevision) {
+      prayerTimeModel = model;
+      prayerNameAndTimes();
+      if (Get.isRegistered<ThemeController>()) {
+        await Get.find<ThemeController>().updateDaylightTimes(
+          model.data?.sunrise,
+          model.data?.maghribStart,
+        );
+      }
+      update();
+    }
+  }
+
   Future<PrayerTimeModel?> getPrayerTimeForDate(
     DateTime date, {
     bool allowNetwork = true,
@@ -655,6 +813,7 @@ class PrayerTimeController extends GetxController implements GetxService {
   }) async {
     try {
       await loadPrayerTimeSettings();
+      final revision = _calculationRevision;
       if (reload) isprayerTimeLoading(true);
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -748,10 +907,12 @@ class PrayerTimeController extends GetxController implements GetxService {
         "school": "$school",
         "timezone": timezone,
       };
-      _lastPrayerTimeRequestTemplate = Map<String, dynamic>.from(requestBody)
-        ..remove('date');
+      if (revision == _calculationRevision) {
+        _lastPrayerTimeRequestTemplate = Map<String, dynamic>.from(requestBody)
+          ..remove('date');
+      }
       final model = await _loadPrayerTime(prefs, requestBody);
-      if (model != null && applyResult) {
+      if (model != null && applyResult && revision == _calculationRevision) {
         prayerTimeModel = model;
         if (_isToday(requestedDate)) {
           prayerNameAndTimes();
@@ -785,7 +946,9 @@ class PrayerTimeController extends GetxController implements GetxService {
     // print("currentTime========> $currentTime");
     //18:15:56
     var finalCurrentTime = DateTime.parse('2000-01-01 $currentTime');
-    var apiwaktTime = prayerTimeModel!.data!;
+    var apiwaktTime = PrayerTimeAdjustmentController.adjustedDay(
+      prayerTimeModel!.data,
+    )!;
     if (finalCurrentTime.isBefore(
       DateTime.parse('2000-01-01 ${apiwaktTime.fajrStart}:00'),
     )) {

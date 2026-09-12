@@ -1,3 +1,5 @@
+import 'package:zabi/service/personal_notification_sounds.dart';
+import 'package:zabi/helper/notification_sound_catalog.dart';
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -14,46 +16,22 @@ class NotiSoundController extends GetxController {
   var selectedSound = RxnString();
   AudioPlayer? audioPlayer;
 
-  static const List<Map<String, String>> availableSounds = [
-    {
-      'key': 'azan_1',
-      'name': 'Adhan 1',
-      'labelKey': 'adhan_1',
-      'path': 'assets/audio/azan_1.mp3',
-    },
-    {
-      'key': 'azan_2',
-      'name': 'Adhan 2',
-      'labelKey': 'adhan_2',
-      'path': 'assets/audio/azan_2.mp3',
-    },
-    {
-      'key': 'azan_3',
-      'name': 'Adhan 3',
-      'labelKey': 'adhan_3',
-      'path': 'assets/audio/azan_3.mp3',
-    },
-    {
-      'key': 'noti_beep',
-      'name': 'Short Beep',
-      'labelKey': 'short_beep',
-      'path': 'assets/audio/noti_beep.mp3',
-    },
-    {
-      'key': 'noti_beep_beep',
-      'name': 'Long Beep',
-      'labelKey': 'long_beep',
-      'path': 'assets/audio/noti_beep_beep.mp3',
-    },
-    {
-      'key': 'noti_1',
-      'name': 'Other Sound',
-      'labelKey': 'other_sound',
-      'path': 'assets/audio/noti_1.mp3',
-    },
-  ];
+  static const bundledSounds = NotificationSoundCatalog.sounds;
 
-  final List<Map<String, String>> sounds = availableSounds;
+  static List<Map<String, String>> get availableSounds => [
+    ...bundledSounds,
+    if (PersonalNotificationSounds.supported)
+      ...PersonalNotificationSounds.sounds.map(
+        (item) => {...item, 'labelKey': item['name']!},
+      ),
+  ];
+  List<Map<String, String>> get sounds => availableSounds;
+  static String label(Map<String, String> sound) =>
+      sound['key']!.startsWith('custom_')
+      ? sound['name']!
+      : sound['labelKey']!.tr;
+  static bool isAdhan(String key) =>
+      NotificationSoundCatalog.contains(key) || key.startsWith('custom_');
 
   @override
   void onInit() async {
@@ -70,22 +48,27 @@ class NotiSoundController extends GetxController {
 
   Future<void> loadSelectedSound() async {
     final prefs = await SharedPreferences.getInstance();
+    await PersonalNotificationSounds.load(prefs);
     final savedSoundName = prefs.getString(
       AppConstants.SELECTED_NOTIFICATION_SOUND_KEY,
     );
 
     if (savedSoundName != null &&
-        sounds.any((sound) => sound['path']!.contains(savedSoundName))) {
+        sounds.any((sound) => sound['key'] == savedSoundName)) {
       selectedSound.value = sounds.firstWhere(
-        (sound) => sound['path']!.contains(savedSoundName),
+        (sound) => sound['key'] == savedSoundName,
       )['path'];
     } else {
       selectedSound.value = AppConstants.DEFAULT_NOTIFICATION_SOUND_ASSET;
-      await prefs.setString(
-        AppConstants.SELECTED_NOTIFICATION_SOUND_KEY,
-        AppConstants.DEFAULT_NOTIFICATION_SOUND,
-      );
+      // An imported Android sound is preserved when opening the app elsewhere.
+      if (savedSoundName == null || !savedSoundName.startsWith('custom_')) {
+        await prefs.setString(
+          AppConstants.SELECTED_NOTIFICATION_SOUND_KEY,
+          AppConstants.DEFAULT_NOTIFICATION_SOUND,
+        );
+      }
     }
+    update();
   }
 
   Future<void> selectSound(String? path) async {
@@ -93,7 +76,9 @@ class NotiSoundController extends GetxController {
 
     selectedSound.value = path;
     final prefs = await SharedPreferences.getInstance();
-    final fileName = extractFileName(path);
+    final fileName = sounds.firstWhere(
+      (sound) => sound['path'] == path,
+    )['key']!;
 
     if (kDebugMode) {
       print("Selected Sound Name: $fileName");
@@ -107,6 +92,10 @@ class NotiSoundController extends GetxController {
   }
 
   Future<void> playSound(String path) async {
+    if (path == 'silent') {
+      await stopSound();
+      return;
+    }
     try {
       if (_soundPreview != null) {
         await _soundPreview(path);
@@ -114,7 +103,11 @@ class NotiSoundController extends GetxController {
       }
       audioPlayer ??= AudioPlayer();
       await audioPlayer?.stop();
-      await audioPlayer?.setAsset(path);
+      if (path.startsWith('content://')) {
+        await audioPlayer?.setUrl(path);
+      } else {
+        await audioPlayer?.setAsset(path);
+      }
       unawaited(audioPlayer?.play());
     } catch (e) {
       if (kDebugMode) {

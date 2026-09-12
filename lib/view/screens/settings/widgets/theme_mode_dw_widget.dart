@@ -19,30 +19,34 @@ class ThemeModeDWWidget extends StatelessWidget {
             color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(5),
             clipBehavior: Clip.antiAlias,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.brightness_6_outlined,
-                        size: 25,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(width: Dimensions.PADDING_SIZE_DEFAULT),
-                      Expanded(
-                        child: Text(
-                          'theme_mode_title'.tr,
-                          style: robotoMedium.copyWith(
-                            fontSize: Dimensions.FONT_SIZE_LARGE,
-                          ),
-                        ),
-                      ),
-                    ],
+            child: ExpansionTile(
+              key: const PageStorageKey('appearance-settings'),
+              collapsedShape: const RoundedRectangleBorder(
+                side: BorderSide.none,
+              ),
+              shape: const RoundedRectangleBorder(side: BorderSide.none),
+              expansionAnimationStyle: const AnimationStyle(
+                duration: Duration(milliseconds: 500),
+              ),
+              title: Row(
+                children: [
+                  Icon(
+                    Icons.brightness_6_outlined,
+                    size: 25,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
-                ),
+                  const SizedBox(width: Dimensions.PADDING_SIZE_DEFAULT),
+                  Expanded(
+                    child: Text(
+                      'theme_mode_title'.tr,
+                      style: robotoMedium.copyWith(
+                        fontSize: Dimensions.FONT_SIZE_LARGE,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              children: [
                 for (final mode in const [
                   ThemeController.light,
                   ThemeController.dark,
