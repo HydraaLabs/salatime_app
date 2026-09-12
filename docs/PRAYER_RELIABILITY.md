@@ -37,8 +37,16 @@ service réseau lors du redémarrage.
 ## Widget et carte
 
 Le widget Android affiche la prochaine prière, sa date, son heure et la ville.
+Son format initial horizontal (4 × 1 cases) utilise un fond ivoire, une heure
+en grand, des accents verts et la même illustration de mosquée que l'accueil
+de l'application, intégrée en fond à transparence réduite.
+À partir de 240 × 180 dp, il ajoute les cinq
+horaires de la journée de la prochaine prière et met celle-ci en évidence.
+Le redimensionnement adapte la présentation, y compris sur les versions Android
+antérieures à Android 12. La langue, le fuseau et le format 12/24 h sont transmis
+par l'application ; l'affichage arabe suit le sens de lecture de droite à gauche.
 Il fonctionne sur les 30 jours de données préparées même si les alarmes sont
- désactivées. Son rafraîchissement est non exact et peut être retardé en veille.
+désactivées. Son rafraîchissement est non exact et peut être retardé en veille.
 Toucher le widget ouvre SalaTime. Aucun widget iOS n’est ajouté par cette version.
 
 La carte Qibla permet de toucher une position sans utiliser les capteurs ni GPS.

@@ -261,6 +261,7 @@ class SalatWaqtService {
                     (p) => {
                       'at': p.time.millisecondsSinceEpoch,
                       'name': p.nameKey.tr,
+                      'shortName': 'widget_prayer_${p.prayerId}'.tr,
                     },
                   )
                   .toList(),
@@ -270,6 +271,9 @@ class SalatWaqtService {
                 : controller.currentAddress.value,
             'nextLabel': 'next_prayer'.tr,
             'emptyLabel': 'widget_open_to_refresh'.tr,
+            'locale': Get.locale?.toLanguageTag() ?? 'en',
+            'timeZone': zoneName,
+            'use24HourFormat': controller.is24HourFormat.value,
             'missedTitle': 'missed_prayer_title'.tr,
             'missedBody': 'missed_prayer_body'.tr,
           });

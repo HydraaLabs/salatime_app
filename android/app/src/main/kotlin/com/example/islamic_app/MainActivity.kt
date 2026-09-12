@@ -18,8 +18,11 @@ class MainActivity : AudioServiceFragmentActivity() {
             .setMethodCallHandler { call, result ->
                 if (call.method == "update") {
                     val preferences = getSharedPreferences("salatime_prayer_widget", MODE_PRIVATE).edit()
-                    for (key in listOf("alarms", "prayers", "city", "nextLabel", "emptyLabel", "missedTitle", "missedBody")) {
+                    for (key in listOf("alarms", "prayers", "city", "nextLabel", "emptyLabel", "missedTitle", "missedBody", "locale", "timeZone")) {
                         call.argument<String>(key)?.let { preferences.putString(key, it) }
+                    }
+                    call.argument<Boolean>("use24HourFormat")?.let {
+                        preferences.putBoolean("use24HourFormat", it)
                     }
                     preferences.apply()
                     PrayerWidgetProvider.refreshAll(this)

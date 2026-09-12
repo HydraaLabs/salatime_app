@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="prayer_widget_next_label">Next prayer</string>
+    <string name="prayer_widget_open_label">Open SalaTime to refresh</string>
+    <string name="prayer_widget_preview_prayer">Fajr</string>
+</resources>

@@ -9,9 +9,11 @@ class CategoryListController extends GetxController {
   }
 
 // local variable
-  RxBool isCategoryChange = false.obs;
+  RxBool isCategoryChange = true.obs;
   // Method to save boolean value locally
-  void saveBoolLocally(bool value) async {
+  Future<void> saveBoolLocally(bool value) async {
+    isCategoryChange.value = value;
+    update();
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isCategoryChangeKey', value);
   }
@@ -19,7 +21,7 @@ class CategoryListController extends GetxController {
   // Method to retrieve boolean value locally
   void getBoolLocally() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool newValue = prefs.getBool('isCategoryChangeKey') ?? false;
+    bool newValue = prefs.getBool('isCategoryChangeKey') ?? true;
     isCategoryChange.value = newValue;
     update();
   }

@@ -32,12 +32,9 @@ class CategoryScreen extends StatelessWidget {
               return Obx(
                 () => IconButton(
                   onPressed: () {
-                    if (categoryListController.isCategoryChange.value == true) {
-                      categoryListController.saveBoolLocally(false);
-                    } else {
-                      categoryListController.saveBoolLocally(true);
-                    }
-                    categoryListController.getBoolLocally();
+                    categoryListController.saveBoolLocally(
+                      !categoryListController.isCategoryChange.value,
+                    );
                   },
                   icon: categoryListController.isCategoryChange.value == true
                       ? SvgPicture.asset(

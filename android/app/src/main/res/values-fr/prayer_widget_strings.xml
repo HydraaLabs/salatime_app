@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="prayer_widget_next_label">Prochaine prière</string>
+    <string name="prayer_widget_open_label">Ouvrez SalaTime pour actualiser</string>
+    <string name="prayer_widget_preview_prayer">As-sobh</string>
+</resources>

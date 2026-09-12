@@ -3,9 +3,12 @@ package com.example.zabi
 import android.app.Application
 import android.appwidget.AppWidgetManager
 import android.widget.TextView
+import android.widget.FrameLayout
+import android.view.View
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -39,6 +42,38 @@ class PrayerWidgetProviderTest {
         val manager = Shadows.shadowOf(AppWidgetManager.getInstance(app))
         val id = manager.createWidget(PrayerWidgetProvider::class.java, R.layout.prayer_widget)
         PrayerWidgetProvider.refreshAll(app)
-        assertEquals("Ouvrez SalaTime", manager.getViewFor(id).findViewById<TextView>(R.id.widget_time).text.toString())
+        assertEquals("Ouvrez SalaTime", manager.getViewFor(id).findViewById<TextView>(R.id.widget_title).text.toString())
+        assertEquals("—:—", manager.getViewFor(id).findViewById<TextView>(R.id.widget_time).text.toString())
+    }
+
+    @Test fun expandedWidgetShowsTheNextPrayersDayInTheSelectedCityTimeZone() {
+        val app = RuntimeEnvironment.getApplication()
+        val at = java.time.Instant.parse("2026-09-12T04:36:00Z").toEpochMilli()
+        val prayers = JSONArray().put(JSONObject().put("at", at - 10 * 3600000).put("name", "Yesterday"))
+            .put(JSONObject().put("at", at).put("name", "As-sobh").put("shortName", "Sobh"))
+            .put(JSONObject().put("at", at + 8 * 3600000).put("name", "Dohr"))
+        app.getSharedPreferences("salatime_prayer_widget", 0).edit().clear()
+            .putString("prayers", prayers.toString()).putString("locale", "fr-FR")
+            .putString("timeZone", "Africa/Casablanca").putBoolean("use24HourFormat", true).apply()
+        val view = PrayerWidgetProvider.createViews(app, true, at - 3600000).apply(app, FrameLayout(app))
+        assertEquals("05:36", view.findViewById<TextView>(R.id.widget_time).text.toString())
+        assertEquals("Sobh", view.findViewById<TextView>(R.id.widget_slot_name_0).text.toString())
+        assertEquals("05:36", view.findViewById<TextView>(R.id.widget_slot_time_0).text.toString())
+        assertEquals(View.GONE, view.findViewById<View>(R.id.widget_period).visibility)
+        assertEquals(0xFFFAF5E9.toInt(), view.findViewById<TextView>(R.id.widget_slot_time_0).currentTextColor)
+        assertTrue(view.findViewById<TextView>(R.id.widget_date).text.toString().contains("12"))
+    }
+
+    @Test fun compactWidgetRespectsTwelveHourPreferenceAndKeepsTheDate() {
+        val app = RuntimeEnvironment.getApplication()
+        val at = java.time.Instant.parse("2026-09-12T16:00:00Z").toEpochMilli()
+        app.getSharedPreferences("salatime_prayer_widget", 0).edit().clear()
+            .putString("prayers", JSONArray().put(JSONObject().put("at", at).put("name", "Asr")).toString())
+            .putString("locale", "en-US").putString("timeZone", "UTC").putBoolean("use24HourFormat", false).apply()
+        val view = PrayerWidgetProvider.createViews(app, false, at - 3600000).apply(app, FrameLayout(app))
+        assertEquals("4:00", view.findViewById<TextView>(R.id.widget_time).text.toString())
+        val date = view.findViewById<TextView>(R.id.widget_date).text.toString()
+        assertTrue(date.startsWith("PM · "))
+        assertTrue(date.contains("12"))
     }
 }
