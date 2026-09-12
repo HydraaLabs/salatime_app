@@ -23,6 +23,8 @@ class FirstLaunchSetupService {
     required int beforeMinutes,
     required int afterMinutes,
     required String adhanSound,
+    String beforeSound = AppConstants.DEFAULT_PRAYER_REMINDER_SOUND,
+    String afterSound = AppConstants.DEFAULT_PRAYER_REMINDER_SOUND,
   }) async {
     final validBeforeMinutes = _validMinutes(beforeMinutes);
     final validAfterMinutes = _validMinutes(afterMinutes);
@@ -55,6 +57,19 @@ class FirstLaunchSetupService {
       AppConstants.SELECTED_NOTIFICATION_SOUND_KEY,
       validAdhanSound,
     );
+
+    for (final entry in {
+      AppConstants.BEFORE_ADHAN_REMINDER_SOUND_KEY: beforeSound,
+      AppConstants.AFTER_ADHAN_REMINDER_SOUND_KEY: afterSound,
+    }.entries) {
+      final validSound = NotiSoundController.availableSounds.any(
+        (sound) => sound['key'] == entry.value,
+      );
+      await preferences.setString(
+        entry.key,
+        validSound ? entry.value : AppConstants.DEFAULT_PRAYER_REMINDER_SOUND,
+      );
+    }
 
     final repository = SalatWaqtRepository();
     var prayers = await repository.getSalatWaqtList();

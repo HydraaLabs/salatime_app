@@ -90,12 +90,47 @@ void main() {
           ),
           home: RepaintBoundary(key: key, child: child),
         );
+        Future<void> capture(String name) async {
+          // Optional local visual review output, without checked-in golden files.
+          if (Platform.environment['SALATIME_QA_DIR']
+              case final String output) {
+            final boundary =
+                key.currentContext!.findRenderObject()!
+                    as RenderRepaintBoundary;
+            await tester.runAsync(() async {
+              final image = await boundary.toImage();
+              final png = await image.toByteData(
+                format: ui.ImageByteFormat.png,
+              );
+              await Directory(output).create(recursive: true);
+              await File(
+                '$output/$name-$locale-${size.width.toInt()}.png',
+              ).writeAsBytes(png!.buffer.asUint8List());
+              image.dispose();
+            });
+          }
+        }
+
         await tester.pumpWidget(app(const FirstLaunchSetupScreen()));
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
         await tester.tap(find.text(strings['onboarding_next']!));
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
+        await capture('onboarding-sounds');
+        for (final index in [1, 2]) {
+          final toggle = find.byType(SwitchListTile).at(index);
+          await tester.ensureVisible(toggle);
+          await tester.tap(toggle);
+          await tester.pumpAndSettle();
+          expect(tester.takeException(), isNull);
+        }
+        await tester.ensureVisible(
+          find.byKey(const Key('onboarding_after_preview_button')),
+        );
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+        await capture('onboarding-reminder-sounds');
         await tester.pumpWidget(
           app(
             const Scaffold(
@@ -105,20 +140,7 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
-        // Optional local visual review output, without checked-in golden files.
-        if (Platform.environment['SALATIME_QA_DIR'] case final String output) {
-          final boundary =
-              key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
-          await tester.runAsync(() async {
-            final image = await boundary.toImage();
-            final png = await image.toByteData(format: ui.ImageByteFormat.png);
-            await Directory(output).create(recursive: true);
-            await File(
-              '$output/actions-$locale-${size.width.toInt()}.png',
-            ).writeAsBytes(png!.buffer.asUint8List());
-            image.dispose();
-          });
-        }
+        await capture('actions');
       });
     }
   }

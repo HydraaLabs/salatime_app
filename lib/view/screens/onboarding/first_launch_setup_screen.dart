@@ -30,11 +30,13 @@ class _FirstLaunchSetupScreenState extends State<FirstLaunchSetupScreen> {
 
   int _pageIndex = 0;
   bool _adhanEnabled = true;
-  bool _beforeEnabled = true;
-  bool _afterEnabled = true;
+  bool _beforeEnabled = false;
+  bool _afterEnabled = false;
   int _beforeMinutes = AppConstants.DEFAULT_PRAYER_REMINDER_MINUTES;
   int _afterMinutes = AppConstants.DEFAULT_PRAYER_REMINDER_MINUTES;
   String _adhanSound = AppConstants.DEFAULT_NOTIFICATION_SOUND;
+  String _beforeSound = AppConstants.DEFAULT_PRAYER_REMINDER_SOUND;
+  String _afterSound = AppConstants.DEFAULT_PRAYER_REMINDER_SOUND;
   bool _saving = false;
   AudioPlayer? _adhanPreviewPlayer;
 
@@ -53,7 +55,7 @@ class _FirstLaunchSetupScreenState extends State<FirstLaunchSetupScreen> {
 
   Future<void> _previewAdhanSound(String soundKey) async {
     final matches = NotiSoundController.availableSounds.where(
-      (sound) => sound['key'] == soundKey && soundKey.startsWith('azan_'),
+      (sound) => sound['key'] == soundKey,
     );
     if (matches.isEmpty) return;
 
@@ -94,10 +96,16 @@ class _FirstLaunchSetupScreenState extends State<FirstLaunchSetupScreen> {
       }
       _beforeEnabled =
           preferences.getBool(AppConstants.BEFORE_ADHAN_REMINDER_ENABLED_KEY) ??
-          true;
+          false;
       _afterEnabled =
           preferences.getBool(AppConstants.AFTER_ADHAN_REMINDER_ENABLED_KEY) ??
-          true;
+          false;
+      _beforeSound = _validReminderSound(
+        preferences.getString(AppConstants.BEFORE_ADHAN_REMINDER_SOUND_KEY),
+      );
+      _afterSound = _validReminderSound(
+        preferences.getString(AppConstants.AFTER_ADHAN_REMINDER_SOUND_KEY),
+      );
       _beforeMinutes = _validMinutes(
         preferences.getInt(AppConstants.BEFORE_ADHAN_REMINDER_MINUTES_KEY),
       );
@@ -105,12 +113,20 @@ class _FirstLaunchSetupScreenState extends State<FirstLaunchSetupScreen> {
         preferences.getInt(AppConstants.AFTER_ADHAN_REMINDER_MINUTES_KEY),
       );
       if (NotiSoundController.availableSounds.any(
-        (sound) => sound['key'] == savedSound,
+        (sound) =>
+            sound['key'] == savedSound && savedSound!.startsWith('azan_'),
       )) {
         _adhanSound = savedSound!;
       }
     });
   }
+
+  String _validReminderSound(String? sound) =>
+      NotiSoundController.availableSounds.any(
+        (option) => option['key'] == sound,
+      )
+      ? sound!
+      : AppConstants.DEFAULT_PRAYER_REMINDER_SOUND;
 
   int _validMinutes(int? minutes) {
     return PrayerReminderController.minuteOptions.contains(minutes)
@@ -147,6 +163,8 @@ class _FirstLaunchSetupScreenState extends State<FirstLaunchSetupScreen> {
         beforeMinutes: _beforeMinutes,
         afterMinutes: _afterMinutes,
         adhanSound: _adhanSound,
+        beforeSound: _beforeSound,
+        afterSound: _afterSound,
       );
 
       if (_adhanEnabled) {
@@ -421,15 +439,30 @@ class _NotificationSettingsStepState extends State<_NotificationSettingsStep> {
             ),
           ),
           const SizedBox(height: Dimensions.PADDING_SIZE_DEFAULT),
+          if (settings._adhanEnabled) ...[
+            _soundPicker(
+              'adhan',
+              settings._adhanSound,
+              (value) => settings._adhanSound = value,
+              adhanOnly: true,
+            ),
+            const SizedBox(height: Dimensions.PADDING_SIZE_DEFAULT),
+          ],
           _OnboardingReminderCard(
             title: 'before_adhan'.tr,
             description: 'before_adhan_description'.tr,
             dropdownLabel: 'minutes_before'.tr,
             enabled: settings._beforeEnabled,
             minutes: settings._beforeMinutes,
+            soundPicker: _soundPicker(
+              'before',
+              settings._beforeSound,
+              (value) => settings._beforeSound = value,
+            ),
             adhanEnabled: settings._adhanEnabled,
             onEnabledChanged: (value) {
               settings.setState(() => settings._beforeEnabled = value);
+              if (!value) unawaited(settings._stopAdhanPreview());
               setState(() {});
             },
             onMinutesChanged: (value) {
@@ -444,9 +477,15 @@ class _NotificationSettingsStepState extends State<_NotificationSettingsStep> {
             dropdownLabel: 'minutes_after'.tr,
             enabled: settings._afterEnabled,
             minutes: settings._afterMinutes,
+            soundPicker: _soundPicker(
+              'after',
+              settings._afterSound,
+              (value) => settings._afterSound = value,
+            ),
             adhanEnabled: settings._adhanEnabled,
             onEnabledChanged: (value) {
               settings.setState(() => settings._afterEnabled = value);
+              if (!value) unawaited(settings._stopAdhanPreview());
               setState(() {});
             },
             onMinutesChanged: (value) {
@@ -455,43 +494,6 @@ class _NotificationSettingsStepState extends State<_NotificationSettingsStep> {
             },
           ),
           const SizedBox(height: Dimensions.PADDING_SIZE_DEFAULT),
-          DropdownButtonFormField<String>(
-            key: ValueKey(settings._adhanSound),
-            initialValue: settings._adhanSound,
-            isExpanded: true,
-            decoration: InputDecoration(
-              labelText: 'choose_sound_for_notification'.tr,
-              prefixIcon: Icon(Icons.volume_up_outlined, color: primary),
-              suffixIcon: IconButton(
-                key: const Key('onboarding_adhan_preview_button'),
-                tooltip: 'preview_sound'.tr,
-                onPressed: settings._adhanEnabled
-                    ? () => settings._previewAdhanSound(settings._adhanSound)
-                    : null,
-                icon: const Icon(Icons.play_circle_outline),
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(Dimensions.RADIUS_DEFAULT),
-              ),
-            ),
-            items: NotiSoundController.availableSounds
-                .where((sound) => sound['key']!.startsWith('azan_'))
-                .map(
-                  (sound) => DropdownMenuItem<String>(
-                    value: sound['key'],
-                    child: Text(sound['labelKey']!.tr),
-                  ),
-                )
-                .toList(),
-            onChanged: settings._adhanEnabled
-                ? (value) {
-                    if (value == null) return;
-                    settings.setState(() => settings._adhanSound = value);
-                    setState(() {});
-                    unawaited(settings._previewAdhanSound(value));
-                  }
-                : null,
-          ),
           const SizedBox(height: Dimensions.PADDING_SIZE_DEFAULT),
           Container(
             padding: const EdgeInsets.all(Dimensions.PADDING_SIZE_DEFAULT),
@@ -517,6 +519,51 @@ class _NotificationSettingsStepState extends State<_NotificationSettingsStep> {
       ),
     );
   }
+
+  Widget _soundPicker(
+    String kind,
+    String sound,
+    ValueChanged<String> save, {
+    bool adhanOnly = false,
+  }) {
+    final settings = parent;
+    return DropdownButtonFormField<String>(
+      key: ValueKey('onboarding_${kind}_sound_$sound'),
+      initialValue: sound,
+      isExpanded: true,
+      isDense: false,
+      itemHeight: null,
+      decoration: InputDecoration(
+        labelText:
+            (adhanOnly ? 'choose_sound_for_notification' : 'reminder_sound').tr,
+        prefixIcon: const Icon(Icons.volume_up_outlined),
+        suffixIcon: IconButton(
+          key: Key('onboarding_${kind}_preview_button'),
+          tooltip: 'preview_sound'.tr,
+          onPressed: () => settings._previewAdhanSound(sound),
+          icon: const Icon(Icons.play_circle_outline),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(Dimensions.RADIUS_DEFAULT),
+        ),
+      ),
+      items: NotiSoundController.availableSounds
+          .where((option) => !adhanOnly || option['key']!.startsWith('azan_'))
+          .map(
+            (option) => DropdownMenuItem(
+              value: option['key'],
+              child: Text(option['labelKey']!.tr),
+            ),
+          )
+          .toList(),
+      onChanged: (value) {
+        if (value == null) return;
+        settings.setState(() => save(value));
+        setState(() {});
+        unawaited(settings._previewAdhanSound(value));
+      },
+    );
+  }
 }
 
 class _OnboardingReminderCard extends StatelessWidget {
@@ -529,6 +576,7 @@ class _OnboardingReminderCard extends StatelessWidget {
     required this.adhanEnabled,
     required this.onEnabledChanged,
     required this.onMinutesChanged,
+    required this.soundPicker,
   });
 
   final String title;
@@ -539,6 +587,7 @@ class _OnboardingReminderCard extends StatelessWidget {
   final bool adhanEnabled;
   final ValueChanged<bool> onEnabledChanged;
   final ValueChanged<int> onMinutesChanged;
+  final Widget soundPicker;
 
   @override
   Widget build(BuildContext context) {
@@ -567,6 +616,8 @@ class _OnboardingReminderCard extends StatelessWidget {
                 key: ValueKey(minutes),
                 initialValue: minutes,
                 isExpanded: true,
+                isDense: false,
+                itemHeight: null,
                 decoration: InputDecoration(
                   labelText: dropdownLabel,
                   prefixIcon: Icon(Icons.schedule, color: primary),
@@ -588,6 +639,11 @@ class _OnboardingReminderCard extends StatelessWidget {
                   if (value != null) onMinutesChanged(value);
                 },
               ),
+            ),
+          if (enabled && adhanEnabled)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: soundPicker,
             ),
         ],
       ),

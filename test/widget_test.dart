@@ -302,70 +302,174 @@ void main() {
     expect(prayers.every((prayer) => prayer.isNotificationEnabled), isTrue);
   });
 
-  testWidgets('first-launch setup shows both five-minute reminders', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(360, 800);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+  test(
+    'onboarding saves three independent sounds and validates reminder sounds',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      await FirstLaunchSetupService(prefs).complete(
+        adhanEnabled: true,
+        beforeEnabled: true,
+        afterEnabled: true,
+        beforeMinutes: 5,
+        afterMinutes: 10,
+        adhanSound: 'azan_3',
+        beforeSound: 'noti_beep_beep',
+        afterSound: 'noti_1',
+      );
+      expect(
+        prefs.getString(AppConstants.SELECTED_NOTIFICATION_SOUND_KEY),
+        'azan_3',
+      );
+      expect(
+        prefs.getString(AppConstants.BEFORE_ADHAN_REMINDER_SOUND_KEY),
+        'noti_beep_beep',
+      );
+      expect(
+        prefs.getString(AppConstants.AFTER_ADHAN_REMINDER_SOUND_KEY),
+        'noti_1',
+      );
+      await FirstLaunchSetupService(prefs).complete(
+        adhanEnabled: false,
+        beforeEnabled: true,
+        afterEnabled: true,
+        beforeMinutes: 5,
+        afterMinutes: 10,
+        adhanSound: 'missing',
+        beforeSound: 'missing',
+        afterSound: 'noti_1',
+      );
+      expect(
+        prefs.getBool(AppConstants.BEFORE_ADHAN_REMINDER_ENABLED_KEY),
+        isFalse,
+      );
+      expect(
+        prefs.getBool(AppConstants.AFTER_ADHAN_REMINDER_ENABLED_KEY),
+        isFalse,
+      );
+      expect(
+        prefs.getString(AppConstants.BEFORE_ADHAN_REMINDER_SOUND_KEY),
+        AppConstants.DEFAULT_PRAYER_REMINDER_SOUND,
+      );
+      expect(
+        prefs.getString(AppConstants.AFTER_ADHAN_REMINDER_SOUND_KEY),
+        'noti_1',
+      );
+    },
+  );
 
-    SharedPreferences.setMockInitialValues({});
-    final preferences = await SharedPreferences.getInstance();
-    Get.put(
-      LocalizationController(
-        sharedPreferences: preferences,
-        apiClient: ApiClient(
-          appBaseUrl: AppConstants.BASE_URL,
+  testWidgets(
+    'first-launch setup hides disabled reminder sounds and allows independent choices',
+    (tester) async {
+      tester.view.physicalSize = const Size(360, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      SharedPreferences.setMockInitialValues({});
+      final preferences = await SharedPreferences.getInstance();
+      Get.put(
+        LocalizationController(
           sharedPreferences: preferences,
+          apiClient: ApiClient(
+            appBaseUrl: AppConstants.BASE_URL,
+            sharedPreferences: preferences,
+          ),
         ),
-      ),
-    );
-    addTearDown(Get.reset);
+      );
+      addTearDown(Get.reset);
 
-    String? previewedSound;
-    await tester.pumpWidget(
-      GetMaterialApp(
-        translations: _OnboardingTestTranslations(),
-        locale: const Locale('en', 'US'),
-        home: FirstLaunchSetupScreen(
-          soundPreview: (assetPath) async => previewedSound = assetPath,
+      String? previewedSound;
+      await tester.pumpWidget(
+        GetMaterialApp(
+          translations: _OnboardingTestTranslations(),
+          locale: const Locale('en', 'US'),
+          home: FirstLaunchSetupScreen(
+            soundPreview: (assetPath) async => previewedSound = assetPath,
+          ),
         ),
-      ),
-    );
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
-
-    expect(find.text('Welcome to SalaTime'), findsOneWidget);
-    await tester.tap(find.text('Next'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
-
-    expect(find.text('Before Adhan'), findsOneWidget);
-    expect(find.text('After Adhan'), findsOneWidget);
-    expect(find.text('5 minutes'), findsNWidgets(2));
-    expect(
-      find.byKey(const Key('onboarding_adhan_preview_button')),
-      findsOneWidget,
-    );
-
-    final adhanToggle = find.byType(SwitchListTile).first;
-    if (!tester.widget<SwitchListTile>(adhanToggle).value) {
-      await tester.tap(adhanToggle);
+      );
       await tester.pump();
-    }
-    await tester.ensureVisible(
-      find.byKey(const Key('onboarding_adhan_preview_button')),
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('onboarding_adhan_preview_button')));
-    await tester.pump();
-    expect(previewedSound, AppConstants.DEFAULT_NOTIFICATION_SOUND_ASSET);
-    expect(tester.takeException(), isNull);
+      await tester.pump(const Duration(milliseconds: 100));
 
-    await tester.pumpWidget(const SizedBox.shrink());
-    await tester.pump();
-  });
+      expect(find.text('Welcome to SalaTime'), findsOneWidget);
+      await tester.tap(find.text('Next'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(find.text('Before Adhan'), findsOneWidget);
+      expect(find.text('After Adhan'), findsOneWidget);
+      expect(find.text('5 minutes'), findsNothing);
+      expect(
+        tester.widget<SwitchListTile>(find.byType(SwitchListTile).at(1)).value,
+        isFalse,
+      );
+      expect(
+        tester.widget<SwitchListTile>(find.byType(SwitchListTile).at(2)).value,
+        isFalse,
+      );
+      expect(
+        find.byKey(const Key('onboarding_adhan_preview_button')),
+        findsOneWidget,
+      );
+
+      final adhanToggle = find.byType(SwitchListTile).first;
+      if (!tester.widget<SwitchListTile>(adhanToggle).value) {
+        await tester.tap(adhanToggle);
+        await tester.pump();
+      }
+      await tester.ensureVisible(
+        find.byKey(const Key('onboarding_adhan_preview_button')),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(const Key('onboarding_adhan_preview_button')),
+      );
+      await tester.pump();
+      expect(previewedSound, AppConstants.DEFAULT_NOTIFICATION_SOUND_ASSET);
+      for (final kind in ['before', 'after']) {
+        final toggle = find.byType(SwitchListTile).at(kind == 'before' ? 1 : 2);
+        await tester.ensureVisible(toggle);
+        await tester.tap(toggle);
+        await tester.pumpAndSettle();
+        expect(
+          find.byKey(Key('onboarding_${kind}_preview_button')),
+          findsOneWidget,
+        );
+      }
+      for (final choice in {
+        'adhan': 'azan_3',
+        'before': 'noti_beep_beep',
+        'after': 'noti_1',
+      }.entries) {
+        final field = find.byWidgetPredicate(
+          (w) =>
+              w is DropdownButtonFormField<String> &&
+              w.key.toString().contains('onboarding_${choice.key}_sound_'),
+        );
+        tester.widget<DropdownButtonFormField<String>>(field).onChanged!(
+          choice.value,
+        );
+        await tester.pumpAndSettle();
+        expect(
+          find.byKey(
+            ValueKey('onboarding_${choice.key}_sound_${choice.value}'),
+          ),
+          findsOneWidget,
+        );
+        expect(previewedSound, 'assets/audio/${choice.value}.mp3');
+      }
+      await tester.ensureVisible(adhanToggle);
+      await tester.tap(adhanToggle);
+      await tester.pumpAndSettle();
+      expect(find.byType(DropdownButtonFormField<String>), findsNothing);
+
+      expect(tester.takeException(), isNull);
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
+    },
+  );
 
   test('daylight theme follows local sunrise and sunset', () {
     expect(
