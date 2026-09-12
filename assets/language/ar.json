@@ -411,5 +411,19 @@
   "widget_open_to_refresh": "افتح SalaTime لتحديث مواقيت الصلاة",
   "missed_prayer_title": "تنبيه صلاة فائت",
   "missed_prayer_body": "فات تنبيه صلاة أثناء إيقاف الهاتف. افتح SalaTime للاطلاع على المواقيت.",
-  "prayer_times_calculated_locally": "مواقيت الصلاة محسوبة على هذا الجهاز وفق طريقتك المختارة."
+  "prayer_times_calculated_locally": "مواقيت الصلاة محسوبة على هذا الجهاز وفق طريقتك المختارة.",
+  "stop_adhan": "إيقاف",
+  "alarm_test_title": "اختبار الأذان",
+  "alarm_test_body": "هذا اختبار لصوت الصلاة الذي اخترته.",
+  "alarm_volume_note": "يستخدم الأذان مستوى صوت المنبّه في الهاتف. قد يعرض أندرويد رمز منبّه للصلاة القادمة.",
+  "alarm_volume_level": "مستوى صوت المنبّه: @percent%",
+  "alarm_last_delay": "وصل آخر تنبيه متأخرًا بمقدار @minutes دقيقة.",
+  "alarm_audio_failed": "تعذّر تشغيل الأذان الأخير بشكل طبيعي. تحقّق من صوت المنبّه والإشعارات ثم أعد الاختبار.",
+  "alarm_samsung_sleep": "على هواتف سامسونج، أزل SalaTime من التطبيقات في وضع السكون أو السكون العميق، أو أضفه إلى التطبيقات التي لا تدخل في السكون ضمن إعدادات البطارية.",
+  "alarm_test_instructions": "ابدأ الاختبار ثم اقفل الهاتف وانتظر دقيقة دون فتح SalaTime.",
+  "alarm_test_in_one_minute": "اختبار بعد دقيقة",
+  "alarm_test_scheduled": "تمت جدولة الاختبار. اقفل الهاتف وانتظر دقيقة.",
+  "alarm_test_cancel": "إلغاء الاختبار",
+  "alarm_sound_settings": "إعدادات الصوت"
+
 }

@@ -19,20 +19,54 @@ astronomiques ; les ajustements enregistrés par l’utilisateur s’appliquent 
   l’app avant la fin de cette fenêtre pour la prolonger.
 - Actualisation à l’ouverture, à la reprise, à minuit pendant l’utilisation,
   lors des changements de lieu et de réglages. Les actualisations sont sérialisées.
-- Android : alarmes exactes autorisées pendant la veille, ou repli non exact si
-  l’autorisation manque. L’utilisateur voit ce mode dégradé dans les alarmes.
+- Android : l’adhan principal utilise `setAlarmClock`, avec un raccourci système
+  qui ouvre SalaTime. Les rappels utilisent `setExactAndAllowWhileIdle` ; ils
+  restent soumis aux quotas de veille d’Android. Sans autorisation d’alarme
+  exacte, le repli est non exact et l’écran des alarmes indique cette limitation.
 - Ignorer une prière concerne sa date et ses rappels, avec possibilité de rétablir.
 - Au redémarrage Android, suppression des occurrences dépassées avant
   restauration, avec un seul avis silencieux de prière manquée. Pas de badge.
+- Lors d’une livraison retardée de plus de deux minutes, l’adhan apparaît
+  silencieusement avec son heure prévue. Les rappels dépassés sont supprimés,
+  notamment un rappel « avant l’adhan » reçu après l’heure de la prière.
+- Les sons `azan_1`, `azan_2` et `azan_3` sont lus intégralement par un service
+  Android temporaire avec le volume des alarmes et un bouton « Arrêter ».
+  Il respecte les notifications/canaux désactivés, le volume nul et la priorité
+  audio des appels. Fin, arrêt, erreur et perte de priorité libèrent le lecteur,
+  la priorité audio et le verrou de veille ; durée maximale de huit minutes.
 - Aucun système ne peut garantir une alarme après un arrêt forcé de l’app par
   l’utilisateur ou certains blocages constructeur. Ces cas nécessitent des essais
   sur appareil ; les tests unitaires ne constituent pas une validation matérielle.
 
-`SalaTimeAlarmRestoreReceiver` est un adaptateur du stockage interne de
+`SalaTimePrayerAlarms`, `SalaTimePrayerAlarmReceiver`, `SalaTimeAdhanService`
+et `SalaTimeAlarmRestoreReceiver` sont des adaptateurs du stockage interne de
 `flutter_local_notifications` **17.2.4**, version verrouillée dans pubspec.yaml.
-Réexaminer l’adaptateur et ses tests avant toute mise à jour de ce paquet.
-Il préserve les notifications étrangères à SalaTime et ne fait appel à aucun
+Réexaminer les adaptateurs et leurs tests avant toute mise à jour de ce paquet.
+Le cache du paquet reste la source des alarmes en attente. Une livraison dont
+l’identifiant ou l’heure ne correspond plus au cache est ignorée. L’adaptateur
+préserve les notifications étrangères à SalaTime et ne fait appel à aucun
 service réseau lors du redémarrage.
+Chaque alarme est transférée immédiatement après sa programmation : le
+renouvellement des 450 alarmes ne crée pas une deuxième copie du calendrier
+entier, susceptible de dépasser la limite signalée sur Samsung.
+
+## Vérification sur téléphone
+
+Dans les réglages des notifications, ouvrir **Alarmes à venir**, puis
+**Tester dans une minute**. Verrouiller le téléphone et attendre sans rouvrir
+SalaTime. Le test emprunte le même parcours de programmation et de lecture
+que les prières, avec le son choisi. Il peut être annulé avant le déclenchement.
+Le test bref vérifie le fonctionnement écran verrouillé ; il ne remplace pas
+un essai après plusieurs heures de veille. L’écran affiche les autorisations,
+le volume des alarmes et le retard mesuré de la dernière livraison.
+
+Sur Samsung, vérifier aussi les réglages des applications en veille/profonde
+et la liste des applications jamais en veille. Le fonctionnement après un arrêt
+forcé, une restriction constructeur ou en veille prolongée nécessite une
+vérification sur l’appareil concerné.
+
+Cette correction comporte du code Android natif : une nouvelle installation
+APK/AAB est nécessaire. Un patch Dart Shorebird seul ne la distribue pas.
 
 ## Widget et carte
 
@@ -66,6 +100,9 @@ PHP ancien ; cette différence est explicitement testée. Des tests séparés co
 les changements d’heure, le Ramadan au Maroc, les autorisations, les dates et les limites iOS.
 
 Références étudiées :
+- https://developer.android.com/develop/background-work/services/alarms
+- https://developer.android.com/training/monitoring-device-state/doze-standby
+- https://www.samsung.com/ca/support/mobile-devices/galaxy-phone-sleeping-apps/
 - https://github.com/meypod/al-azan-compose : idées de fiabilité et d’interface ; aucun code AGPL repris.
 - https://github.com/TowardsIkhlaas/simply_qibla : idée de repérage sur carte ; aucun code GPL repris.
 - https://github.com/iamriajul/adhan-dart : dépendance MIT, déclarée dans pubspec et les licences Flutter.
@@ -75,3 +112,12 @@ Robolectric réussis (restauration, badges et widget), analyse Flutter sans
 problème et APK debug compilé. Écran des alarmes contrôlé à 360 × 800 avec
 texte agrandi en français. Aucun appareil/émulateur connecté ; pas de validation
 sur téléphone ni de publication Google Play/Shorebird dans cette modification.
+
+Validation de la correction de veille du 12 septembre 2026 : 79 tests Flutter
+réussis et 36 tests Android Robolectric réussis. Les cas couvrent la livraison
+retardée de 26 minutes, l’absence de rappels périmés, la lecture et l’arrêt de
+l’adhan, le volume nul, le refus de priorité audio, l’annulation, les doublons
+et le renouvellement de 450 alarmes sous une limite simulée de 500.
+Le test dans l’interface a été contrôlé en français à 360 × 800 et texte × 1,5.
+Aucun appareil Android connecté : le déclenchement sur le Samsung de
+l’utilisateur, notamment après une nuit de veille, reste à vérifier.

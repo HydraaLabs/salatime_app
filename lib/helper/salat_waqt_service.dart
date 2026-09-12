@@ -13,6 +13,7 @@ import 'package:zabi/controller/package_prayer_time_controller.dart';
 import 'package:zabi/controller/prayer_time_adjustment.dart';
 import 'package:zabi/helper/location_auto_update_service.dart';
 import 'package:zabi/helper/prayer_alarm_plan.dart';
+import 'package:zabi/helper/prayer_alarm_health.dart';
 import 'package:zabi/util/app_constants.dart';
 import 'package:zabi/view/screens/notification/widgets/salat_waqt_repository.dart';
 
@@ -23,7 +24,8 @@ class SalatWaqtService {
   static const skippedKey = 'prayer_alarm_skipped_v2';
   static const inexactKey = 'prayer_alarm_inexact_v2';
   static const failedKey = 'prayer_alarm_failed_v2';
-  static const _native = MethodChannel('net.salatime.app/prayer_schedule');
+  static const testAlarmId = 1999000001;
+  static const _native = PrayerAlarmHealth.channel;
   static Future<void> _queue = Future.value();
 
   // Serialize refreshes: changing a setting during GPS/scheduling work must not
@@ -65,6 +67,33 @@ class SalatWaqtService {
     }
     await prefs.setStringList(skippedKey, keys.toList());
     await initializeSalatWaqt();
+  }
+
+  static Future<DateTime> scheduleTestAdhan() async {
+    final service = AdhanNotificationServiceImpl();
+    await service.initializeNotification();
+    await service.cancelNotification(testAlarmId);
+    final at = DateTime.now().add(const Duration(minutes: 1));
+    final saved = await service.scheduleNotification(
+      id: testAlarmId,
+      title: 'alarm_test_title'.tr,
+      body: 'alarm_test_body'.tr,
+      dateTime: at,
+      payload: jsonEncode({
+        'id': testAlarmId,
+        'prayerId': 1,
+        'at': at.millisecondsSinceEpoch,
+        'prayerAt': at.millisecondsSinceEpoch,
+        'kind': 'adhan',
+        'test': true,
+        'stopLabel': 'stop_adhan'.tr,
+      }),
+    );
+    if (!saved || service.schedulingFailed) {
+      await service.cancelNotification(testAlarmId);
+      throw StateError('Test alarm could not be scheduled');
+    }
+    return at;
   }
 
   static Future<void> _refresh() async {
@@ -211,7 +240,7 @@ class SalatWaqtService {
         title: title,
         body: body,
         dateTime: alarm.time,
-        payload: jsonEncode(alarm.toJson()),
+        payload: jsonEncode({...alarm.toJson(), 'stopLabel': 'stop_adhan'.tr}),
         sound: sound,
         channel:
             '${alarm.kind == PrayerAlarmKind.adhan ? '' : '${alarm.kind.name}_'}adhan_$sound',
@@ -253,33 +282,41 @@ class SalatWaqtService {
       }
       if (Platform.isAndroid) {
         try {
-          await _native.invokeMethod<void>('update', {
-            'alarms': jsonEncode(retained.values.toList()),
-            'prayers': jsonEncode(
-              prayers
-                  .map(
-                    (p) => {
-                      'at': p.time.millisecondsSinceEpoch,
-                      'name': p.nameKey.tr,
-                      'shortName': 'widget_prayer_${p.prayerId}'.tr,
-                    },
-                  )
-                  .toList(),
-            ),
-            'city': controller.isManualPrayerTime.value
-                ? controller.saveAddress.value
-                : controller.currentAddress.value,
-            'nextLabel': 'next_prayer'.tr,
-            'emptyLabel': 'widget_open_to_refresh'.tr,
-            'locale': Get.locale?.toLanguageTag() ?? 'en',
-            'timeZone': zoneName,
-            'use24HourFormat': controller.is24HourFormat.value,
-            'missedTitle': 'missed_prayer_title'.tr,
-            'missedBody': 'missed_prayer_body'.tr,
-          });
+          final routed = await _native.invokeMapMethod<String, dynamic>(
+            'update',
+            {
+              'alarms': jsonEncode(retained.values.toList()),
+              'prayers': jsonEncode(
+                prayers
+                    .map(
+                      (p) => {
+                        'at': p.time.millisecondsSinceEpoch,
+                        'name': p.nameKey.tr,
+                        'shortName': 'widget_prayer_${p.prayerId}'.tr,
+                      },
+                    )
+                    .toList(),
+              ),
+              'city': controller.isManualPrayerTime.value
+                  ? controller.saveAddress.value
+                  : controller.currentAddress.value,
+              'nextLabel': 'next_prayer'.tr,
+              'emptyLabel': 'widget_open_to_refresh'.tr,
+              'locale': Get.locale?.toLanguageTag() ?? 'en',
+              'timeZone': zoneName,
+              'use24HourFormat': controller.is24HourFormat.value,
+              'missedTitle': 'missed_prayer_title'.tr,
+              'missedBody': 'missed_prayer_body'.tr,
+            },
+          );
+          if (routed?['inexact'] == true) await prefs.setBool(inexactKey, true);
+          if ((routed?['failed'] as int? ?? 0) > 0) {
+            await prefs.setBool(failedKey, true);
+          }
         } on MissingPluginException {
           // Older native binaries can still run the Dart improvements.
         } on PlatformException catch (error) {
+          await prefs.setBool(failedKey, true);
           debugPrint('Prayer widget refresh failed: $error');
         }
       }

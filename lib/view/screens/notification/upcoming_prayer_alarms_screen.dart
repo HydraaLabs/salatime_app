@@ -1,7 +1,4 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -9,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zabi/helper/adhan_notification_service_helper.dart';
 import 'package:zabi/helper/salat_waqt_service.dart';
 import 'package:zabi/view/base/custom_app_bar.dart';
+import 'package:zabi/view/screens/notification/widgets/prayer_alarm_health_card.dart';
 
 class UpcomingPrayerAlarmsScreen extends StatefulWidget {
   const UpcomingPrayerAlarmsScreen({super.key});
@@ -23,7 +21,6 @@ class _UpcomingPrayerAlarmsScreenState
   List<Map<String, dynamic>> _alarms = [];
   List<String> _skipped = [];
   bool _loading = true;
-  bool _inexact = false;
   bool _failed = false;
 
   @override
@@ -54,7 +51,6 @@ class _UpcomingPrayerAlarmsScreenState
       setState(() {
         _alarms = alarms;
         _skipped = prefs.getStringList(SalatWaqtService.skippedKey) ?? [];
-        _inexact = prefs.getBool(SalatWaqtService.inexactKey) ?? false;
         _failed = prefs.getBool(SalatWaqtService.failedKey) ?? false;
       });
     } catch (_) {
@@ -79,15 +75,6 @@ class _UpcomingPrayerAlarmsScreenState
     }
   }
 
-  Future<void> _requestExact() async {
-    await FlutterLocalNotificationsPlugin()
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >()
-        ?.requestExactAlarmsPermission();
-    if (mounted) await _load(refresh: true);
-  }
-
   String _name(int id) => ['fajr', 'dhuhr', 'asr', 'magrib', 'isha'][id - 1].tr;
 
   @override
@@ -105,24 +92,13 @@ class _UpcomingPrayerAlarmsScreenState
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.all(16),
                 children: [
+                  const PrayerAlarmHealthCard(),
                   Text('alarm_window_description'.tr),
                   const SizedBox(height: 12),
                   if (_failed)
                     ListTile(
                       leading: const Icon(Icons.error_outline),
                       title: Text('alarm_refresh_failed'.tr),
-                    ),
-                  if (_inexact && Platform.isAndroid)
-                    Card(
-                      child: ListTile(
-                        title: Text('alarm_precision_limited'.tr),
-                        subtitle: Text('alarm_precision_description'.tr),
-                        trailing: IconButton(
-                          onPressed: _requestExact,
-                          tooltip: 'alarm_allow_exact'.tr,
-                          icon: const Icon(Icons.settings),
-                        ),
-                      ),
                     ),
                   if (_alarms.isEmpty)
                     Padding(

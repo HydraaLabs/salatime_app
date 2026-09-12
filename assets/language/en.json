@@ -416,5 +416,19 @@
   "widget_open_to_refresh": "Open SalaTime to refresh prayer times",
   "missed_prayer_title": "Prayer alarm missed",
   "missed_prayer_body": "A prayer alarm passed while your phone was off. Open SalaTime to view the times.",
-  "prayer_times_calculated_locally": "Prayer times calculated on this device using your selected method."
+  "prayer_times_calculated_locally": "Prayer times calculated on this device using your selected method.",
+  "stop_adhan": "Stop",
+  "alarm_test_title": "Test the Adhan",
+  "alarm_test_body": "This is a test of your selected prayer sound.",
+  "alarm_volume_note": "The Adhan uses the phone’s alarm volume. The system may show an alarm clock icon for the next prayer.",
+  "alarm_volume_level": "Alarm volume: @percent%",
+  "alarm_last_delay": "The last alarm arrived @minutes minutes late.",
+  "alarm_audio_failed": "The last Adhan could not play normally. Check the alarm volume and notification sound, then test again.",
+  "alarm_samsung_sleep": "On Samsung, remove SalaTime from Sleeping and Deep sleeping apps, or add it to Never sleeping apps in the battery settings.",
+  "alarm_test_instructions": "Start a test, lock your phone, and wait one minute without opening SalaTime.",
+  "alarm_test_in_one_minute": "Test in one minute",
+  "alarm_test_scheduled": "Test scheduled. Lock your phone and wait one minute.",
+  "alarm_test_cancel": "Cancel test",
+  "alarm_sound_settings": "Sound settings"
+
 }

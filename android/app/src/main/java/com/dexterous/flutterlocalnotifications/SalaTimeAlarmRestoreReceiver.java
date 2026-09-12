@@ -29,7 +29,11 @@ public class SalaTimeAlarmRestoreReceiver extends BroadcastReceiver {
                 && !AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED.equals(action)) return;
         try {
             boolean missed = repairCache(context, System.currentTimeMillis());
-            FlutterLocalNotificationsPlugin.rescheduleNotifications(context);
+            // Time/permission changes may happen with all custom alarms still
+            // armed. Avoid doubling the 450-alarm window while rebuilding it.
+            SalaTimePrayerAlarms.cancelAll(context);
+            try { FlutterLocalNotificationsPlugin.rescheduleNotifications(context); }
+            finally { SalaTimePrayerAlarms.routeAll(context); }
             if (missed && Intent.ACTION_BOOT_COMPLETED.equals(action)) showMissedNotice(context);
             PrayerWidgetProvider.refreshAll(context);
         } catch (Exception error) {
@@ -55,6 +59,8 @@ public class SalaTimeAlarmRestoreReceiver extends BroadcastReceiver {
                 continue;
             }
             if (payload.getLong("at") <= now) {
+                SalaTimePrayerAlarms.cancel(context, id);
+                SalaTimePrayerAlarms.cancelLegacy(context, id);
                 if ("adhan".equals(payload.optString("kind"))) missed = true;
                 continue;
             }

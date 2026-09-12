@@ -1,0 +1,258 @@
+package com.dexterous.flutterlocalnotifications;
+
+import android.app.AlarmManager;
+import android.app.Application;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Looper;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import org.robolectric.Robolectric;
+import org.robolectric.android.controller.ServiceController;
+import org.robolectric.shadows.ShadowMediaPlayer;
+import org.robolectric.shadows.ShadowPowerManager;
+import org.robolectric.shadows.util.DataSource;
+import androidx.core.app.NotificationCompat;
+import com.dexterous.flutterlocalnotifications.models.NotificationDetails;
+import com.dexterous.flutterlocalnotifications.models.NotificationStyle;
+import com.dexterous.flutterlocalnotifications.models.styles.DefaultStyleInformation;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.Shadows;
+import org.robolectric.annotation.Config;
+import static org.junit.Assert.*;
+
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk = {24, 33}, application = Application.class)
+public class SalaTimePrayerAlarmsTest {
+    private Context app;
+    private AlarmManager manager;
+    private long now;
+    private static final int ID = 12000001;
+
+    @Before public void setup() {
+        app = RuntimeEnvironment.getApplication();
+        manager = (AlarmManager) app.getSystemService(Context.ALARM_SERVICE);
+        Shadows.shadowOf(manager).setCanScheduleExactAlarms(true);
+        now = System.currentTimeMillis();
+    }
+
+    private NotificationDetails details() {
+        NotificationDetails d = new NotificationDetails();
+        d.id = ID;
+        d.title = "Fajr";
+        d.body = "Prayer at 05:36";
+        d.icon = "@mipmap/launcher_icon";
+        d.channelId = "adhan_azan_2_no_badge_v1";
+        d.channelName = "Adhan";
+        d.importance = NotificationManager.IMPORTANCE_HIGH;
+        d.priority = NotificationCompat.PRIORITY_HIGH;
+        d.playSound = true;
+        d.sound = "azan_2";
+        d.style = NotificationStyle.Default;
+        d.styleInformation = new DefaultStyleInformation(false, false);
+        d.autoCancel = true;
+        d.channelShowBadge = false;
+        return d;
+    }
+
+    private JSONObject row(long at, String kind) throws Exception {
+        NotificationDetails d = details();
+        d.payload = new JSONObject().put("id", ID).put("prayerId", 1).put("kind", kind)
+                .put("at", at).put("prayerAt", "before".equals(kind) ? at + 600000 : at).toString();
+        return new JSONObject(FlutterLocalNotificationsPlugin.buildGson().toJson(d));
+    }
+
+    private void save(JSONObject... rows) {
+        JSONArray values = new JSONArray();
+        for (JSONObject row : rows) values.put(row);
+        app.getSharedPreferences(SalaTimePrayerAlarms.STORE, 0).edit()
+                .putString(SalaTimePrayerAlarms.STORE, values.toString()).commit();
+    }
+
+    private Intent delivery(long at) {
+        return new Intent(app, SalaTimePrayerAlarmReceiver.class).putExtra("id", ID).putExtra("at", at);
+    }
+
+    @Test public void adhanUsesVisibleAlarmClockAndShortcutOpensApp() throws Exception {
+        long at = now + 600000;
+        JSONObject row = row(at, "adhan");
+        save(row);
+        PendingIntent legacy = PendingIntent.getBroadcast(app, ID,
+                new Intent(app, ScheduledNotificationReceiver.class), PendingIntent.FLAG_IMMUTABLE);
+        manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, legacy);
+        assertEquals(1, SalaTimePrayerAlarms.route(app, ID).get("routed"));
+        assertEquals(at, manager.getNextAlarmClock().getTriggerTime());
+        assertTrue(Shadows.shadowOf(manager.getNextAlarmClock().getShowIntent()).isActivityIntent());
+        assertEquals(1, Shadows.shadowOf(manager).getScheduledAlarms().size());
+        assertNotNull(SalaTimePrayerAlarms.find(app, ID));
+        assertNotNull(SalaTimePrayerAlarms.operation(app, ID, false));
+    }
+
+    @Test public void reminderDoesNotReplaceNextPrayerClockAndCancellationRemovesIt() throws Exception {
+        JSONObject adhan = row(now + 600000, "adhan");
+        SalaTimePrayerAlarms.register(app, adhan, now);
+        JSONObject before = row(now + 60000, "before");
+        JSONObject payload = SalaTimePrayerAlarms.prayer(before);
+        payload.put("id", ID + 10);
+        before.put("id", ID + 10).put("payload", payload.toString());
+        assertEquals("exactAllowWhileIdle", SalaTimePrayerAlarms.register(app, before, now));
+        assertEquals(now + 600000, manager.getNextAlarmClock().getTriggerTime());
+        SalaTimePrayerAlarms.cancel(app, ID);
+        assertNull(SalaTimePrayerAlarms.operation(app, ID, false));
+        assertEquals(1, Shadows.shadowOf(manager).getScheduledAlarms().size());
+    }
+
+    @Test public void deniedExactPermissionFallsBackWithoutDroppingThePrayer() throws Exception {
+        if (Build.VERSION.SDK_INT < 31) return;
+        Shadows.shadowOf(manager).setCanScheduleExactAlarms(false);
+        JSONObject row = row(now + 60000, "adhan");
+        save(row);
+        assertEquals("inexactAllowWhileIdle", SalaTimePrayerAlarms.register(app, row, now));
+        assertNull(manager.getNextAlarmClock());
+        assertEquals(1, Shadows.shadowOf(manager).getScheduledAlarms().size());
+        assertNotNull(SalaTimePrayerAlarms.find(app, ID));
+    }
+
+    @Test public void staleBeforeReminderIsDiscardedAtUnlock() throws Exception {
+        long at = now - 36 * 60000;
+        save(row(at, "before"));
+        new SalaTimePrayerAlarmReceiver().onReceive(app, delivery(at));
+        assertNull(SalaTimePrayerAlarms.find(app, ID));
+        assertNull(Shadows.shadowOf((Application) app).getNextStartedService());
+        assertEquals(0, ((NotificationManager) app.getSystemService(Context.NOTIFICATION_SERVICE)).getActiveNotifications().length);
+    }
+
+    @Test public void deliveredCancelledOrRescheduledBroadcastCannotPlay() throws Exception {
+        save(row(now + 60000, "adhan"));
+        new SalaTimePrayerAlarmReceiver().onReceive(app, delivery(now - 60000));
+        assertNotNull(SalaTimePrayerAlarms.find(app, ID));
+        save();
+        new SalaTimePrayerAlarmReceiver().onReceive(app, delivery(now));
+        assertNull(Shadows.shadowOf((Application) app).getNextStartedService());
+    }
+
+    @Test public void earlyBroadcastIsRearmedAndDoesNotConsumePrayer() throws Exception {
+        long at = now + 60000;
+        save(row(at, "adhan"));
+        new SalaTimePrayerAlarmReceiver().onReceive(app, delivery(at));
+        assertNotNull(SalaTimePrayerAlarms.find(app, ID));
+        assertEquals(at, manager.getNextAlarmClock().getTriggerTime());
+        assertNull(Shadows.shadowOf((Application) app).getNextStartedService());
+    }
+
+    @Test public void adhanReceivedOnTimeStartsAudioOnlyOnce() throws Exception {
+        long at = now - 1000;
+        save(row(at, "adhan"));
+        new SalaTimePrayerAlarmReceiver().onReceive(app, delivery(at));
+        Intent service = Shadows.shadowOf((Application) app).getNextStartedService();
+        assertNotNull(service);
+        assertEquals(SalaTimeAdhanService.class.getName(), service.getComponent().getClassName());
+        assertNull(SalaTimePrayerAlarms.find(app, ID));
+        new SalaTimePrayerAlarmReceiver().onReceive(app, delivery(at));
+        assertNull(Shadows.shadowOf((Application) app).getNextStartedService());
+    }
+
+    @Test public void lateAdhanIsSilentAndShowsOriginalTime() throws Exception {
+        long at = now - 26 * 60000;
+        save(row(at, "adhan"));
+        new SalaTimePrayerAlarmReceiver().onReceive(app, delivery(at));
+        assertNull(Shadows.shadowOf((Application) app).getNextStartedService());
+        android.service.notification.StatusBarNotification[] notifications =
+                ((NotificationManager) app.getSystemService(Context.NOTIFICATION_SERVICE)).getActiveNotifications();
+        assertEquals(1, notifications.length);
+        assertEquals(at, notifications[0].getNotification().when);
+        assertNull(notifications[0].getNotification().sound);
+        assertEquals("late_silent", SalaTimePrayerAlarms.status(app).get("outcome"));
+        assertTrue(((Number) SalaTimePrayerAlarms.status(app).get("delayMs")).longValue() >= 26 * 60000);
+    }
+
+    @Test public void foreignNotificationsAndMutedChannelsArePreserved() throws Exception {
+        JSONObject foreign = new JSONObject().put("id", 8).put("payload", "unrelated");
+        save(foreign);
+        assertEquals(0, SalaTimePrayerAlarms.routeAll(app).get("routed"));
+        assertNotNull(SalaTimePrayerAlarms.find(app, 8));
+        NotificationDetails d = details();
+        if (Build.VERSION.SDK_INT >= 26) {
+            NotificationChannel channel = new NotificationChannel(d.channelId, "Muted", NotificationManager.IMPORTANCE_HIGH);
+            channel.setSound(null, null);
+            ((NotificationManager) app.getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
+            assertNull(SalaTimeAdhanService.playableSound(app, d));
+        } else {
+            assertEquals(Uri.parse("android.resource://" + app.getPackageName() + "/raw/azan_2"), SalaTimeAdhanService.playableSound(app, d));
+            d.playSound = false;
+            assertNull(SalaTimeAdhanService.playableSound(app, d));
+        }
+    }
+
+    @Test public void fullAdhanUsesAlarmAudioAndReleasesResourcesOnStop() throws Exception {
+        assertPlaybackFinishes(true);
+    }
+
+    @Test public void fullAdhanFinishesWithoutRestartOrWakeLockLeak() throws Exception {
+        assertPlaybackFinishes(false);
+    }
+
+    @Test public void zeroAlarmVolumeAndDeniedAudioFocusStaySilent() throws Exception {
+        AudioManager audio = (AudioManager) app.getSystemService(Context.AUDIO_SERVICE);
+        final MediaPlayer[] created = new MediaPlayer[1];
+        ShadowMediaPlayer.setCreateListener((media, shadow) -> created[0] = media);
+        for (int volume : new int[] {0, 5}) {
+            audio.setStreamVolume(AudioManager.STREAM_ALARM, volume, 0);
+            Shadows.shadowOf(audio).setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_FAILED);
+            ServiceController<SalaTimeAdhanService> controller = Robolectric.buildService(SalaTimeAdhanService.class).create();
+            JSONObject row = row(now - 1000, "adhan");
+            SalaTimePrayerAlarms.record(app, SalaTimePrayerAlarms.prayer(row), now, "on_time");
+            controller.get().onStartCommand(new Intent(app, SalaTimeAdhanService.class)
+                    .putExtra("notification", row.toString()), 0, 1);
+            assertNull(created[0]);
+            assertNull(ShadowPowerManager.getLatestWakeLock());
+            assertTrue(Shadows.shadowOf(controller.get()).isStoppedBySelf());
+            assertEquals(volume == 0 ? "audio_muted" : "audio_interrupted",
+                    SalaTimePrayerAlarms.status(app).get("outcome"));
+            controller.destroy();
+        }
+    }
+
+    private void assertPlaybackFinishes(boolean stopByUser) throws Exception {
+        AudioManager audio = (AudioManager) app.getSystemService(Context.AUDIO_SERVICE);
+        audio.setStreamVolume(AudioManager.STREAM_ALARM, 5, 0);
+        Shadows.shadowOf(audio).setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
+        Uri sound = Uri.parse("android.resource://" + app.getPackageName() + "/raw/azan_2");
+        ShadowMediaPlayer.addMediaInfo(DataSource.toDataSource(app, sound), new ShadowMediaPlayer.MediaInfo(180000, 0));
+        final MediaPlayer[] created = new MediaPlayer[1];
+        ShadowMediaPlayer.setCreateListener((media, shadow) -> created[0] = media);
+        ServiceController<SalaTimeAdhanService> controller = Robolectric.buildService(SalaTimeAdhanService.class).create();
+        SalaTimeAdhanService service = controller.get();
+        JSONObject row = row(now - 1000, "adhan");
+        SalaTimePrayerAlarms.record(app, SalaTimePrayerAlarms.prayer(row), now, "on_time");
+        service.onStartCommand(new Intent(app, SalaTimeAdhanService.class).putExtra("notification", row.toString()), 0, 1);
+        Shadows.shadowOf(Looper.getMainLooper()).idle();
+        assertNotNull(SalaTimePrayerAlarms.status(app).toString(), created[0]);
+        ShadowMediaPlayer media = Shadows.shadowOf(created[0]);
+        assertTrue(media.isReallyPlaying());
+        assertEquals(AudioAttributes.USAGE_ALARM, media.getAudioAttributes().getUsage());
+        assertTrue(ShadowPowerManager.getLatestWakeLock().isHeld());
+        assertNull(Shadows.shadowOf(service).getLastForegroundNotification().sound);
+        long delay = ((Number) SalaTimePrayerAlarms.status(app).get("delayMs")).longValue();
+        if (stopByUser) service.onStartCommand(new Intent(app, SalaTimeAdhanService.class).setAction(SalaTimeAdhanService.STOP), 0, 2);
+        else media.invokeCompletionListener();
+        assertEquals(ShadowMediaPlayer.State.END, media.getState());
+        assertFalse(ShadowPowerManager.getLatestWakeLock().isHeld());
+        assertTrue(Shadows.shadowOf(service).isStoppedBySelf());
+        assertEquals(delay, ((Number) SalaTimePrayerAlarms.status(app).get("delayMs")).longValue());
+        assertEquals(stopByUser ? "audio_stopped" : "audio_completed", SalaTimePrayerAlarms.status(app).get("outcome"));
+        controller.destroy();
+    }
+}

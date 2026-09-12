@@ -1,6 +1,9 @@
 package com.example.zabi
 
 import android.hardware.GeomagneticField
+import android.content.Intent
+import android.provider.Settings
+import com.dexterous.flutterlocalnotifications.SalaTimePrayerAlarms
 import com.ryanheise.audioservice.AudioServiceFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -26,8 +29,27 @@ class MainActivity : AudioServiceFragmentActivity() {
                     }
                     preferences.apply()
                     PrayerWidgetProvider.refreshAll(this)
-                    result.success(null)
-                } else result.notImplemented()
+                    try { result.success(SalaTimePrayerAlarms.routeAll(this)) }
+                    catch (error: Exception) { result.error("alarm_routing_failed", error.message, null) }
+                } else {
+                    try {
+                        when (call.method) {
+                            "route" -> {
+                                val id = call.argument<Number>("id")?.toInt()
+                                result.success(if (id == null) SalaTimePrayerAlarms.routeAll(this)
+                                    else SalaTimePrayerAlarms.route(this, id))
+                            }
+                            "cancel" -> {
+                                SalaTimePrayerAlarms.cancel(this, call.argument<Number>("id")!!.toInt())
+                                result.success(null)
+                            }
+                            "cancelAll" -> { SalaTimePrayerAlarms.cancelAll(this); result.success(null) }
+                            "status" -> result.success(SalaTimePrayerAlarms.status(this))
+                            "soundSettings" -> { startActivity(Intent(Settings.ACTION_SOUND_SETTINGS)); result.success(null) }
+                            else -> result.notImplemented()
+                        }
+                    } catch (error: Exception) { result.error("alarm_operation_failed", error.message, null) }
+                }
             }
 
         MethodChannel(

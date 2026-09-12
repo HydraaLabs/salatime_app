@@ -406,5 +406,19 @@
   "widget_open_to_refresh": "Ouvrez SalaTime pour actualiser les horaires",
   "missed_prayer_title": "Alarme de prière manquée",
   "missed_prayer_body": "Une alarme de prière est passée pendant que le téléphone était éteint. Ouvrez SalaTime pour consulter les horaires.",
-  "prayer_times_calculated_locally": "Horaires calculés sur cet appareil avec la méthode que vous avez choisie."
+  "prayer_times_calculated_locally": "Horaires calculés sur cet appareil avec la méthode que vous avez choisie.",
+  "stop_adhan": "Arrêter",
+  "alarm_test_title": "Tester l’adhan",
+  "alarm_test_body": "Ceci est un test du son de prière sélectionné.",
+  "alarm_volume_note": "L’adhan utilise le volume des alarmes du téléphone. Android peut afficher une icône de réveil pour la prochaine prière.",
+  "alarm_volume_level": "Volume des alarmes : @percent %",
+  "alarm_last_delay": "La dernière alarme est arrivée avec @minutes minutes de retard.",
+  "alarm_audio_failed": "Le dernier adhan n’a pas pu être lu normalement. Vérifiez le volume des alarmes et le son des notifications, puis refaites le test.",
+  "alarm_samsung_sleep": "Sur Samsung, retirez SalaTime des applications en veille ou en veille profonde, ou ajoutez-la aux applications jamais en veille dans les réglages de batterie.",
+  "alarm_test_instructions": "Lancez le test, verrouillez le téléphone et attendez une minute sans ouvrir SalaTime.",
+  "alarm_test_in_one_minute": "Tester dans une minute",
+  "alarm_test_scheduled": "Test programmé. Verrouillez le téléphone et attendez une minute.",
+  "alarm_test_cancel": "Annuler le test",
+  "alarm_sound_settings": "Réglages du son"
+
 }

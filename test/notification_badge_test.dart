@@ -10,6 +10,7 @@ void main() {
     'dexterous.com/flutter/local_notifications',
   );
   const timezone = MethodChannel('flutter_timezone');
+  const native = MethodChannel('net.salatime.app/prayer_schedule');
   final calls = <MethodCall>[];
   var failScheduling = false;
   var existingReplacement = false;
@@ -113,7 +114,75 @@ void main() {
         .setMockMethodCallHandler(notifications, null);
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(timezone, null);
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(native, null);
   });
+
+  test('refreshing 450 prayers stays below the Android alarm limit', () async {
+    final armed = {for (var id = 10000001; id <= 10000450; id++) 'native:$id'};
+    var peak = armed.length;
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    messenger.setMockMethodCallHandler(notifications, (call) async {
+      if (call.method == 'canScheduleExactNotifications') return true;
+      if (call.method == 'zonedSchedule') {
+        armed.add('plugin:${call.arguments['id']}');
+        if (armed.length > peak) peak = armed.length;
+        if (armed.length > 500) {
+          throw PlatformException(code: 'too_many_alarms');
+        }
+      }
+      return null;
+    });
+    messenger.setMockMethodCallHandler(native, (call) async {
+      if (call.method == 'route') {
+        final id = call.arguments['id'];
+        armed.add('native:$id');
+        armed.remove('plugin:$id');
+        return {'routed': 1, 'failed': 0, 'inexact': false};
+      }
+      return null;
+    });
+    final service = AdhanNotificationServiceImpl();
+    for (var id = 10000001; id <= 10000450; id++) {
+      expect(
+        await service.scheduleNotification(
+          id: id,
+          title: 'Prayer',
+          body: 'Time',
+          dateTime: DateTime.now().add(const Duration(hours: 1)),
+        ),
+        isTrue,
+      );
+    }
+    expect(service.schedulingFailed, isFalse);
+    expect(peak, lessThanOrEqualTo(451));
+    expect(armed.length, 450);
+    expect(armed.where((alarm) => alarm.startsWith('plugin:')), isEmpty);
+  });
+
+  test(
+    'native routing failure retains the plugin alarm and reports degraded scheduling',
+    () async {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(native, (_) async {
+            throw PlatformException(code: 'alarm_operation_failed');
+          });
+      final service = AdhanNotificationServiceImpl();
+      expect(
+        await service.scheduleNotification(
+          id: 10000001,
+          title: 'Prayer',
+          body: 'Time',
+          dateTime: DateTime.now().add(const Duration(hours: 1)),
+        ),
+        isTrue,
+      );
+      expect(service.schedulingFailed, isTrue);
+      expect(calls.where((c) => c.method == 'zonedSchedule'), hasLength(1));
+      expect(calls.where((c) => c.method == 'cancel'), isEmpty);
+    },
+  );
 
   test(
     'migration preserves blocked channels and clears old badges after rescheduling',

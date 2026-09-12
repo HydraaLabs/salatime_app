@@ -53,6 +53,9 @@
 
         <!-- Notification receivers -->
         <receiver android:exported="true" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
+        <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.SalaTimePrayerAlarmReceiver" />
+        <service android:exported="false" android:name="com.dexterous.flutterlocalnotifications.SalaTimeAdhanService"
+            android:foregroundServiceType="mediaPlayback" />
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.SalaTimeAlarmRestoreReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>

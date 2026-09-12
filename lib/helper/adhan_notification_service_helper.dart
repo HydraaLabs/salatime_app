@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:zabi/util/app_constants.dart';
 import 'package:zabi/helper/local_prayer_calculator.dart';
+import 'package:zabi/helper/prayer_alarm_health.dart';
 
 abstract class AdhanNotificationService {
   // Future<void> checkAndRequestPermissions();
@@ -213,6 +214,7 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
             _getNotificationDetails(
               sound: selectedSound,
               channel: selectedChannel,
+              when: dateTime.millisecondsSinceEpoch,
             ),
             androidScheduleMode: schedulingMode,
             uiLocalNotificationDateInterpretation:
@@ -229,6 +231,17 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
         await schedule(mode);
       }
       usedInexactAlarms |= mode == AndroidScheduleMode.inexactAllowWhileIdle;
+      // Route immediately: batching this until after the 30-day refresh would
+      // temporarily double the alarms and exceed Samsung's per-app limit.
+      try {
+        final routed = await PrayerAlarmHealth.route(id);
+        usedInexactAlarms |= routed?['inexact'] == true;
+        _schedulingFailed |= (routed?['failed'] as int? ?? 0) > 0;
+      } on PlatformException catch (error) {
+        // The plugin alarm remains armed if the native replacement fails.
+        _schedulingFailed = true;
+        debugPrint('Native prayer alarm routing failed: $error');
+      }
       return true;
     } catch (e) {
       _schedulingFailed = true;
@@ -241,11 +254,13 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
 
   @override
   Future<void> cancelAllNotifications() async {
+    await PrayerAlarmHealth.cancel();
     await _flutterLocalNotificationsPlugin.cancelAll();
   }
 
   @override
   Future<void> cancelNotification(int id) async {
+    await PrayerAlarmHealth.cancel(id: id);
     await _flutterLocalNotificationsPlugin.cancel(id);
   }
 
@@ -285,6 +300,7 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
   NotificationDetails _getNotificationDetails({
     String? channel,
     String? sound,
+    int? when,
   }) {
     final iosSound = '$sound.aiff';
     final androidSound = sound;
@@ -296,6 +312,11 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
         number: 0,
         importance: Importance.max,
         priority: Priority.max,
+        category: AndroidNotificationCategory.alarm,
+        when: when,
+        audioAttributesUsage: channel?.startsWith('adhan_') ?? false
+            ? AudioAttributesUsage.alarm
+            : AudioAttributesUsage.notification,
         sound: RawResourceAndroidNotificationSound(androidSound),
         playSound: true,
         enableVibration: true,
