@@ -27,8 +27,11 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await SentryFlutter.init((options) {
-    options.dsn =
-        'https://27e1be168bc55d72f29af823f175dbc5@o4511371910184960.ingest.de.sentry.io/4512053084356688';
+    options.dsn = const String.fromEnvironment(
+      'SALATIME_SENTRY_DSN',
+      defaultValue:
+          'https://27e1be168bc55d72f29af823f175dbc5@o4511371910184960.ingest.de.sentry.io/4512053084356688',
+    );
     options.environment = 'production';
     options.sendDefaultPii = false;
     options.attachScreenshot = false;

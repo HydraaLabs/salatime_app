@@ -63,6 +63,7 @@ Compile-time options can be passed with `--dart-define=NAME=value`:
 | `SALATIME_API_URL` | Website/content API base URL; also the default account API |
 | `SALATIME_ACCOUNT_API_URL` | Override the account API base URL independently |
 | `SALATIME_MAPS_API_KEY` | Your key for the optional maps/directions integration |
+| `SALATIME_SENTRY_DSN` | Your error-reporting DSN; pass an empty value to disable collection (used by iOS CI) |
 | `SALATIME_HADITH_API_KEY` | Your key for the optional Hadith integration |
 | `SALATIME_GOOGLE_IOS_ENABLED` | Set to `true` after configuring the iOS Google URL scheme/client |
 | `SALATIME_APPLE_IOS_ENABLED` | Set to `true` after configuring the Sign in with Apple entitlement |

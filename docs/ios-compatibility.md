@@ -64,7 +64,7 @@ part of this change.
 `.github/workflows/ios-verification.yml` runs on GitHub's `macos-15` runner.
 It analyzes/tests Flutter, compiles the simulator application and widget
 extension, then runs native XCTest regressions for widget time transitions.
-It does not sign or upload an IPA and does not submit an App Store release.
+The simulator build disables Sentry reporting. It does not sign or upload an IPA and does not submit an App Store release.
 
 On macOS these checks can also be run locally:
 
@@ -72,7 +72,7 @@ On macOS these checks can also be run locally:
 flutter pub get
 flutter analyze
 flutter test
-flutter build ios --simulator --debug --no-codesign
+flutter build ios --simulator --debug --no-codesign --dart-define=SALATIME_SENTRY_DSN=
 xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner \
   -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 16' \
   CODE_SIGNING_ALLOWED=NO -only-testing:RunnerTests test
