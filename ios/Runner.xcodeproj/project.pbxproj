@@ -168,12 +168,12 @@
 		4EEE9F423DB1D2F747143FDF /* moatheni_short4.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_short4.aiff; sourceTree = "<group>"; };
 		4FAAC387D6478AF2F68058E9 /* PrayerWidgetData.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PrayerWidgetData.swift; sourceTree = "<group>"; };
 		504879E0C2A7BBEF0F075210 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
-		568B79022600AACF98EEAB01 /* SalaTime.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = SalaTime.xcconfig; sourceTree = "<group>"; };
+		568B79022600AACF98EEAB01 /* SalaTime.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Flutter/SalaTime.xcconfig; sourceTree = "<group>"; };
 		568EB52F56BBF0874D663E8D /* moatheni_hamd.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_hamd.aiff; sourceTree = "<group>"; };
 		56B47D12152D60F1B88688D0 /* moatheni_before_prayer_dhuhr.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_before_prayer_dhuhr.aiff; sourceTree = "<group>"; };
 		58CEA4C32E41DF8281C2A30B /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/SwiftUI.framework; sourceTree = DEVELOPER_DIR; };
 		5904316D0B982E1AA908E4B1 /* moatheni_albany.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_albany.aiff; sourceTree = "<group>"; };
-		594BF8110964027ACD9720A3 /* Widget.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Widget.xcconfig; sourceTree = "<group>"; };
+		594BF8110964027ACD9720A3 /* Widget.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Flutter/Widget.xcconfig; sourceTree = "<group>"; };
 		5FC9D558B16F3F94DAF61436 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		625A22A94DA0C9578A6D278D /* moatheni_white_days.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_white_days.aiff; sourceTree = "<group>"; };
 		64F11673278D30CEB84F5D45 /* ar */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Localizable.strings; sourceTree = "<group>"; };
