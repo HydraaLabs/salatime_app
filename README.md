@@ -19,6 +19,8 @@ can synchronize preferences and reading progress with a self-hosted backend.
 - iOS development: macOS, Xcode **26.1 or newer** (CI: 26.3) and CocoaPods.
   The current device-info dependency uses APIs from that SDK. iOS cannot be
   built on Linux.
+- The iOS app and widgets target **iOS 15 or newer**, matching the supported
+  deployment range of the selected Xcode toolchain.
 - A physical phone is recommended for compass, notification and widget checks.
 
 Run `flutter doctor` and complete the platform setup before building.

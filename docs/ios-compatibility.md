@@ -3,7 +3,8 @@
 This work adds an iOS WidgetKit extension and repairs native integration. A
 successful simulator build does not establish that notifications, signing,
 provider login or sensors work on a physical iPhone. No App Store release is
-part of this change.
+part of this change. The application, widget and Flutter framework target iOS
+15 or newer, matching [Apple’s supported deployment range for Xcode 26.3](https://developer.apple.com/xcode/system-requirements).
 
 ## Features and platform differences
 
