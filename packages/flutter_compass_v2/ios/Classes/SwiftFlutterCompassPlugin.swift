@@ -15,6 +15,7 @@ public class SwiftFlutterCompassPlugin: NSObject, FlutterPlugin, FlutterStreamHa
         super.init()
         location.delegate = self
         location.headingFilter = 0.1;
+        location.desiredAccuracy = kCLLocationAccuracyHundredMeters;
         channel.setStreamHandler(self);
 
         motion.deviceMotionUpdateInterval = 1.0 / 30.0;
@@ -33,6 +34,11 @@ public class SwiftFlutterCompassPlugin: NSObject, FlutterPlugin, FlutterStreamHa
         if motion.isDeviceMotionAvailable {
             motion.startDeviceMotionUpdates(using: .xMagneticNorthZVertical)
         }
+        // Core Location needs a location fix to supply true north.
+        let authorization = CLLocationManager.authorizationStatus()
+        if authorization == .authorizedWhenInUse || authorization == .authorizedAlways {
+            location.startUpdatingLocation()
+        }
         location.startUpdatingHeading();
         return nil;
     }
@@ -40,6 +46,7 @@ public class SwiftFlutterCompassPlugin: NSObject, FlutterPlugin, FlutterStreamHa
     public func onCancel(withArguments arguments: Any?) -> FlutterError? {
         eventSink = nil;
         location.stopUpdatingHeading();
+        location.stopUpdatingLocation();
         motion.stopDeviceMotionUpdates();
         return nil;
     }

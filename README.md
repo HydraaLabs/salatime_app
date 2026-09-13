@@ -2,8 +2,8 @@
 
 SalaTime is a Flutter prayer companion for Android and iOS. It includes prayer
 times and calculation adjustments, Adhan and reminder settings, Qibla, nearby
-mosques, Quran, Athkar and reading progress. Android home-screen widgets come in
-three sizes. Appearance and language are configurable, and optional accounts
+mosques, Quran, Athkar and reading progress. Android and iOS home-screen widgets
+come in three sizes. Appearance and language are configurable, and optional accounts
 can synchronize preferences and reading progress with a self-hosted backend.
 
 - **Mobile app:** [HydraaLabs/salatime_app](https://github.com/HydraaLabs/salatime_app)
@@ -96,8 +96,11 @@ flutter build appbundle --release \
 ```
 
 Keep signing files private. The release build requires your own keystore.
-For iOS, configure your signing team in `ios/Runner.xcworkspace` on macOS and
-build with `flutter build ipa` using your backend option.
+For iOS, configure signing and the shared App Group for **both** Runner and
+SalaTimeWidget, then build with `flutter build ipa` on macOS. See the
+[iOS setup and compatibility guide](docs/ios-compatibility.md) for widgets,
+Google/Apple configuration and differences from Android. The GitHub macOS
+verification workflow builds an unsigned simulator app without a local Mac.
 
 Shorebird is optional. Its checked-in application ID belongs to the existing
 SalaTime release; a fork must use its own Shorebird application before publishing

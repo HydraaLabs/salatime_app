@@ -84,7 +84,8 @@ antérieures à Android 12. La langue, le fuseau et le format 12/24 h sont trans
 par l'application ; l'affichage arabe suit le sens de lecture de droite à gauche.
 Il fonctionne sur les 30 jours de données préparées même si les alarmes sont
 désactivées. Son rafraîchissement est non exact et peut être retardé en veille.
-Toucher le widget ouvre SalaTime. Aucun widget iOS n’est ajouté par cette version.
+Toucher le widget ouvre SalaTime. L’extension WidgetKit iOS et ses différences
+de fonctionnement sont décrites dans [le guide iOS](ios-compatibility.md).
 
 La carte Qibla permet de toucher une position sans utiliser les capteurs ni GPS.
 Le nord reste en haut ; un segment local suit le relèvement initial vers la Kaaba.
