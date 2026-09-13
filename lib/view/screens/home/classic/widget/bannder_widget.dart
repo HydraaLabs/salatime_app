@@ -168,7 +168,16 @@ class _BannerWidgetState extends State<BannerWidget> {
                             : PrayerDisplayPhase.format(time),
                       ),
                       textDirection: TextDirection.ltr,
-                      style: const TextStyle(color: Colors.white, fontSize: 34),
+                      style: TextStyle(
+                        color:
+                            PrayerDisplayPhase.isApproaching(
+                              time,
+                              elapsed: phase != null,
+                            )
+                            ? BrandColors.countdownWarningOnPrimary
+                            : Colors.white,
+                        fontSize: 34,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),

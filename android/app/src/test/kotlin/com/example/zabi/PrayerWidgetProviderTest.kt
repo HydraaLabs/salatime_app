@@ -19,6 +19,69 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33], manifest = Config.NONE, application = Application::class)
 class PrayerWidgetProviderTest {
+    @Test fun countdownTurnsRedStrictlyBelowFortyFiveMinutesAndResetsAfterPrayer() {
+        val app = RuntimeEnvironment.getApplication()
+        val at = java.time.Instant.parse("2026-09-13T16:00:00Z").toEpochMilli()
+        app.getSharedPreferences("salatime_prayer_widget", 0).edit().clear()
+            .putString("prayers", JSONArray().put(JSONObject().put("at", at).put("name", "Asr"))
+                .put(JSONObject().put("at", at + 3 * 3600000).put("name", "Maghrib")).toString()).apply()
+        for (expanded in listOf(false, true)) {
+            for (seconds in listOf(false, true)) {
+                app.getSharedPreferences("salatime_widget_options", 0).edit()
+                    .putBoolean("countdown", true).putBoolean("seconds", seconds).apply()
+                val views = PrayerWidgetProvider.createViews(app, expanded, at - 45 * 60000)
+                val view = views.apply(app, FrameLayout(app))
+                for ((now, expected) in listOf(
+                    at - 45 * 60000 to 0xFF2F5233.toInt(),
+                    at - 45 * 60000 + 1 to 0xFFC62828.toInt(),
+                    at - 1 to 0xFFC62828.toInt(),
+                    at to 0xFF2F5233.toInt(),
+                    at + 90 * 60000 to 0xFF2F5233.toInt()
+                )) {
+                    PrayerWidgetProvider.createViews(app, expanded, now).reapply(app, view)
+                    assertEquals(expected, view.findViewById<TextView>(R.id.widget_time).currentTextColor)
+                    assertEquals(expected, view.findViewById<TextView>(R.id.widget_countdown).currentTextColor)
+                }
+            }
+        }
+    }
+
+    @Test fun clockAndEmptyWidgetStayGreenEvenInsideTheWarningWindow() {
+        val app = RuntimeEnvironment.getApplication()
+        val now = System.currentTimeMillis()
+        val prefs = app.getSharedPreferences("salatime_prayer_widget", 0)
+        prefs.edit().putString("prayers", JSONArray().put(JSONObject()
+            .put("at", now + 10 * 60000).put("name", "Asr")).toString()).apply()
+        for (expanded in listOf(false, true)) {
+            val view = PrayerWidgetProvider.createViews(app, expanded, now).apply(app, FrameLayout(app))
+            assertEquals(0xFF2F5233.toInt(), view.findViewById<TextView>(R.id.widget_time).currentTextColor)
+        }
+        prefs.edit().putString("prayers", "[]").apply()
+        app.getSharedPreferences("salatime_widget_options", 0).edit().putBoolean("countdown", true).apply()
+        val empty = PrayerWidgetProvider.createViews(app, false, now).apply(app, FrameLayout(app))
+        assertEquals(0xFF2F5233.toInt(), empty.findViewById<TextView>(R.id.widget_time).currentTextColor)
+    }
+
+    @Test fun widgetSchedulesItsColorChangeWithoutFlutterOrSecondBySecondRefreshes() {
+        val app = RuntimeEnvironment.getApplication()
+        val now = System.currentTimeMillis()
+        val at = now + 60 * 60000
+        app.getSharedPreferences("salatime_prayer_widget", 0).edit().clear()
+            .putString("prayers", JSONArray().put(JSONObject().put("at", at).put("name", "Asr")).toString()).apply()
+        app.getSharedPreferences("salatime_widget_options", 0).edit()
+            .putBoolean("countdown", true).putBoolean("seconds", true).apply()
+        val manager = Shadows.shadowOf(AppWidgetManager.getInstance(app))
+        val id = manager.createWidget(SmallPrayerWidgetProvider::class.java, R.layout.prayer_widget)
+        PrayerWidgetProvider.refreshAll(app, now)
+        val alarm = Shadows.shadowOf(app.getSystemService(android.app.AlarmManager::class.java))
+        assertEquals(at - 45 * 60000 + 1, alarm.peekNextScheduledAlarm()!!.triggerAtTime)
+        PrayerWidgetProvider.refreshAll(app, at - 45 * 60000 + 1)
+        assertEquals(0xFFC62828.toInt(), manager.getViewFor(id)
+            .findViewById<TextView>(R.id.widget_countdown).currentTextColor)
+        assertEquals(at, alarm.peekNextScheduledAlarm()!!.triggerAtTime)
+        assertEquals(1, alarm.scheduledAlarms.size)
+    }
+
     @org.junit.Before fun legacyClockOption() {
         RuntimeEnvironment.getApplication().getSharedPreferences("salatime_widget_options", 0).edit().clear()
             .putBoolean("countdown", false).apply()

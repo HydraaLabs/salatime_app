@@ -177,4 +177,27 @@ class PrayerScheduleBackgroundHandlerTest {
         Shadows.shadowOf(Looper.getMainLooper()).idle()
         assertEquals(listOf(Response("cancelAll", "stopped", "alarm_operation_failed", true)), responses)
     }
+
+    @Test fun widgetOnlyUpdatePreservesAlarmManifestAndDoesNotRunAutomaticSilence() {
+        val preferences = app.getSharedPreferences("salatime_prayer_widget", 0)
+        preferences.edit().putString("alarms", "preserved-alarm-manifest")
+            .putString("missedTitle", "preserved-title").apply()
+        app.getSharedPreferences(AutomaticSilence.PREFS, 0).edit().putBoolean("active", true).apply()
+        val channel = PrayerScheduleBackgroundHandler(app, executor)
+        val prayers = """[{"at":2000000000000,"name":"Asr"}]"""
+        assertTrue(channel.handle(MethodCall("updateWidget", mapOf(
+            "prayers" to prayers, "city" to "Fès", "locale" to "fr",
+            "timeZone" to "Africa/Casablanca", "use24HourFormat" to true,
+            // The display-only operation cannot overwrite alarm data even if supplied.
+            "alarms" to "[]", "missedTitle" to "changed",
+        )), Reply("widget")))
+        drain()
+        assertNull(responses.single().code)
+        assertTrue(responses.single().onMain)
+        assertEquals(prayers, preferences.getString("prayers", null))
+        assertEquals("Fès", preferences.getString("city", null))
+        assertEquals("preserved-alarm-manifest", preferences.getString("alarms", null))
+        assertEquals("preserved-title", preferences.getString("missedTitle", null))
+        assertTrue(app.getSharedPreferences(AutomaticSilence.PREFS, 0).getBoolean("active", false))
+    }
 }

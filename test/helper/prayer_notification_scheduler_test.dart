@@ -15,6 +15,7 @@ import 'package:zabi/helper/additional_reminder_plan.dart';
 import 'package:zabi/helper/prayer_alarm_health.dart';
 import 'package:zabi/helper/prayer_notification_preferences.dart';
 import 'package:zabi/helper/salat_waqt_service.dart';
+import 'package:zabi/helper/prayer_widget_sync.dart';
 
 class CachedPrayerController extends PrayerTimeController {
   CachedPrayerController(SharedPreferences prefs, this.date)
@@ -114,6 +115,7 @@ class SchedulerHarness {
       return {'failed': 0};
     });
     addTearDown(() async {
+      await PrayerWidgetSync.refresh();
       messenger.setMockMethodCallHandler(channel, null);
       messenger.setMockMethodCallHandler(timezone, null);
       messenger.setMockMethodCallHandler(PrayerAlarmHealth.channel, null);
@@ -148,6 +150,58 @@ void main() {
     harness = SchedulerHarness();
     await harness.initialize();
   });
+
+  test('widget data is available without initializing notifications', () async {
+    harness.failInitialization = true;
+    await PrayerWidgetSync.refresh();
+    expect(harness.initializeCalls, 0);
+    expect(harness.scheduled, isEmpty);
+    final update = harness.nativeCalls.single;
+    expect(update.method, 'updateWidget');
+    final args = Map<String, dynamic>.from(update.arguments);
+    expect(jsonDecode(args['prayers']), hasLength(5));
+    expect(args['timeZone'], 'UTC');
+    expect(args.containsKey('alarms'), false);
+  });
+
+  test('widget is filled while alarm registration is still blocked', () async {
+    await PrayerNotificationPreferences.save(
+      PrayerNotificationSetting.defaults(
+        PrayerNotificationPrayer.fajr,
+        PrayerNotificationPhase.adhan,
+      ).copyWith(enabled: true),
+    );
+    final entered = Completer<void>();
+    final release = Completer<void>();
+    harness.beforeSchedule = (_) async {
+      if (!entered.isCompleted) entered.complete();
+      await release.future;
+    };
+    final refresh = harness.refresh();
+    try {
+      await entered.future;
+      await PrayerWidgetSync.refresh();
+      final updates = harness.nativeCalls.where(
+        (c) => c.method == 'updateWidget',
+      );
+      expect(updates, isNotEmpty);
+      expect(jsonDecode(updates.last.arguments['prayers']), hasLength(5));
+      expect(harness.scheduled, isEmpty);
+    } finally {
+      release.complete();
+      await refresh;
+    }
+  });
+
+  test(
+    'unavailable offline dates do not overwrite native widget data',
+    () async {
+      harness.controller.fresh = false;
+      await PrayerWidgetSync.refresh();
+      expect(harness.nativeCalls, isEmpty);
+      expect(harness.initializeCalls, 0);
+    },
+  );
 
   test(
     'scheduler updates sound and delay from offline base time then cancels a disabled phase',

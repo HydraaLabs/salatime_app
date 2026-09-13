@@ -8,6 +8,12 @@ class PrayerDisplayPhase {
   final Duration elapsed;
   static const window = Duration(minutes: 90);
 
+  static bool isApproaching(Duration? remaining, {bool elapsed = false}) =>
+      !elapsed &&
+      remaining != null &&
+      remaining > Duration.zero &&
+      remaining < const Duration(minutes: 45);
+
   static PrayerDisplayPhase? resolve(
     DateTime now,
     Data? today, {

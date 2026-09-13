@@ -41,6 +41,8 @@ open class PrayerWidgetProvider : AppWidgetProvider() {
     companion object {
         private const val REFRESH = "net.salatime.app.WIDGET_REFRESH"
         private const val GREEN = 0xFF2F5233.toInt()
+        private const val COUNTDOWN_WARNING = 0xFFC62828.toInt()
+        private const val WARNING_WINDOW_MS = 45 * 60000L
         private const val MUTED = 0xFF4C7A50.toInt()
         private const val WHITE = 0xFFFAF5E9.toInt()
         private val slots = intArrayOf(R.id.widget_slot_0, R.id.widget_slot_1, R.id.widget_slot_2, R.id.widget_slot_3, R.id.widget_slot_4)
@@ -149,6 +151,10 @@ open class PrayerWidgetProvider : AppWidgetProvider() {
             views.setViewVisibility(R.id.widget_illustration, if (options.getBoolean("illustration", true) && options.getInt("opacity", 100) > 0) View.VISIBLE else View.GONE)
             views.setInt(R.id.widget_background, "setImageAlpha", options.getInt("opacity", 100).coerceIn(0, 100) * 255 / 100)
             val countdown = displayed != null && showCountdown
+            val countdownColor = if (countdown && !elapsed && at != null &&
+                at - now in 1 until WARNING_WINDOW_MS) COUNTDOWN_WARNING else GREEN
+            views.setTextColor(R.id.widget_time, countdownColor)
+            views.setTextColor(R.id.widget_countdown, countdownColor)
             if (countdown) {
                 if (expanded) views.setViewVisibility(R.id.widget_period, View.GONE)
                 else views.setTextViewText(R.id.widget_date, date)
@@ -175,8 +181,11 @@ open class PrayerWidgetProvider : AppWidgetProvider() {
         }
 
         @JvmStatic fun refreshAll(context: Context) {
+            refreshAll(context, System.currentTimeMillis())
+        }
+
+        internal fun refreshAll(context: Context, now: Long) {
             val manager = AppWidgetManager.getInstance(context)
-            val now = System.currentTimeMillis()
             var hasWidgets = false
             for (provider in listOf(PrayerWidgetProvider::class.java, SmallPrayerWidgetProvider::class.java, LargePrayerWidgetProvider::class.java)) {
                 for (id in manager.getAppWidgetIds(ComponentName(context, provider))) {
@@ -198,7 +207,11 @@ open class PrayerWidgetProvider : AppWidgetProvider() {
             val recentAt = all.lastOrNull { it.optLong("at") <= now && now - it.optLong("at") < 90 * 60000 }?.optLong("at")
             val options = context.getSharedPreferences("salatime_widget_options", Context.MODE_PRIVATE)
             val expiry = if (options.getBoolean("countdown", true)) recentAt?.plus(90 * 60000) else null
-            val at = listOfNotNull(nextAt, expiry).minOrNull()
+            // Chronometer ticks do not reapply RemoteViews colors. Refresh once
+            // when the remaining time becomes strictly less than 45 minutes.
+            val warningAt = if (options.getBoolean("countdown", true))
+                nextAt?.minus(WARNING_WINDOW_MS)?.plus(1)?.takeIf { it > now } else null
+            val at = listOfNotNull(nextAt, expiry, warningAt).minOrNull()
             val alarm = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             alarm.cancel(refreshIntent(context))
             if (at != null) {

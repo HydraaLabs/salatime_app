@@ -18,6 +18,7 @@ import 'package:zabi/helper/prayer_alarm_plan.dart';
 import 'package:zabi/helper/prayer_notification_preferences.dart';
 import 'package:zabi/helper/prayer_refresh_coordinator.dart';
 import 'package:zabi/helper/prayer_alarm_health.dart';
+import 'package:zabi/helper/prayer_widget_sync.dart';
 import 'package:zabi/util/app_constants.dart';
 import 'package:zabi/view/screens/notification/widgets/salat_waqt_repository.dart';
 
@@ -37,13 +38,18 @@ class SalatWaqtService {
 
   /// Replan from saved preferences without opening any system permission dialog.
   /// Rapid edits share one pass; the returned future includes edits made in flight.
-  static Future<void> requestRefresh() => _refreshCoordinator.request();
+  static Future<void> requestRefresh() {
+    unawaited(PrayerWidgetSync.refresh());
+    return _refreshCoordinator.request();
+  }
 
-  static Future<void> initializeSalatWaqt({bool requestPermissions = true}) =>
-      _refreshCoordinator.request(
-        immediate: true,
-        requestPermissions: requestPermissions,
-      );
+  static Future<void> initializeSalatWaqt({bool requestPermissions = true}) {
+    unawaited(PrayerWidgetSync.refresh());
+    return _refreshCoordinator.request(
+      immediate: true,
+      requestPermissions: requestPermissions,
+    );
+  }
 
   static Future<void> _runRefresh({
     required bool requestPermissions,
@@ -225,6 +231,9 @@ class SalatWaqtService {
       days.add(model.data!);
       coveredDates.add(model.data!.date!);
     }
+    // Publish the newly calculated window before any slow alarm registrations.
+    if (!isCurrent()) return;
+    await PrayerWidgetSync.publish(controller, prayers, zoneName);
     final enabledIds = notificationSettings
         .where(
           (s) =>

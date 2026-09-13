@@ -1,7 +1,7 @@
 name: zabi
 description: A new Flutter project.
 publish_to: "none"
-version: 1.0.19+22
+version: 1.0.20+23
 
 environment:
   sdk: ">=3.9.0 <4.0.0"

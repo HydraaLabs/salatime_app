@@ -3,6 +3,38 @@ import 'package:zabi/helper/prayer_display_phase.dart';
 import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
 
 void main() {
+  test(
+    'approaching excludes the exact threshold, elapsed and missing times',
+    () {
+      expect(
+        PrayerDisplayPhase.isApproaching(const Duration(minutes: 45)),
+        isFalse,
+      );
+      expect(
+        PrayerDisplayPhase.isApproaching(
+          const Duration(minutes: 44, seconds: 59),
+        ),
+        isTrue,
+      );
+      expect(
+        PrayerDisplayPhase.isApproaching(const Duration(milliseconds: 1)),
+        isTrue,
+      );
+      expect(PrayerDisplayPhase.isApproaching(Duration.zero), isFalse);
+      expect(
+        PrayerDisplayPhase.isApproaching(const Duration(seconds: -1)),
+        isFalse,
+      );
+      expect(PrayerDisplayPhase.isApproaching(null), isFalse);
+      expect(
+        PrayerDisplayPhase.isApproaching(
+          const Duration(minutes: 10),
+          elapsed: true,
+        ),
+        isFalse,
+      );
+    },
+  );
   final day = Data(
     date: '2026-09-12',
     fajrStart: '05:00',

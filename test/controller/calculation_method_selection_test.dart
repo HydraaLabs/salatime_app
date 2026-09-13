@@ -20,6 +20,7 @@ import 'package:zabi/helper/prayer_alarm_health.dart';
 import 'package:zabi/helper/prayer_calculation_methods.dart';
 import 'package:zabi/helper/prayer_notification_preferences.dart';
 import 'package:zabi/helper/salat_waqt_service.dart';
+import 'package:zabi/helper/prayer_widget_sync.dart';
 import 'package:zabi/service/cloud/preference_schema.dart';
 import 'package:zabi/util/app_constants.dart';
 
@@ -161,6 +162,7 @@ class _Harness {
       try {
         // Drain the shared coalescing timer before removing platform mocks.
         await drain();
+        await PrayerWidgetSync.refresh();
         expect(api.requests, 0);
         expect(network.attempts, 0);
         expect(locationCalls, isEmpty);
@@ -357,7 +359,13 @@ void main() {
         const Duration(seconds: 2),
       );
       expect(harness.initializationGate!.isCompleted, isFalse);
-      expect(harness.controller.prayerTimeModel!.data!.fajrStart, previous);
+      // Widget/display refresh must proceed even while notification setup waits.
+      await PrayerWidgetSync.refresh().timeout(const Duration(seconds: 2));
+      expect(harness.initializationGate!.isCompleted, isFalse);
+      expect(
+        harness.controller.prayerTimeModel!.data!.toJson(),
+        harness.expected('12').data!.toJson(),
+      );
 
       harness.initializationGate!.complete();
       await harness.drain();

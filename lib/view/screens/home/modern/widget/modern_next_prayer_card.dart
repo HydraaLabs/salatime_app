@@ -8,8 +8,10 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:zabi/controller/package_prayer_time_controller.dart';
 import 'package:zabi/helper/date_converter.dart';
+import 'package:zabi/helper/prayer_display_phase.dart';
 import 'package:zabi/helper/translator_helper.dart';
 import 'package:zabi/theme/modern_light_theme.dart';
+import 'package:zabi/theme/brand_colors.dart';
 import 'package:zabi/util/dimensions.dart';
 import 'package:zabi/util/images.dart';
 import 'package:zabi/util/styles.dart';
@@ -210,7 +212,9 @@ class _ModernNextPrayerCardState extends State<ModernNextPrayerCard> {
                   child: Text(
                     translateText(_countdownText),
                     style: robotoBold.copyWith(
-                      color: Colors.white,
+                      color: PrayerDisplayPhase.isApproaching(_remaining)
+                          ? BrandColors.countdownWarningOnPrimary
+                          : Colors.white,
                       fontSize: Dimensions.FONT_SIZE_DEFAULT,
                       letterSpacing: 1,
                     ),

@@ -16,6 +16,7 @@ import 'package:zabi/helper/prayer_display_phase.dart';
 import 'package:zabi/helper/salat_waqt_service.dart';
 import 'package:zabi/helper/translator_helper.dart';
 import 'package:zabi/theme/modern_light_theme.dart';
+import 'package:zabi/theme/brand_colors.dart';
 import 'package:zabi/util/dimensions.dart';
 import 'package:zabi/util/images.dart';
 import 'package:zabi/util/styles.dart';
@@ -405,6 +406,10 @@ class _ModernPrayerDashboardState extends State<ModernPrayerDashboard> {
                     _nextPrayer?.prayerKey.tr ??
                     'next_prayer'.tr,
                 elapsed: _phase != null,
+                approaching: PrayerDisplayPhase.isApproaching(
+                  _remaining,
+                  elapsed: _phase != null,
+                ),
                 countdown: translateText(_countdownText),
                 location: _location(),
                 isDark: isDark,
@@ -487,6 +492,7 @@ class _PrayerHero extends StatelessWidget {
   final String location;
   final bool isDark;
   final bool elapsed;
+  final bool approaching;
 
   const _PrayerHero({
     required this.prayerName,
@@ -494,6 +500,7 @@ class _PrayerHero extends StatelessWidget {
     required this.location,
     required this.isDark,
     required this.elapsed,
+    required this.approaching,
   });
 
   @override
@@ -561,7 +568,9 @@ class _PrayerHero extends StatelessWidget {
                     Text(
                       '${'countdown_prefix'.tr} $countdown',
                       style: robotoRegular.copyWith(
-                        color: Colors.white,
+                        color: approaching
+                            ? BrandColors.countdownWarningOnPrimary
+                            : Colors.white,
                         fontSize: Dimensions.FONT_SIZE_OVER_LARGE,
                         letterSpacing: 0.5,
                       ),

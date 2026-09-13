@@ -7,6 +7,7 @@ import 'package:zabi/controller/package_prayer_time_controller.dart';
 import 'package:zabi/data/api/api_client.dart';
 import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
 import 'package:zabi/view/screens/home/modern/widget/modern_prayer_dashboard.dart';
+import 'package:zabi/theme/brand_colors.dart';
 
 PrayerTimeModel _day(DateTime date, {String fajr = '05:30'}) => PrayerTimeModel(
   data: Data(
@@ -65,7 +66,8 @@ void main() {
     now = DateTime(2026, 9, 12, 23, 55);
   });
   tearDown(Get.reset);
-  Widget app() => GetMaterialApp(
+  Widget app({Brightness brightness = Brightness.light}) => GetMaterialApp(
+    theme: ThemeData(brightness: brightness),
     translations: _Strings(),
     locale: const Locale('en'),
     home: Scaffold(
@@ -77,6 +79,35 @@ void main() {
       ),
     ),
   );
+  for (final brightness in Brightness.values) {
+    testWidgets('countdown changes color on the timer tick in $brightness', (
+      tester,
+    ) async {
+      now = DateTime(2026, 9, 12, 12, 15);
+      controller.prayerTimeModel = _day(now);
+      await tester.pumpWidget(app(brightness: brightness));
+      await tester.pump();
+      expect(
+        tester.widget<Text>(find.text('in 00:45:00')).style!.color,
+        Colors.white,
+      );
+      now = now.add(const Duration(seconds: 1));
+      await tester.pump(const Duration(seconds: 1));
+      expect(
+        tester.widget<Text>(find.text('in 00:44:59')).style!.color,
+        BrandColors.countdownWarningOnPrimary,
+      );
+      now = DateTime(2026, 9, 12, 13);
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.text('in 00:00:00'), findsNothing);
+      expect(
+        tester.widget<Text>(find.text('00:00:00')).style!.color,
+        Colors.white,
+      );
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+  }
   testWidgets(
     'neighbors reload after startup data arrives and today follows midnight',
     (tester) async {

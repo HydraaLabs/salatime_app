@@ -38,7 +38,7 @@ internal class PrayerScheduleBackgroundHandler(
     }
 
     companion object {
-        private val backgroundMethods = setOf("update", "route", "routeAll", "cancel", "cancelAll")
+        private val backgroundMethods = setOf("update", "updateWidget", "route", "routeAll", "cancel", "cancelAll")
         private val sharedExecutor: Executor = Executors.newSingleThreadExecutor { runnable ->
             Thread({
                 android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND)
@@ -47,6 +47,16 @@ internal class PrayerScheduleBackgroundHandler(
         }
 
         private fun performOperation(context: Context, call: MethodCall): Any? = when (call.method) {
+            "updateWidget" -> {
+                val preferences = context.getSharedPreferences("salatime_prayer_widget", Context.MODE_PRIVATE).edit()
+                for (key in listOf("prayers", "city", "nextLabel", "sinceLabel", "emptyLabel", "locale", "timeZone")) {
+                    call.argument<String>(key)?.let { preferences.putString(key, it) }
+                }
+                call.argument<Boolean>("use24HourFormat")?.let { preferences.putBoolean("use24HourFormat", it) }
+                preferences.apply()
+                PrayerWidgetProvider.refreshAll(context)
+                null
+            }
             "update" -> {
                 val preferences = context.getSharedPreferences("salatime_prayer_widget", Context.MODE_PRIVATE).edit()
                 for (key in listOf("alarms", "prayers", "city", "nextLabel", "sinceLabel", "emptyLabel", "missedTitle", "missedBody", "locale", "timeZone")) {

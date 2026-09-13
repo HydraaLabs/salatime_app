@@ -10,4 +10,6 @@ class BrandColors {
   static const darkAccent = Color(darkAccentValue);
   static const soft = Color(0xFFEFF3EA);
   static const canvas = Color(0xFFF3F5EE);
+  // Light red remains legible on the green prayer headers in both themes.
+  static const countdownWarningOnPrimary = Color(0xFFFF8A80);
 }
