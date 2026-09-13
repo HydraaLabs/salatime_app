@@ -3,18 +3,18 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:zabi/helper/notification_sound_catalog.dart';
-import 'package:zabi/helper/prayer_notification_preferences.dart';
-import 'package:zabi/helper/additional_reminder_plan.dart';
+import 'package:salatime/helper/notification_sound_catalog.dart';
+import 'package:salatime/helper/prayer_notification_preferences.dart';
+import 'package:salatime/helper/additional_reminder_plan.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/service/cloud/preference_device.dart';
-import 'package:zabi/service/mobile_auth_service.dart';
-import 'package:zabi/service/preference_cloud_sync.dart';
-import 'package:zabi/service/cloud/preference_remote.dart';
-import 'package:zabi/service/cloud/preference_schema.dart';
-import 'package:zabi/service/cloud/preference_sync_engine.dart';
+import 'package:salatime/service/cloud/preference_device.dart';
+import 'package:salatime/service/mobile_auth_service.dart';
+import 'package:salatime/service/preference_cloud_sync.dart';
+import 'package:salatime/service/cloud/preference_remote.dart';
+import 'package:salatime/service/cloud/preference_schema.dart';
+import 'package:salatime/service/cloud/preference_sync_engine.dart';
 
 Document copy(Document value) =>
     Map<String, dynamic>.from(jsonDecode(jsonEncode(value)));

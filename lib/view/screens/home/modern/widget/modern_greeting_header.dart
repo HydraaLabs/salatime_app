@@ -5,13 +5,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:zabi/controller/package_prayer_time_controller.dart';
-import 'package:zabi/controller/theme_controller.dart';
-import 'package:zabi/helper/route_helper.dart';
-import 'package:zabi/theme/modern_light_theme.dart';
-import 'package:zabi/util/dimensions.dart';
-import 'package:zabi/util/images.dart';
-import 'package:zabi/util/styles.dart';
+import 'package:salatime/controller/package_prayer_time_controller.dart';
+import 'package:salatime/controller/theme_controller.dart';
+import 'package:salatime/helper/route_helper.dart';
+import 'package:salatime/theme/modern_light_theme.dart';
+import 'package:salatime/util/dimensions.dart';
+import 'package:salatime/util/images.dart';
+import 'package:salatime/util/styles.dart';
 
 class ModernGreetingHeader extends StatelessWidget {
   final dynamic mosqueData;

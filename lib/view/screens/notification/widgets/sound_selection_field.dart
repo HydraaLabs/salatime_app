@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/controller/noti_sound_controller.dart';
+import 'package:salatime/controller/noti_sound_controller.dart';
 import 'import_sound_button.dart';
 
 /// A compact, shared entry point to the full sound library. The library stays

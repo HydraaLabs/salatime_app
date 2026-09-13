@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:async';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/helper/notification_sound_catalog.dart';
-import 'package:zabi/util/app_constants.dart';
+import 'package:salatime/helper/notification_sound_catalog.dart';
+import 'package:salatime/util/app_constants.dart';
 
 enum PrayerNotificationPrayer {
   fajr,

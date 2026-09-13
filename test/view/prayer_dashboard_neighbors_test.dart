@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/controller/package_prayer_time_controller.dart';
-import 'package:zabi/data/api/api_client.dart';
-import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
-import 'package:zabi/view/screens/home/modern/widget/modern_prayer_dashboard.dart';
-import 'package:zabi/theme/brand_colors.dart';
+import 'package:salatime/controller/package_prayer_time_controller.dart';
+import 'package:salatime/data/api/api_client.dart';
+import 'package:salatime/data/model/response/todays_prayer_time_model.dart';
+import 'package:salatime/view/screens/home/modern/widget/modern_prayer_dashboard.dart';
+import 'package:salatime/theme/brand_colors.dart';
 
 PrayerTimeModel _day(DateTime date, {String fajr = '05:30'}) => PrayerTimeModel(
   data: Data(

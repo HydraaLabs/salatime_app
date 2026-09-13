@@ -1,12 +1,12 @@
-import 'package:zabi/service/personal_notification_sounds.dart';
-import 'package:zabi/helper/notification_sound_catalog.dart';
+import 'package:salatime/service/personal_notification_sounds.dart';
+import 'package:salatime/helper/notification_sound_catalog.dart';
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/util/app_constants.dart';
+import 'package:salatime/util/app_constants.dart';
 
 class NotiSoundController extends GetxController {
   NotiSoundController({Future<void> Function(String path)? soundPreview})

@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:zabi/service/quran/quran_translation_repository.dart';
+import 'package:salatime/service/quran/quran_translation_repository.dart';
 
 class QuranLoader {
   QuranLoader({AssetBundle? bundle, QuranTranslationRepository? translations})

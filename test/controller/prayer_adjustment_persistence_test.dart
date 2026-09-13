@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 // Instrument the installed plugin without adding a production dependency.
 // ignore: depend_on_referenced_packages
 import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
-import 'package:zabi/controller/prayer_time_adjustment.dart';
+import 'package:salatime/controller/prayer_time_adjustment.dart';
 
 const _key = PrayerTimeAdjustmentController.storageKey;
 

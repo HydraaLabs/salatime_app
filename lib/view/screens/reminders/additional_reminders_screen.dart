@@ -1,18 +1,18 @@
-import 'package:zabi/service/preference_cloud_sync.dart';
-import 'package:zabi/view/screens/notification/widgets/sound_selection_field.dart';
-import 'package:zabi/view/screens/notification/widgets/notification_series_switch.dart';
+import 'package:salatime/service/preference_cloud_sync.dart';
+import 'package:salatime/view/screens/notification/widgets/sound_selection_field.dart';
+import 'package:salatime/view/screens/notification/widgets/notification_series_switch.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:zabi/controller/noti_sound_controller.dart';
-import 'package:zabi/controller/package_prayer_time_controller.dart';
-import 'package:zabi/helper/prayer_alarm_health.dart';
+import 'package:salatime/controller/noti_sound_controller.dart';
+import 'package:salatime/controller/package_prayer_time_controller.dart';
+import 'package:salatime/helper/prayer_alarm_health.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/helper/additional_reminder_plan.dart';
-import 'package:zabi/helper/salat_waqt_service.dart';
-import 'package:zabi/service/personal_notification_sounds.dart';
+import 'package:salatime/helper/additional_reminder_plan.dart';
+import 'package:salatime/helper/salat_waqt_service.dart';
+import 'package:salatime/service/personal_notification_sounds.dart';
 
 class AdditionalRemindersScreen extends StatefulWidget {
   const AdditionalRemindersScreen({super.key, this.refreshSchedule});

@@ -1,13 +1,13 @@
-import 'package:zabi/view/screens/daily/daily_verse_card.dart';
+import 'package:salatime/view/screens/daily/daily_verse_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/controller/package_prayer_time_controller.dart';
-import 'package:zabi/shimmer/all_shimmer_loder.dart';
-import 'package:zabi/theme/modern_light_theme.dart';
-import 'package:zabi/util/dimensions.dart';
-import 'package:zabi/view/screens/home/modern/widget/modern_daily_hadith_card.dart';
-import 'package:zabi/view/screens/home/modern/widget/modern_prayer_dashboard.dart';
-import 'package:zabi/view/screens/home/modern/widget/modern_quran_reading_card.dart';
+import 'package:salatime/controller/package_prayer_time_controller.dart';
+import 'package:salatime/shimmer/all_shimmer_loder.dart';
+import 'package:salatime/theme/modern_light_theme.dart';
+import 'package:salatime/util/dimensions.dart';
+import 'package:salatime/view/screens/home/modern/widget/modern_daily_hadith_card.dart';
+import 'package:salatime/view/screens/home/modern/widget/modern_prayer_dashboard.dart';
+import 'package:salatime/view/screens/home/modern/widget/modern_quran_reading_card.dart';
 
 class ModernHomeScreen extends StatelessWidget {
   const ModernHomeScreen({super.key});

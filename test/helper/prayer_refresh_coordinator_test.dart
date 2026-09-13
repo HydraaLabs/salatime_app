@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zabi/helper/prayer_refresh_coordinator.dart';
+import 'package:salatime/helper/prayer_refresh_coordinator.dart';
 
 void main() {
   test('a burst shares one passive refresh and one completion', () async {

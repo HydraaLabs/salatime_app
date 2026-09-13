@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zabi/controller/noti_sound_controller.dart';
-import 'package:zabi/helper/notification_sound_catalog.dart';
+import 'package:salatime/controller/noti_sound_controller.dart';
+import 'package:salatime/helper/notification_sound_catalog.dart';
 
 void main() {
   test(

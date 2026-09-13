@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/controller/localization_controller.dart';
-import 'package:zabi/controller/offline_quran_controller.dart';
-import 'package:zabi/controller/quran_controller.dart';
-import 'package:zabi/data/api/api_client.dart';
-import 'package:zabi/data/model/response/sura_detile_model.dart';
-import 'package:zabi/data/repository/sifatname_list_repo.dart';
-import 'package:zabi/service/quran/quran_translation_repository.dart';
+import 'package:salatime/controller/localization_controller.dart';
+import 'package:salatime/controller/offline_quran_controller.dart';
+import 'package:salatime/controller/quran_controller.dart';
+import 'package:salatime/data/api/api_client.dart';
+import 'package:salatime/data/model/response/sura_detile_model.dart';
+import 'package:salatime/data/repository/sifatname_list_repo.dart';
+import 'package:salatime/service/quran/quran_translation_repository.dart';
 
 SuraDetaileModel chapter(int number, String language) => SuraDetaileModel(
   data: Data(

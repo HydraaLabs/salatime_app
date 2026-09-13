@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/service/mobile_auth_service.dart';
+import 'package:salatime/service/mobile_auth_service.dart';
 
 class MemoryAuthStore implements AuthSessionStore {
   final values = <String, String>{};

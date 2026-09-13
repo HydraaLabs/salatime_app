@@ -1,5 +1,5 @@
-import 'package:zabi/data/model/response/sura_detile_model.dart';
-import 'package:zabi/service/reading/reading_progress_service.dart';
+import 'package:salatime/data/model/response/sura_detile_model.dart';
+import 'package:salatime/service/reading/reading_progress_service.dart';
 
 /// Both readers use canonical chapter/verse numbers, never database row IDs.
 List<String> quranReadingKeys(int? surahNumber, Iterable<PageVerses>? verses) {

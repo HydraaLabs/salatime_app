@@ -2,9 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/controller/quran_controller.dart';
-import 'package:zabi/helper/route_helper.dart';
-import 'package:zabi/shimmer/all_shimmer_loder.dart';
+import 'package:salatime/controller/quran_controller.dart';
+import 'package:salatime/helper/route_helper.dart';
+import 'package:salatime/shimmer/all_shimmer_loder.dart';
 
 import '../../../../controller/bookmark_controller.dart';
 import '../../../../controller/internet_check_controller.dart';

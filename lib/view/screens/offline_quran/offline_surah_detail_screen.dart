@@ -3,17 +3,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:zabi/controller/offline_quran_controller.dart';
-import 'package:zabi/view/screens/reading/reading_progress_screen.dart';
-import 'package:zabi/util/dimensions.dart';
-import 'package:zabi/util/images.dart';
-import 'package:zabi/view/screens/quran/widget/quran_navigation_button.dart';
-import 'package:zabi/view/screens/quran/widget/quran_translation_error.dart';
-import 'package:zabi/view/base/custom_app_bar.dart';
-import 'package:zabi/view/base/tabbar_button.dart';
-import 'package:zabi/view/screens/offline_quran/widgets/offline_arabic_quran.dart';
-import 'package:zabi/view/screens/offline_quran/widgets/offline_ayah_translation_screen.dart';
-import 'package:zabi/view/screens/quran/quran_settings_screen.dart';
+import 'package:salatime/controller/offline_quran_controller.dart';
+import 'package:salatime/view/screens/reading/reading_progress_screen.dart';
+import 'package:salatime/util/dimensions.dart';
+import 'package:salatime/util/images.dart';
+import 'package:salatime/view/screens/quran/widget/quran_navigation_button.dart';
+import 'package:salatime/view/screens/quran/widget/quran_translation_error.dart';
+import 'package:salatime/view/base/custom_app_bar.dart';
+import 'package:salatime/view/base/tabbar_button.dart';
+import 'package:salatime/view/screens/offline_quran/widgets/offline_arabic_quran.dart';
+import 'package:salatime/view/screens/offline_quran/widgets/offline_ayah_translation_screen.dart';
+import 'package:salatime/view/screens/quran/quran_settings_screen.dart';
 
 class OfflineSuraDetaileScreen extends StatefulWidget {
   final bool appBackButton;

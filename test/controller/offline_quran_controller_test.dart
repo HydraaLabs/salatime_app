@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:zabi/controller/offline_quran_controller.dart';
-import 'package:zabi/helper/offline_quran_loader.dart';
+import 'package:salatime/controller/offline_quran_controller.dart';
+import 'package:salatime/helper/offline_quran_loader.dart';
 
 class _Loader extends QuranLoader {
   final ready = Completer<void>();

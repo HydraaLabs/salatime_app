@@ -4,14 +4,14 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/helper/location_helper.dart';
+import 'package:salatime/helper/location_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:zabi/helper/debug_http_client.dart';
+import 'package:salatime/helper/debug_http_client.dart';
 import 'dart:convert';
 
-import 'package:zabi/view/base/custom_snackbar.dart';
+import 'package:salatime/view/base/custom_snackbar.dart';
 
 class NearbyMosqueController extends GetxController {
   GlobalKey<FormState> nearbyMosqueFormKey = GlobalKey<FormState>();

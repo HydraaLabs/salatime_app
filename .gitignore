@@ -111,3 +111,11 @@ app.*.map.json
 .fvmrc
 
 sentry.properties
+
+# Private signing and local build configuration
+/android/key.properties
+*.jks
+*.keystore
+.env
+.env.*
+!.env.example

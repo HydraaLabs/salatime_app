@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/service/reading/reading_progress_service.dart';
+import 'package:salatime/service/reading/reading_progress_service.dart';
 
 /// A deliberate reading confirmation, independent from bookmarks and scrolling.
 class QuranReadingCheck extends StatelessWidget {

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:zabi/controller/internet_check_controller.dart';
+import 'package:salatime/controller/internet_check_controller.dart';
 
 class _Connectivity implements Connectivity {
   final events = StreamController<List<ConnectivityResult>>.broadcast();

@@ -3,11 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:zabi/controller/offline_quran_controller.dart';
-import 'package:zabi/util/dimensions.dart';
-import 'package:zabi/util/images.dart';
-import 'package:zabi/util/styles.dart';
-import 'package:zabi/view/screens/offline_quran/offline_surah_detail_screen.dart';
+import 'package:salatime/controller/offline_quran_controller.dart';
+import 'package:salatime/util/dimensions.dart';
+import 'package:salatime/util/images.dart';
+import 'package:salatime/util/styles.dart';
+import 'package:salatime/view/screens/offline_quran/offline_surah_detail_screen.dart';
 import '../../../../controller/quran_settings_controller.dart';
 import '../../../base/loading_indicator.dart';
 

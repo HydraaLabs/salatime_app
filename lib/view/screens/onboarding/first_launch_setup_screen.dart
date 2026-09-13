@@ -1,19 +1,19 @@
-import 'package:zabi/helper/additional_reminder_plan.dart';
-import 'package:zabi/helper/prayer_notification_preferences.dart';
-import 'package:zabi/view/screens/notification/notification_settings_screen.dart';
+import 'package:salatime/helper/additional_reminder_plan.dart';
+import 'package:salatime/helper/prayer_notification_preferences.dart';
+import 'package:salatime/view/screens/notification/notification_settings_screen.dart';
 import 'widget_prompt.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/controller/localization_controller.dart';
-import 'package:zabi/helper/route_helper.dart';
-import 'package:zabi/service/first_launch_setup_service.dart';
-import 'package:zabi/util/app_constants.dart';
-import 'package:zabi/util/dimensions.dart';
-import 'package:zabi/util/images.dart';
-import 'package:zabi/util/styles.dart';
-import 'package:zabi/view/screens/location/background_location_screen.dart';
+import 'package:salatime/controller/localization_controller.dart';
+import 'package:salatime/helper/route_helper.dart';
+import 'package:salatime/service/first_launch_setup_service.dart';
+import 'package:salatime/util/app_constants.dart';
+import 'package:salatime/util/dimensions.dart';
+import 'package:salatime/util/images.dart';
+import 'package:salatime/util/styles.dart';
+import 'package:salatime/view/screens/location/background_location_screen.dart';
 
 class FirstLaunchSetupScreen extends StatefulWidget {
   const FirstLaunchSetupScreen({super.key, this.soundPreview});

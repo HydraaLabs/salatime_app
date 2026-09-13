@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/util/styles.dart';
+import 'package:salatime/util/styles.dart';
 
 import '../../../controller/alphabet_controller.dart';
 import '../../../util/dimensions.dart';

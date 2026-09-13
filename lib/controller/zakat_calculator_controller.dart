@@ -3,7 +3,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/controller/quran_settings_controller.dart';
+import 'package:salatime/controller/quran_settings_controller.dart';
 
 class ZakatCalculatorController extends GetxController {
   final zakatCalculatorformkey = GlobalKey<FormState>();

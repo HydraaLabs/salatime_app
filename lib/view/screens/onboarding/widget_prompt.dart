@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/helper/prayer_widget_sync.dart';
-import 'package:zabi/view/screens/onboarding/prayer_widget_preview.dart';
+import 'package:salatime/helper/prayer_widget_sync.dart';
+import 'package:salatime/view/screens/onboarding/prayer_widget_preview.dart';
 
 class WidgetPrompt {
   static const channel = MethodChannel('net.salatime.app/prayer_widget');

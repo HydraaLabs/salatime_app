@@ -2,10 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/theme/light_theme.dart';
-import 'package:zabi/theme/modern_light_theme.dart';
-import 'package:zabi/util/dimensions.dart';
-import 'package:zabi/util/styles.dart';
+import 'package:salatime/theme/light_theme.dart';
+import 'package:salatime/theme/modern_light_theme.dart';
+import 'package:salatime/util/dimensions.dart';
+import 'package:salatime/util/styles.dart';
 
 /// A selectable card for Settings → Appearance → Home Screen Layout.
 /// [previewBuilder] draws a small mockup of the layout (no image assets).

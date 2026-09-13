@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:zabi/helper/prayer_widget_sync.dart';
+import 'package:salatime/helper/prayer_widget_sync.dart';
 
 class PrayerWidgetSettings extends StatefulWidget {
   const PrayerWidgetSettings({super.key});

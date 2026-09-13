@@ -9,13 +9,13 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/helper/prayer_notification_preferences.dart';
-import 'package:zabi/theme/modern_dark_theme.dart';
-import 'package:zabi/theme/modern_light_theme.dart';
-import 'package:zabi/view/screens/notification/notification_dw_widget.dart';
-import 'package:zabi/view/screens/notification/notification_phase_screen.dart';
-import 'package:zabi/view/screens/notification/notification_settings_screen.dart';
-import 'package:zabi/view/screens/notification/widgets/sound_selection_field.dart';
+import 'package:salatime/helper/prayer_notification_preferences.dart';
+import 'package:salatime/theme/modern_dark_theme.dart';
+import 'package:salatime/theme/modern_light_theme.dart';
+import 'package:salatime/view/screens/notification/notification_dw_widget.dart';
+import 'package:salatime/view/screens/notification/notification_phase_screen.dart';
+import 'package:salatime/view/screens/notification/notification_settings_screen.dart';
+import 'package:salatime/view/screens/notification/widgets/sound_selection_field.dart';
 
 class _Strings extends Translations {
   @override

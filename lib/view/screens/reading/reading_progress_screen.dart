@@ -3,8 +3,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/service/reading/reading_progress_service.dart';
-import 'package:zabi/view/base/custom_app_bar.dart';
+import 'package:salatime/service/reading/reading_progress_service.dart';
+import 'package:salatime/view/base/custom_app_bar.dart';
 
 class ReadingProgressScreen extends StatefulWidget {
   const ReadingProgressScreen({super.key, this.service});

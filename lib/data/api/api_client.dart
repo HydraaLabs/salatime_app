@@ -2,12 +2,12 @@
 
 import 'dart:convert';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:zabi/data/model/response/error_response_model.dart';
+import 'package:salatime/data/model/response/error_response_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as Http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/helper/debug_http_client.dart';
+import 'package:salatime/helper/debug_http_client.dart';
 
 class ApiClient extends GetxService {
   final String appBaseUrl;

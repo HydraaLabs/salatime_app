@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
-import 'package:zabi/data/repository/splash_repo.dart';
-import 'package:zabi/helper/route_helper.dart';
-import 'package:zabi/view/screens/location/background_location_screen.dart';
+import 'package:salatime/data/repository/splash_repo.dart';
+import 'package:salatime/helper/route_helper.dart';
+import 'package:salatime/view/screens/location/background_location_screen.dart';
 
 class SplashController extends GetxController implements GetxService {
   final SplashRepo splashRepo;

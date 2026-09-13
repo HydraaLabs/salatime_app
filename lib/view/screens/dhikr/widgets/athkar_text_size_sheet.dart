@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/service/athkar_reader_preferences.dart';
+import 'package:salatime/service/athkar_reader_preferences.dart';
 
 class AthkarTextSizeSheet extends StatefulWidget {
   const AthkarTextSizeSheet({

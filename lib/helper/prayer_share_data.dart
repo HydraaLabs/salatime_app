@@ -1,4 +1,4 @@
-import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
+import 'package:salatime/data/model/response/todays_prayer_time_model.dart';
 
 class SharedPrayerTime {
   final String labelKey;

@@ -5,8 +5,8 @@ import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:zabi/helper/qiblah_helper.dart';
-import 'package:zabi/util/app_constants.dart';
+import 'package:salatime/helper/qiblah_helper.dart';
+import 'package:salatime/util/app_constants.dart';
 
 class QiblaMap extends StatefulWidget {
   const QiblaMap({super.key});

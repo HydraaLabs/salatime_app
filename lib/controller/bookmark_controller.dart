@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:zabi/data/model/response/bookmark_model.dart';
-import 'package:zabi/view/base/custom_snackbar.dart';
+import 'package:salatime/data/model/response/bookmark_model.dart';
+import 'package:salatime/view/base/custom_snackbar.dart';
 
 class BookMarkController extends GetxController {
   // Data store by model

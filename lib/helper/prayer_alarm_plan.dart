@@ -1,6 +1,6 @@
 import 'package:timezone/timezone.dart' as tz;
 import 'prayer_notification_preferences.dart';
-import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
+import 'package:salatime/data/model/response/todays_prayer_time_model.dart';
 
 class PrayerOccurrence {
   const PrayerOccurrence({

@@ -2,13 +2,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/controller/audio_player_controller.dart';
-import 'package:zabi/helper/route_helper.dart';
-import 'package:zabi/shimmer/all_shimmer_loder.dart';
-import 'package:zabi/util/dimensions.dart';
-import 'package:zabi/util/images.dart';
-import 'package:zabi/util/styles.dart';
-import 'package:zabi/view/base/custom_app_bar.dart';
+import 'package:salatime/controller/audio_player_controller.dart';
+import 'package:salatime/helper/route_helper.dart';
+import 'package:salatime/shimmer/all_shimmer_loder.dart';
+import 'package:salatime/util/dimensions.dart';
+import 'package:salatime/util/images.dart';
+import 'package:salatime/util/styles.dart';
+import 'package:salatime/view/base/custom_app_bar.dart';
 
 class ReciterScreen extends StatelessWidget {
   final bool? appBackButton;

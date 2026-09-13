@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/controller/package_prayer_time_controller.dart';
-import 'package:zabi/controller/prayer_time_adjustment.dart';
-import 'package:zabi/helper/salat_waqt_service.dart';
-import 'package:zabi/service/preference_cloud_sync.dart';
-import 'package:zabi/view/base/custom_app_bar.dart';
+import 'package:salatime/controller/package_prayer_time_controller.dart';
+import 'package:salatime/controller/prayer_time_adjustment.dart';
+import 'package:salatime/helper/salat_waqt_service.dart';
+import 'package:salatime/service/preference_cloud_sync.dart';
+import 'package:salatime/view/base/custom_app_bar.dart';
 
 class PrayerAdjustmentScreen extends StatefulWidget {
   const PrayerAdjustmentScreen({

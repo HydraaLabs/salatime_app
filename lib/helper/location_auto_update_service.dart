@@ -5,9 +5,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/controller/package_prayer_time_controller.dart';
-import 'package:zabi/helper/location_helper.dart';
-import 'package:zabi/helper/salat_waqt_service.dart';
+import 'package:salatime/controller/package_prayer_time_controller.dart';
+import 'package:salatime/helper/location_helper.dart';
+import 'package:salatime/helper/salat_waqt_service.dart';
 
 /// Watches the device position while the app is alive and, when the user has
 /// enabled automatic location update (background location permission), re-

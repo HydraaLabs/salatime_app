@@ -2,9 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/controller/theme_controller.dart';
-import 'package:zabi/util/dimensions.dart';
-import 'package:zabi/util/styles.dart';
+import 'package:salatime/controller/theme_controller.dart';
+import 'package:salatime/util/dimensions.dart';
+import 'package:salatime/util/styles.dart';
 
 class ThemeModeDWWidget extends StatelessWidget {
   const ThemeModeDWWidget({super.key});

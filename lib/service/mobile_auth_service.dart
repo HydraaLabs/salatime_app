@@ -8,7 +8,7 @@ import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
-import 'package:zabi/util/app_constants.dart';
+import 'package:salatime/util/app_constants.dart';
 
 class MobileUser {
   const MobileUser({

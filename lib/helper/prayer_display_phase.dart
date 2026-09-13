@@ -1,4 +1,4 @@
-import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
+import 'package:salatime/data/model/response/todays_prayer_time_model.dart';
 
 /// Presentation only: never changes the prayer schedule or notification alarms.
 class PrayerDisplayPhase {

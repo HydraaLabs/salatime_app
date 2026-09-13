@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:zabi/helper/adhan_notification_service_helper.dart';
-import 'package:zabi/helper/prayer_alarm_health.dart';
-import 'package:zabi/helper/salat_waqt_service.dart';
-import 'package:zabi/service/first_launch_setup_service.dart';
+import 'package:salatime/helper/adhan_notification_service_helper.dart';
+import 'package:salatime/helper/prayer_alarm_health.dart';
+import 'package:salatime/helper/salat_waqt_service.dart';
+import 'package:salatime/service/first_launch_setup_service.dart';
 
 class PrayerAlarmHealthCard extends StatefulWidget {
   const PrayerAlarmHealthCard({super.key});

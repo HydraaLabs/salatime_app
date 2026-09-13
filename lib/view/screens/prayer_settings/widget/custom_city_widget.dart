@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/controller/package_prayer_time_controller.dart';
-import 'package:zabi/helper/salat_waqt_service.dart';
-import 'package:zabi/util/app_constants.dart';
-import 'package:zabi/util/dimensions.dart';
-import 'package:zabi/util/images.dart';
-import 'package:zabi/util/styles.dart';
-import 'package:zabi/view/base/loading_indicator.dart';
+import 'package:salatime/controller/package_prayer_time_controller.dart';
+import 'package:salatime/helper/salat_waqt_service.dart';
+import 'package:salatime/util/app_constants.dart';
+import 'package:salatime/util/dimensions.dart';
+import 'package:salatime/util/images.dart';
+import 'package:salatime/util/styles.dart';
+import 'package:salatime/view/base/loading_indicator.dart';
 
 class CustomCityDialog extends StatelessWidget {
   const CustomCityDialog({super.key});

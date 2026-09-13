@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:zabi/service/reading/reading_progress_service.dart';
+import 'package:salatime/service/reading/reading_progress_service.dart';
 
 /// UI-only fixture: no storage, auth, timers or network.
 class FakeReadingProgress extends ChangeNotifier

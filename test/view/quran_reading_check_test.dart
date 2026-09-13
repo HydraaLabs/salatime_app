@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:zabi/service/reading/reading_progress_service.dart';
-import 'package:zabi/view/screens/quran/widget/quran_navigation_button.dart';
-import 'package:zabi/view/screens/quran/widget/quran_reading_check.dart';
+import 'package:salatime/service/reading/reading_progress_service.dart';
+import 'package:salatime/view/screens/quran/widget/quran_navigation_button.dart';
+import 'package:salatime/view/screens/quran/widget/quran_reading_check.dart';
 
 class _Progress extends ChangeNotifier implements ReadingProgressService {
   final checked = <String, int>{};

@@ -8,13 +8,13 @@ import 'quran_translation_text.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:zabi/controller/quran_controller.dart';
-import 'package:zabi/controller/quran_settings_controller.dart';
-import 'package:zabi/shimmer/all_shimmer_loder.dart';
-import 'package:zabi/util/app_constants.dart';
-import 'package:zabi/util/dimensions.dart';
-import 'package:zabi/util/images.dart';
-import 'package:zabi/util/styles.dart';
+import 'package:salatime/controller/quran_controller.dart';
+import 'package:salatime/controller/quran_settings_controller.dart';
+import 'package:salatime/shimmer/all_shimmer_loder.dart';
+import 'package:salatime/util/app_constants.dart';
+import 'package:salatime/util/dimensions.dart';
+import 'package:salatime/util/images.dart';
+import 'package:salatime/util/styles.dart';
 
 class AyanTranslationWidget extends StatelessWidget {
   const AyanTranslationWidget({super.key});

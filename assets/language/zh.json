@@ -1,5 +1,5 @@
 {
-  "app_name": "Zabi",
+  "app_name": "SalaTime",
   "todays_Prayer_Time_in": "今天的祈祷时间是",
   "todays_Prayer_Time": "今天的祈祷时间",
   "fajr": "黎明",
@@ -280,7 +280,7 @@
   "no_saved_names": "尚未保存任何名字。\n点击 ♡ 保存任意名字。",
   "copy": "复制",
   "remove": "移除",
-  "generated_with": "伊斯兰名字 — 使用 Zabi 应用生成",
+  "generated_with": "伊斯兰名字 — 使用 SalaTime 应用生成",
   "ai_name_key": "AI 名字生成器",
   "ask_ai_key": "问 AI",
   "synonyms_key": "相似名称",

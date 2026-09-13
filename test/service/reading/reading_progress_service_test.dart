@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zabi/helper/athkar_catalog.dart';
-import 'package:zabi/service/mobile_auth_service.dart';
-import 'package:zabi/service/reading/reading_progress_service.dart';
+import 'package:salatime/helper/athkar_catalog.dart';
+import 'package:salatime/service/mobile_auth_service.dart';
+import 'package:salatime/service/reading/reading_progress_service.dart';
 
 class MemoryStore implements ReadingProgressStore {
   final values = <String, Map<String, dynamic>>{};

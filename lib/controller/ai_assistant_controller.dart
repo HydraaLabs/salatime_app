@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/controller/quran_settings_controller.dart';
+import 'package:salatime/controller/quran_settings_controller.dart';
 
 import '../data/repository/ai_assistant_repo.dart';
 import '../view/screens/ai_islamic_assistant/ai_islamic_assistant.dart';

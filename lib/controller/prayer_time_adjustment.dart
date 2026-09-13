@@ -1,7 +1,7 @@
 // controllers/prayer_time_adjustment_controller.dart
 import 'dart:async';
 import 'dart:convert';
-import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
+import 'package:salatime/data/model/response/todays_prayer_time_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';

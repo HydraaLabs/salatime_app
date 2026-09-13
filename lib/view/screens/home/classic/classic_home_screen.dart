@@ -1,4 +1,4 @@
-import 'package:zabi/view/screens/daily/daily_verse_card.dart';
+import 'package:salatime/view/screens/daily/daily_verse_card.dart';
 // ignore_for_file: deprecated_member_use
 
 import 'dart:ui';
@@ -6,24 +6,24 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:zabi/controller/internet_check_controller.dart';
-import 'package:zabi/controller/package_prayer_time_controller.dart';
-import 'package:zabi/controller/prayer_time_adjustment.dart';
-import 'package:zabi/controller/quran_settings_controller.dart';
-import 'package:zabi/controller/theme_controller.dart';
-import 'package:zabi/helper/date_converter.dart';
-import 'package:zabi/helper/route_helper.dart';
-import 'package:zabi/helper/time_adjustment_helper.dart';
-import 'package:zabi/helper/translator_helper.dart';
-import 'package:zabi/shimmer/all_shimmer_loder.dart';
-import 'package:zabi/theme/light_theme.dart';
-import 'package:zabi/util/dimensions.dart';
-import 'package:zabi/util/images.dart';
-import 'package:zabi/util/styles.dart';
-import 'package:zabi/view/screens/ai_islamic_assistant/ai_islamic_assistant.dart';
-import 'package:zabi/view/screens/home/classic/widget/bannder_widget.dart';
-import 'package:zabi/view/screens/home/classic/widget/feature_item_widget.dart';
-import 'package:zabi/view/screens/home/classic/widget/today_prayer_list_item.dart';
+import 'package:salatime/controller/internet_check_controller.dart';
+import 'package:salatime/controller/package_prayer_time_controller.dart';
+import 'package:salatime/controller/prayer_time_adjustment.dart';
+import 'package:salatime/controller/quran_settings_controller.dart';
+import 'package:salatime/controller/theme_controller.dart';
+import 'package:salatime/helper/date_converter.dart';
+import 'package:salatime/helper/route_helper.dart';
+import 'package:salatime/helper/time_adjustment_helper.dart';
+import 'package:salatime/helper/translator_helper.dart';
+import 'package:salatime/shimmer/all_shimmer_loder.dart';
+import 'package:salatime/theme/light_theme.dart';
+import 'package:salatime/util/dimensions.dart';
+import 'package:salatime/util/images.dart';
+import 'package:salatime/util/styles.dart';
+import 'package:salatime/view/screens/ai_islamic_assistant/ai_islamic_assistant.dart';
+import 'package:salatime/view/screens/home/classic/widget/bannder_widget.dart';
+import 'package:salatime/view/screens/home/classic/widget/feature_item_widget.dart';
+import 'package:salatime/view/screens/home/classic/widget/today_prayer_list_item.dart';
 
 /// The original ("Classic") home screen design. This widget is purely
 /// presentational — all data bootstrapping (location, prayer times, mosque

@@ -2,13 +2,13 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/controller/wallpaper_controller.dart';
-import 'package:zabi/shimmer/all_shimmer_loder.dart';
-import 'package:zabi/theme/light_theme.dart';
-import 'package:zabi/util/dimensions.dart';
-import 'package:zabi/util/styles.dart';
-import 'package:zabi/view/base/custom_app_bar.dart';
-import 'package:zabi/view/screens/wallpapers/details_screen.dart';
+import 'package:salatime/controller/wallpaper_controller.dart';
+import 'package:salatime/shimmer/all_shimmer_loder.dart';
+import 'package:salatime/theme/light_theme.dart';
+import 'package:salatime/util/dimensions.dart';
+import 'package:salatime/util/styles.dart';
+import 'package:salatime/view/base/custom_app_bar.dart';
+import 'package:salatime/view/screens/wallpapers/details_screen.dart';
 
 import '../../base/cutom_cached_image.dart';
 import 'widget/set_wallpaper_dialog.dart';

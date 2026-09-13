@@ -3,12 +3,12 @@
 import 'dart:convert';
 
 import 'package:get/get.dart';
-import 'package:zabi/helper/debug_http_client.dart';
+import 'package:salatime/helper/debug_http_client.dart';
 
-import 'package:zabi/data/model/response/hadis_book_model.dart';
-import 'package:zabi/data/model/response/hadith_chapter_model.dart';
-import 'package:zabi/data/model/response/hadith_model.dart';
-import 'package:zabi/view/base/custom_snackbar.dart';
+import 'package:salatime/data/model/response/hadis_book_model.dart';
+import 'package:salatime/data/model/response/hadith_chapter_model.dart';
+import 'package:salatime/data/model/response/hadith_model.dart';
+import 'package:salatime/view/base/custom_snackbar.dart';
 
 /// Hadith data provider: fawazahmed0/hadith-api (static JSON on jsDelivr CDN,
 /// no API key required). Replaces the defunct hadithapi.com integration.

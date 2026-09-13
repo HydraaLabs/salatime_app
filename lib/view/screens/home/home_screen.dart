@@ -1,16 +1,16 @@
-import 'package:zabi/helper/islamic_calendar.dart';
+import 'package:salatime/helper/islamic_calendar.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/controller/home_layout_controller.dart';
-import 'package:zabi/controller/internet_check_controller.dart';
-import 'package:zabi/controller/package_prayer_time_controller.dart';
-import 'package:zabi/controller/prayer_time_adjustment.dart';
-import 'package:zabi/controller/quran_settings_controller.dart';
-import 'package:zabi/helper/location_auto_update_service.dart';
-import 'package:zabi/helper/salat_waqt_service.dart';
-import 'package:zabi/view/screens/home/classic/classic_home_screen.dart';
-import 'package:zabi/view/screens/home/modern/modern_home_screen.dart';
+import 'package:salatime/controller/home_layout_controller.dart';
+import 'package:salatime/controller/internet_check_controller.dart';
+import 'package:salatime/controller/package_prayer_time_controller.dart';
+import 'package:salatime/controller/prayer_time_adjustment.dart';
+import 'package:salatime/controller/quran_settings_controller.dart';
+import 'package:salatime/helper/location_auto_update_service.dart';
+import 'package:salatime/helper/salat_waqt_service.dart';
+import 'package:salatime/view/screens/home/classic/classic_home_screen.dart';
+import 'package:salatime/view/screens/home/modern/modern_home_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

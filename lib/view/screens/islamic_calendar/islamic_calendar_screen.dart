@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hijri/hijri_calendar.dart';
-import 'package:zabi/helper/islamic_calendar.dart';
-import 'package:zabi/helper/salat_waqt_service.dart';
-import 'package:zabi/view/screens/prayer_share/prayer_month_screen.dart';
+import 'package:salatime/helper/islamic_calendar.dart';
+import 'package:salatime/helper/salat_waqt_service.dart';
+import 'package:salatime/view/screens/prayer_share/prayer_month_screen.dart';
 
 class IslamicCalendarScreen extends StatefulWidget {
   final DateTime Function() now;

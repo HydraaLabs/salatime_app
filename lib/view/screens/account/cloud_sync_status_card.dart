@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/service/preference_cloud_sync.dart';
-import 'package:zabi/service/cloud/preference_device.dart';
+import 'package:salatime/service/preference_cloud_sync.dart';
+import 'package:salatime/service/cloud/preference_device.dart';
 
 class CloudSyncStatusCard extends StatelessWidget {
   const CloudSyncStatusCard({super.key});

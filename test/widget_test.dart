@@ -1,5 +1,5 @@
-import 'package:zabi/helper/prayer_notification_preferences.dart';
-import 'package:zabi/view/screens/notification/widgets/sound_selection_field.dart';
+import 'package:salatime/helper/prayer_notification_preferences.dart';
+import 'package:salatime/view/screens/notification/widgets/sound_selection_field.dart';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -8,23 +8,23 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/controller/localization_controller.dart';
-import 'package:zabi/controller/noti_sound_controller.dart';
-import 'package:zabi/controller/package_prayer_time_controller.dart';
-import 'package:zabi/controller/prayer_reminder_controller.dart';
-import 'package:zabi/controller/theme_controller.dart';
-import 'package:zabi/data/api/api_client.dart';
-import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
-import 'package:zabi/helper/route_helper.dart';
-import 'package:zabi/helper/salat_waqt_service.dart';
-import 'package:zabi/helper/translator_helper.dart';
-import 'package:zabi/service/first_launch_setup_service.dart';
-import 'package:zabi/util/app_constants.dart';
-import 'package:zabi/view/screens/home/modern/widget/modern_daily_hadith_card.dart';
-import 'package:zabi/view/screens/home/modern/widget/modern_next_prayer_card.dart';
-import 'package:zabi/view/screens/home/modern/widget/modern_prayer_dashboard.dart';
-import 'package:zabi/view/screens/onboarding/first_launch_setup_screen.dart';
-import 'package:zabi/view/screens/notification/widgets/salat_waqt_repository.dart';
+import 'package:salatime/controller/localization_controller.dart';
+import 'package:salatime/controller/noti_sound_controller.dart';
+import 'package:salatime/controller/package_prayer_time_controller.dart';
+import 'package:salatime/controller/prayer_reminder_controller.dart';
+import 'package:salatime/controller/theme_controller.dart';
+import 'package:salatime/data/api/api_client.dart';
+import 'package:salatime/data/model/response/todays_prayer_time_model.dart';
+import 'package:salatime/helper/route_helper.dart';
+import 'package:salatime/helper/salat_waqt_service.dart';
+import 'package:salatime/helper/translator_helper.dart';
+import 'package:salatime/service/first_launch_setup_service.dart';
+import 'package:salatime/util/app_constants.dart';
+import 'package:salatime/view/screens/home/modern/widget/modern_daily_hadith_card.dart';
+import 'package:salatime/view/screens/home/modern/widget/modern_next_prayer_card.dart';
+import 'package:salatime/view/screens/home/modern/widget/modern_prayer_dashboard.dart';
+import 'package:salatime/view/screens/onboarding/first_launch_setup_screen.dart';
+import 'package:salatime/view/screens/notification/widgets/salat_waqt_repository.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

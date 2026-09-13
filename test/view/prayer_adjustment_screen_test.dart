@@ -10,14 +10,14 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/controller/home_layout_controller.dart';
-import 'package:zabi/controller/package_prayer_time_controller.dart';
-import 'package:zabi/controller/prayer_time_adjustment.dart';
-import 'package:zabi/data/api/api_client.dart';
-import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
-import 'package:zabi/theme/modern_dark_theme.dart';
-import 'package:zabi/theme/modern_light_theme.dart';
-import 'package:zabi/view/screens/prayer_adjustment/prayer_adjustment_screen.dart';
+import 'package:salatime/controller/home_layout_controller.dart';
+import 'package:salatime/controller/package_prayer_time_controller.dart';
+import 'package:salatime/controller/prayer_time_adjustment.dart';
+import 'package:salatime/data/api/api_client.dart';
+import 'package:salatime/data/model/response/todays_prayer_time_model.dart';
+import 'package:salatime/theme/modern_dark_theme.dart';
+import 'package:salatime/theme/modern_light_theme.dart';
+import 'package:salatime/view/screens/prayer_adjustment/prayer_adjustment_screen.dart';
 
 class _Strings extends Translations {
   _Strings(this.keys);

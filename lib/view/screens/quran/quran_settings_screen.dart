@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/controller/quran_settings_controller.dart';
-import 'package:zabi/view/screens/quran/widget/quran_translation_source_card.dart';
+import 'package:salatime/controller/quran_settings_controller.dart';
+import 'package:salatime/view/screens/quran/widget/quran_translation_source_card.dart';
 
 void openBottomSheet(BuildContext context) {
   showModalBottomSheet<void>(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/theme/brand_colors.dart';
-import 'package:zabi/util/images.dart';
+import 'package:salatime/theme/brand_colors.dart';
+import 'package:salatime/util/images.dart';
 
 /// Sample content using the dimensions, illustration and palette of the
 /// Android widget layouts. It scales like an image, independently of UI text.

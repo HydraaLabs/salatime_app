@@ -4,14 +4,14 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:zabi/data/model/response/haram_food_list_model.dart';
-import 'package:zabi/data/model/response/mosque_settings_model.dart';
-import 'package:zabi/data/model/response/translator_model.dart';
+import 'package:salatime/data/model/response/haram_food_list_model.dart';
+import 'package:salatime/data/model/response/mosque_settings_model.dart';
+import 'package:salatime/data/model/response/translator_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/controller/home_layout_controller.dart';
-import 'package:zabi/data/repository/quran_setting_repo.dart';
+import 'package:salatime/controller/home_layout_controller.dart';
+import 'package:salatime/data/repository/quran_setting_repo.dart';
 
 class SettingsController extends GetxController implements GetxService {
   final QuranSettingsRepo quranSettingRepo;

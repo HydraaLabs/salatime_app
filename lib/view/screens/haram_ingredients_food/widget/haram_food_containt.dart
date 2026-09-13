@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:zabi/util/dimensions.dart';
-import 'package:zabi/util/styles.dart';
+import 'package:salatime/util/dimensions.dart';
+import 'package:salatime/util/styles.dart';
 
 class HaramFoodContaint extends StatelessWidget {
   final String title;

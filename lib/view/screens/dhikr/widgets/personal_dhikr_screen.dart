@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/helper/route_helper.dart';
-import 'package:zabi/view/base/custom_app_bar.dart';
-import 'package:zabi/view/screens/dhikr/local%20stroge%20dhikr/user_added_dikir_list_widget.dart';
+import 'package:salatime/helper/route_helper.dart';
+import 'package:salatime/view/base/custom_app_bar.dart';
+import 'package:salatime/view/screens/dhikr/local%20stroge%20dhikr/user_added_dikir_list_widget.dart';
 
 /// Keeps the existing personal list and stored counters available from Athkar.
 class PersonalDhikrScreen extends StatelessWidget {

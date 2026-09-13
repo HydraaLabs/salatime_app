@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:zabi/service/play_store_review_service.dart';
-import 'package:zabi/view/base/play_store_review_host.dart';
-import 'package:zabi/view/base/play_store_review_prompt.dart';
+import 'package:salatime/service/play_store_review_service.dart';
+import 'package:salatime/view/base/play_store_review_host.dart';
+import 'package:salatime/view/base/play_store_review_prompt.dart';
 
 class _ReviewService extends PlayStoreReviewService {
   int visits = 0;

@@ -1,7 +1,7 @@
 import 'package:adhan/adhan.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
-import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
+import 'package:salatime/data/model/response/todays_prayer_time_model.dart';
 
 /// Automatic prayer times. Angles/intervals match the methods exposed by SalaTime's
 /// backend, rather than silently substituting another country's convention.

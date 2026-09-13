@@ -8,14 +8,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/controller/localization_controller.dart';
-import 'package:zabi/controller/offline_quran_controller.dart';
-import 'package:zabi/data/api/api_client.dart';
-import 'package:zabi/util/app_constants.dart';
-import 'package:zabi/theme/modern_light_theme.dart';
-import 'package:zabi/view/screens/home/modern/widget/modern_quick_actions.dart';
-import 'package:zabi/view/screens/offline_quran/widgets/offline_quran_search.dart';
-import 'package:zabi/view/screens/onboarding/first_launch_setup_screen.dart';
+import 'package:salatime/controller/localization_controller.dart';
+import 'package:salatime/controller/offline_quran_controller.dart';
+import 'package:salatime/data/api/api_client.dart';
+import 'package:salatime/util/app_constants.dart';
+import 'package:salatime/theme/modern_light_theme.dart';
+import 'package:salatime/view/screens/home/modern/widget/modern_quick_actions.dart';
+import 'package:salatime/view/screens/offline_quran/widgets/offline_quran_search.dart';
+import 'package:salatime/view/screens/onboarding/first_launch_setup_screen.dart';
 
 class _Translations extends Translations {
   _Translations(this.keys);

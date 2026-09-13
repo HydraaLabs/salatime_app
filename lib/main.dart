@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:zabi/service/preference_cloud_sync.dart';
-import 'package:zabi/service/reading/reading_progress_service.dart';
+import 'package:salatime/service/preference_cloud_sync.dart';
+import 'package:salatime/service/reading/reading_progress_service.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'dart:io';
 
@@ -9,10 +9,10 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/controller/home_layout_controller.dart';
-import 'package:zabi/helper/theme_helper.dart';
-import 'package:zabi/service/first_launch_setup_service.dart';
-import 'package:zabi/util/app_constants.dart';
+import 'package:salatime/controller/home_layout_controller.dart';
+import 'package:salatime/helper/theme_helper.dart';
+import 'package:salatime/service/first_launch_setup_service.dart';
+import 'package:salatime/util/app_constants.dart';
 
 import 'controller/internet_check_controller.dart';
 import 'controller/localization_controller.dart';

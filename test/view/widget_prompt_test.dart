@@ -6,8 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/view/screens/onboarding/widget_prompt.dart';
-import 'package:zabi/view/screens/onboarding/prayer_widget_preview.dart';
+import 'package:salatime/view/screens/onboarding/widget_prompt.dart';
+import 'package:salatime/view/screens/onboarding/prayer_widget_preview.dart';
 
 void main() {
   for (final size in [null, 'small', 'medium', 'large']) {

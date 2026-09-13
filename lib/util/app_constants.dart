@@ -1,19 +1,17 @@
 // ignore_for_file: constant_identifier_name, constant_identifier_names
-import 'package:zabi/data/model/response/language_model.dart';
-import 'package:zabi/util/images.dart';
+import 'package:salatime/data/model/response/language_model.dart';
+import 'package:salatime/util/images.dart';
 
 class AppConstants {
-  // Flutter SDK Version  3.44.0
   static const String APP_NAME = 'SalaTime';
   static const String APP_VERSION = "7.0";
 
   // main base url
-  // static const String BASE_URL = "https://zabi.theme29.com";
-  // static const String BASE_URL = "https://zabi-dev.theme29.com";
-  // Backend production (Cloudflare vers l'hébergement OVH autorisé)
-  static const String BASE_URL = "https://salatime.net";
-  // Backend local (php artisan serve). Sur émulateur Android, utiliser http://10.0.2.2:8000
-  // static const String BASE_URL = "http://127.0.0.1:8000";
+  // Override when building against a self-hosted SalaTime backend.
+  static const String BASE_URL = String.fromEnvironment(
+    'SALATIME_API_URL',
+    defaultValue: 'https://salatime.net',
+  );
 
   // API's and API Kay's
   @Deprecated(
@@ -50,9 +48,12 @@ class AppConstants {
   @Deprecated(
     'Clé démo hadithapi.com invalide (401) — plus nécessaire avec le CDN jsDelivr',
   )
-  static const String HADITH_API_KEY =
-      "\$2y\$10\$IpN2jMeSLbrGxZ6zwEu3KAEr1ZmUjwQCYhRbiReqscXswndm";
-  static const String MAPS_API_KEY = 'AIzaSyCQc4sar_LVjT8M_vC_ubqCoGwGlR-TU3Q';
+  static const String HADITH_API_KEY = String.fromEnvironment(
+    'SALATIME_HADITH_API_KEY',
+  );
+  static const String MAPS_API_KEY = String.fromEnvironment(
+    'SALATIME_MAPS_API_KEY',
+  );
 
   // Shared Key
   static const String THEME = 'theme';

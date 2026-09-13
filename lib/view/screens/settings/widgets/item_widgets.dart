@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:zabi/util/dimensions.dart';
-import 'package:zabi/util/styles.dart';
+import 'package:salatime/util/dimensions.dart';
+import 'package:salatime/util/styles.dart';
 
 class SettingsItem extends StatelessWidget {
   final IconData leadingIcon;

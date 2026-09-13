@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:zabi/helper/debug_http_client.dart';
-import 'package:zabi/util/app_constants.dart';
+import 'package:salatime/helper/debug_http_client.dart';
+import 'package:salatime/util/app_constants.dart';
 import '../model/response/islamic_name_model.dart';
 
 class IslamicNameRepo {

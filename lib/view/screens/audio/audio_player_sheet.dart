@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart' show LoopMode;
-import 'package:zabi/controller/audio_player_controller.dart';
+import 'package:salatime/controller/audio_player_controller.dart';
 
 class FullScreenBottomSheet extends StatelessWidget {
   final AudioPlayerController controller;

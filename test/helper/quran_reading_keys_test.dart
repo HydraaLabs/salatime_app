@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zabi/data/model/response/sura_detile_model.dart';
-import 'package:zabi/service/reading/reading_progress_service.dart';
-import 'package:zabi/view/screens/quran/widget/quran_reading_keys.dart';
+import 'package:salatime/data/model/response/sura_detile_model.dart';
+import 'package:salatime/service/reading/reading_progress_service.dart';
+import 'package:salatime/view/screens/quran/widget/quran_reading_keys.dart';
 
 void main() {
   test(

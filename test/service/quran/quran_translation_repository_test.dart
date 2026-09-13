@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zabi/service/quran/quran_translation_repository.dart';
+import 'package:salatime/service/quran/quran_translation_repository.dart';
 
 class _Bundle extends CachingAssetBundle {
   final reads = <String, int>{};

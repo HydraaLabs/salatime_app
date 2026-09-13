@@ -1,5 +1,5 @@
 {
-  "app_name": "Zabi",
+  "app_name": "SalaTime",
   "todays_Prayer_Time_in": "Ora della preghiera di oggi in",
   "todays_Prayer_Time": "Ora della preghiera di oggi",
   "fajr": "Fajr",
@@ -280,7 +280,7 @@
   "no_saved_names": "Nessun nome salvato ancora.\nTocca ♡ su un nome per salvare.",
   "copy": "Copia",
   "remove": "Rimuovi",
-  "generated_with": "Nome islamico — Generato con l'app Zabi",
+  "generated_with": "Nome islamico — Generato con l'app SalaTime",
   "ai_name_key": "Generatore di Nomi AI",
   "ask_ai_key": "Chiedi all'AI",
   "synonyms_key": "Nomi simili",

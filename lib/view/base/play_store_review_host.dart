@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/service/play_store_review_service.dart';
-import 'package:zabi/view/base/custom_snackbar.dart';
-import 'package:zabi/view/base/play_store_review_prompt.dart';
+import 'package:salatime/service/play_store_review_service.dart';
+import 'package:salatime/view/base/custom_snackbar.dart';
+import 'package:salatime/view/base/play_store_review_prompt.dart';
 
 /// Lives in the navigation shell: retained/offstage tabs must not prompt.
 class PlayStoreReviewHost extends StatefulWidget {

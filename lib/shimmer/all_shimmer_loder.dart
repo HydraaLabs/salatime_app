@@ -6,12 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:zabi/controller/quran_settings_controller.dart';
-import 'package:zabi/helper/translator_helper.dart';
-import 'package:zabi/util/dimensions.dart';
-import 'package:zabi/util/images.dart';
-import 'package:zabi/util/styles.dart';
-import 'package:zabi/view/screens/home/classic/widget/feature_item_widget.dart';
+import 'package:salatime/controller/quran_settings_controller.dart';
+import 'package:salatime/helper/translator_helper.dart';
+import 'package:salatime/util/dimensions.dart';
+import 'package:salatime/util/images.dart';
+import 'package:salatime/util/styles.dart';
+import 'package:salatime/view/screens/home/classic/widget/feature_item_widget.dart';
 
 class ListViewShimmer extends StatelessWidget {
   const ListViewShimmer({super.key});

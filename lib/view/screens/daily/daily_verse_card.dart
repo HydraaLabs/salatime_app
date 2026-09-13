@@ -2,9 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:zabi/helper/daily_verse.dart';
-import 'package:zabi/view/screens/quran/widget/quran_translation_source_card.dart';
-import 'package:zabi/view/screens/quran/widget/quran_translation_text.dart';
+import 'package:salatime/helper/daily_verse.dart';
+import 'package:salatime/view/screens/quran/widget/quran_translation_source_card.dart';
+import 'package:salatime/view/screens/quran/widget/quran_translation_text.dart';
 
 class DailyVerseCard extends StatefulWidget {
   const DailyVerseCard({super.key});

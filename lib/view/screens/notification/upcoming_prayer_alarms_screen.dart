@@ -3,10 +3,10 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/helper/adhan_notification_service_helper.dart';
-import 'package:zabi/helper/salat_waqt_service.dart';
-import 'package:zabi/view/base/custom_app_bar.dart';
-import 'package:zabi/view/screens/notification/widgets/prayer_alarm_health_card.dart';
+import 'package:salatime/helper/adhan_notification_service_helper.dart';
+import 'package:salatime/helper/salat_waqt_service.dart';
+import 'package:salatime/view/base/custom_app_bar.dart';
+import 'package:salatime/view/screens/notification/widgets/prayer_alarm_health_card.dart';
 
 class UpcomingPrayerAlarmsScreen extends StatefulWidget {
   const UpcomingPrayerAlarmsScreen({super.key});

@@ -1,7 +1,7 @@
 import 'package:get/get_connect/http/src/response/response.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/data/api/api_client.dart';
-import 'package:zabi/util/app_constants.dart';
+import 'package:salatime/data/api/api_client.dart';
+import 'package:salatime/util/app_constants.dart';
 
 class WallpaperRepo {
   ApiClient apiClient;

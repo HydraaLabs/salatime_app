@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zabi/helper/athkar_catalog.dart';
+import 'package:salatime/helper/athkar_catalog.dart';
 
 class _Bundle extends CachingAssetBundle {
   _Bundle(this.source, {this.failures = 0});

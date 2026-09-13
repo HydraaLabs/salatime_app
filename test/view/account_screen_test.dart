@@ -7,10 +7,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:zabi/service/mobile_auth_service.dart';
-import 'package:zabi/theme/modern_dark_theme.dart';
-import 'package:zabi/theme/modern_light_theme.dart';
-import 'package:zabi/view/screens/account/account_screen.dart';
+import 'package:salatime/service/mobile_auth_service.dart';
+import 'package:salatime/theme/modern_dark_theme.dart';
+import 'package:salatime/theme/modern_light_theme.dart';
+import 'package:salatime/view/screens/account/account_screen.dart';
 
 class _Store implements AuthSessionStore {
   final values = <String, String>{};

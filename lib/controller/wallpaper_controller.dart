@@ -2,14 +2,14 @@
 
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:zabi/helper/debug_http_client.dart';
+import 'package:salatime/helper/debug_http_client.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:wallpaper_setter/wallpaper_setter.dart';
-import 'package:zabi/data/model/response/wallpaper_model.dart';
+import 'package:salatime/data/model/response/wallpaper_model.dart';
 
 import '../data/repository/wallpaper_repo.dart';
 

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:zabi/controller/package_prayer_time_controller.dart';
-import 'package:zabi/controller/prayer_time_adjustment.dart';
-import 'package:zabi/helper/prayer_share_data.dart';
+import 'package:salatime/controller/package_prayer_time_controller.dart';
+import 'package:salatime/controller/prayer_time_adjustment.dart';
+import 'package:salatime/helper/prayer_share_data.dart';
 
 class PrayerMonthScreen extends StatefulWidget {
   final DateTime? initialDate;

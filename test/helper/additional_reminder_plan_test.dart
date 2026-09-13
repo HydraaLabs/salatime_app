@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:zabi/helper/notification_sound_catalog.dart';
+import 'package:salatime/helper/notification_sound_catalog.dart';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hijri/hijri_calendar.dart';
@@ -9,10 +9,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 // ignore: depend_on_referenced_packages
 import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
 import 'package:timezone/timezone.dart' as tz;
-import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
-import 'package:zabi/helper/additional_reminder_plan.dart';
-import 'package:zabi/helper/local_prayer_calculator.dart';
-import 'package:zabi/helper/prayer_alarm_plan.dart';
+import 'package:salatime/data/model/response/todays_prayer_time_model.dart';
+import 'package:salatime/helper/additional_reminder_plan.dart';
+import 'package:salatime/helper/local_prayer_calculator.dart';
+import 'package:salatime/helper/prayer_alarm_plan.dart';
 
 class _DelayedReminderPreferences implements SharedPreferences {
   final entered = Completer<void>();

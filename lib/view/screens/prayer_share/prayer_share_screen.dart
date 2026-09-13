@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:zabi/controller/package_prayer_time_controller.dart';
-import 'package:zabi/controller/prayer_time_adjustment.dart';
-import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
-import 'package:zabi/helper/islamic_calendar.dart';
-import 'package:zabi/helper/prayer_share_data.dart';
-import 'package:zabi/theme/brand_colors.dart';
+import 'package:salatime/controller/package_prayer_time_controller.dart';
+import 'package:salatime/controller/prayer_time_adjustment.dart';
+import 'package:salatime/data/model/response/todays_prayer_time_model.dart';
+import 'package:salatime/helper/islamic_calendar.dart';
+import 'package:salatime/helper/prayer_share_data.dart';
+import 'package:salatime/theme/brand_colors.dart';
 
 class PrayerShareScreen extends StatefulWidget {
   final DateTime? initialDate;

@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/util/app_constants.dart';
+import 'package:salatime/util/app_constants.dart';
 
 class HomeLayoutController extends GetxController implements GetxService {
   final SharedPreferences sharedPreferences;

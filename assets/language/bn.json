@@ -1,5 +1,5 @@
 {
-  "app_name": "Zabi",
+  "app_name": "SalaTime",
   "todays_Prayer_Time_in": "আজকের প্রার্থনার সময়",
   "todays_Prayer_Time": "আজকের প্রার্থনার সময়",
   "fajr": "ফজর",
@@ -302,7 +302,7 @@
   "no_saved_names": "কোনো নাম সংরক্ষিত নেই।\nসংরক্ষণের জন্য ♡ চাপুন।",
   "copy": "কপি করুন",
   "remove": "অপসারণ",
-  "generated_with": "ইসলামিক নাম — Zabi অ্যাপ দিয়ে জেনারেট করা হয়েছে",
+  "generated_with": "ইসলামিক নাম — SalaTime অ্যাপ দিয়ে জেনারেট করা হয়েছে",
   "ai_name_key": "এআই নাম জেনারেটর",
   "ask_ai_key": "এআই জিজ্ঞাসা করুন",
   "synonyms_key": "সদৃশ নাম",

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
-import 'package:zabi/helper/prayer_share_data.dart';
+import 'package:salatime/data/model/response/todays_prayer_time_model.dart';
+import 'package:salatime/helper/prayer_share_data.dart';
 
 Data _day() => Data(
   date: '2026-09-11',

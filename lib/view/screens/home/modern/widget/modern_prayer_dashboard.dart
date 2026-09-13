@@ -1,6 +1,6 @@
-import 'package:zabi/service/preference_cloud_sync.dart';
-import 'package:zabi/helper/prayer_notification_preferences.dart';
-import 'package:zabi/controller/prayer_time_adjustment.dart';
+import 'package:salatime/service/preference_cloud_sync.dart';
+import 'package:salatime/helper/prayer_notification_preferences.dart';
+import 'package:salatime/controller/prayer_time_adjustment.dart';
 // ignore_for_file: deprecated_member_use
 
 import 'dart:async';
@@ -8,20 +8,20 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:zabi/helper/islamic_calendar.dart';
-import 'package:zabi/controller/package_prayer_time_controller.dart';
-import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
-import 'package:zabi/helper/date_converter.dart';
-import 'package:zabi/helper/prayer_display_phase.dart';
-import 'package:zabi/helper/salat_waqt_service.dart';
-import 'package:zabi/helper/translator_helper.dart';
-import 'package:zabi/theme/modern_light_theme.dart';
-import 'package:zabi/theme/brand_colors.dart';
-import 'package:zabi/util/dimensions.dart';
-import 'package:zabi/util/images.dart';
-import 'package:zabi/util/styles.dart';
-import 'package:zabi/view/base/custom_snackbar.dart';
-import 'package:zabi/view/screens/notification/widgets/salat_waqt_repository.dart';
+import 'package:salatime/helper/islamic_calendar.dart';
+import 'package:salatime/controller/package_prayer_time_controller.dart';
+import 'package:salatime/data/model/response/todays_prayer_time_model.dart';
+import 'package:salatime/helper/date_converter.dart';
+import 'package:salatime/helper/prayer_display_phase.dart';
+import 'package:salatime/helper/salat_waqt_service.dart';
+import 'package:salatime/helper/translator_helper.dart';
+import 'package:salatime/theme/modern_light_theme.dart';
+import 'package:salatime/theme/brand_colors.dart';
+import 'package:salatime/util/dimensions.dart';
+import 'package:salatime/util/images.dart';
+import 'package:salatime/util/styles.dart';
+import 'package:salatime/view/base/custom_snackbar.dart';
+import 'package:salatime/view/screens/notification/widgets/salat_waqt_repository.dart';
 
 class ModernPrayerDashboard extends StatefulWidget {
   final PrayerTimeController prayerTimeController;

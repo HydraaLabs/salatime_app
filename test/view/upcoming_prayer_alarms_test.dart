@@ -7,9 +7,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/controller/home_layout_controller.dart';
-import 'package:zabi/helper/salat_waqt_service.dart';
-import 'package:zabi/view/screens/notification/upcoming_prayer_alarms_screen.dart';
+import 'package:salatime/controller/home_layout_controller.dart';
+import 'package:salatime/helper/salat_waqt_service.dart';
+import 'package:salatime/view/screens/notification/upcoming_prayer_alarms_screen.dart';
 
 class _Translations extends Translations {
   _Translations(this.values);

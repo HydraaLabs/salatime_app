@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/controller/splash_controller.dart';
-import 'package:zabi/util/app_constants.dart';
-import 'package:zabi/util/dimensions.dart';
-import 'package:zabi/util/images.dart';
-import 'package:zabi/util/styles.dart';
+import 'package:salatime/controller/splash_controller.dart';
+import 'package:salatime/util/app_constants.dart';
+import 'package:salatime/util/dimensions.dart';
+import 'package:salatime/util/images.dart';
+import 'package:salatime/util/styles.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

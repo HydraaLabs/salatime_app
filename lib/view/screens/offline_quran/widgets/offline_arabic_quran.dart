@@ -1,19 +1,19 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
 import 'package:flutter/material.dart';
-import 'package:zabi/view/screens/quran/widget/quran_reading_check.dart';
-import 'package:zabi/view/screens/quran/widget/quran_reading_keys.dart';
+import 'package:salatime/view/screens/quran/widget/quran_reading_check.dart';
+import 'package:salatime/view/screens/quran/widget/quran_reading_keys.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:zabi/controller/bookmark_controller.dart';
-import 'package:zabi/controller/localization_controller.dart';
-import 'package:zabi/controller/offline_quran_controller.dart';
-import 'package:zabi/data/model/response/bookmark_model.dart';
-import 'package:zabi/util/dimensions.dart';
-import 'package:zabi/util/images.dart';
-import 'package:zabi/util/styles.dart';
-import 'package:zabi/view/base/loading_indicator.dart';
+import 'package:salatime/controller/bookmark_controller.dart';
+import 'package:salatime/controller/localization_controller.dart';
+import 'package:salatime/controller/offline_quran_controller.dart';
+import 'package:salatime/data/model/response/bookmark_model.dart';
+import 'package:salatime/util/dimensions.dart';
+import 'package:salatime/util/images.dart';
+import 'package:salatime/util/styles.dart';
+import 'package:salatime/view/base/loading_indicator.dart';
 
 import '../../../../controller/quran_settings_controller.dart';
 import '../../../base/custom_snackbar.dart';

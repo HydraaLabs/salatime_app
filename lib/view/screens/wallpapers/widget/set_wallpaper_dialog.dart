@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:zabi/controller/wallpaper_controller.dart';
-import 'package:zabi/util/styles.dart';
-import 'package:zabi/view/base/loading_indicator.dart';
+import 'package:salatime/controller/wallpaper_controller.dart';
+import 'package:salatime/util/styles.dart';
+import 'package:salatime/view/base/loading_indicator.dart';
 
 class SetWallpaperDialogWidget extends StatelessWidget {
   final String imagePath;

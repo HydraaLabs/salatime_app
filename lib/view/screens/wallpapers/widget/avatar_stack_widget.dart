@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:zabi/util/images.dart';
-import 'package:zabi/util/styles.dart';
+import 'package:salatime/util/images.dart';
+import 'package:salatime/util/styles.dart';
 class AvatarStackScreen extends StatelessWidget {
   final double height;
   final List<ImageProvider> avatars;

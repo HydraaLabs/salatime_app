@@ -3,11 +3,11 @@ import 'package:flutter_qiblah/flutter_qiblah.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:zabi/helper/location_helper.dart';
-import 'package:zabi/shimmer/all_shimmer_loder.dart';
-import 'package:zabi/view/base/custom_app_bar.dart';
-import 'package:zabi/view/screens/compass/widget/qiblah_compass.dart';
-import 'package:zabi/view/screens/compass/widget/qibla_map.dart';
+import 'package:salatime/helper/location_helper.dart';
+import 'package:salatime/shimmer/all_shimmer_loder.dart';
+import 'package:salatime/view/base/custom_app_bar.dart';
+import 'package:salatime/view/screens/compass/widget/qiblah_compass.dart';
+import 'package:salatime/view/screens/compass/widget/qibla_map.dart';
 
 class CompassScreen extends StatefulWidget {
   final bool appBackButton;

@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zabi/helper/adhan_notification_service_helper.dart';
+import 'package:salatime/helper/adhan_notification_service_helper.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

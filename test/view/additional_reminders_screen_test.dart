@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:zabi/view/screens/notification/widgets/sound_selection_field.dart';
-import 'package:zabi/view/screens/notification/widgets/notification_series_switch.dart';
+import 'package:salatime/view/screens/notification/widgets/sound_selection_field.dart';
+import 'package:salatime/view/screens/notification/widgets/notification_series_switch.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -10,14 +10,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
-import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
-import 'package:zabi/helper/additional_reminder_plan.dart';
-import 'package:zabi/service/cloud/preference_device.dart';
-import 'package:zabi/helper/local_prayer_calculator.dart';
-import 'package:zabi/theme/modern_dark_theme.dart';
-import 'package:zabi/theme/modern_light_theme.dart';
-import 'package:zabi/view/screens/reminders/additional_reminders_screen.dart';
-import 'package:zabi/view/screens/reminders/daily_prayer_markers_screen.dart';
+import 'package:salatime/data/model/response/todays_prayer_time_model.dart';
+import 'package:salatime/helper/additional_reminder_plan.dart';
+import 'package:salatime/service/cloud/preference_device.dart';
+import 'package:salatime/helper/local_prayer_calculator.dart';
+import 'package:salatime/theme/modern_dark_theme.dart';
+import 'package:salatime/theme/modern_light_theme.dart';
+import 'package:salatime/view/screens/reminders/additional_reminders_screen.dart';
+import 'package:salatime/view/screens/reminders/daily_prayer_markers_screen.dart';
 
 class _Translations extends Translations {
   @override

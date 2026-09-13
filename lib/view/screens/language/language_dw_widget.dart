@@ -3,11 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:zabi/controller/localization_controller.dart';
-import 'package:zabi/util/dimensions.dart';
-import 'package:zabi/util/images.dart';
-import 'package:zabi/util/styles.dart';
-import 'package:zabi/view/screens/language/widget/language_widget.dart';
+import 'package:salatime/controller/localization_controller.dart';
+import 'package:salatime/util/dimensions.dart';
+import 'package:salatime/util/images.dart';
+import 'package:salatime/util/styles.dart';
+import 'package:salatime/view/screens/language/widget/language_widget.dart';
 
 class LanguageDWWidget extends StatelessWidget {
   const LanguageDWWidget({super.key});

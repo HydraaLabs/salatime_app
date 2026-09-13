@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/controller/ai_assistant_controller.dart';
-import 'package:zabi/theme/light_theme.dart';
+import 'package:salatime/controller/ai_assistant_controller.dart';
+import 'package:salatime/theme/light_theme.dart';
 
 import '../../../util/styles.dart';
 import '../../base/custom_app_bar.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/helper/islamic_calendar.dart';
+import 'package:salatime/helper/islamic_calendar.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

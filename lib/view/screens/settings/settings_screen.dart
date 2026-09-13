@@ -1,7 +1,7 @@
-import 'package:zabi/view/screens/account/account_screen.dart';
-import 'package:zabi/view/screens/reminders/daily_prayer_markers_screen.dart';
-import 'package:zabi/view/screens/islamic_calendar/islamic_calendar_screen.dart';
-import 'package:zabi/view/screens/prayer_share/prayer_share_screen.dart';
+import 'package:salatime/view/screens/account/account_screen.dart';
+import 'package:salatime/view/screens/reminders/daily_prayer_markers_screen.dart';
+import 'package:salatime/view/screens/islamic_calendar/islamic_calendar_screen.dart';
+import 'package:salatime/view/screens/prayer_share/prayer_share_screen.dart';
 // ignore_for_file: deprecated_member_use
 
 import 'dart:io';
@@ -12,18 +12,18 @@ import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:zabi/controller/quran_settings_controller.dart';
-import 'package:zabi/util/dimensions.dart';
-import 'package:zabi/util/images.dart';
-import 'package:zabi/view/base/custom_app_bar.dart';
-import 'package:zabi/view/base/custom_snackbar.dart';
-import 'package:zabi/service/play_store_review_service.dart';
-import 'package:zabi/view/screens/language/language_dw_widget.dart';
-import 'package:zabi/view/screens/notification/notification_dw_widget.dart';
-import 'package:zabi/view/screens/prayer_settings/prayer_calculation_settings.dart';
-import 'package:zabi/view/screens/settings/widgets/home_layout_dw_widget.dart';
-import 'package:zabi/view/screens/settings/widgets/item_widgets.dart';
-import 'package:zabi/view/screens/settings/widgets/theme_mode_dw_widget.dart';
+import 'package:salatime/controller/quran_settings_controller.dart';
+import 'package:salatime/util/dimensions.dart';
+import 'package:salatime/util/images.dart';
+import 'package:salatime/view/base/custom_app_bar.dart';
+import 'package:salatime/view/base/custom_snackbar.dart';
+import 'package:salatime/service/play_store_review_service.dart';
+import 'package:salatime/view/screens/language/language_dw_widget.dart';
+import 'package:salatime/view/screens/notification/notification_dw_widget.dart';
+import 'package:salatime/view/screens/prayer_settings/prayer_calculation_settings.dart';
+import 'package:salatime/view/screens/settings/widgets/home_layout_dw_widget.dart';
+import 'package:salatime/view/screens/settings/widgets/item_widgets.dart';
+import 'package:salatime/view/screens/settings/widgets/theme_mode_dw_widget.dart';
 
 class SettingsScreen extends StatefulWidget {
   final bool appBackButton;

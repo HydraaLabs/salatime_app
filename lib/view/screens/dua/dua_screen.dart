@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/controller/dua_controller.dart';
-import 'package:zabi/data/repository/dua_list_repo.dart';
-import 'package:zabi/helper/route_helper.dart';
-import 'package:zabi/view/base/custom_app_bar.dart';
-import 'package:zabi/view/base/tabbar_button.dart';
-import 'package:zabi/view/screens/dua/api%20dua/api_dua_list_widget.dart';
-import 'package:zabi/view/screens/dua/local%20stroge%20dua/user_added_dua_list_widget.dart';
+import 'package:salatime/controller/dua_controller.dart';
+import 'package:salatime/data/repository/dua_list_repo.dart';
+import 'package:salatime/helper/route_helper.dart';
+import 'package:salatime/view/base/custom_app_bar.dart';
+import 'package:salatime/view/base/tabbar_button.dart';
+import 'package:salatime/view/screens/dua/api%20dua/api_dua_list_widget.dart';
+import 'package:salatime/view/screens/dua/local%20stroge%20dua/user_added_dua_list_widget.dart';
 import '../../../util/dimensions.dart';
 
 class DuaScreen extends StatefulWidget {

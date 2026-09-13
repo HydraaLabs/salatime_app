@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:zabi/theme/modern_dark_theme.dart';
-import 'package:zabi/theme/modern_light_theme.dart';
-import 'package:zabi/view/base/play_store_review_prompt.dart';
+import 'package:salatime/theme/modern_dark_theme.dart';
+import 'package:salatime/theme/modern_light_theme.dart';
+import 'package:salatime/view/base/play_store_review_prompt.dart';
 
 class _Strings extends Translations {
   _Strings(this.keys);

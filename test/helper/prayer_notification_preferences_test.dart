@@ -7,13 +7,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 // ignore: depend_on_referenced_packages
 import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
 import 'package:timezone/timezone.dart' as tz;
-import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
-import 'package:zabi/helper/local_prayer_calculator.dart';
-import 'package:zabi/helper/notification_sound_catalog.dart';
-import 'package:zabi/helper/prayer_alarm_plan.dart';
-import 'package:zabi/helper/prayer_notification_preferences.dart';
-import 'package:zabi/service/cloud/preference_device.dart';
-import 'package:zabi/util/app_constants.dart';
+import 'package:salatime/data/model/response/todays_prayer_time_model.dart';
+import 'package:salatime/helper/local_prayer_calculator.dart';
+import 'package:salatime/helper/notification_sound_catalog.dart';
+import 'package:salatime/helper/prayer_alarm_plan.dart';
+import 'package:salatime/helper/prayer_notification_preferences.dart';
+import 'package:salatime/service/cloud/preference_device.dart';
+import 'package:salatime/util/app_constants.dart';
 
 typedef Prayer = PrayerNotificationPrayer;
 typedef Phase = PrayerNotificationPhase;

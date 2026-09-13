@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:zabi/service/personal_notification_sounds.dart';
+import 'package:salatime/service/personal_notification_sounds.dart';
 
 class ImportSoundButton extends StatefulWidget {
   const ImportSoundButton({super.key, required this.onImported});

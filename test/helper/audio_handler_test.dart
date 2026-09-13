@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:zabi/helper/audio_handler.dart';
+import 'package:salatime/helper/audio_handler.dart';
 
 class _Player implements AudioPlayer {
   final indices = StreamController<int?>.broadcast();

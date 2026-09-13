@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/data/model/response/quran_translation_source.dart';
+import 'package:salatime/data/model/response/quran_translation_source.dart';
 
 /// Converts presentation markup without rewriting the published wording.
 /// Original translation and note strings remain unchanged in the model.

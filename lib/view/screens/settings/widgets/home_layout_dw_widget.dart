@@ -2,10 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/controller/home_layout_controller.dart';
-import 'package:zabi/util/dimensions.dart';
-import 'package:zabi/util/styles.dart';
-import 'package:zabi/view/screens/settings/widgets/home_layout_option_card.dart';
+import 'package:salatime/controller/home_layout_controller.dart';
+import 'package:salatime/util/dimensions.dart';
+import 'package:salatime/util/styles.dart';
+import 'package:salatime/view/screens/settings/widgets/home_layout_option_card.dart';
 
 /// Settings → Appearance → Home Screen Layout section.
 class HomeLayoutDWWidget extends StatelessWidget {

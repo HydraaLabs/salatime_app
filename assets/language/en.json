@@ -1,7 +1,7 @@
 {
   "get_directions": "Directions",
   "unable_to_open_directions": "Unable to open directions right now.",
-  "app_name": "Zabi",
+  "app_name": "SalaTime",
   "todays_Prayer_Time_in": "Today's Prayer Time in",
   "todays_Prayer_Time": "Today's Prayer Time",
   "fajr": "Fajr",
@@ -331,7 +331,7 @@
   "no_saved_names": "No saved names yet.\nTap ♡ on any name to save it.",
   "copy": "Copy",
   "remove": "Remove",
-  "generated_with": "Islamic Name — Generated with Zabi App",
+  "generated_with": "Islamic Name — Generated with SalaTime App",
   "ai_name_key": "AI Name Generator",
   "synonyms_key": "Similar Names",
   "ai_islamic_assistant": "AI Islamic Assistant",

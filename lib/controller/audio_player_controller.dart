@@ -5,14 +5,14 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart' show LoopMode;
-import 'package:zabi/controller/quran_controller.dart';
-import 'package:zabi/data/api/api_client.dart';
-import 'package:zabi/data/model/response/mp3quran_model.dart';
-import 'package:zabi/data/model/response/reciters_model.dart';
-import 'package:zabi/helper/audio_handler.dart';
-import 'package:zabi/helper/audio_service_helper.dart';
-import 'package:zabi/helper/debug_http_client.dart';
-import 'package:zabi/util/app_constants.dart';
+import 'package:salatime/controller/quran_controller.dart';
+import 'package:salatime/data/api/api_client.dart';
+import 'package:salatime/data/model/response/mp3quran_model.dart';
+import 'package:salatime/data/model/response/reciters_model.dart';
+import 'package:salatime/helper/audio_handler.dart';
+import 'package:salatime/helper/audio_service_helper.dart';
+import 'package:salatime/helper/debug_http_client.dart';
+import 'package:salatime/util/app_constants.dart';
 
 class AudioPlayerController extends GetxController {
   final ApiClient apiClient;

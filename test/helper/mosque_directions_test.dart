@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zabi/helper/mosque_directions.dart';
+import 'package:salatime/helper/mosque_directions.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

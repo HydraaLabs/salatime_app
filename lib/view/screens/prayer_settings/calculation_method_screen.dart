@@ -2,8 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/controller/package_prayer_time_controller.dart';
-import 'package:zabi/helper/prayer_calculation_methods.dart';
+import 'package:salatime/controller/package_prayer_time_controller.dart';
+import 'package:salatime/helper/prayer_calculation_methods.dart';
 
 String calculationMethodLabel(PrayerCalculationMethod method) {
   final translated = method.nameKey.tr;

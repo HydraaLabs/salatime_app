@@ -8,8 +8,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/helper/salat_waqt_service.dart';
-import 'package:zabi/view/screens/notification/widgets/prayer_alarm_health_card.dart';
+import 'package:salatime/helper/salat_waqt_service.dart';
+import 'package:salatime/view/screens/notification/widgets/prayer_alarm_health_card.dart';
 
 class _Translations extends Translations {
   @override

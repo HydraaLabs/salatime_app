@@ -3,14 +3,14 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:timezone/timezone.dart' as tz;
-import 'package:zabi/controller/offline_quran_controller.dart';
-import 'package:zabi/controller/package_prayer_time_controller.dart';
-import 'package:zabi/controller/prayer_time_adjustment.dart';
-import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
-import 'package:zabi/helper/additional_reminder_plan.dart';
-import 'package:zabi/helper/prayer_alarm_plan.dart';
-import 'package:zabi/helper/route_helper.dart';
-import 'package:zabi/view/screens/reminders/additional_reminders_screen.dart';
+import 'package:salatime/controller/offline_quran_controller.dart';
+import 'package:salatime/controller/package_prayer_time_controller.dart';
+import 'package:salatime/controller/prayer_time_adjustment.dart';
+import 'package:salatime/data/model/response/todays_prayer_time_model.dart';
+import 'package:salatime/helper/additional_reminder_plan.dart';
+import 'package:salatime/helper/prayer_alarm_plan.dart';
+import 'package:salatime/helper/route_helper.dart';
+import 'package:salatime/view/screens/reminders/additional_reminders_screen.dart';
 
 class DailyPrayerMarkers {
   const DailyPrayerMarkers(this.date, this.entries);

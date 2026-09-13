@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zabi/service/automatic_silence_service.dart';
-import 'package:zabi/view/screens/settings/widgets/automatic_silence_settings.dart';
+import 'package:salatime/service/automatic_silence_service.dart';
+import 'package:salatime/view/screens/settings/widgets/automatic_silence_settings.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

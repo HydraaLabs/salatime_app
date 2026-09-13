@@ -4,10 +4,10 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/controller/noti_sound_controller.dart';
-import 'package:zabi/helper/prayer_notification_preferences.dart';
-import 'package:zabi/util/app_constants.dart';
-import 'package:zabi/view/screens/notification/widgets/salat_waqt_repository.dart';
+import 'package:salatime/controller/noti_sound_controller.dart';
+import 'package:salatime/helper/prayer_notification_preferences.dart';
+import 'package:salatime/util/app_constants.dart';
+import 'package:salatime/view/screens/notification/widgets/salat_waqt_repository.dart';
 
 class FirstLaunchSetupService {
   FirstLaunchSetupService(this.preferences);

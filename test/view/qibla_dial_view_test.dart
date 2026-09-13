@@ -6,9 +6,9 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:zabi/theme/modern_light_theme.dart';
-import 'package:zabi/theme/modern_dark_theme.dart';
-import 'package:zabi/view/screens/compass/widget/qibla_dial_view.dart';
+import 'package:salatime/theme/modern_light_theme.dart';
+import 'package:salatime/theme/modern_dark_theme.dart';
+import 'package:salatime/view/screens/compass/widget/qibla_dial_view.dart';
 
 class _Strings extends Translations {
   _Strings(this.keys);

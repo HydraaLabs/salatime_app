@@ -5,9 +5,9 @@ import 'qibla_dial_view.dart';
 import 'package:flutter_compass_v2/flutter_compass_v2.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
-import 'package:zabi/helper/location_helper.dart';
-import 'package:zabi/helper/qiblah_helper.dart';
-import 'package:zabi/shimmer/all_shimmer_loder.dart';
+import 'package:salatime/helper/location_helper.dart';
+import 'package:salatime/helper/qiblah_helper.dart';
+import 'package:salatime/shimmer/all_shimmer_loder.dart';
 
 class QiblahCompassWidget extends StatefulWidget {
   final bool isActive;

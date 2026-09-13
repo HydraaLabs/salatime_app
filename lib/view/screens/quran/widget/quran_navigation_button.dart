@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:zabi/util/styles.dart';
+import 'package:salatime/util/styles.dart';
 
 class QuranNavigationButton extends StatelessWidget {
   const QuranNavigationButton({

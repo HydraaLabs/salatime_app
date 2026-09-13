@@ -2,10 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/view/base/custom_app_bar.dart';
-import 'package:zabi/view/base/custom_snackbar.dart';
-import 'package:zabi/view/base/my_text_field.dart';
-import 'package:zabi/controller/dhikr_controller.dart';
+import 'package:salatime/view/base/custom_app_bar.dart';
+import 'package:salatime/view/base/custom_snackbar.dart';
+import 'package:salatime/view/base/my_text_field.dart';
+import 'package:salatime/controller/dhikr_controller.dart';
 import '../../../../util/dimensions.dart';
 import '../../../../util/styles.dart';
 import '../../../base/custom_button.dart';

@@ -4,8 +4,8 @@ import 'dart:async';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
-import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
-import 'package:zabi/helper/prayer_alarm_plan.dart';
+import 'package:salatime/data/model/response/todays_prayer_time_model.dart';
+import 'package:salatime/helper/prayer_alarm_plan.dart';
 
 import 'notification_sound_catalog.dart';
 

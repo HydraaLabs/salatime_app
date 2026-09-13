@@ -1,7 +1,7 @@
-import 'package:zabi/helper/prayer_calculation_methods.dart';
-import 'package:zabi/helper/notification_sound_catalog.dart';
-import 'package:zabi/helper/additional_reminder_plan.dart';
-import 'package:zabi/helper/prayer_notification_preferences.dart';
+import 'package:salatime/helper/prayer_calculation_methods.dart';
+import 'package:salatime/helper/notification_sound_catalog.dart';
+import 'package:salatime/helper/additional_reminder_plan.dart';
+import 'package:salatime/helper/prayer_notification_preferences.dart';
 
 /// Explicit, versioned allow-list. Device permissions, tokens, locations and file
 /// paths never enter this document, even if supplied by a restored backup.

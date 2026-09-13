@@ -1,5 +1,5 @@
 {
-  "app_name": "Zabi",
+  "app_name": "SalaTime",
   "todays_Prayer_Time_in": "Muda wa Salio la Leo katika",
   "todays_Prayer_Time": "Salio la Leo",
   "fajr": "Fajr",
@@ -280,7 +280,7 @@
   "no_saved_names": "Hakuna majina yaliyohifadhiwa bado.\nGonga ♡ kwenye jina lolote kuhifadhi.",
   "copy": "Nakili",
   "remove": "Ondoa",
-  "generated_with": "Jina la Kiislamu — Limeundwa na Zabi App",
+  "generated_with": "Jina la Kiislamu — Limeundwa na SalaTime App",
   "ai_name_key": "Kizalishaji cha Majina cha AI",
   "ask_ai_key": "Uliza AI",
   "synonyms_key": "Majina Yanayofanana",

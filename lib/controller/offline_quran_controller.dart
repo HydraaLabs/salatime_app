@@ -4,12 +4,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:zabi/data/model/response/juz_list_model.dart';
-import 'package:zabi/data/model/response/offline_sura_model.dart';
-import 'package:zabi/data/model/response/sura_detile_model.dart';
-import 'package:zabi/helper/offline_quran_loader.dart';
-import 'package:zabi/service/quran/quran_translation_repository.dart';
-import 'package:zabi/view/screens/offline_quran/offline_surah_detail_screen.dart';
+import 'package:salatime/data/model/response/juz_list_model.dart';
+import 'package:salatime/data/model/response/offline_sura_model.dart';
+import 'package:salatime/data/model/response/sura_detile_model.dart';
+import 'package:salatime/helper/offline_quran_loader.dart';
+import 'package:salatime/service/quran/quran_translation_repository.dart';
+import 'package:salatime/view/screens/offline_quran/offline_surah_detail_screen.dart';
 
 class OfflineQuranController extends GetxController {
   OfflineQuranController({

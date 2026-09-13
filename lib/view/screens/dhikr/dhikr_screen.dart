@@ -3,14 +3,14 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/helper/athkar_catalog.dart';
-import 'package:zabi/service/athkar_reader_preferences.dart';
-import 'package:zabi/service/reading/reading_progress_service.dart';
-import 'package:zabi/view/base/custom_app_bar.dart';
-import 'package:zabi/view/screens/dhikr/widgets/athkar_reading_controls.dart';
-import 'package:zabi/view/screens/dhikr/widgets/athkar_text_size_sheet.dart';
-import 'package:zabi/view/screens/dhikr/widgets/personal_dhikr_screen.dart';
-import 'package:zabi/view/screens/reading/reading_progress_screen.dart';
+import 'package:salatime/helper/athkar_catalog.dart';
+import 'package:salatime/service/athkar_reader_preferences.dart';
+import 'package:salatime/service/reading/reading_progress_service.dart';
+import 'package:salatime/view/base/custom_app_bar.dart';
+import 'package:salatime/view/screens/dhikr/widgets/athkar_reading_controls.dart';
+import 'package:salatime/view/screens/dhikr/widgets/athkar_text_size_sheet.dart';
+import 'package:salatime/view/screens/dhikr/widgets/personal_dhikr_screen.dart';
+import 'package:salatime/view/screens/reading/reading_progress_screen.dart';
 
 class DhikrScreen extends StatefulWidget {
   const DhikrScreen({

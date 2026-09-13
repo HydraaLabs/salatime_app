@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/theme/light_theme.dart';
-import 'package:zabi/util/dimensions.dart';
-import 'package:zabi/util/styles.dart';
-import 'package:zabi/view/base/custom_app_bar.dart';
-import 'package:zabi/view/base/custom_button.dart';
+import 'package:salatime/theme/light_theme.dart';
+import 'package:salatime/util/dimensions.dart';
+import 'package:salatime/util/styles.dart';
+import 'package:salatime/view/base/custom_app_bar.dart';
+import 'package:salatime/view/base/custom_button.dart';
 import '../../../controller/islamic_name_controller.dart';
 import '../../../controller/quran_settings_controller.dart';
 import '../../../data/model/response/islamic_name_model.dart';

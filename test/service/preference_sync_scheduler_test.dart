@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zabi/service/cloud/preference_sync_scheduler.dart';
+import 'package:salatime/service/cloud/preference_sync_scheduler.dart';
 
 void main() {
   test('every edit resets the full minute while polls cannot bypass it', () {

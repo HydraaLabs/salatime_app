@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/util/app_constants.dart';
+import 'package:salatime/util/app_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeController extends GetxController

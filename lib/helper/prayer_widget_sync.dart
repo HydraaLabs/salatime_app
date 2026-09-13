@@ -4,12 +4,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:timezone/timezone.dart' as tz;
-import 'package:zabi/controller/package_prayer_time_controller.dart';
-import 'package:zabi/controller/prayer_time_adjustment.dart';
-import 'package:zabi/helper/local_prayer_calculator.dart';
-import 'package:zabi/helper/prayer_alarm_health.dart';
-import 'package:zabi/helper/prayer_alarm_plan.dart';
-import 'package:zabi/helper/prayer_refresh_coordinator.dart';
+import 'package:salatime/controller/package_prayer_time_controller.dart';
+import 'package:salatime/controller/prayer_time_adjustment.dart';
+import 'package:salatime/helper/local_prayer_calculator.dart';
+import 'package:salatime/helper/prayer_alarm_health.dart';
+import 'package:salatime/helper/prayer_alarm_plan.dart';
+import 'package:salatime/helper/prayer_refresh_coordinator.dart';
 
 /// Sends display data independently of notification permissions, sound setup,
 /// alarm registration and cloud synchronization.

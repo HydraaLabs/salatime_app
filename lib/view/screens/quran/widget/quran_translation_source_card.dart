@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:zabi/service/quran/quran_translation_repository.dart';
+import 'package:salatime/service/quran/quran_translation_repository.dart';
 
 class QuranTranslationSourceCard extends StatefulWidget {
   const QuranTranslationSourceCard({

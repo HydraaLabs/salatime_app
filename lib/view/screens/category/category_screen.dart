@@ -3,12 +3,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:zabi/controller/category_controller.dart';
-import 'package:zabi/helper/route_helper.dart';
-import 'package:zabi/util/images.dart';
-import 'package:zabi/view/base/custom_app_bar.dart';
-import 'package:zabi/view/screens/category/widget/grid_view_item_widget.dart';
-import 'package:zabi/view/screens/category/widget/list_view_item_widget.dart';
+import 'package:salatime/controller/category_controller.dart';
+import 'package:salatime/helper/route_helper.dart';
+import 'package:salatime/util/images.dart';
+import 'package:salatime/view/base/custom_app_bar.dart';
+import 'package:salatime/view/screens/category/widget/grid_view_item_widget.dart';
+import 'package:salatime/view/screens/category/widget/list_view_item_widget.dart';
 
 import '../../../util/dimensions.dart';
 

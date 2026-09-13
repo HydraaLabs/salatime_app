@@ -1,5 +1,5 @@
 import 'package:flutter/services.dart';
-import 'package:zabi/service/quran/quran_translation_repository.dart';
+import 'package:salatime/service/quran/quran_translation_repository.dart';
 
 class DailyVerse {
   const DailyVerse({

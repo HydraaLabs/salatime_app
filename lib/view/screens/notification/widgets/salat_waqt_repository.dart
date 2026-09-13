@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/view/screens/notification/widgets/salat_waqt.dart';
+import 'package:salatime/view/screens/notification/widgets/salat_waqt.dart';
 
 class SalatWaqtRepository {
   static const String _salatWaqtKey = "salat_waqt";

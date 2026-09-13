@@ -2,8 +2,8 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/controller/audio_player_controller.dart';
-import 'package:zabi/data/api/api_client.dart';
+import 'package:salatime/controller/audio_player_controller.dart';
+import 'package:salatime/data/api/api_client.dart';
 
 class _CountingController extends AudioPlayerController {
   _CountingController(ApiClient client, AudioHandler handler)

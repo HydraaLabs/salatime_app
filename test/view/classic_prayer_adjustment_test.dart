@@ -5,16 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/controller/internet_check_controller.dart';
-import 'package:zabi/controller/package_prayer_time_controller.dart';
-import 'package:zabi/controller/prayer_time_adjustment.dart';
-import 'package:zabi/controller/quran_settings_controller.dart';
-import 'package:zabi/data/api/api_client.dart';
-import 'package:zabi/data/model/response/mosque_settings_model.dart' as mosque;
-import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
-import 'package:zabi/data/repository/quran_setting_repo.dart';
-import 'package:zabi/view/screens/home/classic/classic_home_screen.dart';
-import 'package:zabi/view/screens/home/classic/widget/today_prayer_list_item.dart';
+import 'package:salatime/controller/internet_check_controller.dart';
+import 'package:salatime/controller/package_prayer_time_controller.dart';
+import 'package:salatime/controller/prayer_time_adjustment.dart';
+import 'package:salatime/controller/quran_settings_controller.dart';
+import 'package:salatime/data/api/api_client.dart';
+import 'package:salatime/data/model/response/mosque_settings_model.dart' as mosque;
+import 'package:salatime/data/model/response/todays_prayer_time_model.dart';
+import 'package:salatime/data/repository/quran_setting_repo.dart';
+import 'package:salatime/view/screens/home/classic/classic_home_screen.dart';
+import 'package:salatime/view/screens/home/classic/widget/today_prayer_list_item.dart';
 
 class _Internet extends InternetController {
   @override

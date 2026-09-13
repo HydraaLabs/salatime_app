@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/util/images.dart';
+import 'package:salatime/util/images.dart';
 
 import '../../../../controller/localization_controller.dart';
 import '../../../../data/model/response/language_model.dart';

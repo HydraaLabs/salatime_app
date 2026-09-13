@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:zabi/service/automatic_silence_service.dart';
+import 'package:salatime/service/automatic_silence_service.dart';
 
 class AutomaticSilenceSettings extends StatefulWidget {
   const AutomaticSilenceSettings({super.key});

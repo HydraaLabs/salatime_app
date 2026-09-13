@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/controller/quran_milestone_controller.dart';
-import 'package:zabi/service/reading/reading_progress_service.dart';
-import 'package:zabi/util/app_constants.dart';
+import 'package:salatime/controller/quran_milestone_controller.dart';
+import 'package:salatime/service/reading/reading_progress_service.dart';
+import 'package:salatime/util/app_constants.dart';
 
 class _Reading extends ChangeNotifier implements ReadingProgressService {
   int surahs = 0;

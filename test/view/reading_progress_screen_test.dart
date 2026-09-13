@@ -9,11 +9,11 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/controller/home_layout_controller.dart';
-import 'package:zabi/service/reading/reading_progress_service.dart';
-import 'package:zabi/theme/modern_dark_theme.dart';
-import 'package:zabi/theme/modern_light_theme.dart';
-import 'package:zabi/view/screens/reading/reading_progress_screen.dart';
+import 'package:salatime/controller/home_layout_controller.dart';
+import 'package:salatime/service/reading/reading_progress_service.dart';
+import 'package:salatime/theme/modern_dark_theme.dart';
+import 'package:salatime/theme/modern_light_theme.dart';
+import 'package:salatime/view/screens/reading/reading_progress_screen.dart';
 
 import '../support/fake_reading_progress.dart';
 

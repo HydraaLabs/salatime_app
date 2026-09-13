@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'package:zabi/helper/debug_http_client.dart';
-import 'package:zabi/util/app_constants.dart';
+import 'package:salatime/helper/debug_http_client.dart';
+import 'package:salatime/util/app_constants.dart';
 
 class AiAssistantRepo {
   Future<String> askAI({

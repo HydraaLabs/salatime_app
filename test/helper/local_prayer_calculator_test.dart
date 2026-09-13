@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:timezone/timezone.dart' as tz;
-import 'package:zabi/helper/local_prayer_calculator.dart';
+import 'package:salatime/helper/local_prayer_calculator.dart';
 
 void main() {
   setUpAll(LocalPrayerCalculator.initializeTimeZones);

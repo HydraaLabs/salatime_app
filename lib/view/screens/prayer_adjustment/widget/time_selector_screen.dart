@@ -2,7 +2,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/helper/salat_waqt_service.dart';
+import 'package:salatime/helper/salat_waqt_service.dart';
 
 import '../../../../controller/prayer_time_adjustment.dart';
 import '../../../../helper/translator_helper.dart';

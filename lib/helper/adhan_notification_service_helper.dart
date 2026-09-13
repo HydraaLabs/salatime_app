@@ -1,4 +1,4 @@
-import 'package:zabi/service/personal_notification_sounds.dart';
+import 'package:salatime/service/personal_notification_sounds.dart';
 import 'dart:io';
 import 'notification_sound_catalog.dart';
 
@@ -9,9 +9,9 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
-import 'package:zabi/util/app_constants.dart';
-import 'package:zabi/helper/local_prayer_calculator.dart';
-import 'package:zabi/helper/prayer_alarm_health.dart';
+import 'package:salatime/util/app_constants.dart';
+import 'package:salatime/helper/local_prayer_calculator.dart';
+import 'package:salatime/helper/prayer_alarm_health.dart';
 
 abstract class AdhanNotificationService {
   // Future<void> checkAndRequestPermissions();

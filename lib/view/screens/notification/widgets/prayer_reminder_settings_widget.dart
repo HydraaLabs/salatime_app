@@ -2,9 +2,9 @@ import 'import_sound_button.dart';
 import 'sound_selection_field.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/controller/prayer_reminder_controller.dart';
-import 'package:zabi/util/dimensions.dart';
-import 'package:zabi/util/styles.dart';
+import 'package:salatime/controller/prayer_reminder_controller.dart';
+import 'package:salatime/util/dimensions.dart';
+import 'package:salatime/util/styles.dart';
 
 class PrayerReminderSettingsWidget extends StatelessWidget {
   const PrayerReminderSettingsWidget({super.key});

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/controller/noti_sound_controller.dart';
-import 'package:zabi/helper/salat_waqt_service.dart';
-import 'package:zabi/util/app_constants.dart';
-import 'package:zabi/util/dimensions.dart';
+import 'package:salatime/controller/noti_sound_controller.dart';
+import 'package:salatime/helper/salat_waqt_service.dart';
+import 'package:salatime/util/app_constants.dart';
+import 'package:salatime/util/dimensions.dart';
 
 import 'import_sound_button.dart';
 import 'sound_selection_field.dart';

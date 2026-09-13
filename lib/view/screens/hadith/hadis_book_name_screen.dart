@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:zabi/shimmer/all_shimmer_loder.dart';
-import 'package:zabi/view/base/custom_app_bar.dart';
+import 'package:salatime/shimmer/all_shimmer_loder.dart';
+import 'package:salatime/view/base/custom_app_bar.dart';
 import '../../../controller/hadith_controller.dart';
 import '../../../helper/route_helper.dart';
 import '../../../util/dimensions.dart';

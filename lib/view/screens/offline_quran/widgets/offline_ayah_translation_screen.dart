@@ -1,19 +1,19 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
-import 'package:zabi/view/screens/quran/widget/quran_reading_check.dart';
-import 'package:zabi/view/screens/quran/widget/quran_reading_keys.dart';
-import 'package:zabi/view/screens/quran/widget/quran_translation_source_card.dart';
-import 'package:zabi/view/screens/quran/widget/quran_translation_text.dart';
+import 'package:salatime/view/screens/quran/widget/quran_reading_check.dart';
+import 'package:salatime/view/screens/quran/widget/quran_reading_keys.dart';
+import 'package:salatime/view/screens/quran/widget/quran_translation_source_card.dart';
+import 'package:salatime/view/screens/quran/widget/quran_translation_text.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:zabi/controller/offline_quran_controller.dart';
-import 'package:zabi/util/app_constants.dart';
-import 'package:zabi/util/dimensions.dart';
-import 'package:zabi/util/images.dart';
-import 'package:zabi/util/styles.dart';
-import 'package:zabi/view/base/loading_indicator.dart';
+import 'package:salatime/controller/offline_quran_controller.dart';
+import 'package:salatime/util/app_constants.dart';
+import 'package:salatime/util/dimensions.dart';
+import 'package:salatime/util/images.dart';
+import 'package:salatime/util/styles.dart';
+import 'package:salatime/view/base/loading_indicator.dart';
 
 import '../../../../controller/quran_settings_controller.dart';
 

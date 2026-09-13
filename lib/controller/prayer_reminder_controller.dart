@@ -1,11 +1,11 @@
-import 'package:zabi/service/personal_notification_sounds.dart';
+import 'package:salatime/service/personal_notification_sounds.dart';
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/controller/noti_sound_controller.dart';
-import 'package:zabi/helper/salat_waqt_service.dart';
-import 'package:zabi/util/app_constants.dart';
+import 'package:salatime/controller/noti_sound_controller.dart';
+import 'package:salatime/helper/salat_waqt_service.dart';
+import 'package:salatime/util/app_constants.dart';
 
 enum PrayerReminderType { before, after }
 

@@ -11,18 +11,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 // Instrument the existing plugin store without changing production dependencies.
 // ignore: depend_on_referenced_packages
 import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
-import 'package:zabi/controller/package_prayer_time_controller.dart';
-import 'package:zabi/data/api/api_client.dart';
-import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
-import 'package:zabi/helper/local_prayer_calculator.dart';
-import 'package:zabi/helper/location_auto_update_service.dart';
-import 'package:zabi/helper/prayer_alarm_health.dart';
-import 'package:zabi/helper/prayer_calculation_methods.dart';
-import 'package:zabi/helper/prayer_notification_preferences.dart';
-import 'package:zabi/helper/salat_waqt_service.dart';
-import 'package:zabi/helper/prayer_widget_sync.dart';
-import 'package:zabi/service/cloud/preference_schema.dart';
-import 'package:zabi/util/app_constants.dart';
+import 'package:salatime/controller/package_prayer_time_controller.dart';
+import 'package:salatime/data/api/api_client.dart';
+import 'package:salatime/data/model/response/todays_prayer_time_model.dart';
+import 'package:salatime/helper/local_prayer_calculator.dart';
+import 'package:salatime/helper/location_auto_update_service.dart';
+import 'package:salatime/helper/prayer_alarm_health.dart';
+import 'package:salatime/helper/prayer_calculation_methods.dart';
+import 'package:salatime/helper/prayer_notification_preferences.dart';
+import 'package:salatime/helper/salat_waqt_service.dart';
+import 'package:salatime/helper/prayer_widget_sync.dart';
+import 'package:salatime/service/cloud/preference_schema.dart';
+import 'package:salatime/util/app_constants.dart';
 
 class _OfflineApi extends ApiClient {
   _OfflineApi(SharedPreferences prefs)

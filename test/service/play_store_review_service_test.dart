@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/service/play_store_review_service.dart';
+import 'package:salatime/service/play_store_review_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

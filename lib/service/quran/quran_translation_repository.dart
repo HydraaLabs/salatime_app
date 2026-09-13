@@ -2,11 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:zabi/data/model/response/quran_translation_source.dart';
-import 'package:zabi/data/model/response/sura_detile_model.dart';
-import 'package:zabi/service/reading/reading_progress_models.dart';
+import 'package:salatime/data/model/response/quran_translation_source.dart';
+import 'package:salatime/data/model/response/sura_detile_model.dart';
+import 'package:salatime/service/reading/reading_progress_models.dart';
 
-export 'package:zabi/data/model/response/quran_translation_source.dart';
+export 'package:salatime/data/model/response/quran_translation_source.dart';
 
 class QuranTranslationVerse {
   const QuranTranslationVerse({

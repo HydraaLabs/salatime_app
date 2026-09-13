@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:zabi/helper/qiblah_helper.dart';
+import 'package:salatime/helper/qiblah_helper.dart';
 
 void main() {
   group('QiblahHelper.bearingFromTrueNorth', () {

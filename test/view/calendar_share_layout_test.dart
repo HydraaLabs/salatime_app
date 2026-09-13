@@ -8,12 +8,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
-import 'package:zabi/helper/prayer_share_data.dart';
-import 'package:zabi/theme/modern_light_theme.dart';
-import 'package:zabi/theme/modern_dark_theme.dart';
-import 'package:zabi/view/screens/islamic_calendar/islamic_calendar_screen.dart';
-import 'package:zabi/view/screens/prayer_share/prayer_share_screen.dart';
+import 'package:salatime/data/model/response/todays_prayer_time_model.dart';
+import 'package:salatime/helper/prayer_share_data.dart';
+import 'package:salatime/theme/modern_light_theme.dart';
+import 'package:salatime/theme/modern_dark_theme.dart';
+import 'package:salatime/view/screens/islamic_calendar/islamic_calendar_screen.dart';
+import 'package:salatime/view/screens/prayer_share/prayer_share_screen.dart';
 
 class _Strings extends Translations {
   _Strings(this.keys);

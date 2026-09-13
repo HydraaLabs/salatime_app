@@ -1,14 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/helper/islamic_calendar.dart';
-import 'package:zabi/controller/package_prayer_time_controller.dart';
-import 'package:zabi/controller/prayer_time_adjustment.dart';
-import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
-import 'package:zabi/helper/prayer_display_phase.dart';
-import 'package:zabi/helper/translator_helper.dart';
-import 'package:zabi/theme/brand_colors.dart';
-import 'package:zabi/util/images.dart';
+import 'package:salatime/helper/islamic_calendar.dart';
+import 'package:salatime/controller/package_prayer_time_controller.dart';
+import 'package:salatime/controller/prayer_time_adjustment.dart';
+import 'package:salatime/data/model/response/todays_prayer_time_model.dart';
+import 'package:salatime/helper/prayer_display_phase.dart';
+import 'package:salatime/helper/translator_helper.dart';
+import 'package:salatime/theme/brand_colors.dart';
+import 'package:salatime/util/images.dart';
 
 class BannerWidget extends StatefulWidget {
   const BannerWidget({super.key});

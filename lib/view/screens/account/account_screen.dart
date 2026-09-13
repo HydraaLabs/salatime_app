@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/service/mobile_auth_service.dart';
-import 'package:zabi/view/screens/account/cloud_sync_status_card.dart';
+import 'package:salatime/service/mobile_auth_service.dart';
+import 'package:salatime/view/screens/account/cloud_sync_status_card.dart';
 
 enum _AccountForm { login, register, forgot, reset }
 

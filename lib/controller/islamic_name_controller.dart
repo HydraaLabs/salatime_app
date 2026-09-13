@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/controller/quran_settings_controller.dart';
-import 'package:zabi/util/app_constants.dart';
-import 'package:zabi/view/base/custom_snackbar.dart';
+import 'package:salatime/controller/quran_settings_controller.dart';
+import 'package:salatime/util/app_constants.dart';
+import 'package:salatime/view/base/custom_snackbar.dart';
 
 import '../data/model/response/islamic_name_model.dart';
 import '../data/repository/islamic_name_repo.dart';

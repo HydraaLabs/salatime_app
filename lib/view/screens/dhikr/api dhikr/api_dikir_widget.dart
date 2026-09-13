@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/controller/dhikr_controller.dart';
-import 'package:zabi/controller/quran_settings_controller.dart';
-import 'package:zabi/helper/route_helper.dart';
-import 'package:zabi/shimmer/all_shimmer_loder.dart';
-import 'package:zabi/util/dimensions.dart';
-import 'package:zabi/util/styles.dart';
+import 'package:salatime/controller/dhikr_controller.dart';
+import 'package:salatime/controller/quran_settings_controller.dart';
+import 'package:salatime/helper/route_helper.dart';
+import 'package:salatime/shimmer/all_shimmer_loder.dart';
+import 'package:salatime/util/dimensions.dart';
+import 'package:salatime/util/styles.dart';
 
 class ApiDikirWidget extends StatelessWidget {
   const ApiDikirWidget({super.key});

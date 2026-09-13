@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/service/personal_notification_sounds.dart';
+import 'package:salatime/service/personal_notification_sounds.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

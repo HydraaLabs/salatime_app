@@ -1,5 +1,5 @@
 {
-  "app_name": "Zabi",
+  "app_name": "SalaTime",
   "todays_Prayer_Time_in": "Idagens bönstid i",
   "todays_Prayer_Time": "Idagens bönstid",
   "fajr": "Fajr",
@@ -280,7 +280,7 @@
   "no_saved_names": "Inga sparade namn ännu.\nTryck ♡ på ett namn för att spara.",
   "copy": "Kopiera",
   "remove": "Ta bort",
-  "generated_with": "Islamiskt namn — Genererat med Zabi App",
+  "generated_with": "Islamiskt namn — Genererat med SalaTime App",
   "ai_name_key": "AI Namngenerator",
   "ask_ai_key": "Fråga AI",
   "synonyms_key": "Liknande namn",

@@ -2,10 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/helper/prayer_notification_preferences.dart';
-import 'package:zabi/service/first_launch_setup_service.dart';
-import 'package:zabi/view/screens/reminders/additional_reminders_screen.dart';
-import 'package:zabi/view/screens/settings/widgets/automatic_silence_settings.dart';
+import 'package:salatime/helper/prayer_notification_preferences.dart';
+import 'package:salatime/service/first_launch_setup_service.dart';
+import 'package:salatime/view/screens/reminders/additional_reminders_screen.dart';
+import 'package:salatime/view/screens/settings/widgets/automatic_silence_settings.dart';
 import 'notification_phase_screen.dart';
 import 'upcoming_prayer_alarms_screen.dart';
 

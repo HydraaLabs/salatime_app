@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/controller/home_layout_controller.dart';
-import 'package:zabi/controller/internet_check_controller.dart';
-import 'package:zabi/controller/nearby_mosque_controller.dart';
-import 'package:zabi/theme/modern_light_theme.dart';
-import 'package:zabi/helper/athkar_catalog.dart';
-import 'package:zabi/view/base/bottom_navbar.dart';
-import 'package:zabi/view/base/custom_app_bar.dart';
-import 'package:zabi/view/screens/category/category_screen.dart';
-import 'package:zabi/view/screens/compass/compass_screen.dart';
-import 'package:zabi/view/screens/dhikr/dhikr_screen.dart';
-import 'package:zabi/view/screens/nearby_mosque/nearby_mosque_screen.dart';
+import 'package:salatime/controller/home_layout_controller.dart';
+import 'package:salatime/controller/internet_check_controller.dart';
+import 'package:salatime/controller/nearby_mosque_controller.dart';
+import 'package:salatime/theme/modern_light_theme.dart';
+import 'package:salatime/helper/athkar_catalog.dart';
+import 'package:salatime/view/base/bottom_navbar.dart';
+import 'package:salatime/view/base/custom_app_bar.dart';
+import 'package:salatime/view/screens/category/category_screen.dart';
+import 'package:salatime/view/screens/compass/compass_screen.dart';
+import 'package:salatime/view/screens/dhikr/dhikr_screen.dart';
+import 'package:salatime/view/screens/nearby_mosque/nearby_mosque_screen.dart';
 
 class _Internet extends InternetController {
   @override

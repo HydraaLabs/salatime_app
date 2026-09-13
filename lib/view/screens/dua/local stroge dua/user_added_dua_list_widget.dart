@@ -2,12 +2,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:zabi/controller/dua_controller.dart';
-import 'package:zabi/controller/quran_settings_controller.dart';
-import 'package:zabi/util/dimensions.dart';
-import 'package:zabi/util/styles.dart';
-import 'package:zabi/view/base/loading_indicator.dart';
-import 'package:zabi/view/screens/dua/local%20stroge%20dua/local_dua_view_screen.dart';
+import 'package:salatime/controller/dua_controller.dart';
+import 'package:salatime/controller/quran_settings_controller.dart';
+import 'package:salatime/util/dimensions.dart';
+import 'package:salatime/util/styles.dart';
+import 'package:salatime/view/base/loading_indicator.dart';
+import 'package:salatime/view/screens/dua/local%20stroge%20dua/local_dua_view_screen.dart';
 
 class UserAddedDuaWidget extends StatelessWidget {
   UserAddedDuaWidget({super.key});

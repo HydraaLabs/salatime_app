@@ -8,11 +8,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/controller/home_layout_controller.dart';
-import 'package:zabi/controller/theme_controller.dart';
-import 'package:zabi/helper/theme_helper.dart';
-import 'package:zabi/util/app_constants.dart';
-import 'package:zabi/view/screens/settings/widgets/theme_mode_dw_widget.dart';
+import 'package:salatime/controller/home_layout_controller.dart';
+import 'package:salatime/controller/theme_controller.dart';
+import 'package:salatime/helper/theme_helper.dart';
+import 'package:salatime/util/app_constants.dart';
+import 'package:salatime/view/screens/settings/widgets/theme_mode_dw_widget.dart';
 
 class _Translations extends Translations {
   _Translations(this.keys);

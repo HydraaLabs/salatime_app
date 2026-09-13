@@ -2,9 +2,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/controller/package_prayer_time_controller.dart';
-import 'package:zabi/data/api/api_client.dart';
-import 'package:zabi/util/app_constants.dart';
+import 'package:salatime/controller/package_prayer_time_controller.dart';
+import 'package:salatime/data/api/api_client.dart';
+import 'package:salatime/util/app_constants.dart';
 
 class OfflineApi extends ApiClient {
   OfflineApi(SharedPreferences prefs)

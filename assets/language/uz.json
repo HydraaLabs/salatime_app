@@ -1,5 +1,5 @@
 {
-  "app_name": "Zabi",
+  "app_name": "SalaTime",
   "todays_Prayer_Time_in": "Bugungi kechasi namoz vaqtida",
   "todays_Prayer_Time": "Bugungi kechasi namoz vaqti",
   "fajr": "Fajr",
@@ -280,7 +280,7 @@
   "no_saved_names": "Hali saqlangan ism yo‘q.\nSaqlash uchun ♡ tugmasini bosing.",
   "copy": "Nusxa olish",
   "remove": "O‘chirish",
-  "generated_with": "Islomiy ism — Zabi ilovasi bilan yaratilgan",
+  "generated_with": "Islomiy ism — SalaTime ilovasi bilan yaratilgan",
   "ai_name_key": "AI Ism Generator",
   "ask_ai_key": "AIga so‘rash",
   "synonyms_key": "O‘xshash Ismlar",

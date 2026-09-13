@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zabi/data/model/response/dikir_details_model.dart';
-import 'package:zabi/data/model/response/dikir_list_model.dart';
-import 'package:zabi/data/model/response/local_dhikr_model.dart';
-import 'package:zabi/data/repository/dikir_list_repo.dart';
+import 'package:salatime/data/model/response/dikir_details_model.dart';
+import 'package:salatime/data/model/response/dikir_list_model.dart';
+import 'package:salatime/data/model/response/local_dhikr_model.dart';
+import 'package:salatime/data/repository/dikir_list_repo.dart';
 
 class DhikrController extends GetxController implements GetxService {
   final DhikrRepo dhikrRepo;

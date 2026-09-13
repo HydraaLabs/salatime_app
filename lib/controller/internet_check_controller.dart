@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import 'package:zabi/controller/package_prayer_time_controller.dart';
-import 'package:zabi/view/base/custom_snackbar.dart';
+import 'package:salatime/controller/package_prayer_time_controller.dart';
+import 'package:salatime/view/base/custom_snackbar.dart';
 
 class InternetController extends GetxController {
   InternetController({Connectivity? connectivity})

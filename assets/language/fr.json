@@ -1,7 +1,7 @@
 {
   "get_directions": "Itinéraire",
   "unable_to_open_directions": "Impossible d’ouvrir l’itinéraire pour le moment.",
-  "app_name": "Zabi",
+  "app_name": "SalaTime",
   "todays_Prayer_Time_in": "Prise de la prière aujourd'hui dans",
   "todays_Prayer_Time": "Prise de la prière aujourd'hui",
   "fajr": "As-sobh",
@@ -304,7 +304,7 @@
   "no_saved_names": "Aucun nom enregistré pour l'instant.\nAppuyez sur ♡ pour enregistrer un nom.",
   "copy": "Copier",
   "remove": "Supprimer",
-  "generated_with": "Nom islamique — Généré avec l'application Zabi",
+  "generated_with": "Nom islamique — Généré avec l'application SalaTime",
   "ai_name_key": "Générateur de Noms IA",
   "ask_ai_key": "Demander à l'IA",
   "synonyms_key": "Noms similaires",

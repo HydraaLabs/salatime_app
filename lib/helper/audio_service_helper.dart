@@ -1,5 +1,5 @@
 import 'package:audio_service/audio_service.dart';
-import 'package:zabi/helper/audio_handler.dart';
+import 'package:salatime/helper/audio_handler.dart';
 
 class AudioServiceHelper {
   static AudioHandler? _audioHandler;
