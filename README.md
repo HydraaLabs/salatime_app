@@ -16,7 +16,9 @@ can synchronize preferences and reading progress with a self-hosted backend.
 - Android development: Linux, macOS or Windows, Android SDK **36**, platform tools,
   and a compatible JDK (the project uses Java 17 language features; JDK 21 is
   used for development checks).
-- iOS development: macOS, Xcode and CocoaPods. iOS cannot be built on Linux.
+- iOS development: macOS, Xcode **26.1 or newer** (CI: 26.3) and CocoaPods.
+  The current device-info dependency uses APIs from that SDK. iOS cannot be
+  built on Linux.
 - A physical phone is recommended for compass, notification and widget checks.
 
 Run `flutter doctor` and complete the platform setup before building.

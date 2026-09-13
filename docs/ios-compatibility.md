@@ -30,7 +30,7 @@ part of this change.
 ## Configure a signed iPhone build
 
 1. On a macOS machine or trusted macOS build service, install Flutter 3.41.8,
-   Xcode and CocoaPods. Run `flutter pub get` and open
+   Xcode 26.1 or newer (CI uses 26.3) and CocoaPods. Run `flutter pub get` and open
    `ios/Runner.xcworkspace`.
 2. Select your Apple development team for **Runner** and **SalaTimeWidget**.
    Register your own bundle identifiers; the widget identifier must be prefixed
@@ -61,7 +61,9 @@ part of this change.
 
 ## Automated verification without a local Mac
 
-`.github/workflows/ios-verification.yml` runs on GitHub's `macos-15` runner.
+`.github/workflows/ios-verification.yml` runs on GitHub's `macos-15` runner
+with Xcode 26.3 explicitly selected. Xcode 16.4 cannot compile the current
+`device_info_plus` dependency because its SDK lacks `isiOSAppOnVision`.
 It analyzes/tests Flutter, compiles the simulator application and widget
 extension, runs native XCTest regressions for widget time transitions and bundled
 audio, and compiles an unsigned iPhone release.
