@@ -63,7 +63,8 @@ part of this change.
 
 `.github/workflows/ios-verification.yml` runs on GitHub's `macos-15` runner.
 It analyzes/tests Flutter, compiles the simulator application and widget
-extension, then runs native XCTest regressions for widget time transitions.
+extension, runs native XCTest regressions for widget time transitions and bundled
+audio, and compiles an unsigned iPhone release.
 The simulator build disables Sentry reporting. It does not sign or upload an IPA and does not submit an App Store release.
 
 On macOS these checks can also be run locally:

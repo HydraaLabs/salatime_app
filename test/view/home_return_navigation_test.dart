@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -293,6 +294,21 @@ void main() {
           calls++;
         }
 
+        // A navigation test must not wait for real location permissions on
+        // macOS hosts (Linux previously skipped this platform path).
+        const permissions = MethodChannel(
+          'flutter.baseflow.com/permissions/methods',
+        );
+        tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          permissions,
+          (_) async => 2, // restricted
+        );
+        addTearDown(
+          () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+            permissions,
+            null,
+          ),
+        );
         Get.put<NearbyMosqueController>(_Mosques());
         final screen = switch (destination) {
           'qibla' => CompassScreen(
