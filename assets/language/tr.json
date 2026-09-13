@@ -790,5 +790,8 @@
   "notification_series_enable_before": "Ezan öncesi bildirimleri aç",
   "notification_series_enable_adhan": "Ezanı aç",
   "notification_series_enable_after": "Ezan sonrası bildirimleri aç",
-  "notification_series_enable_other": "Diğer bildirimleri aç"
+  "notification_series_enable_other": "Diğer bildirimleri aç",
+  "widget_ios_add": "Ekleme adımları",
+  "widget_ios_hint": "iPhone’da boyutu Ana Ekran araç takımı galerisinden seçin.",
+  "widget_ios_steps": "1. Ana Ekranın boş bir alanına basılı tutun.\n2. Düzenle ve Araç Takımı Ekle (veya +) seçeneğine dokunun.\n3. SalaTime’ı arayın.\n4. Boyutu seçip Araç Takımı Ekle’ye dokunun."
 }

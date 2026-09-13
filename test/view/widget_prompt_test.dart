@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
@@ -193,4 +194,58 @@ void main() {
     expect(calls.map((call) => call.method), ['canPin']);
     expect(find.text('widget_prompt_title'), findsNothing);
   });
+  testWidgets(
+    'iOS offers three sizes and explains manual addition without pinning',
+    (tester) async {
+      addTearDown(Get.reset);
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      final calls = <MethodCall>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        WidgetPrompt.channel,
+        (call) async {
+          calls.add(call);
+          return true;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          WidgetPrompt.channel,
+          null,
+        ),
+      );
+      await tester.pumpWidget(
+        GetMaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () => WidgetPrompt.showOnce(context, prefs),
+                child: const Text('Open'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+      expect(find.byType(PrayerWidgetPreview), findsNWidgets(3));
+      expect(
+        tester
+            .widget<RadioGroup<String>>(find.byType(RadioGroup<String>))
+            .groupValue,
+        'medium',
+      );
+      final add = find.text('widget_ios_add');
+      await tester.ensureVisible(add);
+      await tester.tap(add);
+      await tester.pumpAndSettle();
+      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.text('widget_size_medium'), findsOneWidget);
+      expect(find.text('widget_ios_steps'), findsOneWidget);
+      expect(calls.map((call) => call.method), ['isSupported']);
+      expect(prefs.getBool(WidgetPrompt.seenKey), isTrue);
+      expect(tester.takeException(), isNull);
+    },
+    variant: TargetPlatformVariant.only(TargetPlatform.iOS),
+  );
 }

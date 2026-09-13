@@ -1,0 +1,5 @@
+// Public identifiers. Override in your ignored SalaTime.local.xcconfig.
+SALATIME_APP_GROUP = group.com.example.zabi
+// Placeholder keeps debug builds valid; OAuth stays disabled until configured.
+SALATIME_GOOGLE_REVERSED_CLIENT_ID = com.googleusercontent.apps.unconfigured
+#include? "SalaTime.local.xcconfig"

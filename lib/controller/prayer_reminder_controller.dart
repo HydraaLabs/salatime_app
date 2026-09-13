@@ -152,7 +152,9 @@ class PrayerReminderController extends GetxController {
         return;
       }
       if (sound.startsWith('custom_')) {
-        await _audioPlayer?.setUrl(option['path']!);
+        await _audioPlayer?.setUrl(
+          await PersonalNotificationSounds.playbackPath(option['path']!),
+        );
       } else {
         await _audioPlayer?.setAsset(option['path']!);
       }

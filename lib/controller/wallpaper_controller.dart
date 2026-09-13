@@ -112,9 +112,9 @@ class WallPaperController extends GetxController implements GetxService {
         await file.writeAsBytes(response.bodyBytes);
 
         // Share the file
-        final result = await Share.shareXFiles(
-          [XFile(filePath)],
-        );
+        final result = await Share.shareXFiles([
+          XFile(filePath),
+        ], sharePositionOrigin: Rect.fromLTWH(0, 0, 1, 1));
 
         if (result.status == ShareResultStatus.success) {
           debugPrint('Thank you for sharing my PDF!');
@@ -134,15 +134,11 @@ class WallPaperController extends GetxController implements GetxService {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => const Center(
-        child: CircularProgressIndicator(),
-      ),
+      builder: (_) => const Center(child: CircularProgressIndicator()),
     );
 
     // Call wallpaper plugin
-    await WallpaperPlugin.useAsImageFromRepaintBoundary(
-      previewContainer,
-    );
+    await WallpaperPlugin.useAsImageFromRepaintBoundary(previewContainer);
 
     // Hide loading dialog
     Navigator.of(context, rootNavigator: true).pop();

@@ -103,8 +103,10 @@ class NotiSoundController extends GetxController {
       }
       audioPlayer ??= AudioPlayer();
       await audioPlayer?.stop();
-      if (path.startsWith('content://')) {
-        await audioPlayer?.setUrl(path);
+      if (path.startsWith('content://') || path.startsWith('custom_')) {
+        await audioPlayer?.setUrl(
+          await PersonalNotificationSounds.playbackPath(path),
+        );
       } else {
         await audioPlayer?.setAsset(path);
       }

@@ -7,84 +7,95 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0817352E3B15B69C19C33A2D /* moatheni_short_sound.aiff in Resources */ = {isa = PBXBuildFile; fileRef = A402243939B3F5E48A2743D3 /* moatheni_short_sound.aiff */; };
+		097C4E199F128F39D0A1FDBD /* moatheni_after_prayer_dhuhr.aiff in Resources */ = {isa = PBXBuildFile; fileRef = E2C9FB276351B8AECC8BC954 /* moatheni_after_prayer_dhuhr.aiff */; };
+		0A03F6F926608D13998B0F86 /* moatheni_before_prayer_fajr.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 4B7B39EE0E2C47F71006C920 /* moatheni_before_prayer_fajr.aiff */; };
+		0AE19DE2FF4FF5E19756191C /* moatheni_takbeer.aiff in Resources */ = {isa = PBXBuildFile; fileRef = FF86DFCC585F7658E36550D8 /* moatheni_takbeer.aiff */; };
+		0BBAD3621EB9F5D8B57C4592 /* moatheni_after_prayer_asr.aiff in Resources */ = {isa = PBXBuildFile; fileRef = D97D63F27DD50F90BAFE4319 /* moatheni_after_prayer_asr.aiff */; };
+		0E21ED62887C0F4B32E630BC /* moatheni_short4.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 4EEE9F423DB1D2F747143FDF /* moatheni_short4.aiff */; };
+		1063A0772056B00270861A98 /* moatheni_sleep_azkar.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 93BB0F9EBC75F9B26B11FA51 /* moatheni_sleep_azkar.aiff */; };
+		11AEBC73ED9063C04D843E15 /* moatheni_white_days.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 625A22A94DA0C9578A6D278D /* moatheni_white_days.aiff */; };
+		11E46A946AF76FA4C3166600 /* moatheni_silent_switch.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 92B7DC03045257565ABAB479 /* moatheni_silent_switch.aiff */; };
+		132C02088AA3DF82A68E6A65 /* moatheni_tasbeeh.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 045E3757881B5285783725FA /* moatheni_tasbeeh.aiff */; };
+		135F869E1011242996067790 /* SalaTimeWidget.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 7BB5CE3C3F1C5F164B80F1C5 /* SalaTimeWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
+		15C424DBB5BA34D74E0726C6 /* moatheni_on_prayer_maghrib.aiff in Resources */ = {isa = PBXBuildFile; fileRef = C7F79B36C7EA450A1C06F1A8 /* moatheni_on_prayer_maghrib.aiff */; };
+		16D7B7BF6E18F6AF6B6380D9 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3821A6D4727B6DD8430B0E3A /* SceneDelegate.swift */; };
+		17EC2ECDF8E0F90923665F86 /* moatheni_before_prayer_isha.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 6AEDE1A2B07BA264F5605D59 /* moatheni_before_prayer_isha.aiff */; };
+		17FDCAAC243740043175BBF3 /* moatheni_ring5.aiff in Resources */ = {isa = PBXBuildFile; fileRef = A90ECEA7A681796E6BE0425E /* moatheni_ring5.aiff */; };
+		180FE2F24C6235C1E7CCCA8B /* moatheni_before_prayer_jumaa.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 8B3E492A16173591F830B34A /* moatheni_before_prayer_jumaa.aiff */; };
+		20579F015B957096A1A42B09 /* moatheni_naser.aiff in Resources */ = {isa = PBXBuildFile; fileRef = B82BEDAF3964A50D401077F4 /* moatheni_naser.aiff */; };
+		235C6EA31714513947A56E57 /* moatheni_before_lastthird.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 6AA2BEDDD941435702EF9C8E /* moatheni_before_lastthird.aiff */; };
+		24F2D54E59DAF79620745DD9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92765FC2CEA5449287FEA63F /* Foundation.framework */; };
+		2911307D84F4F1912A6ABFAB /* moatheni_heya_salah.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 091BACB60C52AA21F392223D /* moatheni_heya_salah.aiff */; };
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
+		3AD0F8A9B046B76BC27A2E48 /* moatheni_evening_azkar2.aiff in Resources */ = {isa = PBXBuildFile; fileRef = FE473B575600D3ED17CFACAF /* moatheni_evening_azkar2.aiff */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
+		3FEDB4C1684FE3ADCAE35A55 /* SalaTimePlatformBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E09A4BFDA439DAD067CED59 /* SalaTimePlatformBridge.swift */; };
+		4934267EC0A3374AF648E56B /* moatheni_midnight.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 20A31832BF8D4919000EBFCF /* moatheni_midnight.aiff */; };
+		4B0281094759162CAE8BE1FB /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9EEC6BECBBF2DF3810B8FDB /* WidgetKit.framework */; };
+		565D23EDFAA32800E5C46E7A /* moatheni_on_prayer_fajr.aiff in Resources */ = {isa = PBXBuildFile; fileRef = D2316FF4E6099D889904EEFB /* moatheni_on_prayer_fajr.aiff */; };
+		6191314963D70784115D2276 /* moatheni_morning_azkar2.aiff in Resources */ = {isa = PBXBuildFile; fileRef = F62A656BD8D88B117EAC9B94 /* moatheni_morning_azkar2.aiff */; };
 		61D006AAE3970A673005B8F4 /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C41D39754BFC93BF12541812 /* Pods_RunnerTests.framework */; };
+		641658BFF421C97FF8EC0167 /* moatheni_after_prayer_isha.aiff in Resources */ = {isa = PBXBuildFile; fileRef = E8C1862CC6AA8D0CE0417D5A /* moatheni_after_prayer_isha.aiff */; };
+		65D8CFBEF3484BB3388D4EC8 /* moatheni_albany.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 5904316D0B982E1AA908E4B1 /* moatheni_albany.aiff */; };
+		68998A7FE35D717410160F35 /* moatheni_salah.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 3FF4DC2B9BE1E4A0A4D9B171 /* moatheni_salah.aiff */; };
+		68BECC8546BABA237B25F2E6 /* moatheni_salah_fajr.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 74D2A4FEE8ED806E1C5F5461 /* moatheni_salah_fajr.aiff */; };
+		6BA44503B101F3DC69DCE11B /* moatheni_on_prayer_dhuhr.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 74C053C3CD12DD4BB21306B9 /* moatheni_on_prayer_dhuhr.aiff */; };
+		6C1DB7ECAC9712E7D83EE596 /* moatheni_fajr_alarm.aiff in Resources */ = {isa = PBXBuildFile; fileRef = EE0B688DDD24E65AA0170FD3 /* moatheni_fajr_alarm.aiff */; };
+		7080750E4CE3C6FFB49FB400 /* moatheni_morning_azkar1.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 3F59447A26AF0625F3983FDE /* moatheni_morning_azkar1.aiff */; };
+		7136301B2DC3B028B85F68EF /* moatheni_duha.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 230C42289A0D11A25D7029F8 /* moatheni_duha.aiff */; };
+		72B0C38F2C67E60953327F3C /* moatheni_ring3.aiff in Resources */ = {isa = PBXBuildFile; fileRef = E3E595674262D37A0F02EC6C /* moatheni_ring3.aiff */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
+		75E72C7949744CB44968700E /* moatheni_qasas.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 9C4C7DE42C2EE86E780BC1A6 /* moatheni_qasas.aiff */; };
 		78A318202AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */; };
+		81214B8EF24EF17606D0B666 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9EEC6BECBBF2DF3810B8FDB /* WidgetKit.framework */; };
+		81B8A6E97FD72D951C8A070E /* moatheni_before_prayer_maghrib.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 132D4F65941D8ED8848BA66F /* moatheni_before_prayer_maghrib.aiff */; };
+		820B8615428D7846C20982B3 /* moatheni_monday_fasting.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 7E1ABF6D84106D974C43F694 /* moatheni_monday_fasting.aiff */; };
+		83A872AE18A6B9E1975D213E /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58CEA4C32E41DF8281C2A30B /* SwiftUI.framework */; };
+		8AA669E7302353C02DA7ABF7 /* moatheni_after_prayer_jumaa.aiff in Resources */ = {isa = PBXBuildFile; fileRef = D779CC930C5C64F382CEB957 /* moatheni_after_prayer_jumaa.aiff */; };
+		8F118755367B12D6E31BD21D /* moatheni_on_prayer_jumaa.aiff in Resources */ = {isa = PBXBuildFile; fileRef = FD3669147B598F232E4220C7 /* moatheni_on_prayer_jumaa.aiff */; };
+		97427C6B4F9706F5D2025192 /* moatheni_hamd.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 568EB52F56BBF0874D663E8D /* moatheni_hamd.aiff */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
+		9846F8ADB4A37B1C38218107 /* moatheni_before_prayer_asr.aiff in Resources */ = {isa = PBXBuildFile; fileRef = F8D379EC6B5EC0D164FF0BD4 /* moatheni_before_prayer_asr.aiff */; };
+		99A9157ECDAFAA4AB27438B3 /* PrayerWidgetData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FAAC387D6478AF2F68058E9 /* PrayerWidgetData.swift */; };
+		9CD585E94686AFA895830DD3 /* moatheni_on_prayer_sunrise.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 8948678A077120F49AFBD861 /* moatheni_on_prayer_sunrise.aiff */; };
+		A137623160D822C80F724D11 /* moatheni_after_prayer_maghrib.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 6932CEE7DACAC64B6057D756 /* moatheni_after_prayer_maghrib.aiff */; };
+		A8A31FCBCD485804E1431284 /* moatheni_water.aiff in Resources */ = {isa = PBXBuildFile; fileRef = A9E52C8C15562D7527BB9D7B /* moatheni_water.aiff */; };
+		AB769F3119577323D5EE01BB /* moatheni_bird.aiff in Resources */ = {isa = PBXBuildFile; fileRef = B12B16C172F126199124640F /* moatheni_bird.aiff */; };
+		AF482EAD8908E26E1612AB4D /* moatheni_short3.aiff in Resources */ = {isa = PBXBuildFile; fileRef = BC637EE8A6410286276BF026 /* moatheni_short3.aiff */; };
+		B83364035E1D3B91C38E5D0A /* moatheni_evening_azkar1.aiff in Resources */ = {isa = PBXBuildFile; fileRef = C5906EFE335B976D9F696573 /* moatheni_evening_azkar1.aiff */; };
+		BCFF838DBAAE8C61F68201D7 /* moatheni_on_prayer_asr.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 6B6D4657A8EBAAAEAF04E5D9 /* moatheni_on_prayer_asr.aiff */; };
+		BF325122A4C5338500469FC7 /* moatheni_before_prayer_sunrise.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 768E1EA9BA6448314CEA746F /* moatheni_before_prayer_sunrise.aiff */; };
+		C24BF4A7947179C608FF041E /* moatheni_last_third.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 28A744FBA181EE0380AE2FD3 /* moatheni_last_third.aiff */; };
+		C2BAE34AA6024F1273F2ECC5 /* moatheni_before_prayer_dhuhr.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 56B47D12152D60F1B88688D0 /* moatheni_before_prayer_dhuhr.aiff */; };
+		CD8080BC5B724482BDFA39E9 /* moatheni_heya_falah.aiff in Resources */ = {isa = PBXBuildFile; fileRef = D84D7D39609D9B4F490001D1 /* moatheni_heya_falah.aiff */; };
 		D0864F922DA32BF80064535A /* azan_1.aiff in Resources */ = {isa = PBXBuildFile; fileRef = D0864F8C2DA32BF80064535A /* azan_1.aiff */; };
 		D0864F932DA32BF80064535A /* azan_2.aiff in Resources */ = {isa = PBXBuildFile; fileRef = D0864F8D2DA32BF80064535A /* azan_2.aiff */; };
 		D0864F942DA32BF80064535A /* azan_3.aiff in Resources */ = {isa = PBXBuildFile; fileRef = D0864F8E2DA32BF80064535A /* azan_3.aiff */; };
 		D0864F952DA32BF80064535A /* noti_1.aiff in Resources */ = {isa = PBXBuildFile; fileRef = D0864F8F2DA32BF80064535A /* noti_1.aiff */; };
 		D0864F962DA32BF80064535A /* noti_beep.aiff in Resources */ = {isa = PBXBuildFile; fileRef = D0864F902DA32BF80064535A /* noti_beep.aiff */; };
 		D0864F972DA32BF80064535A /* noti_beep_beep.aiff in Resources */ = {isa = PBXBuildFile; fileRef = D0864F912DA32BF80064535A /* noti_beep_beep.aiff */; };
-		EB1D34567098FFD9D421B5F2 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C8CFB6C8E7AF5EBCB27AD5C1 /* Pods_Runner.framework */; };
-		FAF6F7916F6DFFBFCE1B1932 /* moatheni_alsurihy.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 8739509A447B5EF3D7EC24CE /* moatheni_alsurihy.aiff */; };
-		97427C6B4F9706F5D2025192 /* moatheni_hamd.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 568EB52F56BBF0874D663E8D /* moatheni_hamd.aiff */; };
-		EAF109FC13DE44F74AD1196D /* moatheni_hijazi.aiff in Resources */ = {isa = PBXBuildFile; fileRef = FBAD43F6083B4C42F546F3E7 /* moatheni_hijazi.aiff */; };
-		75E72C7949744CB44968700E /* moatheni_qasas.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 9C4C7DE42C2EE86E780BC1A6 /* moatheni_qasas.aiff */; };
-		20579F015B957096A1A42B09 /* moatheni_naser.aiff in Resources */ = {isa = PBXBuildFile; fileRef = B82BEDAF3964A50D401077F4 /* moatheni_naser.aiff */; };
-		68998A7FE35D717410160F35 /* moatheni_salah.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 3FF4DC2B9BE1E4A0A4D9B171 /* moatheni_salah.aiff */; };
-		68BECC8546BABA237B25F2E6 /* moatheni_salah_fajr.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 74D2A4FEE8ED806E1C5F5461 /* moatheni_salah_fajr.aiff */; };
-		65D8CFBEF3484BB3388D4EC8 /* moatheni_albany.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 5904316D0B982E1AA908E4B1 /* moatheni_albany.aiff */; };
-		0BBAD3621EB9F5D8B57C4592 /* moatheni_after_prayer_asr.aiff in Resources */ = {isa = PBXBuildFile; fileRef = D97D63F27DD50F90BAFE4319 /* moatheni_after_prayer_asr.aiff */; };
-		BCFF838DBAAE8C61F68201D7 /* moatheni_on_prayer_asr.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 6B6D4657A8EBAAAEAF04E5D9 /* moatheni_on_prayer_asr.aiff */; };
-		235C6EA31714513947A56E57 /* moatheni_before_lastthird.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 6AA2BEDDD941435702EF9C8E /* moatheni_before_lastthird.aiff */; };
-		0817352E3B15B69C19C33A2D /* moatheni_short_sound.aiff in Resources */ = {isa = PBXBuildFile; fileRef = A402243939B3F5E48A2743D3 /* moatheni_short_sound.aiff */; };
-		AB769F3119577323D5EE01BB /* moatheni_bird.aiff in Resources */ = {isa = PBXBuildFile; fileRef = B12B16C172F126199124640F /* moatheni_bird.aiff */; };
-		097C4E199F128F39D0A1FDBD /* moatheni_after_prayer_dhuhr.aiff in Resources */ = {isa = PBXBuildFile; fileRef = E2C9FB276351B8AECC8BC954 /* moatheni_after_prayer_dhuhr.aiff */; };
-		6BA44503B101F3DC69DCE11B /* moatheni_on_prayer_dhuhr.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 74C053C3CD12DD4BB21306B9 /* moatheni_on_prayer_dhuhr.aiff */; };
-		7136301B2DC3B028B85F68EF /* moatheni_duha.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 230C42289A0D11A25D7029F8 /* moatheni_duha.aiff */; };
-		E4CF0D1D900464BD65981955 /* moatheni_eqama2.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 8F7DED5CF26B16647CB200E6 /* moatheni_eqama2.aiff */; };
-		B83364035E1D3B91C38E5D0A /* moatheni_evening_azkar1.aiff in Resources */ = {isa = PBXBuildFile; fileRef = C5906EFE335B976D9F696573 /* moatheni_evening_azkar1.aiff */; };
-		3AD0F8A9B046B76BC27A2E48 /* moatheni_evening_azkar2.aiff in Resources */ = {isa = PBXBuildFile; fileRef = FE473B575600D3ED17CFACAF /* moatheni_evening_azkar2.aiff */; };
-		6C1DB7ECAC9712E7D83EE596 /* moatheni_fajr_alarm.aiff in Resources */ = {isa = PBXBuildFile; fileRef = EE0B688DDD24E65AA0170FD3 /* moatheni_fajr_alarm.aiff */; };
-		17FDCAAC243740043175BBF3 /* moatheni_ring5.aiff in Resources */ = {isa = PBXBuildFile; fileRef = A90ECEA7A681796E6BE0425E /* moatheni_ring5.aiff */; };
-		D9427004203CC058C4E12A01 /* moatheni_ring1.aiff in Resources */ = {isa = PBXBuildFile; fileRef = CEAEB77B5BA9F55335BE8A5D /* moatheni_ring1.aiff */; };
-		ED69471A89B28EB89FA82431 /* moatheni_ring2.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 7B6F11DD5E93F9A4FFA69AE3 /* moatheni_ring2.aiff */; };
-		72B0C38F2C67E60953327F3C /* moatheni_ring3.aiff in Resources */ = {isa = PBXBuildFile; fileRef = E3E595674262D37A0F02EC6C /* moatheni_ring3.aiff */; };
-		DC2A04748B1DE07151D5A71C /* moatheni_ring4.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 74DF61042237476C2020445F /* moatheni_ring4.aiff */; };
-		565D23EDFAA32800E5C46E7A /* moatheni_on_prayer_fajr.aiff in Resources */ = {isa = PBXBuildFile; fileRef = D2316FF4E6099D889904EEFB /* moatheni_on_prayer_fajr.aiff */; };
-		FD2F37956C8441F81D5A9FA3 /* moatheni_after_prayer_fajr.aiff in Resources */ = {isa = PBXBuildFile; fileRef = A8A21C4221333F8B532C48E5 /* moatheni_after_prayer_fajr.aiff */; };
-		CD8080BC5B724482BDFA39E9 /* moatheni_heya_falah.aiff in Resources */ = {isa = PBXBuildFile; fileRef = D84D7D39609D9B4F490001D1 /* moatheni_heya_falah.aiff */; };
-		D66A10203F3315F2F721DEB1 /* moatheni_fasting_hadeath.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 8CD40ECB0F97CC4A8877750F /* moatheni_fasting_hadeath.aiff */; };
-		641658BFF421C97FF8EC0167 /* moatheni_after_prayer_isha.aiff in Resources */ = {isa = PBXBuildFile; fileRef = E8C1862CC6AA8D0CE0417D5A /* moatheni_after_prayer_isha.aiff */; };
-		F747C0B12045E997FDF953D2 /* moatheni_on_prayer_isha.aiff in Resources */ = {isa = PBXBuildFile; fileRef = B968B422F617E807D221CF18 /* moatheni_on_prayer_isha.aiff */; };
-		8AA669E7302353C02DA7ABF7 /* moatheni_after_prayer_jumaa.aiff in Resources */ = {isa = PBXBuildFile; fileRef = D779CC930C5C64F382CEB957 /* moatheni_after_prayer_jumaa.aiff */; };
-		8F118755367B12D6E31BD21D /* moatheni_on_prayer_jumaa.aiff in Resources */ = {isa = PBXBuildFile; fileRef = FD3669147B598F232E4220C7 /* moatheni_on_prayer_jumaa.aiff */; };
-		DE17AB4185D01C82EFD87A67 /* moatheni_jumaa_hour.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 80D09A9F199A08AA31C40CDA /* moatheni_jumaa_hour.aiff */; };
-		C24BF4A7947179C608FF041E /* moatheni_last_third.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 28A744FBA181EE0380AE2FD3 /* moatheni_last_third.aiff */; };
-		A137623160D822C80F724D11 /* moatheni_after_prayer_maghrib.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 6932CEE7DACAC64B6057D756 /* moatheni_after_prayer_maghrib.aiff */; };
-		15C424DBB5BA34D74E0726C6 /* moatheni_on_prayer_maghrib.aiff in Resources */ = {isa = PBXBuildFile; fileRef = C7F79B36C7EA450A1C06F1A8 /* moatheni_on_prayer_maghrib.aiff */; };
-		4934267EC0A3374AF648E56B /* moatheni_midnight.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 20A31832BF8D4919000EBFCF /* moatheni_midnight.aiff */; };
-		820B8615428D7846C20982B3 /* moatheni_monday_fasting.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 7E1ABF6D84106D974C43F694 /* moatheni_monday_fasting.aiff */; };
-		7080750E4CE3C6FFB49FB400 /* moatheni_morning_azkar1.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 3F59447A26AF0625F3983FDE /* moatheni_morning_azkar1.aiff */; };
-		6191314963D70784115D2276 /* moatheni_morning_azkar2.aiff in Resources */ = {isa = PBXBuildFile; fileRef = F62A656BD8D88B117EAC9B94 /* moatheni_morning_azkar2.aiff */; };
-		9846F8ADB4A37B1C38218107 /* moatheni_before_prayer_asr.aiff in Resources */ = {isa = PBXBuildFile; fileRef = F8D379EC6B5EC0D164FF0BD4 /* moatheni_before_prayer_asr.aiff */; };
-		C2BAE34AA6024F1273F2ECC5 /* moatheni_before_prayer_dhuhr.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 56B47D12152D60F1B88688D0 /* moatheni_before_prayer_dhuhr.aiff */; };
-		0A03F6F926608D13998B0F86 /* moatheni_before_prayer_fajr.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 4B7B39EE0E2C47F71006C920 /* moatheni_before_prayer_fajr.aiff */; };
-		17EC2ECDF8E0F90923665F86 /* moatheni_before_prayer_isha.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 6AEDE1A2B07BA264F5605D59 /* moatheni_before_prayer_isha.aiff */; };
-		180FE2F24C6235C1E7CCCA8B /* moatheni_before_prayer_jumaa.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 8B3E492A16173591F830B34A /* moatheni_before_prayer_jumaa.aiff */; };
-		81B8A6E97FD72D951C8A070E /* moatheni_before_prayer_maghrib.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 132D4F65941D8ED8848BA66F /* moatheni_before_prayer_maghrib.aiff */; };
-		BF325122A4C5338500469FC7 /* moatheni_before_prayer_sunrise.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 768E1EA9BA6448314CEA746F /* moatheni_before_prayer_sunrise.aiff */; };
-		2911307D84F4F1912A6ABFAB /* moatheni_heya_salah.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 091BACB60C52AA21F392223D /* moatheni_heya_salah.aiff */; };
-		11E46A946AF76FA4C3166600 /* moatheni_silent_switch.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 92B7DC03045257565ABAB479 /* moatheni_silent_switch.aiff */; };
-		EEE072B5D9EDD131C22C7BD9 /* moatheni_silent_sound.aiff in Resources */ = {isa = PBXBuildFile; fileRef = F2512B7F99AE670C32A29C4D /* moatheni_silent_sound.aiff */; };
-		1063A0772056B00270861A98 /* moatheni_sleep_azkar.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 93BB0F9EBC75F9B26B11FA51 /* moatheni_sleep_azkar.aiff */; };
 		D4033F7D42E8425F31ECDFC5 /* moatheni_after_prayer_sunrise.aiff in Resources */ = {isa = PBXBuildFile; fileRef = B0CD52B0F1A5B9B6D136DB40 /* moatheni_after_prayer_sunrise.aiff */; };
-		9CD585E94686AFA895830DD3 /* moatheni_on_prayer_sunrise.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 8948678A077120F49AFBD861 /* moatheni_on_prayer_sunrise.aiff */; };
-		0AE19DE2FF4FF5E19756191C /* moatheni_takbeer.aiff in Resources */ = {isa = PBXBuildFile; fileRef = FF86DFCC585F7658E36550D8 /* moatheni_takbeer.aiff */; };
-		132C02088AA3DF82A68E6A65 /* moatheni_tasbeeh.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 045E3757881B5285783725FA /* moatheni_tasbeeh.aiff */; };
+		D66A10203F3315F2F721DEB1 /* moatheni_fasting_hadeath.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 8CD40ECB0F97CC4A8877750F /* moatheni_fasting_hadeath.aiff */; };
+		D7CD885A8FFD19924FB98108 /* SalaTimeWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4127C604D117ADEEC1A4956 /* SalaTimeWidget.swift */; };
+		D9427004203CC058C4E12A01 /* moatheni_ring1.aiff in Resources */ = {isa = PBXBuildFile; fileRef = CEAEB77B5BA9F55335BE8A5D /* moatheni_ring1.aiff */; };
 		DBDBA72FE53EDEA47FD31778 /* moatheni_telephone.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 13204DAA71C227C912D5A559 /* moatheni_telephone.aiff */; };
+		DC2A04748B1DE07151D5A71C /* moatheni_ring4.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 74DF61042237476C2020445F /* moatheni_ring4.aiff */; };
+		DE17AB4185D01C82EFD87A67 /* moatheni_jumaa_hour.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 80D09A9F199A08AA31C40CDA /* moatheni_jumaa_hour.aiff */; };
+		E1FB86B56B60FC41B7B9CCE2 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 10BDF6B92ABF3508A419292D /* Localizable.strings */; };
+		E4CF0D1D900464BD65981955 /* moatheni_eqama2.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 8F7DED5CF26B16647CB200E6 /* moatheni_eqama2.aiff */; };
+		EAF109FC13DE44F74AD1196D /* moatheni_hijazi.aiff in Resources */ = {isa = PBXBuildFile; fileRef = FBAD43F6083B4C42F546F3E7 /* moatheni_hijazi.aiff */; };
+		EB1D34567098FFD9D421B5F2 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C8CFB6C8E7AF5EBCB27AD5C1 /* Pods_Runner.framework */; };
+		ED69471A89B28EB89FA82431 /* moatheni_ring2.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 7B6F11DD5E93F9A4FFA69AE3 /* moatheni_ring2.aiff */; };
 		ED7D07431F5D16B0117784B3 /* moatheni_thursday_fasting.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 7519F0BCA16CC32CD00C8372 /* moatheni_thursday_fasting.aiff */; };
-		AF482EAD8908E26E1612AB4D /* moatheni_short3.aiff in Resources */ = {isa = PBXBuildFile; fileRef = BC637EE8A6410286276BF026 /* moatheni_short3.aiff */; };
-		0E21ED62887C0F4B32E630BC /* moatheni_short4.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 4EEE9F423DB1D2F747143FDF /* moatheni_short4.aiff */; };
-		A8A31FCBCD485804E1431284 /* moatheni_water.aiff in Resources */ = {isa = PBXBuildFile; fileRef = A9E52C8C15562D7527BB9D7B /* moatheni_water.aiff */; };
-		11AEBC73ED9063C04D843E15 /* moatheni_white_days.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 625A22A94DA0C9578A6D278D /* moatheni_white_days.aiff */; };
+		EEE072B5D9EDD131C22C7BD9 /* moatheni_silent_sound.aiff in Resources */ = {isa = PBXBuildFile; fileRef = F2512B7F99AE670C32A29C4D /* moatheni_silent_sound.aiff */; };
+		F162D9CB24D6C0D4BEB05F51 /* PrayerWidgetData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FAAC387D6478AF2F68058E9 /* PrayerWidgetData.swift */; };
+		F747C0B12045E997FDF953D2 /* moatheni_on_prayer_isha.aiff in Resources */ = {isa = PBXBuildFile; fileRef = B968B422F617E807D221CF18 /* moatheni_on_prayer_isha.aiff */; };
+		FAF6F7916F6DFFBFCE1B1932 /* moatheni_alsurihy.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 8739509A447B5EF3D7EC24CE /* moatheni_alsurihy.aiff */; };
+		FD2F37956C8441F81D5A9FA3 /* moatheni_after_prayer_fajr.aiff in Resources */ = {isa = PBXBuildFile; fileRef = A8A21C4221333F8B532C48E5 /* moatheni_after_prayer_fajr.aiff */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -95,9 +106,27 @@
 			remoteGlobalIDString = 97C146ED1CF9000F007C117D;
 			remoteInfo = Runner;
 		};
+		EDD017CDFC0CB12E4AD58AA4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BBA494771BD66A94F6D0F2A4;
+			remoteInfo = SalaTimeWidget;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		48A1A7DC3A79ECD8E930833A /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				135F869E1011242996067790 /* SalaTimeWidget.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9705A1C41CF9048500538489 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -111,19 +140,64 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		045E3757881B5285783725FA /* moatheni_tasbeeh.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_tasbeeh.aiff; sourceTree = "<group>"; };
+		091BACB60C52AA21F392223D /* moatheni_heya_salah.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_heya_salah.aiff; sourceTree = "<group>"; };
 		0B0C75C3772DE1A04DFF30BD /* Pods-RunnerTests.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile.xcconfig"; sourceTree = "<group>"; };
+		0E09A4BFDA439DAD067CED59 /* SalaTimePlatformBridge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SalaTimePlatformBridge.swift; sourceTree = "<group>"; };
+		13204DAA71C227C912D5A559 /* moatheni_telephone.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_telephone.aiff; sourceTree = "<group>"; };
+		132D4F65941D8ED8848BA66F /* moatheni_before_prayer_maghrib.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_before_prayer_maghrib.aiff; sourceTree = "<group>"; };
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
 		16BFF55C227188835DCEBE5F /* Pods-RunnerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release.xcconfig"; sourceTree = "<group>"; };
+		1D1022CAEEB90DF4CEA3C8EC /* SalaTimeWidget.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = SalaTimeWidget.entitlements; sourceTree = "<group>"; };
+		20A31832BF8D4919000EBFCF /* moatheni_midnight.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_midnight.aiff; sourceTree = "<group>"; };
+		230C42289A0D11A25D7029F8 /* moatheni_duha.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_duha.aiff; sourceTree = "<group>"; };
+		28A744FBA181EE0380AE2FD3 /* moatheni_last_third.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_last_third.aiff; sourceTree = "<group>"; };
 		3140A851DFE27E71D01EDF85 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
 		331C807B294A618700263BE5 /* RunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerTests.swift; sourceTree = "<group>"; };
 		331C8081294A63A400263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		3821A6D4727B6DD8430B0E3A /* SceneDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
+		3F59447A26AF0625F3983FDE /* moatheni_morning_azkar1.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_morning_azkar1.aiff; sourceTree = "<group>"; };
+		3FF4DC2B9BE1E4A0A4D9B171 /* moatheni_salah.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_salah.aiff; sourceTree = "<group>"; };
+		49A66DD53E3E168939A02FD3 /* Runner.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
+		4B7B39EE0E2C47F71006C920 /* moatheni_before_prayer_fajr.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_before_prayer_fajr.aiff; sourceTree = "<group>"; };
+		4EEE9F423DB1D2F747143FDF /* moatheni_short4.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_short4.aiff; sourceTree = "<group>"; };
+		4FAAC387D6478AF2F68058E9 /* PrayerWidgetData.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PrayerWidgetData.swift; sourceTree = "<group>"; };
 		504879E0C2A7BBEF0F075210 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
+		568B79022600AACF98EEAB01 /* SalaTime.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = SalaTime.xcconfig; sourceTree = "<group>"; };
+		568EB52F56BBF0874D663E8D /* moatheni_hamd.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_hamd.aiff; sourceTree = "<group>"; };
+		56B47D12152D60F1B88688D0 /* moatheni_before_prayer_dhuhr.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_before_prayer_dhuhr.aiff; sourceTree = "<group>"; };
+		58CEA4C32E41DF8281C2A30B /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/SwiftUI.framework; sourceTree = DEVELOPER_DIR; };
+		5904316D0B982E1AA908E4B1 /* moatheni_albany.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_albany.aiff; sourceTree = "<group>"; };
+		594BF8110964027ACD9720A3 /* Widget.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Widget.xcconfig; sourceTree = "<group>"; };
+		625A22A94DA0C9578A6D278D /* moatheni_white_days.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_white_days.aiff; sourceTree = "<group>"; };
+		64F11673278D30CEB84F5D45 /* ar */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Localizable.strings; sourceTree = "<group>"; };
+		6932CEE7DACAC64B6057D756 /* moatheni_after_prayer_maghrib.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_after_prayer_maghrib.aiff; sourceTree = "<group>"; };
+		6AA2BEDDD941435702EF9C8E /* moatheni_before_lastthird.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_before_lastthird.aiff; sourceTree = "<group>"; };
+		6AEDE1A2B07BA264F5605D59 /* moatheni_before_prayer_isha.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_before_prayer_isha.aiff; sourceTree = "<group>"; };
+		6B6D4657A8EBAAAEAF04E5D9 /* moatheni_on_prayer_asr.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_on_prayer_asr.aiff; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		74C053C3CD12DD4BB21306B9 /* moatheni_on_prayer_dhuhr.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_on_prayer_dhuhr.aiff; sourceTree = "<group>"; };
+		74D2A4FEE8ED806E1C5F5461 /* moatheni_salah_fajr.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_salah_fajr.aiff; sourceTree = "<group>"; };
+		74DF61042237476C2020445F /* moatheni_ring4.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_ring4.aiff; sourceTree = "<group>"; };
+		7519F0BCA16CC32CD00C8372 /* moatheni_thursday_fasting.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_thursday_fasting.aiff; sourceTree = "<group>"; };
+		768E1EA9BA6448314CEA746F /* moatheni_before_prayer_sunrise.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_before_prayer_sunrise.aiff; sourceTree = "<group>"; };
 		78E0A7A72DC9AD7400C4905E /* FlutterGeneratedPluginSwiftPackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = FlutterGeneratedPluginSwiftPackage; path = Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
+		7B6F11DD5E93F9A4FFA69AE3 /* moatheni_ring2.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_ring2.aiff; sourceTree = "<group>"; };
+		7BB5CE3C3F1C5F164B80F1C5 /* SalaTimeWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SalaTimeWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		7E1ABF6D84106D974C43F694 /* moatheni_monday_fasting.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_monday_fasting.aiff; sourceTree = "<group>"; };
+		80D09A9F199A08AA31C40CDA /* moatheni_jumaa_hour.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_jumaa_hour.aiff; sourceTree = "<group>"; };
+		8739509A447B5EF3D7EC24CE /* moatheni_alsurihy.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_alsurihy.aiff; sourceTree = "<group>"; };
+		8948678A077120F49AFBD861 /* moatheni_on_prayer_sunrise.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_on_prayer_sunrise.aiff; sourceTree = "<group>"; };
+		8B3E492A16173591F830B34A /* moatheni_before_prayer_jumaa.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_before_prayer_jumaa.aiff; sourceTree = "<group>"; };
+		8CD40ECB0F97CC4A8877750F /* moatheni_fasting_hadeath.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_fasting_hadeath.aiff; sourceTree = "<group>"; };
+		8F7DED5CF26B16647CB200E6 /* moatheni_eqama2.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_eqama2.aiff; sourceTree = "<group>"; };
+		92765FC2CEA5449287FEA63F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		92B7DC03045257565ABAB479 /* moatheni_silent_switch.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_silent_switch.aiff; sourceTree = "<group>"; };
+		93BB0F9EBC75F9B26B11FA51 /* moatheni_sleep_azkar.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_sleep_azkar.aiff; sourceTree = "<group>"; };
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = Flutter/Debug.xcconfig; sourceTree = "<group>"; };
 		9740EEB31CF90195004384FC /* Generated.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Generated.xcconfig; path = Flutter/Generated.xcconfig; sourceTree = "<group>"; };
 		97C146EE1CF9000F007C117D /* Runner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Runner.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -131,78 +205,49 @@
 		97C146FD1CF9000F007C117D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9A257C97DF47ACB966F5159E /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9C4C7DE42C2EE86E780BC1A6 /* moatheni_qasas.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_qasas.aiff; sourceTree = "<group>"; };
+		A402243939B3F5E48A2743D3 /* moatheni_short_sound.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_short_sound.aiff; sourceTree = "<group>"; };
 		A5CA1B54D0A756AD74A3A8E9 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
+		A8A21C4221333F8B532C48E5 /* moatheni_after_prayer_fajr.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_after_prayer_fajr.aiff; sourceTree = "<group>"; };
+		A90ECEA7A681796E6BE0425E /* moatheni_ring5.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_ring5.aiff; sourceTree = "<group>"; };
+		A9E52C8C15562D7527BB9D7B /* moatheni_water.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_water.aiff; sourceTree = "<group>"; };
+		B0C396A5B6EC57E5F0132326 /* en */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		B0CD52B0F1A5B9B6D136DB40 /* moatheni_after_prayer_sunrise.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_after_prayer_sunrise.aiff; sourceTree = "<group>"; };
+		B12B16C172F126199124640F /* moatheni_bird.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_bird.aiff; sourceTree = "<group>"; };
+		B4127C604D117ADEEC1A4956 /* SalaTimeWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SalaTimeWidget.swift; sourceTree = "<group>"; };
+		B82BEDAF3964A50D401077F4 /* moatheni_naser.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_naser.aiff; sourceTree = "<group>"; };
+		B968B422F617E807D221CF18 /* moatheni_on_prayer_isha.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_on_prayer_isha.aiff; sourceTree = "<group>"; };
+		BC637EE8A6410286276BF026 /* moatheni_short3.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_short3.aiff; sourceTree = "<group>"; };
 		C41D39754BFC93BF12541812 /* Pods_RunnerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RunnerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C5906EFE335B976D9F696573 /* moatheni_evening_azkar1.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_evening_azkar1.aiff; sourceTree = "<group>"; };
+		C7F79B36C7EA450A1C06F1A8 /* moatheni_on_prayer_maghrib.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_on_prayer_maghrib.aiff; sourceTree = "<group>"; };
 		C8CFB6C8E7AF5EBCB27AD5C1 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C9EEC6BECBBF2DF3810B8FDB /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/WidgetKit.framework; sourceTree = DEVELOPER_DIR; };
+		CEAEB77B5BA9F55335BE8A5D /* moatheni_ring1.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_ring1.aiff; sourceTree = "<group>"; };
 		D0864F8C2DA32BF80064535A /* azan_1.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = azan_1.aiff; sourceTree = "<group>"; };
 		D0864F8D2DA32BF80064535A /* azan_2.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = azan_2.aiff; sourceTree = "<group>"; };
 		D0864F8E2DA32BF80064535A /* azan_3.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = azan_3.aiff; sourceTree = "<group>"; };
 		D0864F8F2DA32BF80064535A /* noti_1.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = noti_1.aiff; sourceTree = "<group>"; };
 		D0864F902DA32BF80064535A /* noti_beep.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = noti_beep.aiff; sourceTree = "<group>"; };
 		D0864F912DA32BF80064535A /* noti_beep_beep.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = noti_beep_beep.aiff; sourceTree = "<group>"; };
-		EBA1478E62CB8B0BF803863B /* Pods-RunnerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug.xcconfig"; sourceTree = "<group>"; };
-		8739509A447B5EF3D7EC24CE /* moatheni_alsurihy.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_alsurihy.aiff; sourceTree = "<group>"; };
-		568EB52F56BBF0874D663E8D /* moatheni_hamd.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_hamd.aiff; sourceTree = "<group>"; };
-		FBAD43F6083B4C42F546F3E7 /* moatheni_hijazi.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_hijazi.aiff; sourceTree = "<group>"; };
-		9C4C7DE42C2EE86E780BC1A6 /* moatheni_qasas.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_qasas.aiff; sourceTree = "<group>"; };
-		B82BEDAF3964A50D401077F4 /* moatheni_naser.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_naser.aiff; sourceTree = "<group>"; };
-		3FF4DC2B9BE1E4A0A4D9B171 /* moatheni_salah.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_salah.aiff; sourceTree = "<group>"; };
-		74D2A4FEE8ED806E1C5F5461 /* moatheni_salah_fajr.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_salah_fajr.aiff; sourceTree = "<group>"; };
-		5904316D0B982E1AA908E4B1 /* moatheni_albany.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_albany.aiff; sourceTree = "<group>"; };
-		D97D63F27DD50F90BAFE4319 /* moatheni_after_prayer_asr.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_after_prayer_asr.aiff; sourceTree = "<group>"; };
-		6B6D4657A8EBAAAEAF04E5D9 /* moatheni_on_prayer_asr.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_on_prayer_asr.aiff; sourceTree = "<group>"; };
-		6AA2BEDDD941435702EF9C8E /* moatheni_before_lastthird.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_before_lastthird.aiff; sourceTree = "<group>"; };
-		A402243939B3F5E48A2743D3 /* moatheni_short_sound.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_short_sound.aiff; sourceTree = "<group>"; };
-		B12B16C172F126199124640F /* moatheni_bird.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_bird.aiff; sourceTree = "<group>"; };
-		E2C9FB276351B8AECC8BC954 /* moatheni_after_prayer_dhuhr.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_after_prayer_dhuhr.aiff; sourceTree = "<group>"; };
-		74C053C3CD12DD4BB21306B9 /* moatheni_on_prayer_dhuhr.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_on_prayer_dhuhr.aiff; sourceTree = "<group>"; };
-		230C42289A0D11A25D7029F8 /* moatheni_duha.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_duha.aiff; sourceTree = "<group>"; };
-		8F7DED5CF26B16647CB200E6 /* moatheni_eqama2.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_eqama2.aiff; sourceTree = "<group>"; };
-		C5906EFE335B976D9F696573 /* moatheni_evening_azkar1.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_evening_azkar1.aiff; sourceTree = "<group>"; };
-		FE473B575600D3ED17CFACAF /* moatheni_evening_azkar2.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_evening_azkar2.aiff; sourceTree = "<group>"; };
-		EE0B688DDD24E65AA0170FD3 /* moatheni_fajr_alarm.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_fajr_alarm.aiff; sourceTree = "<group>"; };
-		A90ECEA7A681796E6BE0425E /* moatheni_ring5.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_ring5.aiff; sourceTree = "<group>"; };
-		CEAEB77B5BA9F55335BE8A5D /* moatheni_ring1.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_ring1.aiff; sourceTree = "<group>"; };
-		7B6F11DD5E93F9A4FFA69AE3 /* moatheni_ring2.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_ring2.aiff; sourceTree = "<group>"; };
-		E3E595674262D37A0F02EC6C /* moatheni_ring3.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_ring3.aiff; sourceTree = "<group>"; };
-		74DF61042237476C2020445F /* moatheni_ring4.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_ring4.aiff; sourceTree = "<group>"; };
 		D2316FF4E6099D889904EEFB /* moatheni_on_prayer_fajr.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_on_prayer_fajr.aiff; sourceTree = "<group>"; };
-		A8A21C4221333F8B532C48E5 /* moatheni_after_prayer_fajr.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_after_prayer_fajr.aiff; sourceTree = "<group>"; };
-		D84D7D39609D9B4F490001D1 /* moatheni_heya_falah.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_heya_falah.aiff; sourceTree = "<group>"; };
-		8CD40ECB0F97CC4A8877750F /* moatheni_fasting_hadeath.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_fasting_hadeath.aiff; sourceTree = "<group>"; };
-		E8C1862CC6AA8D0CE0417D5A /* moatheni_after_prayer_isha.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_after_prayer_isha.aiff; sourceTree = "<group>"; };
-		B968B422F617E807D221CF18 /* moatheni_on_prayer_isha.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_on_prayer_isha.aiff; sourceTree = "<group>"; };
 		D779CC930C5C64F382CEB957 /* moatheni_after_prayer_jumaa.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_after_prayer_jumaa.aiff; sourceTree = "<group>"; };
-		FD3669147B598F232E4220C7 /* moatheni_on_prayer_jumaa.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_on_prayer_jumaa.aiff; sourceTree = "<group>"; };
-		80D09A9F199A08AA31C40CDA /* moatheni_jumaa_hour.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_jumaa_hour.aiff; sourceTree = "<group>"; };
-		28A744FBA181EE0380AE2FD3 /* moatheni_last_third.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_last_third.aiff; sourceTree = "<group>"; };
-		6932CEE7DACAC64B6057D756 /* moatheni_after_prayer_maghrib.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_after_prayer_maghrib.aiff; sourceTree = "<group>"; };
-		C7F79B36C7EA450A1C06F1A8 /* moatheni_on_prayer_maghrib.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_on_prayer_maghrib.aiff; sourceTree = "<group>"; };
-		20A31832BF8D4919000EBFCF /* moatheni_midnight.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_midnight.aiff; sourceTree = "<group>"; };
-		7E1ABF6D84106D974C43F694 /* moatheni_monday_fasting.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_monday_fasting.aiff; sourceTree = "<group>"; };
-		3F59447A26AF0625F3983FDE /* moatheni_morning_azkar1.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_morning_azkar1.aiff; sourceTree = "<group>"; };
-		F62A656BD8D88B117EAC9B94 /* moatheni_morning_azkar2.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_morning_azkar2.aiff; sourceTree = "<group>"; };
-		F8D379EC6B5EC0D164FF0BD4 /* moatheni_before_prayer_asr.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_before_prayer_asr.aiff; sourceTree = "<group>"; };
-		56B47D12152D60F1B88688D0 /* moatheni_before_prayer_dhuhr.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_before_prayer_dhuhr.aiff; sourceTree = "<group>"; };
-		4B7B39EE0E2C47F71006C920 /* moatheni_before_prayer_fajr.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_before_prayer_fajr.aiff; sourceTree = "<group>"; };
-		6AEDE1A2B07BA264F5605D59 /* moatheni_before_prayer_isha.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_before_prayer_isha.aiff; sourceTree = "<group>"; };
-		8B3E492A16173591F830B34A /* moatheni_before_prayer_jumaa.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_before_prayer_jumaa.aiff; sourceTree = "<group>"; };
-		132D4F65941D8ED8848BA66F /* moatheni_before_prayer_maghrib.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_before_prayer_maghrib.aiff; sourceTree = "<group>"; };
-		768E1EA9BA6448314CEA746F /* moatheni_before_prayer_sunrise.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_before_prayer_sunrise.aiff; sourceTree = "<group>"; };
-		091BACB60C52AA21F392223D /* moatheni_heya_salah.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_heya_salah.aiff; sourceTree = "<group>"; };
-		92B7DC03045257565ABAB479 /* moatheni_silent_switch.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_silent_switch.aiff; sourceTree = "<group>"; };
+		D84D7D39609D9B4F490001D1 /* moatheni_heya_falah.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_heya_falah.aiff; sourceTree = "<group>"; };
+		D97D63F27DD50F90BAFE4319 /* moatheni_after_prayer_asr.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_after_prayer_asr.aiff; sourceTree = "<group>"; };
+		E2C9FB276351B8AECC8BC954 /* moatheni_after_prayer_dhuhr.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_after_prayer_dhuhr.aiff; sourceTree = "<group>"; };
+		E3E595674262D37A0F02EC6C /* moatheni_ring3.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_ring3.aiff; sourceTree = "<group>"; };
+		E8C1862CC6AA8D0CE0417D5A /* moatheni_after_prayer_isha.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_after_prayer_isha.aiff; sourceTree = "<group>"; };
+		EBA1478E62CB8B0BF803863B /* Pods-RunnerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug.xcconfig"; sourceTree = "<group>"; };
+		EE0B688DDD24E65AA0170FD3 /* moatheni_fajr_alarm.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_fajr_alarm.aiff; sourceTree = "<group>"; };
 		F2512B7F99AE670C32A29C4D /* moatheni_silent_sound.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_silent_sound.aiff; sourceTree = "<group>"; };
-		93BB0F9EBC75F9B26B11FA51 /* moatheni_sleep_azkar.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_sleep_azkar.aiff; sourceTree = "<group>"; };
-		B0CD52B0F1A5B9B6D136DB40 /* moatheni_after_prayer_sunrise.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_after_prayer_sunrise.aiff; sourceTree = "<group>"; };
-		8948678A077120F49AFBD861 /* moatheni_on_prayer_sunrise.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_on_prayer_sunrise.aiff; sourceTree = "<group>"; };
+		F62A656BD8D88B117EAC9B94 /* moatheni_morning_azkar2.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_morning_azkar2.aiff; sourceTree = "<group>"; };
+		F706285BB4E0D1A44248509B /* fr */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		F8D379EC6B5EC0D164FF0BD4 /* moatheni_before_prayer_asr.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_before_prayer_asr.aiff; sourceTree = "<group>"; };
+		FBAD43F6083B4C42F546F3E7 /* moatheni_hijazi.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_hijazi.aiff; sourceTree = "<group>"; };
+		FD3669147B598F232E4220C7 /* moatheni_on_prayer_jumaa.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_on_prayer_jumaa.aiff; sourceTree = "<group>"; };
+		FE473B575600D3ED17CFACAF /* moatheni_evening_azkar2.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_evening_azkar2.aiff; sourceTree = "<group>"; };
 		FF86DFCC585F7658E36550D8 /* moatheni_takbeer.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_takbeer.aiff; sourceTree = "<group>"; };
-		045E3757881B5285783725FA /* moatheni_tasbeeh.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_tasbeeh.aiff; sourceTree = "<group>"; };
-		13204DAA71C227C912D5A559 /* moatheni_telephone.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_telephone.aiff; sourceTree = "<group>"; };
-		7519F0BCA16CC32CD00C8372 /* moatheni_thursday_fasting.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_thursday_fasting.aiff; sourceTree = "<group>"; };
-		BC637EE8A6410286276BF026 /* moatheni_short3.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_short3.aiff; sourceTree = "<group>"; };
-		4EEE9F423DB1D2F747143FDF /* moatheni_short4.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_short4.aiff; sourceTree = "<group>"; };
-		A9E52C8C15562D7527BB9D7B /* moatheni_water.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_water.aiff; sourceTree = "<group>"; };
-		625A22A94DA0C9578A6D278D /* moatheni_white_days.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_white_days.aiff; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -214,12 +259,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8331BFD778F3E8E29F8F123E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				24F2D54E59DAF79620745DD9 /* Foundation.framework in Frameworks */,
+				4B0281094759162CAE8BE1FB /* WidgetKit.framework in Frameworks */,
+				83A872AE18A6B9E1975D213E /* SwiftUI.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		97C146EB1CF9000F007C117D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				78A318202AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage in Frameworks */,
 				EB1D34567098FFD9D421B5F2 /* Pods_Runner.framework in Frameworks */,
+				81214B8EF24EF17606D0B666 /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -231,6 +287,7 @@
 			children = (
 				C8CFB6C8E7AF5EBCB27AD5C1 /* Pods_Runner.framework */,
 				C41D39754BFC93BF12541812 /* Pods_RunnerTests.framework */,
+				AE821093E3B722178496119A /* iOS */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -241,6 +298,15 @@
 				331C807B294A618700263BE5 /* RunnerTests.swift */,
 			);
 			path = RunnerTests;
+			sourceTree = "<group>";
+		};
+		597F1BF6C56B5F71246FB1BF /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				4FAAC387D6478AF2F68058E9 /* PrayerWidgetData.swift */,
+			);
+			name = Shared;
+			path = Shared;
 			sourceTree = "<group>";
 		};
 		59DDFC608584404695763036 /* Pods */ = {
@@ -264,6 +330,8 @@
 				9740EEB21CF90195004384FC /* Debug.xcconfig */,
 				7AFA3C8E1D35360C0083082E /* Release.xcconfig */,
 				9740EEB31CF90195004384FC /* Generated.xcconfig */,
+				594BF8110964027ACD9720A3 /* Widget.xcconfig */,
+				568B79022600AACF98EEAB01 /* SalaTime.xcconfig */,
 			);
 			name = Flutter;
 			sourceTree = "<group>";
@@ -277,6 +345,8 @@
 				331C8082294A63A400263BE5 /* RunnerTests */,
 				59DDFC608584404695763036 /* Pods */,
 				02A9EA7F3A21917F4F7D13F0 /* Frameworks */,
+				597F1BF6C56B5F71246FB1BF /* Shared */,
+				AF29338F584D5CC50CB9D216 /* SalaTimeWidget */,
 			);
 			sourceTree = "<group>";
 		};
@@ -285,6 +355,7 @@
 			children = (
 				97C146EE1CF9000F007C117D /* Runner.app */,
 				331C8081294A63A400263BE5 /* RunnerTests.xctest */,
+				7BB5CE3C3F1C5F164B80F1C5 /* SalaTimeWidget.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -301,8 +372,33 @@
 				1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */,
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
+				0E09A4BFDA439DAD067CED59 /* SalaTimePlatformBridge.swift */,
+				3821A6D4727B6DD8430B0E3A /* SceneDelegate.swift */,
+				49A66DD53E3E168939A02FD3 /* Runner.entitlements */,
 			);
 			path = Runner;
+			sourceTree = "<group>";
+		};
+		AE821093E3B722178496119A /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				92765FC2CEA5449287FEA63F /* Foundation.framework */,
+				C9EEC6BECBBF2DF3810B8FDB /* WidgetKit.framework */,
+				58CEA4C32E41DF8281C2A30B /* SwiftUI.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		AF29338F584D5CC50CB9D216 /* SalaTimeWidget */ = {
+			isa = PBXGroup;
+			children = (
+				B4127C604D117ADEEC1A4956 /* SalaTimeWidget.swift */,
+				9A257C97DF47ACB966F5159E /* Info.plist */,
+				1D1022CAEEB90DF4CEA3C8EC /* SalaTimeWidget.entitlements */,
+				10BDF6B92ABF3508A419292D /* Localizable.strings */,
+			);
+			name = SalaTimeWidget;
+			path = SalaTimeWidget;
 			sourceTree = "<group>";
 		};
 		D0864F8B2DA32BE40064535A /* Resources */ = {
@@ -406,6 +502,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 97C147051CF9000F007C117D /* Build configuration list for PBXNativeTarget "Runner" */;
 			buildPhases = (
+				48A1A7DC3A79ECD8E930833A /* Embed App Extensions */,
 				977ECDA1DA91F286E135FC5D /* [CP] Check Pods Manifest.lock */,
 				9740EEB61CF901F6004384FC /* Run Script */,
 				97C146EA1CF9000F007C117D /* Sources */,
@@ -419,6 +516,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				5F921CE6BBA5E376D1199A00 /* PBXTargetDependency */,
 			);
 			name = Runner;
 			packageProductDependencies = (
@@ -427,6 +525,23 @@
 			productName = Runner;
 			productReference = 97C146EE1CF9000F007C117D /* Runner.app */;
 			productType = "com.apple.product-type.application";
+		};
+		BBA494771BD66A94F6D0F2A4 /* SalaTimeWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 00A9A24D7E7435F6EDC2C09E /* Build configuration list for PBXNativeTarget "SalaTimeWidget" */;
+			buildPhases = (
+				8111A4690577DBF52448E899 /* Sources */,
+				8331BFD778F3E8E29F8F123E /* Frameworks */,
+				435D8306F45CDCE9EB6D3172 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SalaTimeWidget;
+			productName = SalaTimeWidget;
+			productReference = 7BB5CE3C3F1C5F164B80F1C5 /* SalaTimeWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -455,6 +570,8 @@
 			knownRegions = (
 				en,
 				Base,
+				fr,
+				ar,
 			);
 			mainGroup = 97C146E51CF9000F007C117D;
 			packageReferences = (
@@ -466,6 +583,7 @@
 			targets = (
 				97C146ED1CF9000F007C117D /* Runner */,
 				331C8080294A63A400263BE5 /* RunnerTests */,
+				BBA494771BD66A94F6D0F2A4 /* SalaTimeWidget */,
 			);
 		};
 /* End PBXProject section */
@@ -475,6 +593,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		435D8306F45CDCE9EB6D3172 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E1FB86B56B60FC41B7B9CCE2 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -680,12 +806,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8111A4690577DBF52448E899 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F162D9CB24D6C0D4BEB05F51 /* PrayerWidgetData.swift in Sources */,
+				D7CD885A8FFD19924FB98108 /* SalaTimeWidget.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		97C146EA1CF9000F007C117D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
+				99A9157ECDAFAA4AB27438B3 /* PrayerWidgetData.swift in Sources */,
+				3FEDB4C1684FE3ADCAE35A55 /* SalaTimePlatformBridge.swift in Sources */,
+				16D7B7BF6E18F6AF6B6380D9 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -697,9 +835,25 @@
 			target = 97C146ED1CF9000F007C117D /* Runner */;
 			targetProxy = 331C8085294A63A400263BE5 /* PBXContainerItemProxy */;
 		};
+		5F921CE6BBA5E376D1199A00 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = SalaTimeWidget;
+			target = BBA494771BD66A94F6D0F2A4 /* SalaTimeWidget */;
+			targetProxy = EDD017CDFC0CB12E4AD58AA4 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		10BDF6B92ABF3508A419292D /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B0C396A5B6EC57E5F0132326 /* en */,
+				F706285BB4E0D1A44248509B /* fr */,
+				64F11673278D30CEB84F5D45 /* ar */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
 		97C146FA1CF9000F007C117D /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -719,6 +873,29 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		1C0BEA88DFD8361BED232323 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 594BF8110964027ACD9720A3 /* Widget.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = SalaTimeWidget/SalaTimeWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = SalaTimeWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.zabi.SalaTimeWidget;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 		249021D3217E4FDB00AE95B9 /* Profile */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -777,6 +954,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
@@ -845,6 +1023,30 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
+			};
+			name = Profile;
+		};
+		5B1BEFC94B873BCDE101C1C8 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 594BF8110964027ACD9720A3 /* Widget.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = SalaTimeWidget/SalaTimeWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = SalaTimeWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.zabi.SalaTimeWidget;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
 			};
 			name = Profile;
 		};
@@ -965,6 +1167,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
@@ -993,6 +1196,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
@@ -1014,9 +1218,43 @@
 			};
 			name = Release;
 		};
+		A3D0B81FDFF3DD4073455064 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 594BF8110964027ACD9720A3 /* Widget.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = SalaTimeWidget/SalaTimeWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = SalaTimeWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.zabi.SalaTimeWidget;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		00A9A24D7E7435F6EDC2C09E /* Build configuration list for PBXNativeTarget "SalaTimeWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A3D0B81FDFF3DD4073455064 /* Release */,
+				1C0BEA88DFD8361BED232323 /* Debug */,
+				5B1BEFC94B873BCDE101C1C8 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		331C8087294A63A400263BE5 /* Build configuration list for PBXNativeTarget "RunnerTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

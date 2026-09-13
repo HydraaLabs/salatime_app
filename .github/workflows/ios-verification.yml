@@ -1,0 +1,39 @@
+name: iOS verification
+on:
+  workflow_dispatch:
+  push:
+    branches: [ios-compatibility]
+permissions:
+  contents: read
+concurrency:
+  group: ios-verification-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  ios:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.8'
+          channel: stable
+          cache: true
+      - name: Resolve Flutter dependencies
+        run: flutter pub get
+      - name: Analyze and test shared code
+        run: |
+          flutter analyze
+          flutter test
+      - name: Build iOS simulator app and WidgetKit extension
+        run: flutter build ios --simulator --debug --no-codesign
+      - name: Run iOS native regression tests
+        run: |
+          DEVICE_ID=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; data=json.load(sys.stdin); print(next(d["udid"] for devices in data["devices"].values() for d in devices if d["name"].startswith("iPhone")))')
+          xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner -configuration Debug -destination "platform=iOS Simulator,id=$DEVICE_ID" -derivedDataPath build/ios-tests CODE_SIGNING_ALLOWED=NO -only-testing:RunnerTests test
+      - name: Save simulator build
+        uses: actions/upload-artifact@v4
+        with:
+          name: SalaTime-iOS-simulator
+          path: build/ios/iphonesimulator/Runner.app
+          retention-days: 7

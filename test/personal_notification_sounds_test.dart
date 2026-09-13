@@ -77,4 +77,60 @@ void main() {
       expect(prefs.getString(PersonalNotificationSounds.storageKey), isNull);
     },
   );
+  test(
+    'iOS keeps only a stable CAF filename and resolves the current sandbox',
+    () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      final iosItem = {...item, 'path': '$key.caf'};
+      final calls = <MethodCall>[];
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(PersonalNotificationSounds.channel, (
+            call,
+          ) async {
+            calls.add(call);
+            return call.method == 'import'
+                ? iosItem
+                : 'file:///new-container/Library/Sounds/$key.caf';
+          });
+      expect(PersonalNotificationSounds.supported, isTrue);
+      await PersonalNotificationSounds.importSound();
+      PersonalNotificationSounds.sounds.clear();
+      await PersonalNotificationSounds.load();
+      expect(PersonalNotificationSounds.find(key), iosItem);
+      expect(
+        await PersonalNotificationSounds.playbackPath('$key.caf'),
+        'file:///new-container/Library/Sounds/$key.caf',
+      );
+      expect(calls.last.arguments, {'key': key});
+      for (final path in [
+        '../$key.caf',
+        '/old-container/$key.caf',
+        item['path'],
+        'another.caf',
+      ]) {
+        expect(
+          PersonalNotificationSounds.valid({...iosItem, 'path': path}),
+          isFalse,
+        );
+      }
+    },
+  );
+
+  test(
+    'iOS missing imported audio is reported without using a remote URI',
+    () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      for (final resolved in [null, 'https://example.com/audio.caf']) {
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(
+              PersonalNotificationSounds.channel,
+              (_) async => resolved,
+            );
+        await expectLater(
+          PersonalNotificationSounds.playbackPath('$key.caf'),
+          throwsA(isA<PlatformException>()),
+        );
+      }
+    },
+  );
 }

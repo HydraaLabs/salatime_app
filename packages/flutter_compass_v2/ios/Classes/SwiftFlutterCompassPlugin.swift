@@ -18,7 +18,7 @@ public class SwiftFlutterCompassPlugin: NSObject, FlutterPlugin, FlutterStreamHa
         channel.setStreamHandler(self);
 
         motion.deviceMotionUpdateInterval = 1.0 / 30.0;
-        motion.startDeviceMotionUpdates(using: CMAttitudeReferenceFrame.xMagneticNorthZVertical);
+
     }
 
 
@@ -30,6 +30,9 @@ public class SwiftFlutterCompassPlugin: NSObject, FlutterPlugin, FlutterStreamHa
     public func onListen(withArguments arguments: Any?,
                          eventSink: @escaping FlutterEventSink) -> FlutterError? {
         self.eventSink = eventSink;
+        if motion.isDeviceMotionAvailable {
+            motion.startDeviceMotionUpdates(using: .xMagneticNorthZVertical)
+        }
         location.startUpdatingHeading();
         return nil;
     }
@@ -37,12 +40,13 @@ public class SwiftFlutterCompassPlugin: NSObject, FlutterPlugin, FlutterStreamHa
     public func onCancel(withArguments arguments: Any?) -> FlutterError? {
         eventSink = nil;
         location.stopUpdatingHeading();
+        motion.stopDeviceMotionUpdates();
         return nil;
     }
 
     public func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
-        if (newHeading.headingAccuracy>0){
-            var trueHeading = newHeading.trueHeading;
+        if (newHeading.headingAccuracy >= 0){
+            let trueHeading = newHeading.trueHeading >= 0 ? newHeading.trueHeading : newHeading.magneticHeading;
             var headingForCameraMode = trueHeading;
             // If device orientation data is available, use it to calculate the heading out the the
             // back of the device (rather than out the top of the device).
@@ -71,7 +75,10 @@ public class SwiftFlutterCompassPlugin: NSObject, FlutterPlugin, FlutterStreamHa
                 headingForCameraMode = (yaw + Double.pi * 2).truncatingRemainder(dividingBy: Double.pi * 2) * 180.0 / Double.pi;
             }
             var headingForUI = trueHeading;
-            switch UIApplication.shared.statusBarOrientation {
+            let orientation = UIApplication.shared.connectedScenes
+                .compactMap { $0 as? UIWindowScene }
+                .first { $0.activationState == .foregroundActive }?.interfaceOrientation
+            switch orientation {
                 case .portrait:
                     headingForUI = trueHeading
                 case .portraitUpsideDown:
@@ -83,6 +90,7 @@ public class SwiftFlutterCompassPlugin: NSObject, FlutterPlugin, FlutterStreamHa
                 default:
                     headingForUI = trueHeading
             }
+            headingForUI = (headingForUI + 360).truncatingRemainder(dividingBy: 360)
             eventSink?([headingForUI, headingForCameraMode, newHeading.headingAccuracy]);
         }
     }

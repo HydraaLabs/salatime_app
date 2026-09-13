@@ -119,3 +119,5 @@ sentry.properties
 .env
 .env.*
 !.env.example
+
+/ios/Flutter/SalaTime.local.xcconfig

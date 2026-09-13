@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:salatime/view/screens/onboarding/ios_widget_instructions.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:salatime/helper/prayer_widget_sync.dart';
@@ -101,7 +103,12 @@ class _PrayerWidgetSettingsState extends State<PrayerWidgetSettings> {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                Text('widget_resize_hint'.tr),
+                Text(
+                  (defaultTargetPlatform == TargetPlatform.iOS
+                          ? 'widget_ios_hint'
+                          : 'widget_resize_hint')
+                      .tr,
+                ),
                 const SizedBox(height: 12),
                 for (final size in ['small', 'medium', 'large'])
                   OutlinedButton.icon(
@@ -110,6 +117,12 @@ class _PrayerWidgetSettingsState extends State<PrayerWidgetSettings> {
                     onPressed: () async {
                       try {
                         await PrayerWidgetSync.refresh();
+                        if (defaultTargetPlatform == TargetPlatform.iOS) {
+                          if (context.mounted) {
+                            await IosWidgetInstructions.show(context, size);
+                          }
+                          return;
+                        }
                         final supported = await channel.invokeMethod<bool>(
                           'pin',
                           {'size': size},

@@ -839,5 +839,8 @@
   "notification_series_enable_before": "تفعيل تنبيهات ما قبل الأذان",
   "notification_series_enable_adhan": "تفعيل الأذان",
   "notification_series_enable_after": "تفعيل تنبيهات ما بعد الأذان",
-  "notification_series_enable_other": "تفعيل التنبيهات الأخرى"
+  "notification_series_enable_other": "تفعيل التنبيهات الأخرى",
+  "widget_ios_add": "طريقة الإضافة",
+  "widget_ios_hint": "على iPhone، اختر الحجم من معرض أدوات الشاشة الرئيسية.",
+  "widget_ios_steps": "1. المس مطولاً مساحة فارغة على الشاشة الرئيسية.\n2. اضغط على تعديل ثم إضافة أداة (أو +).\n3. ابحث عن SalaTime.\n4. مرّر لاختيار الحجم ثم اضغط على إضافة أداة."
 }

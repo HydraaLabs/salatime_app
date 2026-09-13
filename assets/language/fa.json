@@ -795,5 +795,8 @@
   "notification_series_enable_before": "فعال کردن اعلان‌های پیش از اذان",
   "notification_series_enable_adhan": "فعال کردن اذان",
   "notification_series_enable_after": "فعال کردن اعلان‌های پس از اذان",
-  "notification_series_enable_other": "فعال کردن اعلان‌های دیگر"
+  "notification_series_enable_other": "فعال کردن اعلان‌های دیگر",
+  "widget_ios_add": "روش افزودن",
+  "widget_ios_hint": "در iPhone، اندازه را در گالری ابزارک صفحه اصلی انتخاب کنید.",
+  "widget_ios_steps": "1. یک فضای خالی صفحه اصلی را لمس کرده و نگه دارید.\n2. Edit سپس Add Widget (یا +) را بزنید.\n3. SalaTime را جستجو کنید.\n4. اندازه را انتخاب کرده و Add Widget را بزنید."
 }

@@ -13,7 +13,11 @@ class PersonalNotificationSounds {
   static const channel = MethodChannel('net.salatime.app/personal_sounds');
   static final sounds = <Map<String, String>>[].obs;
   static bool get supported =>
-      !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+      !kIsWeb &&
+      {
+        TargetPlatform.android,
+        TargetPlatform.iOS,
+      }.contains(defaultTargetPlatform);
   static bool valid(Map<String, dynamic> row) {
     final key = row['key'];
     final path = row['path'];
@@ -25,6 +29,10 @@ class PersonalNotificationSounds {
         name.length > 100) {
       return false;
     }
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      return RegExp(r'^custom_[a-f0-9]{64}$').hasMatch(key) &&
+          path == '$key.caf';
+    }
     final uri = Uri.tryParse(path);
     return RegExp(r'^custom_[a-f0-9]{64}$').hasMatch(key) &&
         uri != null &&
@@ -35,6 +43,20 @@ class PersonalNotificationSounds {
         RegExp(
           '^${RegExp.escape(key)}\\.(mp3|m4a|aac|ogg|flac|wav|3gp)\$',
         ).hasMatch(uri.pathSegments.last);
+  }
+
+  static Future<String> playbackPath(String path) async {
+    if (defaultTargetPlatform != TargetPlatform.iOS ||
+        !RegExp(r'^custom_[a-f0-9]{64}\.caf$').hasMatch(path)) {
+      return path;
+    }
+    final url = await channel.invokeMethod<String>('resolve', {
+      'key': path.substring(0, path.length - 4),
+    });
+    if (url == null || Uri.tryParse(url)?.scheme != 'file') {
+      throw PlatformException(code: 'sound_missing');
+    }
+    return url;
   }
 
   static Future<void> load([SharedPreferences? prefs]) async {

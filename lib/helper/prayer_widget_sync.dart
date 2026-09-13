@@ -23,7 +23,10 @@ class PrayerWidgetSync {
     required bool Function() isCurrent,
   }) async {
     if (kIsWeb ||
-        defaultTargetPlatform != TargetPlatform.android ||
+        !{
+          TargetPlatform.android,
+          TargetPlatform.iOS,
+        }.contains(defaultTargetPlatform) ||
         !Get.isRegistered<PrayerTimeController>()) {
       return;
     }
@@ -77,7 +80,10 @@ class PrayerWidgetSync {
     String zoneName,
   ) async {
     if (kIsWeb ||
-        defaultTargetPlatform != TargetPlatform.android ||
+        !{
+          TargetPlatform.android,
+          TargetPlatform.iOS,
+        }.contains(defaultTargetPlatform) ||
         prayers.isEmpty) {
       return;
     }

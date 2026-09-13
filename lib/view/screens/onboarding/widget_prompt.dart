@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:salatime/helper/prayer_widget_sync.dart';
+import 'package:salatime/view/screens/onboarding/ios_widget_instructions.dart';
 import 'package:salatime/view/screens/onboarding/prayer_widget_preview.dart';
 
 class WidgetPrompt {
@@ -14,12 +15,20 @@ class WidgetPrompt {
     SharedPreferences prefs,
   ) async {
     if (kIsWeb ||
-        defaultTargetPlatform != TargetPlatform.android ||
+        !{
+          TargetPlatform.android,
+          TargetPlatform.iOS,
+        }.contains(defaultTargetPlatform) ||
         prefs.getBool(seenKey) == true) {
       return;
     }
     try {
-      if (await channel.invokeMethod<bool>('canPin') != true ||
+      if (await channel.invokeMethod<bool>(
+                defaultTargetPlatform == TargetPlatform.iOS
+                    ? 'isSupported'
+                    : 'canPin',
+              ) !=
+              true ||
           !context.mounted) {
         return;
       }
@@ -36,12 +45,16 @@ class WidgetPrompt {
       );
       if (size != null) {
         await PrayerWidgetSync.refresh();
-        await channel.invokeMethod<bool>('pin', {'size': size});
+        if (defaultTargetPlatform == TargetPlatform.iOS) {
+          if (context.mounted) await IosWidgetInstructions.show(context, size);
+        } else {
+          await channel.invokeMethod<bool>('pin', {'size': size});
+        }
       }
     } on PlatformException {
       /* The launcher may not support pinning. */
     } on MissingPluginException {
-      /* No Android widget host on this platform. */
+      /* No compatible widget host in this binary. */
     }
   }
 }
@@ -121,10 +134,13 @@ class _WidgetPickerState extends State<_WidgetPicker> {
                             key: ValueKey('widget_option_${option.size}'),
                             value: option.size,
                             title: Text('widget_size_${option.size}'.tr),
-                            subtitle: Text(
-                              '${option.columns} × ${option.rows}',
-                              textDirection: TextDirection.ltr,
-                            ),
+                            subtitle:
+                                defaultTargetPlatform == TargetPlatform.iOS
+                                ? null
+                                : Text(
+                                    '${option.columns} × ${option.rows}',
+                                    textDirection: TextDirection.ltr,
+                                  ),
                           ),
                           Padding(
                             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -146,7 +162,12 @@ class _WidgetPickerState extends State<_WidgetPicker> {
                   ),
                 FilledButton(
                   onPressed: () => Navigator.pop(context, selectedSize),
-                  child: Text('widget_add'.tr),
+                  child: Text(
+                    (defaultTargetPlatform == TargetPlatform.iOS
+                            ? 'widget_ios_add'
+                            : 'widget_add')
+                        .tr,
+                  ),
                 ),
                 TextButton(
                   onPressed: () => Navigator.pop(context),

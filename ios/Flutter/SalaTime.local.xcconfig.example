@@ -1,0 +1,4 @@
+// Use the SAME registered group for Runner and SalaTimeWidget.
+SALATIME_APP_GROUP = group.your.registered.bundle
+SALATIME_GOOGLE_REVERSED_CLIENT_ID = com.googleusercontent.apps.your-ios-client-id
+// Set your development team and bundle identifiers in Xcode's Signing settings.

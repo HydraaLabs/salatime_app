@@ -790,5 +790,8 @@
   "notification_series_enable_before": "Aktifkan peringatan sebelum azan",
   "notification_series_enable_adhan": "Aktifkan azan",
   "notification_series_enable_after": "Aktifkan peringatan selepas azan",
-  "notification_series_enable_other": "Aktifkan pemberitahuan lain"
+  "notification_series_enable_other": "Aktifkan pemberitahuan lain",
+  "widget_ios_add": "Cara menambah",
+  "widget_ios_hint": "Pada iPhone, pilih saiz dalam galeri widget Skrin Utama.",
+  "widget_ios_steps": "1. Sentuh dan tahan ruang kosong pada Skrin Utama.\n2. Ketik Edit, kemudian Tambah Widget (atau +).\n3. Cari SalaTime.\n4. Pilih saiz dan ketik Tambah Widget."
 }

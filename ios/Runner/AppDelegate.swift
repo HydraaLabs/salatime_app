@@ -3,32 +3,27 @@ import Flutter
 import flutter_local_notifications
 
 @main
-@objc class AppDelegate: FlutterAppDelegate {
+@objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
+  private var salaTimeBridge: SalaTimePlatformBridge?
+
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-
-    // Register for remote notifications
     UNUserNotificationCenter.current().delegate = self
-    application.registerForRemoteNotifications()
-
-    // Required for Flutter Local Notifications
-    FlutterLocalNotificationsPlugin.setPluginRegistrantCallback { (registry) in
+    FlutterLocalNotificationsPlugin.setPluginRegistrantCallback { registry in
       GeneratedPluginRegistrant.register(with: registry)
     }
-
-    GeneratedPluginRegistrant.register(with: self)
-    clearApplicationBadge(application)
+    Self.clearApplicationBadge(application)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
-  override func applicationDidBecomeActive(_ application: UIApplication) {
-    super.applicationDidBecomeActive(application)
-    clearApplicationBadge(application)
+  func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
+    GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+    salaTimeBridge = SalaTimePlatformBridge(messenger: engineBridge.applicationRegistrar.messenger())
   }
 
-  private func clearApplicationBadge(_ application: UIApplication) {
+  static func clearApplicationBadge(_ application: UIApplication) {
     if #available(iOS 16.0, *) {
       UNUserNotificationCenter.current().setBadgeCount(0) { error in
         if error != nil { NSLog("Unable to clear application badge") }

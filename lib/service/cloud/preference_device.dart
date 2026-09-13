@@ -75,7 +75,12 @@ class AppPreferenceDevice implements GuardedPreferenceDevice {
   bool get _android =>
       !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
   Future<Document> _native(MethodChannel channel) async {
-    if (!_android) return {};
+    if (!_android &&
+        (kIsWeb ||
+            defaultTargetPlatform != TargetPlatform.iOS ||
+            channel.name != widgetChannel.name)) {
+      return {};
+    }
     try {
       return await channel.invokeMapMethod<String, dynamic>('get') ?? {};
     } on MissingPluginException {
@@ -379,7 +384,8 @@ class AppPreferenceDevice implements GuardedPreferenceDevice {
         jsonEncode(next['widgets']),
       );
       if (!isCurrent()) return stopRestoration();
-      if (_android) {
+      if (_android ||
+          (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS)) {
         try {
           await widgetChannel.invokeMethod('set', next['widgets']);
         } on MissingPluginException {

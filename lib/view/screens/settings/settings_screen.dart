@@ -108,7 +108,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   // home screen layout (appearance) section
                   const ThemeModeDWWidget(),
                   const HomeLayoutDWWidget(),
-                  if (Platform.isAndroid) const PrayerWidgetSettings(),
+                  if (Platform.isAndroid || Platform.isIOS)
+                    const PrayerWidgetSettings(),
 
                   // share and rate app section  for android.
                   Platform.isAndroid
@@ -136,7 +137,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       .playStoreUrl
                                       .toString();
                                   if (Uri.tryParse(playStoreUrl) != null) {
-                                    await Share.share(playStoreUrl);
+                                    await Share.share(
+                                      playStoreUrl,
+                                      sharePositionOrigin: Rect.fromLTWH(
+                                        0,
+                                        0,
+                                        1,
+                                        1,
+                                      ),
+                                    );
                                   } else {
                                     showCustomSnackBar(
                                       "invalid_URL".tr,
@@ -191,7 +200,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       .appStoreUrl
                                       .toString();
                                   if (Uri.tryParse(appStoreUrl) != null) {
-                                    await Share.share(appStoreUrl);
+                                    await Share.share(
+                                      appStoreUrl,
+                                      sharePositionOrigin: Rect.fromLTWH(
+                                        0,
+                                        0,
+                                        1,
+                                        1,
+                                      ),
+                                    );
                                   } else {
                                     showCustomSnackBar(
                                       "invalid_URL".tr,

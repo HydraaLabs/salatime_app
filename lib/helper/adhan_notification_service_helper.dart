@@ -313,7 +313,9 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
         sound == 'silent' ||
         (sound?.startsWith('custom_') == true &&
             (!PersonalNotificationSounds.supported || personal == null));
-    final iosSound = silent ? null : '$sound.aiff';
+    final iosSound = silent
+        ? null
+        : (personal != null ? personal['path'] : '$sound.aiff');
     final androidSound = sound;
     return NotificationDetails(
       android: AndroidNotificationDetails(

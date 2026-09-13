@@ -790,5 +790,8 @@
   "notification_series_enable_before": "اذان سے پہلے کی اطلاعات فعال کریں",
   "notification_series_enable_adhan": "اذان فعال کریں",
   "notification_series_enable_after": "اذان کے بعد کی اطلاعات فعال کریں",
-  "notification_series_enable_other": "دیگر اطلاعات فعال کریں"
+  "notification_series_enable_other": "دیگر اطلاعات فعال کریں",
+  "widget_ios_add": "شامل کرنے کا طریقہ",
+  "widget_ios_hint": "iPhone کی ہوم اسکرین کی ویجٹ گیلری میں سائز منتخب کریں۔",
+  "widget_ios_steps": "1. ہوم اسکرین کی خالی جگہ کو دبا کر رکھیں۔\n2. Edit پھر Add Widget (یا +) منتخب کریں۔\n3. SalaTime تلاش کریں۔\n4. سائز منتخب کرکے Add Widget دبائیں۔"
 }

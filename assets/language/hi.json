@@ -226,8 +226,8 @@
   "unknown_title_key": "अज्ञात शीर्षक",
   "previous_sura": "पिछला सूरह",
   "next_sura": "अगला सूरह",
-  "set_prayer_time_format" : "प्रार्थना समय प्रारूप सेट करें",
-  "show_prayer_time_formation_as_a_24_hr_clock" : "24 घंटे की घड़ी के रूप में प्रार्थना समय दिखाएं",
+  "set_prayer_time_format": "प्रार्थना समय प्रारूप सेट करें",
+  "show_prayer_time_formation_as_a_24_hr_clock": "24 घंटे की घड़ी के रूप में प्रार्थना समय दिखाएं",
   "wallpapers_key": "वॉलपेपर",
   "lock": "लॉक",
   "both": "दोनों",
@@ -305,5 +305,8 @@
   "quran_milestone_complete": "लक्ष्य पूरा हुआ! बहुत अच्छा।",
   "quran_milestone_remaining": "सूरह शेष हैं",
   "quran_milestone_subtitles": "आप बहुत अच्छा कर रहे हैं! जारी रखें।",
-  "home_screen_layout_settings" : "होम स्क्रीन लेआउट सेटिंग्स"
+  "home_screen_layout_settings": "होम स्क्रीन लेआउट सेटिंग्स",
+  "widget_ios_add": "जोड़ने के चरण",
+  "widget_ios_hint": "iPhone की होम स्क्रीन की विजेट गैलरी में आकार चुनें।",
+  "widget_ios_steps": "1. होम स्क्रीन की खाली जगह को दबाकर रखें।\n2. Edit और फिर Add Widget (या +) चुनें।\n3. SalaTime खोजें।\n4. आकार चुनकर Add Widget दबाएँ।"
 }
