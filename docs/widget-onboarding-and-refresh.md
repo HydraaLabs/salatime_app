@@ -70,3 +70,6 @@ Lancement réussi et compteur écoulé de Dohr vérifié dans l’application et
 le widget. Le seuil rouge a été vérifié par les tests à heure simulée,
 sans changer l’heure ou les horaires du téléphone. Reçu :
 `/tmp/salatime-countdown-red-device-audit.json`. Aucune nouvelle publication.
+
+Ces changements sont inclus dans la release 1.0.20+23. Voir
+[le reçu de publication](release-1.0.20.md) pour les états des différents canaux.
