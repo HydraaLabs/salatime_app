@@ -1,4 +1,4 @@
-# SalaTime Android 1.0.17+20
+# SalaTime Android 1.0.18+21
 
 Application de production : `net.salatime.app`.
 
@@ -25,7 +25,7 @@ Application de production : `net.salatime.app`.
 
 ## Préparation
 
-Le code de version 20 est libre dans l'API Google Play ; la dernière version
+Le code de version 21 est libre dans l'API Google Play ; la dernière version
 Shorebird Android relue avant publication est 1.0.16+19 (release 826646).
 La compilation utilise le SDK Shorebird Flutter 3.41.6 déjà validé sur la
 version précédente, avec les architectures ARM32, ARM64 et x86_64.
@@ -47,6 +47,15 @@ physique du dernier correctif n'est pas revendiquée.
   serveur relu et identique au commit web publié
   `f5b875a7a33d037bef4a4a027db20558c9a5eead`.
 
-La release Shorebird 1.0.17+20 a été créée, puis remplacée pour publication par
-1.0.18+21 à la demande de masquer la synchronisation des lectures.
-Aucun envoi Google Play ni remplacement des APK publics pour 1.0.17+20.
+## Retouche de présentation
+
+Le suivi des lectures commence directement par la date et les statistiques.
+Le bloc d’état cloud et le bouton « Synchroniser maintenant » sont retirés.
+Le service de sauvegarde automatique est inchangé : sauvegarde locale immédiate,
+synchronisation une minute après le dernier changement, reprise hors ligne.
+La release Shorebird intermédiaire 1.0.17+20 n’a pas été envoyée sur Google Play.
+
+La retouche de synchronisation silencieuse passe les 34 tests ciblés
+(écran et service de lecture, y compris les sauvegardes différées).
+
+Les reçus des canaux de publication seront ajoutés après leurs contrôles.

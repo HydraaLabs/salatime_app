@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:zabi/service/reading/reading_progress_service.dart';
 import 'package:zabi/view/base/custom_app_bar.dart';
-import 'package:zabi/view/screens/account/account_screen.dart';
 
 class ReadingProgressScreen extends StatefulWidget {
   const ReadingProgressScreen({super.key, this.service});
@@ -37,18 +36,6 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
       if (mounted) await _progress.loadHistory();
     } catch (_) {
       if (mounted) setState(() => _initializationFailed = true);
-    }
-  }
-
-  Future<void> _sync() async {
-    try {
-      await _progress.syncNow();
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('cloud_offline'.tr)));
-      }
     }
   }
 
@@ -114,8 +101,6 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
                 key: const PageStorageKey('reading-progress-list'),
                 padding: const EdgeInsets.all(16),
                 children: [
-                  _cloudCard(),
-                  const SizedBox(height: 20),
                   Wrap(
                     alignment: WrapAlignment.spaceBetween,
                     crossAxisAlignment: WrapCrossAlignment.center,
@@ -260,66 +245,6 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
       ),
     ),
   );
-
-  Widget _cloudCard() {
-    final signedOut = _progress.status == 'cloud_signed_out';
-    return Card(
-      key: const ValueKey('reading-progress-cloud'),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  signedOut
-                      ? Icons.phone_android_outlined
-                      : Icons.cloud_outlined,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    (signedOut
-                            ? 'reading_progress_guest_title'
-                            : _progress.status)
-                        .tr,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ),
-              ],
-            ),
-            if (signedOut) ...[
-              const SizedBox(height: 8),
-              Text('reading_progress_guest_body'.tr),
-              Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: TextButton(
-                  key: const ValueKey('reading-progress-account'),
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => const AccountScreen(),
-                    ),
-                  ),
-                  child: Text('reading_progress_guest_account'.tr),
-                ),
-              ),
-            ] else
-              Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: TextButton.icon(
-                  key: const ValueKey('reading-progress-sync'),
-                  onPressed: _progress.status == 'cloud_syncing' ? null : _sync,
-                  icon: const Icon(Icons.sync),
-                  label: Text('cloud_sync_now'.tr),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _heading(String key) => Padding(
     padding: const EdgeInsets.only(top: 24, bottom: 12),

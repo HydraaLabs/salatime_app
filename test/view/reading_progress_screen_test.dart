@@ -165,34 +165,30 @@ void main() {
     },
   );
 
-  testWidgets(
-    'guest, pending, offline and manual synchronization states stay reactive',
-    (tester) async {
-      await tester.pumpWidget(app());
-      await tester.pumpAndSettle();
-      expect(key('reading-progress-account'), findsOneWidget);
+  testWidgets('statistics stay available while synchronization runs silently', (
+    tester,
+  ) async {
+    await tester.pumpWidget(app());
+    await tester.pumpAndSettle();
+    for (final status in [
+      'cloud_signed_out',
+      'cloud_pending',
+      'cloud_syncing',
+      'cloud_offline',
+      'cloud_synced',
+    ]) {
+      reading.status = status;
+      reading.refresh();
+      await tester.pump();
+      expect(key('reading-progress-cloud'), findsNothing);
       expect(key('reading-progress-sync'), findsNothing);
-      reading.status = 'cloud_pending';
-      reading.refresh();
-      await tester.pump();
-      expect(key('reading-progress-account'), findsNothing);
-      expect(key('reading-progress-sync'), findsOneWidget);
-      reading.status = 'cloud_syncing';
-      reading.refresh();
-      await tester.pump();
-      expect(
-        tester.widget<TextButton>(key('reading-progress-sync')).onPressed,
-        isNull,
-      );
-      reading.status = 'cloud_offline';
-      reading.refresh();
-      await tester.pump();
-      await tester.tap(key('reading-progress-sync'));
-      await tester.pumpAndSettle();
-      expect(reading.syncCalls, 1);
-      expect(reading.writes, 0);
-    },
-  );
+      expect(key('reading-progress-today'), findsOneWidget);
+      expect(metric(tester, 'selected-quran'), '5');
+    }
+    expect(reading.historyCalls, 1);
+    expect(reading.syncCalls, 0);
+    expect(reading.writes, 0);
+  });
 
   for (final locale in ['fr', 'ar']) {
     for (final dark in [false, true]) {
