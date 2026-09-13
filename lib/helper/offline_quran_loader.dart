@@ -1,77 +1,96 @@
-import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:zabi/service/quran/quran_translation_repository.dart';
 
 class QuranLoader {
-  QuranLoader({AssetBundle? bundle}) : _bundle = bundle ?? rootBundle;
+  QuranLoader({AssetBundle? bundle, QuranTranslationRepository? translations})
+    : _translations =
+          translations ??
+          (bundle == null
+              ? QuranTranslationRepository.instance
+              : QuranTranslationRepository(bundle: bundle));
   static final QuranLoader instance = QuranLoader();
 
-  final AssetBundle _bundle;
+  final QuranTranslationRepository _translations;
   List<Map<String, dynamic>> _cachedVerses = [];
   Future<void>? _loading;
+  String? _key;
+  int _generation = 0;
 
-  Future<void> loadAllVerses({int totalSurah = 114}) {
-    if (_cachedVerses.isNotEmpty) return Future.value();
-    return _loading ??= _load(totalSurah);
+  Future<void> loadAllVerses({
+    int totalSurah = 114,
+    String languageCode = 'en',
+  }) {
+    if (totalSurah < 1 || totalSurah > 114) {
+      return Future.error(RangeError.range(totalSurah, 1, 114));
+    }
+    final key = '$languageCode:$totalSurah';
+    if (_key == key) {
+      if (_cachedVerses.isNotEmpty) return Future.value();
+      if (_loading != null) return _loading!;
+    }
+    final generation = ++_generation;
+    _key = key;
+    _cachedVerses = [];
+    return _loading = _load(totalSurah, languageCode, generation);
   }
 
-  Future<void> _load(int totalSurah) async {
+  Future<void> _load(
+    int totalSurah,
+    String languageCode,
+    int generation,
+  ) async {
     try {
       final verses = <Map<String, dynamic>>[];
-      // Process one surah at a time so low-memory devices never hold all the
-      // raw JSON at once. Parsing and normalization run off the UI isolate.
+      // One surah at a time; only official text, not large footnotes, is indexed.
       for (var i = 1; i <= totalSurah; i++) {
-        final raw = await _bundle.loadString(
-          'assets/quran/en/s00$i.json',
-          cache: false,
+        final model = await _translations.loadSurah(
+          i,
+          languageCode: languageCode,
         );
-        verses.addAll(await compute(_indexSurah, raw));
+        if (generation != _generation) return;
+        final chapter = model.data!.chapter!.toJson();
+        final rows = <Map<String, dynamic>>[];
+        for (final page in model.data!.chapterInfo!) {
+          for (final verse in page.pageVerses!) {
+            rows.add({
+              'id': verse.id,
+              'chapter_id': verse.chapterId,
+              'arabic_name': verse.arabicName ?? '',
+              'translated_name': verse.translatedName ?? '',
+              'verse_number': verse.versesNumber,
+              'page_number': page.pageNumber,
+              'page_key': page.pageKey,
+              'chapter': chapter,
+            });
+          }
+        }
+        verses.addAll(await compute(_indexVerses, rows));
+        if (generation != _generation) return;
       }
-      _cachedVerses = verses;
+      _cachedVerses = List.unmodifiable(verses);
     } finally {
-      // A failed load can be retried; never cache an incomplete Quran.
-      _loading = null;
+      if (generation == _generation) _loading = null;
     }
   }
 
   List<Map<String, dynamic>> get allVerses => _cachedVerses;
 }
 
-List<Map<String, dynamic>> _indexSurah(String raw) {
-  final decoded = json.decode(raw);
-  final surah =
-      (decoded is List ? decoded.first : decoded) as Map<String, dynamic>;
-  final data = surah['data'] as Map<String, dynamic>;
-  final chapter = data['chapter'] as Map<String, dynamic>;
-  final verses = <Map<String, dynamic>>[];
-  for (final page in data['chapter_info'] as List) {
-    for (final verse in page['page_verses'] as List) {
-      final arabic = (verse['arabic_name'] ?? '').toString();
-      final translation = (verse['translated_name'] ?? '').toString();
-      verses.add({
-        'id': verse['id'],
-        'chapter_id': verse['chapter_id'],
-        'arabic_name': arabic,
-        'translated_name': translation,
-        'verse_number': verse['verses_number'] ?? verse['verse_number'],
-        'page_number': page['page_number'],
-        'page_key': page['page_key'],
-        'chapter': chapter,
-        '_searchText': normalizeQuranSearch(
-          [
-            arabic,
-            verse['text_without_taskeel'] ?? '',
-            translation,
-            chapter['arabic_name'] ?? '',
-            chapter['translated_name'] ?? '',
-          ].join('\n'),
-        ),
-      });
-    }
-  }
-  return verses;
-}
+List<Map<String, dynamic>> _indexVerses(List<Map<String, dynamic>> rows) => [
+  for (final row in rows)
+    {
+      ...row,
+      '_searchText': normalizeQuranSearch(
+        [
+          row['arabic_name'],
+          row['translated_name'],
+          row['chapter']['arabic_name'] ?? '',
+          row['chapter']['translated_name'] ?? '',
+        ].join('\n'),
+      ),
+    },
+];
 
 final _diacritics = RegExp(r'[\u0610-\u061A\u064B-\u065F\u06D6-\u06ED]');
 

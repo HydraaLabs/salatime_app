@@ -158,6 +158,73 @@ void main() {
       expect((await SharedPreferences.getInstance()).getKeys(), isEmpty);
     },
   );
+  for (final replacementId in [7, 8]) {
+    test(
+      'an obsolete guarded clear preserves replacement session $replacementId and secure storage',
+      () async {
+        var current = session();
+        final auth = service((_) => data(current));
+        await auth.login(email: 'test@example.test', password: 'Alphabet2026!');
+        final oldToken = await auth.accessToken();
+        current = {
+          'user': {...profile, 'id': replacementId},
+          'token': '$replacementId|replacement-session',
+        };
+        await auth.login(email: 'test@example.test', password: 'Alphabet2026!');
+        final saved = store.values[auth.storageKey];
+
+        await auth.clearSession(expectedToken: oldToken);
+
+        expect(auth.user.value!.id, replacementId.toString());
+        expect(await auth.accessToken(), '$replacementId|replacement-session');
+        expect(store.values[auth.storageKey], saved);
+        expect(
+          requests.length,
+          2,
+          reason: 'No network request from a local guard',
+        );
+      },
+    );
+  }
+  test(
+    'a mismatched clear does not invalidate a pending login generation',
+    () async {
+      final started = Completer<void>();
+      final reply = Completer<http.Response>();
+      final auth = service((_) {
+        started.complete();
+        return reply.future;
+      });
+      final login = auth.login(
+        email: 'test@example.test',
+        password: 'Alphabet2026!',
+      );
+      await started.future;
+
+      await auth.clearSession(expectedToken: 'obsolete-session');
+      reply.complete(data(session()));
+      await login;
+
+      expect(auth.user.value!.id, '7');
+      expect(await auth.accessToken(), '7|test-session-token');
+      expect(store.values.containsKey(auth.storageKey), isTrue);
+    },
+  );
+  test(
+    'a matching guarded clear invalidates synchronously and removes the stored session',
+    () async {
+      final auth = service((_) => data(session()));
+      await auth.login(email: 'test@example.test', password: 'Alphabet2026!');
+      final token = await auth.accessToken();
+
+      final clearing = auth.clearSession(expectedToken: token);
+      expect(auth.user.value, isNull);
+      await clearing;
+
+      expect(await auth.accessToken(), isNull);
+      expect(store.values, isEmpty);
+    },
+  );
   test('secure keys bind sessions to the exact API origin', () {
     final a = service((_) => data({}));
     final b = MobileAuthService(

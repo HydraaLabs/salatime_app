@@ -17,6 +17,7 @@ import 'package:zabi/util/dimensions.dart';
 import 'package:zabi/util/images.dart';
 import 'package:zabi/view/base/custom_app_bar.dart';
 import 'package:zabi/view/base/custom_snackbar.dart';
+import 'package:zabi/service/play_store_review_service.dart';
 import 'package:zabi/view/screens/language/language_dw_widget.dart';
 import 'package:zabi/view/screens/notification/notification_dw_widget.dart';
 import 'package:zabi/view/screens/prayer_settings/prayer_calculation_settings.dart';
@@ -144,41 +145,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   }
                                 },
                               ),
-                            if (settingsController.mosqueSettingsApiData !=
-                                    null &&
-                                settingsController
-                                        .mosqueSettingsApiData!
-                                        .data !=
-                                    null &&
-                                settingsController
-                                        .mosqueSettingsApiData!
-                                        .data!
-                                        .playStoreUrl !=
-                                    null)
-                              SettingsItem(
-                                imagePath: Images.Icon_rate_app,
-                                leadingIcon: Icons.rate_review,
-                                title: 'rate_us'.tr,
-                                onTap: () async {
-                                  final playStoreUrl = settingsController
-                                      .mosqueSettingsApiData!
-                                      .data!
-                                      .playStoreUrl
-                                      .toString();
-                                  if (Uri.tryParse(playStoreUrl) != null) {
-                                    final url = Uri.parse(playStoreUrl);
-                                    launchUrl(
-                                      url,
-                                      mode: LaunchMode.externalApplication,
-                                    );
-                                  } else {
-                                    showCustomSnackBar(
-                                      "invalid_URL".tr,
-                                      isError: true,
-                                    );
-                                  }
-                                },
-                              ),
+                            SettingsItem(
+                              imagePath: Images.Icon_rate_app,
+                              leadingIcon: Icons.rate_review,
+                              title: 'rate_us'.tr,
+                              onTap: () async {
+                                final opened = await PlayStoreReviewService
+                                    .instance
+                                    .openStore();
+                                if (!opened && mounted) {
+                                  showCustomSnackBar(
+                                    'review_store_unavailable'.tr,
+                                    isError: true,
+                                  );
+                                }
+                              },
+                            ),
                           ],
                         )
                       : const SizedBox(),

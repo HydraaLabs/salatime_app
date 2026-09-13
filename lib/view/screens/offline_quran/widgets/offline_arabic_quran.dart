@@ -1,6 +1,8 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:zabi/view/screens/quran/widget/quran_reading_check.dart';
+import 'package:zabi/view/screens/quran/widget/quran_reading_keys.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -104,9 +106,7 @@ class _OfflineArabicQuranAutoDetectScreenState
           textDirection: TextDirection.rtl,
           style: Get.find<SettingsController>().selectedArabicFont.copyWith(
             fontSize: Get.find<SettingsController>().arabicFontSize.value,
-            color: Get.isDarkMode
-                ? Colors.black54
-                : Theme.of(context).textTheme.bodyMedium!.color,
+            color: Theme.of(context).textTheme.bodyMedium!.color,
           ),
         );
       }
@@ -123,9 +123,7 @@ class _OfflineArabicQuranAutoDetectScreenState
               text: text.substring(start),
               style: Get.find<SettingsController>().selectedArabicFont.copyWith(
                 fontSize: Get.find<SettingsController>().arabicFontSize.value,
-                color: Get.isDarkMode
-                    ? Colors.black54
-                    : Theme.of(context).textTheme.bodyMedium!.color,
+                color: Theme.of(context).textTheme.bodyMedium!.color,
               ),
             ),
           );
@@ -139,9 +137,7 @@ class _OfflineArabicQuranAutoDetectScreenState
               text: text.substring(start, index),
               style: Get.find<SettingsController>().selectedArabicFont.copyWith(
                 fontSize: Get.find<SettingsController>().arabicFontSize.value,
-                color: Get.isDarkMode
-                    ? Colors.black54
-                    : Theme.of(context).textTheme.bodyMedium!.color,
+                color: Theme.of(context).textTheme.bodyMedium!.color,
               ),
             ),
           );
@@ -279,6 +275,21 @@ class _OfflineArabicQuranAutoDetectScreenState
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           _buildAyahText(context, apiData.pageArabicAyah!, highlightedText),
+          QuranReadingCheck(
+            verseKeys: quranReadingKeys(
+              int.tryParse(
+                    suraDetaileController
+                            .suraDetailsApiData!
+                            .data!
+                            .chapter!
+                            .serialNumber ??
+                        '',
+                  ) ??
+                  suraDetaileController.suraDetailsApiData!.data!.chapter!.id,
+              apiData.pageVerses,
+            ),
+            label: 'reading_quran_page_read'.tr,
+          ),
           const SizedBox(height: Dimensions.PADDING_SIZE_DEFAULT),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

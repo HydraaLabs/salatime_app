@@ -1,20 +1,34 @@
+import 'quran_translation_source.dart';
+
 class SuraDetaileModel {
   bool? status;
   String? message;
   Data? data;
+  QuranTranslationSource? translationSource;
 
-  SuraDetaileModel({this.status, this.message, this.data});
+  SuraDetaileModel({
+    this.status,
+    this.message,
+    this.data,
+    this.translationSource,
+  });
 
   SuraDetaileModel.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     message = json['message'];
     data = json['data'] != null ? Data.fromJson(json['data']) : null;
+    translationSource = json['translation_source'] is Map<String, dynamic>
+        ? QuranTranslationSource.fromJson(json['translation_source'])
+        : null;
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['status'] = status;
     data['message'] = message;
+    if (translationSource != null) {
+      data['translation_source'] = translationSource!.toJson();
+    }
     if (this.data != null) {
       data['data'] = this.data!.toJson();
     }
@@ -90,7 +104,6 @@ class Chapter {
   }
 }
 
-
 class ChapterInfo {
   int? pageNumber;
   List<PageVerses>? pageVerses;
@@ -132,7 +145,6 @@ class ChapterInfo {
   }
 }
 
-
 class PageVerses {
   int? id;
   int? chapterId;
@@ -141,6 +153,7 @@ class PageVerses {
   String? arabicName;
   String? translatedName;
   String? transLiteration;
+  String? translationFootnotes;
 
   PageVerses({
     this.id,
@@ -150,6 +163,7 @@ class PageVerses {
     this.arabicName,
     this.translatedName,
     this.transLiteration,
+    this.translationFootnotes,
   });
 
   PageVerses.fromJson(Map<String, dynamic> json) {
@@ -159,6 +173,7 @@ class PageVerses {
     versesNumber = parseInt(json['verses_number']);
     arabicName = json['arabic_name'];
     translatedName = json['translated_name'];
+    translationFootnotes = json['translation_footnotes'];
     transLiteration = json['english_transliteration'];
   }
 
@@ -170,6 +185,7 @@ class PageVerses {
     data['verses_number'] = versesNumber;
     data['arabic_name'] = arabicName;
     data['translated_name'] = translatedName;
+    data['translation_footnotes'] = translationFootnotes;
     data['english_transliteration'] = transLiteration;
     return data;
   }
@@ -181,7 +197,6 @@ int? parseInt(dynamic value) {
   if (value is int) return value;
   return int.tryParse(value.toString());
 }
-
 
 String? parseString(dynamic value) {
   if (value == null) return null;

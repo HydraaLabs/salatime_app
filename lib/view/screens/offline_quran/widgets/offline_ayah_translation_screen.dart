@@ -1,6 +1,10 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:zabi/view/screens/quran/widget/quran_reading_check.dart';
+import 'package:zabi/view/screens/quran/widget/quran_reading_keys.dart';
+import 'package:zabi/view/screens/quran/widget/quran_translation_source_card.dart';
+import 'package:zabi/view/screens/quran/widget/quran_translation_text.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
@@ -28,6 +32,24 @@ class _OfflineAyanTranslationWidgetState
   Widget build(BuildContext context) {
     return GetBuilder<OfflineQuranController>(
       builder: (suraDetaileController) {
+        if (suraDetaileController.translationError.value != null) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              children: [
+                Text(
+                  suraDetaileController.translationError.value!.tr,
+                  textAlign: TextAlign.center,
+                ),
+                TextButton.icon(
+                  onPressed: () => suraDetaileController.refreshTranslation(),
+                  icon: const Icon(Icons.refresh),
+                  label: Text('quran_translation_retry'.tr),
+                ),
+              ],
+            ),
+          );
+        }
         if (suraDetaileController.isSurahDetailsLoading.value ||
             suraDetaileController.suraDetailsApiData == null) {
           return const Center(child: LoadingIndicator());
@@ -43,6 +65,13 @@ class _OfflineAyanTranslationWidgetState
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              if (suraDetaileController.suraDetailsApiData!.translationSource !=
+                  null)
+                QuranTranslationSourceCard(
+                  source: suraDetaileController
+                      .suraDetailsApiData!
+                      .translationSource,
+                ),
               // your existing Bismillah card code...
               if (suraDetaileController.suraDetailsApiData!.data!.chapter!.id !=
                       1 &&
@@ -119,23 +148,19 @@ class _OfflineAyanTranslationWidgetState
                                                 .toString(),
                                             textDirection: TextDirection.rtl,
                                             textAlign: TextAlign.right,
-                                            style:
-                                                Get.find<
-                                                    SettingsController
-                                                    >()
-                                                    .selectedArabicFont
-                                                    .copyWith(
-                                                      fontSize:
-                                                          Get.find<
-                                                              SettingsController
-                                                              >()
-                                                              .arabicFontSize
-                                                              .value,
-                                                      color: Theme.of(context)
-                                                          .textTheme
-                                                          .bodyMedium!
-                                                          .color,
-                                                    ),
+                                            style: Get.find<SettingsController>()
+                                                .selectedArabicFont
+                                                .copyWith(
+                                                  fontSize:
+                                                      Get.find<
+                                                            SettingsController
+                                                          >()
+                                                          .arabicFontSize
+                                                          .value,
+                                                  color: Theme.of(
+                                                    context,
+                                                  ).textTheme.bodyMedium!.color,
+                                                ),
                                           ),
                                         ),
                                       ),
@@ -143,23 +168,19 @@ class _OfflineAyanTranslationWidgetState
                                         height: Dimensions.PADDING_SIZE_SMALL,
                                       ),
                                       // Translation
-                                      Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Obx(
-                                          () => SelectableText(
-                                            apiData
-                                                .pageVerses![verseIndex]
-                                                .translatedName
-                                                .toString(),
-                                            textAlign: TextAlign.justify,
-                                            style: robotoMedium.copyWith(
-                                              fontSize:
-                                                  Get.find<
-                                                      SettingsController
-                                                      >()
-                                                      .translateFontSize
-                                                      .value,
-                                            ),
+                                      Obx(
+                                        () => QuranTranslationText(
+                                          text: verse.translatedName ?? '',
+                                          footnotes: verse.translationFootnotes,
+                                          languageCode: suraDetaileController
+                                              .suraDetailsApiData!
+                                              .translationSource
+                                              ?.languageCode,
+                                          style: robotoMedium.copyWith(
+                                            fontSize:
+                                                Get.find<SettingsController>()
+                                                    .translateFontSize
+                                                    .value,
                                           ),
                                         ),
                                       ),
@@ -167,6 +188,25 @@ class _OfflineAyanTranslationWidgetState
                                         height: Dimensions.PADDING_SIZE_SMALL,
                                       ),
                                       // end ayah row
+                                      QuranReadingCheck(
+                                        verseKeys: quranReadingKeys(
+                                          int.tryParse(
+                                                suraDetaileController
+                                                        .suraDetailsApiData!
+                                                        .data!
+                                                        .chapter!
+                                                        .serialNumber ??
+                                                    '',
+                                              ) ??
+                                              suraDetaileController
+                                                  .suraDetailsApiData!
+                                                  .data!
+                                                  .chapter!
+                                                  .id,
+                                          [verse],
+                                        ),
+                                        label: 'reading_quran_verse_read'.tr,
+                                      ),
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
@@ -209,11 +249,25 @@ class _OfflineAyanTranslationWidgetState
                                                               as RenderBox;
 
                                                       Share.share(
-                                                        'Arabic Ayah: ${apiData.pageVerses![verseIndex].arabicName}\n\n'
-                                                        'Translation: ${apiData.pageVerses![verseIndex].translatedName}\n\n'
-                                                        'Sura Name: ${suraDetaileController.suraDetailsApiData!.data!.chapter!.translatedName}\n'
-                                                        'Ayah Number: ${apiData.pageVerses![verseIndex].versesNumber}\n'
-                                                        'Powered By: ${AppConstants.APP_NAME}',
+                                                        quranTranslationShareText(
+                                                          reference:
+                                                              '${suraDetaileController.suraDetailsApiData!.data!.chapter!.translatedName} ${suraDetaileController.suraDetailsApiData!.data!.chapter!.serialNumber ?? suraDetaileController.suraDetailsApiData!.data!.chapter!.id}:${verse.versesNumber}',
+                                                          arabic:
+                                                              verse
+                                                                  .arabicName ??
+                                                              '',
+                                                          translation:
+                                                              verse
+                                                                  .translatedName ??
+                                                              '',
+                                                          footnotes: verse
+                                                              .translationFootnotes,
+                                                          source: suraDetaileController
+                                                              .suraDetailsApiData!
+                                                              .translationSource,
+                                                          appName: AppConstants
+                                                              .APP_NAME,
+                                                        ),
                                                         sharePositionOrigin:
                                                             box.localToGlobal(
                                                               Offset.zero,

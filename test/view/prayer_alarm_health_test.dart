@@ -31,6 +31,7 @@ void main() {
   final nativeCalls = <MethodCall>[];
   final pending = <Map<String, dynamic>>[];
   var alarmVolume = 7;
+  var outcome = 'late_silent';
   final boundary = GlobalKey();
 
   setUpAll(() async {
@@ -48,6 +49,7 @@ void main() {
     nativeCalls.clear();
     pending.clear();
     alarmVolume = 7;
+    outcome = 'late_silent';
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(native, (call) async {
           nativeCalls.add(call);
@@ -60,7 +62,7 @@ void main() {
               'alarmVolumeMax': 10,
               'manufacturer': 'Samsung',
               'delayMs': 26 * 60000,
-              'outcome': 'late_silent',
+              'outcome': outcome,
             },
             'route' => {'routed': 1, 'failed': 0, 'inexact': false},
             _ => null,
@@ -180,6 +182,31 @@ void main() {
         SalatWaqtService.testAlarmId,
       );
       expect(find.text('Tester dans une minute'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+    variant: TargetPlatformVariant({TargetPlatform.android}),
+  );
+
+  testWidgets(
+    'muted audio replaces the failure message with the phone settings explanation',
+    (tester) async {
+      outcome = 'audio_error';
+      await showCard(tester);
+      expect(find.text('alarm_audio_failed'.tr), findsOneWidget);
+      expect(find.text('alarm_audio_muted'.tr), findsNothing);
+
+      outcome = 'audio_muted';
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pumpAndSettle();
+      expect(
+        find.text(
+          'Le dernier adhan est resté silencieux selon les réglages audio du téléphone.',
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('alarm_audio_failed'.tr), findsNothing);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox.shrink());
     },

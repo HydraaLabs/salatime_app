@@ -4,10 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:zabi/controller/offline_quran_controller.dart';
-import 'package:zabi/controller/quran_milestone_controller.dart';
+import 'package:zabi/view/screens/reading/reading_progress_screen.dart';
 import 'package:zabi/util/dimensions.dart';
 import 'package:zabi/util/images.dart';
-import 'package:zabi/util/styles.dart';
+import 'package:zabi/view/screens/quran/widget/quran_navigation_button.dart';
+import 'package:zabi/view/screens/quran/widget/quran_translation_error.dart';
 import 'package:zabi/view/base/custom_app_bar.dart';
 import 'package:zabi/view/base/tabbar_button.dart';
 import 'package:zabi/view/screens/offline_quran/widgets/offline_arabic_quran.dart';
@@ -42,7 +43,6 @@ class _OfflineSuraDetaileScreenState extends State<OfflineSuraDetaileScreen> {
     Future.microtask(() {
       final surahNumber = int.parse(widget.surahNumber);
       offlineQuranController.loadSurahDetails(surahNumber: surahNumber);
-      Get.find<QuranMilestoneController>().markSurahRead(surahNumber);
     });
   }
 
@@ -75,6 +75,15 @@ class _OfflineSuraDetaileScreenState extends State<OfflineSuraDetaileScreen> {
               title: title,
               isBackButtonExist: widget.appBackButton,
               actions: [
+                IconButton(
+                  tooltip: 'reading_progress_title'.tr,
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const ReadingProgressScreen(),
+                    ),
+                  ),
+                  icon: const Icon(Icons.insights_outlined),
+                ),
                 IconButton(
                   onPressed: () => openBottomSheet(context),
                   icon: SvgPicture.asset(
@@ -114,35 +123,60 @@ class _OfflineSuraDetaileScreenState extends State<OfflineSuraDetaileScreen> {
               ],
             ),
             Expanded(
-              child: TabBarView(
-                children: [
-                  OfflineArabicQuranAutoDetectScreen(
-                    pageNumber: savedPage,
-                    highlightedWord: highlightedWord,
-                  ),
-                  const OfflineAyanTranslationWidget(),
-                ],
+              child: GetBuilder<OfflineQuranController>(
+                builder: (controller) => controller.isSurahDetailsLoading.value
+                    ? const Center(child: CircularProgressIndicator())
+                    : controller.suraDetailsApiData == null
+                    ? QuranTranslationError(
+                        onRetry: () => controller.loadSurahDetails(
+                          surahNumber:
+                              controller.lastSurahNumber ??
+                              int.parse(widget.surahNumber),
+                        ),
+                      )
+                    : TabBarView(
+                        children: [
+                          OfflineArabicQuranAutoDetectScreen(
+                            pageNumber: savedPage,
+                            highlightedWord: highlightedWord,
+                          ),
+                          const OfflineAyanTranslationWidget(),
+                        ],
+                      ),
               ),
             ),
             GetBuilder<OfflineQuranController>(
               builder: (controller) {
                 final currentSurah = controller.lastSurahNumber ?? 1;
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    TextButton(
-                      onPressed: currentSurah > 1
-                          ? () => controller.changeSurah(currentSurah - 1)
-                          : null,
-                      child: Text('previous_sura'.tr, style: robotoBlack),
-                    ),
-                    TextButton(
-                      onPressed: currentSurah < 114
-                          ? () => controller.changeSurah(currentSurah + 1)
-                          : null,
-                      child: Text('next_sura'.tr, style: robotoBlack),
-                    ),
-                  ],
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 15,
+                    vertical: 18,
+                  ),
+                  child: Row(
+                    children: [
+                      QuranNavigationButton(
+                        icon: Icons.chevron_left,
+                        label: 'previous_sura'.tr,
+                        isEnabled:
+                            !controller.isSurahDetailsLoading.value &&
+                            currentSurah > 1,
+                        onPressed: () =>
+                            controller.changeSurah(currentSurah - 1),
+                      ),
+                      const SizedBox(width: 16),
+                      QuranNavigationButton(
+                        icon: Icons.chevron_right,
+                        label: 'next_sura'.tr,
+                        isLeftIcon: false,
+                        isEnabled:
+                            !controller.isSurahDetailsLoading.value &&
+                            currentSurah < 114,
+                        onPressed: () =>
+                            controller.changeSurah(currentSurah + 1),
+                      ),
+                    ],
+                  ),
                 );
               },
             ),

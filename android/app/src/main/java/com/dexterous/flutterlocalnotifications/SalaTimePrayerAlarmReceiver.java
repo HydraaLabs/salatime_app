@@ -35,6 +35,10 @@ public class SalaTimePrayerAlarmReceiver extends BroadcastReceiver {
             if ("late_silent".equals(policy)) {
                 showSilent(context, details);
             } else if ("adhan".equals(payload.getString("kind"))
+                    && SalaTimeAdhanService.isDeviceMuted(context)) {
+                SalaTimePrayerAlarms.record(context, payload, now, "audio_muted");
+                showSilent(context, details);
+            } else if ("adhan".equals(payload.getString("kind"))
                     && details.sound != null && ((com.example.zabi.BundledNotificationSounds.contains(details.sound) && !"silent".equals(details.sound)) || com.example.zabi.PersonalSoundFiles.isSoundUri(context, details.sound))) {
                 try {
                     SalaTimeAlarmWakeLock.start(context,
@@ -42,8 +46,10 @@ public class SalaTimePrayerAlarmReceiver extends BroadcastReceiver {
                                     .putExtra("notification", row.toString()));
                 } catch (RuntimeException unavailable) {
                     SalaTimePrayerAlarms.record(context, payload, now, "audio_unavailable");
-                    FlutterLocalNotificationsPlugin.showNotification(context, details);
-                    Log.w("SalaTimeAlarms", "Adhan service unavailable; using notification sound", unavailable);
+                    // Never replace a controllable player with an alarm-channel
+                    // sound that ignores mute/stop controls if startup fails.
+                    showSilent(context, details);
+                    Log.w("SalaTimeAlarms", "Adhan service unavailable; keeping a silent notification", unavailable);
                 }
             } else {
                 FlutterLocalNotificationsPlugin.showNotification(context, details);

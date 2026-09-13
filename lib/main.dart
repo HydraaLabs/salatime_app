@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:zabi/service/preference_cloud_sync.dart';
+import 'package:zabi/service/reading/reading_progress_service.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'dart:io';
 
@@ -58,6 +59,7 @@ Future<void> _bootstrapApp() async {
   );
   // Account/cloud failures never block offline prayer times or onboarding.
   unawaited(PreferenceCloudSync.instance.initialize().catchError((_) {}));
+  unawaited(ReadingProgressService.instance.initialize().catchError((_) {}));
 }
 
 class MyApp extends StatelessWidget {

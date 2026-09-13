@@ -1,145 +1,221 @@
 {
-    "status": true,
-    "message": "Data fetched successfully",
-    "data": {
-        "chapter": {
-            "id": 91,
-            "serial_number": "91",
-            "arabic_name": "الشمس",
-            "translated_name": "Ash-Shams",
+  "status": true,
+  "message": "Data fetched successfully",
+  "data": {
+    "chapter": {
+      "id": 92,
+      "serial_number": "92",
+      "arabic_name": "الليل",
+      "translated_name": "Al-Layl",
+      "verses_translate_name": "versos",
+      "verses_count": "21"
+    },
+    "chapter_info": [
+      {
+        "eng_page_number": 595,
+        "page_key": 0,
+        "page_number": "595",
+        "page_verses": [
+          {
+            "id": 6059,
+            "chapter_id": 92,
             "verses_translate_name": "versos",
-            "verses_count": "15"
-        },
-        "chapter_info": [
-            {
-                "eng_page_number": 595,
-                "page_number": "595",
-                "page_key": 0,
-                "page_verses": [
-                    {
-                        "id": 6044,
-                        "chapter_id": 91,
-                        "verses_translate_name": "versos",
-                        "verses_number": "1",
-                        "arabic_name": "وَٱلشَّمْسِ وَضُحَىٰهَا",
-                        "translated_name": "Juro por el Sol y por el esplendor de la mañana"
-                    },
-                    {
-                        "id": 6045,
-                        "chapter_id": 91,
-                        "verses_translate_name": "versos",
-                        "verses_number": "2",
-                        "arabic_name": "وَٱلْقَمَرِ إِذَا تَلَىٰهَا",
-                        "translated_name": "y por la Luna cuando le sigue"
-                    },
-                    {
-                        "id": 6046,
-                        "chapter_id": 91,
-                        "verses_translate_name": "versos",
-                        "verses_number": "3",
-                        "arabic_name": "وَٱلنَّهَارِ إِذَا جَلَّىٰهَا",
-                        "translated_name": "y por el día cuando la muestra"
-                    },
-                    {
-                        "id": 6047,
-                        "chapter_id": 91,
-                        "verses_translate_name": "versos",
-                        "verses_number": "4",
-                        "arabic_name": "وَٱلَّيْلِ إِذَا يَغْشَىٰهَا",
-                        "translated_name": "y por la noche cuando la cubre"
-                    },
-                    {
-                        "id": 6048,
-                        "chapter_id": 91,
-                        "verses_translate_name": "versos",
-                        "verses_number": "5",
-                        "arabic_name": "وَٱلسَّمَآءِ وَمَا بَنَىٰهَا",
-                        "translated_name": "y por el cielo y Quien lo construyó"
-                    },
-                    {
-                        "id": 6049,
-                        "chapter_id": 91,
-                        "verses_translate_name": "versos",
-                        "verses_number": "6",
-                        "arabic_name": "وَٱلْأَرْضِ وَمَا طَحَىٰهَا",
-                        "translated_name": "y por la Tierra y Quien la extendió"
-                    },
-                    {
-                        "id": 6050,
-                        "chapter_id": 91,
-                        "verses_translate_name": "versos",
-                        "verses_number": "7",
-                        "arabic_name": "وَنَفْسٍ وَمَا سَوَّىٰهَا",
-                        "translated_name": "y por un alma y Quien la creo de forma armoniosa y equilibrada,"
-                    },
-                    {
-                        "id": 6051,
-                        "chapter_id": 91,
-                        "verses_translate_name": "versos",
-                        "verses_number": "8",
-                        "arabic_name": "فَأَلْهَمَهَا فُجُورَهَا وَتَقْوَىٰهَا",
-                        "translated_name": "inspirándole lo que la corrompe y el temor que la mantiene a salvo:"
-                    },
-                    {
-                        "id": 6052,
-                        "chapter_id": 91,
-                        "verses_translate_name": "versos",
-                        "verses_number": "9",
-                        "arabic_name": "قَدْ أَفْلَحَ مَن زَكَّىٰهَا",
-                        "translated_name": "Ciertamente, habrá triunfado quien la purifique"
-                    },
-                    {
-                        "id": 6053,
-                        "chapter_id": 91,
-                        "verses_translate_name": "versos",
-                        "verses_number": "10",
-                        "arabic_name": "وَقَدْ خَابَ مَن دَسَّىٰهَا",
-                        "translated_name": "y habrá fracasado quien la corrompa"
-                    },
-                    {
-                        "id": 6054,
-                        "chapter_id": 91,
-                        "verses_translate_name": "versos",
-                        "verses_number": "11",
-                        "arabic_name": "كَذَّبَتْ ثَمُودُ بِطَغْوَىٰهَآ",
-                        "translated_name": "Tamud, en su rebeldía, desmintió"
-                    },
-                    {
-                        "id": 6055,
-                        "chapter_id": 91,
-                        "verses_translate_name": "versos",
-                        "verses_number": "12",
-                        "arabic_name": "إِذِ ٱنۢبَعَثَ أَشْقَىٰهَا",
-                        "translated_name": "cuando el más miserable de ellos se alzó,"
-                    },
-                    {
-                        "id": 6056,
-                        "chapter_id": 91,
-                        "verses_translate_name": "versos",
-                        "verses_number": "13",
-                        "arabic_name": "فَقَالَ لَهُمْ رَسُولُ ٱللَّهِ نَاقَةَ ٱللَّهِ وَسُقْيَـٰهَا",
-                        "translated_name": "a pesar de que el Mensajero de Dios les había dicho: «¡Ésta es la camella de Dios, dejadla beber!»"
-                    },
-                    {
-                        "id": 6057,
-                        "chapter_id": 91,
-                        "verses_translate_name": "versos",
-                        "verses_number": "14",
-                        "arabic_name": "فَكَذَّبُوهُ فَعَقَرُوهَا فَدَمْدَمَ عَلَيْهِمْ رَبُّهُم بِذَنۢبِهِمْ فَسَوَّىٰهَا",
-                        "translated_name": "Pero le desmintieron y la mataron y su Señor les castigó por su pecado y les aniquiló a todos por igual,"
-                    },
-                    {
-                        "id": 6058,
-                        "chapter_id": 91,
-                        "verses_translate_name": "versos",
-                        "verses_number": "15",
-                        "arabic_name": "وَلَا يَخَافُ عُقْبَـٰهَا",
-                        "translated_name": "sin temer las consecuencias."
-                    }
-                ],
-                "page_arabic_ayah": "وَٱلشَّمْسِ وَضُحَىٰهَا (١)  وَٱلْقَمَرِ إِذَا تَلَىٰهَا (٢)  وَٱلنَّهَارِ إِذَا جَلَّىٰهَا (٣)  وَٱلَّيْلِ إِذَا يَغْشَىٰهَا (٤)  وَٱلسَّمَآءِ وَمَا بَنَىٰهَا (٥)  وَٱلْأَرْضِ وَمَا طَحَىٰهَا (٦)  وَنَفْسٍ وَمَا سَوَّىٰهَا (٧)  فَأَلْهَمَهَا فُجُورَهَا وَتَقْوَىٰهَا (٨)  قَدْ أَفْلَحَ مَن زَكَّىٰهَا (٩)  وَقَدْ خَابَ مَن دَسَّىٰهَا (١٠)  كَذَّبَتْ ثَمُودُ بِطَغْوَىٰهَآ (١١)  إِذِ ٱنۢبَعَثَ أَشْقَىٰهَا (١٢)  فَقَالَ لَهُمْ رَسُولُ ٱللَّهِ نَاقَةَ ٱللَّهِ وَسُقْيَـٰهَا (١٣)  فَكَذَّبُوهُ فَعَقَرُوهَا فَدَمْدَمَ عَلَيْهِمْ رَبُّهُم بِذَنۢبِهِمْ فَسَوَّىٰهَا (١٤)  وَلَا يَخَافُ عُقْبَـٰهَا (١٥)",
-                "is_read": false
-            }
-        ]
-    }
+            "verses_number": "1",
+            "arabic_name": "وَٱلَّيْلِ إِذَا يَغْشَىٰ",
+            "translated_name": "Juro por la noche cuando cubre",
+            "english_transliteration": "Wallaili izaa yaghshaa"
+          },
+          {
+            "id": 6060,
+            "chapter_id": 92,
+            "verses_translate_name": "versos",
+            "verses_number": "2",
+            "arabic_name": "وَٱلنَّهَارِ إِذَا تَجَلَّىٰ",
+            "translated_name": "y por el día cuando se manifiesta",
+            "english_transliteration": "Wannahaari izaa tajalla"
+          },
+          {
+            "id": 6061,
+            "chapter_id": 92,
+            "verses_translate_name": "versos",
+            "verses_number": "3",
+            "arabic_name": "وَمَا خَلَقَ ٱلذَّكَرَ وَٱلْأُنثَىٰٓ",
+            "translated_name": "y por Quien ha creado al varón y a la hembra,",
+            "english_transliteration": "Wa maa khalaqaz zakara wal unthaa"
+          },
+          {
+            "id": 6062,
+            "chapter_id": 92,
+            "verses_translate_name": "versos",
+            "verses_number": "4",
+            "arabic_name": "إِنَّ سَعْيَكُمْ لَشَتَّىٰ",
+            "translated_name": "que, en verdad, vuestros esfuerzos obtienen diferentes resultados.",
+            "english_transliteration": "Inna sa'yakum lashattaa"
+          },
+          {
+            "id": 6063,
+            "chapter_id": 92,
+            "verses_translate_name": "versos",
+            "verses_number": "5",
+            "arabic_name": "فَأَمَّا مَنْ أَعْطَىٰ وَٱتَّقَىٰ",
+            "translated_name": "Así pues, a quien dé y sea temeroso de Dios",
+            "english_transliteration": "Fa ammaa man a'taa wattaqaa"
+          },
+          {
+            "id": 6064,
+            "chapter_id": 92,
+            "verses_translate_name": "versos",
+            "verses_number": "6",
+            "arabic_name": "وَصَدَّقَ بِٱلْحُسْنَىٰ",
+            "translated_name": "y crea en la buena promesa,",
+            "english_transliteration": "Wa saddaqa bil husnaa"
+          },
+          {
+            "id": 6065,
+            "chapter_id": 92,
+            "verses_translate_name": "versos",
+            "verses_number": "7",
+            "arabic_name": "فَسَنُيَسِّرُهُۥ لِلْيُسْرَىٰ",
+            "translated_name": "le facilitaremos las cosas.",
+            "english_transliteration": "Fasanu yassiruhoo lilyusraa"
+          },
+          {
+            "id": 6066,
+            "chapter_id": 92,
+            "verses_translate_name": "versos",
+            "verses_number": "8",
+            "arabic_name": "وَأَمَّا مَنۢ بَخِلَ وَٱسْتَغْنَىٰ",
+            "translated_name": "Pero a quien sea avaro y se crea autosuficiente",
+            "english_transliteration": "Wa ammaa mam bakhila wastaghnaa"
+          },
+          {
+            "id": 6067,
+            "chapter_id": 92,
+            "verses_translate_name": "versos",
+            "verses_number": "9",
+            "arabic_name": "وَكَذَّبَ بِٱلْحُسْنَىٰ",
+            "translated_name": "y desmienta la buena promesa,",
+            "english_transliteration": "Wa kazzaba bil husnaa"
+          },
+          {
+            "id": 6068,
+            "chapter_id": 92,
+            "verses_translate_name": "versos",
+            "verses_number": "10",
+            "arabic_name": "فَسَنُيَسِّرُهُۥ لِلْعُسْرَىٰ",
+            "translated_name": "le haremos difícil las cosas",
+            "english_transliteration": "Fasanu yassiruhoo lil'usraa"
+          },
+          {
+            "id": 6069,
+            "chapter_id": 92,
+            "verses_translate_name": "versos",
+            "verses_number": "11",
+            "arabic_name": "وَمَا يُغْنِى عَنْهُ مَالُهُۥٓ إِذَا تَرَدَّىٰٓ",
+            "translated_name": "y no le beneficiará su riqueza cuando muera.",
+            "english_transliteration": "Wa maa yughnee 'anhu maaluhooo izaa taraddaa"
+          },
+          {
+            "id": 6070,
+            "chapter_id": 92,
+            "verses_translate_name": "versos",
+            "verses_number": "12",
+            "arabic_name": "إِنَّ عَلَيْنَا لَلْهُدَىٰ",
+            "translated_name": "En verdad, Nosotros tenemos la guía",
+            "english_transliteration": "Inna 'alainaa lal hudaa"
+          },
+          {
+            "id": 6071,
+            "chapter_id": 92,
+            "verses_translate_name": "versos",
+            "verses_number": "13",
+            "arabic_name": "وَإِنَّ لَنَا لَلْـَٔاخِرَةَ وَٱلْأُولَىٰ",
+            "translated_name": "y a Nosotros pertenece la otra vida y la primera",
+            "english_transliteration": "Wa inna lanaa lal Aakhirata wal oolaa"
+          },
+          {
+            "id": 6072,
+            "chapter_id": 92,
+            "verses_translate_name": "versos",
+            "verses_number": "14",
+            "arabic_name": "فَأَنذَرْتُكُمْ نَارًا تَلَظَّىٰ",
+            "translated_name": "Y os he advertido del Fuego llameante",
+            "english_transliteration": "Fa anzartukum naaran talazzaa"
+          }
+        ],
+        "page_arabic_ayah": "وَٱلَّيْلِ إِذَا يَغْشَىٰ (١)  وَٱلنَّهَارِ إِذَا تَجَلَّىٰ (٢)  وَمَا خَلَقَ ٱلذَّكَرَ وَٱلْأُنثَىٰٓ (٣)  إِنَّ سَعْيَكُمْ لَشَتَّىٰ (٤)  فَأَمَّا مَنْ أَعْطَىٰ وَٱتَّقَىٰ (٥)  وَصَدَّقَ بِٱلْحُسْنَىٰ (٦)  فَسَنُيَسِّرُهُۥ لِلْيُسْرَىٰ (٧)  وَأَمَّا مَنۢ بَخِلَ وَٱسْتَغْنَىٰ (٨)  وَكَذَّبَ بِٱلْحُسْنَىٰ (٩)  فَسَنُيَسِّرُهُۥ لِلْعُسْرَىٰ (١٠)  وَمَا يُغْنِى عَنْهُ مَالُهُۥٓ إِذَا تَرَدَّىٰٓ (١١)  إِنَّ عَلَيْنَا لَلْهُدَىٰ (١٢)  وَإِنَّ لَنَا لَلْـَٔاخِرَةَ وَٱلْأُولَىٰ (١٣)  فَأَنذَرْتُكُمْ نَارًا تَلَظَّىٰ (١٤)"
+      },
+      {
+        "eng_page_number": 596,
+        "page_key": 1,
+        "page_number": "596",
+        "page_verses": [
+          {
+            "id": 6073,
+            "chapter_id": 92,
+            "verses_translate_name": "versos",
+            "verses_number": "15",
+            "arabic_name": "لَا يَصْلَىٰهَآ إِلَّا ٱلْأَشْقَى",
+            "translated_name": "al cual sólo será arrojado el más descreído,",
+            "english_transliteration": "Laa yaslaahaaa illal ashqaa"
+          },
+          {
+            "id": 6074,
+            "chapter_id": 92,
+            "verses_translate_name": "versos",
+            "verses_number": "16",
+            "arabic_name": "ٱلَّذِى كَذَّبَ وَتَوَلَّىٰ",
+            "translated_name": "que desmiente y se aparta.",
+            "english_transliteration": "Allazee kazzaba wa tawallaa"
+          },
+          {
+            "id": 6075,
+            "chapter_id": 92,
+            "verses_translate_name": "versos",
+            "verses_number": "17",
+            "arabic_name": "وَسَيُجَنَّبُهَا ٱلْأَتْقَى",
+            "translated_name": "Y se librará de él quien sea más temeroso,",
+            "english_transliteration": "Wa sa yujannnabuhal atqaa"
+          },
+          {
+            "id": 6076,
+            "chapter_id": 92,
+            "verses_translate_name": "versos",
+            "verses_number": "18",
+            "arabic_name": "ٱلَّذِى يُؤْتِى مَالَهُۥ يَتَزَكَّىٰ",
+            "translated_name": "que dé de sus bienes y los purifique,",
+            "english_transliteration": "Allazee yu'tee maalahoo yatazakkaa"
+          },
+          {
+            "id": 6077,
+            "chapter_id": 92,
+            "verses_translate_name": "versos",
+            "verses_number": "19",
+            "arabic_name": "وَمَا لِأَحَدٍ عِندَهُۥ مِن نِّعْمَةٍ تُجْزَىٰٓ",
+            "translated_name": "y que no hace el bien esperando recompensa,",
+            "english_transliteration": "Wa maa li ahadin 'indahoo min ni'matin tujzaaa"
+          },
+          {
+            "id": 6078,
+            "chapter_id": 92,
+            "verses_translate_name": "versos",
+            "verses_number": "20",
+            "arabic_name": "إِلَّا ٱبْتِغَآءَ وَجْهِ رَبِّهِ ٱلْأَعْلَىٰ",
+            "translated_name": "sino buscando la satisfacción de su Señor el Altísimo.",
+            "english_transliteration": "Illab tighaaa'a wajhi rabbihil a 'laa"
+          },
+          {
+            "id": 6079,
+            "chapter_id": 92,
+            "verses_translate_name": "versos",
+            "verses_number": "21",
+            "arabic_name": "وَلَسَوْفَ يَرْضَىٰ",
+            "translated_name": "Y pronto será satisfecho.",
+            "english_transliteration": "Wa lasawfa yardaa"
+          }
+        ],
+        "page_arabic_ayah": "لَا يَصْلَىٰهَآ إِلَّا ٱلْأَشْقَى (١٥)  ٱلَّذِى كَذَّبَ وَتَوَلَّىٰ (١٦)  وَسَيُجَنَّبُهَا ٱلْأَتْقَى (١٧)  ٱلَّذِى يُؤْتِى مَالَهُۥ يَتَزَكَّىٰ (١٨)  وَمَا لِأَحَدٍ عِندَهُۥ مِن نِّعْمَةٍ تُجْزَىٰٓ (١٩)  إِلَّا ٱبْتِغَآءَ وَجْهِ رَبِّهِ ٱلْأَعْلَىٰ (٢٠)  وَلَسَوْفَ يَرْضَىٰ (٢١)"
+      }
+    ]
+  }
 }

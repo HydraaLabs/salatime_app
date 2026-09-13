@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:zabi/controller/quran_controller.dart';
-import 'package:zabi/controller/quran_milestone_controller.dart';
+import 'package:zabi/view/screens/reading/reading_progress_screen.dart';
 import 'package:zabi/helper/route_helper.dart';
 import 'package:zabi/util/dimensions.dart';
 import 'package:zabi/util/images.dart';
-import 'package:zabi/util/styles.dart';
+import 'package:zabi/view/screens/quran/widget/quran_navigation_button.dart';
+import 'package:zabi/view/screens/quran/widget/quran_translation_error.dart';
 import 'package:zabi/view/base/custom_app_bar.dart';
 import 'package:zabi/view/base/tabbar_button.dart';
 import 'package:zabi/view/screens/quran/quran_settings_screen.dart';
@@ -28,20 +29,22 @@ class SuraDetaileScreen extends StatelessWidget {
         final isLoading = quranController.isSuraDetaileLoading.value;
         final sura = quranController.suraDetaileApiData?.data?.chapter;
 
-        if (!isLoading && sura?.id != null) {
-          final suraId = sura!.id;
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Get.find<QuranMilestoneController>().markSurahRead(suraId);
-          });
-        }
-
         return Scaffold(
           appBar: CustomAppBar(
-            title: isLoading
+            title: isLoading || sura == null
                 ? "--"
-                : "${sura?.translatedName}\n${sura?.versesTranslateName}: ${sura?.versesCount}",
+                : "${sura.translatedName}\n${'quran_verse_count'.trParams({'count': sura.versesCount ?? ''})}",
             isBackButtonExist: appBackButton,
             actions: [
+              IconButton(
+                tooltip: 'reading_progress_title'.tr,
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const ReadingProgressScreen(),
+                  ),
+                ),
+                icon: const Icon(Icons.insights_outlined),
+              ),
               if (!isLoading)
                 IconButton(
                   onPressed: () => openBottomSheet(context),
@@ -61,12 +64,22 @@ class SuraDetaileScreen extends StatelessWidget {
               children: [
                 _buildTabBar(context),
                 Expanded(
-                  child: TabBarView(
-                    children: [
-                      Center(child: ArabicQuranWidget(pageNumber: savedPage)),
-                      const Center(child: AyanTranslationWidget()),
-                    ],
-                  ),
+                  child: isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : sura == null
+                      ? QuranTranslationError(
+                          onRetry: () => quranController.fetchSuraDetaileData(
+                            suraId: quranController.suraNumber?.toString(),
+                          ),
+                        )
+                      : TabBarView(
+                          children: [
+                            Center(
+                              child: ArabicQuranWidget(pageNumber: savedPage),
+                            ),
+                            const Center(child: AyanTranslationWidget()),
+                          ],
+                        ),
                 ),
                 _buildNavigationButtons(context, quranController),
               ],
@@ -85,7 +98,8 @@ class SuraDetaileScreen extends StatelessWidget {
         vertical: Dimensions.PADDING_SIZE_EXTRA_SMALL,
       ),
       labelPadding: const EdgeInsets.symmetric(
-          horizontal: Dimensions.PADDING_SIZE_EXTRA_SMALL),
+        horizontal: Dimensions.PADDING_SIZE_EXTRA_SMALL,
+      ),
       isScrollable: false,
       indicator: BoxDecoration(
         color: Theme.of(context).primaryColor,
@@ -99,16 +113,19 @@ class SuraDetaileScreen extends StatelessWidget {
   }
 
   Widget _buildNavigationButtons(
-      BuildContext context, QuranController quranController) {
+    BuildContext context,
+    QuranController quranController,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 18),
       child: Row(
         children: [
-          _navButton(
-            context,
+          QuranNavigationButton(
             icon: Icons.chevron_left,
             label: 'previous_sura'.tr,
-            isEnabled: quranController.suraNumber != 1,
+            isEnabled:
+                !quranController.isSuraDetaileLoading.value &&
+                (quranController.suraNumber ?? 1) > 1,
             onPressed: () {
               quranController.suraNumber =
                   (quranController.suraNumber ?? 1) - 1;
@@ -119,12 +136,14 @@ class SuraDetaileScreen extends StatelessWidget {
             },
           ),
           const SizedBox(width: 16),
-          _navButton(
-            context,
+          QuranNavigationButton(
             label: 'next_sura'.tr,
             icon: Icons.chevron_right,
             isLeftIcon: false,
-            isEnabled: quranController.suraNumber != 114,
+            isEnabled:
+                !quranController.isSuraDetaileLoading.value &&
+                quranController.suraNumber != null &&
+                quranController.suraNumber! < 114,
             onPressed: () {
               quranController.suraNumber =
                   (quranController.suraNumber ?? 1) + 1;
@@ -135,56 +154,6 @@ class SuraDetaileScreen extends StatelessWidget {
             },
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _navButton(
-    BuildContext context, {
-    required String label,
-    required IconData icon,
-    required bool isEnabled,
-    required VoidCallback onPressed,
-    bool isLeftIcon = true,
-  }) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: isEnabled ? onPressed : null,
-        child: AnimatedOpacity(
-          duration: const Duration(milliseconds: 200),
-          opacity: isEnabled ? 1.0 : 0.4,
-          child: Container(
-            height: 45,
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor.withOpacity(0.95),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: Theme.of(context).dividerColor.withOpacity(0.2),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: isLeftIcon
-                  ? [
-                      Icon(icon, size: 20),
-                      const SizedBox(width: 8),
-                      Text(label, style: robotoMedium.copyWith(fontSize: 15)),
-                    ]
-                  : [
-                      Text(label, style: robotoMedium.copyWith(fontSize: 15)),
-                      const SizedBox(width: 8),
-                      Icon(icon, size: 20),
-                    ],
-            ),
-          ),
-        ),
       ),
     );
   }

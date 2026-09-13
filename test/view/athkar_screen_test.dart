@@ -18,11 +18,15 @@ import 'package:zabi/data/repository/quran_setting_repo.dart';
 import 'package:zabi/helper/athkar_catalog.dart';
 import 'package:zabi/helper/route_helper.dart';
 import 'package:zabi/service/athkar_reader_preferences.dart';
+import 'package:zabi/service/reading/reading_progress_service.dart';
 import 'package:zabi/theme/modern_dark_theme.dart';
 import 'package:zabi/theme/modern_light_theme.dart';
 import 'package:zabi/view/screens/dhikr/dhikr_screen.dart';
 import 'package:zabi/view/screens/dhikr/widgets/athkar_text_size_sheet.dart';
 import 'package:zabi/view/screens/dhikr/widgets/personal_dhikr_screen.dart';
+import 'package:zabi/view/screens/reading/reading_progress_screen.dart';
+
+import '../support/fake_reading_progress.dart';
 
 class _Strings extends Translations {
   _Strings(this.keys);
@@ -53,6 +57,7 @@ void main() {
   late SharedPreferences prefs;
   late AthkarCatalog fixture;
   late AthkarCatalog realCatalog;
+  late FakeReadingProgress reading;
 
   setUpAll(() async {
     for (final locale in ['en', 'fr', 'ar']) {
@@ -106,6 +111,12 @@ void main() {
           ),
       ],
     );
+    reading = FakeReadingProgress();
+    reading.targets.addEntries(
+      fixture.entries.map(
+        (entry) => MapEntry(entry.id, entry.repetitions ?? 1),
+      ),
+    );
   });
   tearDown(Get.reset);
 
@@ -144,6 +155,7 @@ void main() {
       appBackButton: false,
       loadCatalog: load ?? () async => fixture,
       readerPreferences: reader,
+      readingProgress: reading,
     ),
   );
   Finder key(String value) => find.byKey(ValueKey(value));
@@ -182,6 +194,7 @@ void main() {
       expect(find.text('مرجع النص'), findsOneWidget);
       expect(find.text('ثلاث مرات'), findsOneWidget);
       expect(key('athkar-count-morning:2'), findsNothing);
+      expect(reading.writes, 0);
     },
   );
 
@@ -191,6 +204,7 @@ void main() {
       await prefs.setInt('personal-counter', 42);
       await tester.pumpWidget(app());
       await tester.pumpAndSettle();
+      await tester.ensureVisible(key('athkar-count-morning:1'));
       for (var i = 0; i < 3; i++) {
         await tester.tap(key('athkar-count-morning:1'));
         await tester.pump();
@@ -230,6 +244,7 @@ void main() {
       await tab(tester, 'more');
       await tester.tap(key('athkar-category-travel'));
       await tester.pumpAndSettle();
+      await tester.ensureVisible(key('athkar-count-travel:1'));
       await tester.tap(key('athkar-count-travel:1'));
       await tester.pump();
       expect(key('athkar-reset-travel:1'), findsOneWidget);
@@ -248,6 +263,111 @@ void main() {
             .fontSize,
         28,
       );
+    },
+  );
+
+  testWidgets(
+    'checkboxes restore the day and cover entries without repetition instructions',
+    (tester) async {
+      await tester.pumpWidget(app());
+      await tester.pumpAndSettle();
+      expect(reading.writes, 0);
+      await tester.ensureVisible(key('athkar-read-morning:1'));
+      await tester.tap(key('athkar-read-morning:1'));
+      await tester.pumpAndSettle();
+      expect(reading.todayCount(ReadingProgressKind.athkar, 'morning:1'), 3);
+      expect(
+        tester.widget<CheckboxListTile>(key('athkar-read-morning:1')).value,
+        isTrue,
+      );
+      await tester.pumpWidget(const SizedBox());
+      await tester.pumpWidget(app());
+      await tester.pumpAndSettle();
+      expect(
+        tester.widget<CheckboxListTile>(key('athkar-read-morning:1')).value,
+        isTrue,
+      );
+      await tester.ensureVisible(key('athkar-read-morning:2'));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(key('athkar-read-morning:2'));
+      await tester.pumpAndSettle();
+      await tester.tap(key('athkar-read-morning:2'));
+      await tester.pumpAndSettle();
+      expect(reading.todayCount(ReadingProgressKind.athkar, 'morning:2'), 1);
+      expect(key('athkar-count-morning:2'), findsNothing);
+      await tester.tap(key('athkar-read-morning:2'));
+      await tester.pump();
+      expect(reading.todayCount(ReadingProgressKind.athkar, 'morning:2'), 0);
+      reading.today = '2026-09-14';
+      reading.refresh();
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(key('athkar-read-morning:1'));
+      expect(
+        tester.widget<CheckboxListTile>(key('athkar-read-morning:1')).value,
+        isFalse,
+      );
+      expect(
+        reading.count(
+          ReadingProgressKind.athkar,
+          'morning:1',
+          day: '2026-09-13',
+        ),
+        3,
+      );
+    },
+  );
+
+  testWidgets(
+    'rapid repetition taps are atomic and account refresh clears old checkmarks',
+    (tester) async {
+      await tester.pumpWidget(app());
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(key('athkar-count-morning:1'));
+      await tester.tap(key('athkar-count-morning:1'));
+      await tester.tap(key('athkar-count-morning:1'));
+      await tester.tap(key('athkar-count-morning:1'));
+      await tester.pump();
+      expect(reading.todayCount(ReadingProgressKind.athkar, 'morning:1'), 3);
+      reading.initialized = false;
+      reading.values.clear();
+      reading.refresh();
+      await tester.pump();
+      expect(
+        tester.widget<CheckboxListTile>(key('athkar-read-morning:1')).onChanged,
+        isNull,
+      );
+      await reading.initialize();
+      await tester.pump();
+      expect(
+        tester.widget<CheckboxListTile>(key('athkar-read-morning:1')).value,
+        isFalse,
+      );
+      expect(
+        tester.widget<CheckboxListTile>(key('athkar-read-morning:1')).onChanged,
+        isNotNull,
+      );
+    },
+  );
+
+  testWidgets(
+    'reading save failure is visible and statistics opens without marking anything',
+    (tester) async {
+      reading.failWrite = true;
+      await tester.pumpWidget(app());
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(key('athkar-read-morning:1'));
+      await tester.tap(key('athkar-read-morning:1'));
+      await tester.pump();
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(
+        tester.widget<CheckboxListTile>(key('athkar-read-morning:1')).value,
+        isFalse,
+      );
+      await tester.tap(key('athkar-reading-progress'));
+      await tester.pumpAndSettle();
+      expect(find.byType(ReadingProgressScreen), findsOneWidget);
+      expect(reading.historyCalls, 1);
+      expect(reading.writes, 0);
     },
   );
 

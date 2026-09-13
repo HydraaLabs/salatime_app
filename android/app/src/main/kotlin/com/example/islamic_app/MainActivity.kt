@@ -3,12 +3,21 @@ package com.example.zabi
 import android.hardware.GeomagneticField
 import android.content.Intent
 import android.provider.Settings
+import android.view.KeyEvent
+import com.dexterous.flutterlocalnotifications.SalaTimeAdhanService
 import com.dexterous.flutterlocalnotifications.SalaTimePrayerAlarms
 import com.ryanheise.audioservice.AudioServiceFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : AudioServiceFragmentActivity() {
+    private val adhanVolumeKeys = AdhanVolumeKeyDispatcher(SalaTimeAdhanService::stopFromVolumeKey)
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (adhanVolumeKeys.dispatch(event.action, event.keyCode, event.repeatCount)) return true
+        return super.dispatchKeyEvent(event)
+    }
+
     private val silenceAccessReceiver = AutomaticSilenceReceiver()
 
     override fun onStart() {
@@ -177,6 +186,37 @@ class MainActivity : AudioServiceFragmentActivity() {
                 timestamp
             )
             result.success(field.declination.toDouble())
+        }
+    }
+}
+
+/** Retains consumed key sequences after the adhan service has already stopped. */
+internal class AdhanVolumeKeyDispatcher(private val stopFromVolumeKey: (Int) -> Boolean) {
+    private val consumedKeys = mutableSetOf<Int>()
+
+    fun dispatch(action: Int, keyCode: Int, repeatCount: Int = 0): Boolean {
+        if (keyCode != KeyEvent.KEYCODE_VOLUME_UP &&
+            keyCode != KeyEvent.KEYCODE_VOLUME_DOWN &&
+            keyCode != KeyEvent.KEYCODE_VOLUME_MUTE) return false
+
+        return when (action) {
+            KeyEvent.ACTION_DOWN -> {
+                if (repeatCount > 0 && keyCode in consumedKeys) {
+                    true
+                } else {
+                    // A release may be lost when the window loses focus. A new
+                    // physical press must still control normal media afterward.
+                    consumedKeys.remove(keyCode)
+                    if (stopFromVolumeKey(keyCode)) {
+                        consumedKeys.add(keyCode)
+                        true
+                    } else {
+                        false
+                    }
+                }
+            }
+            KeyEvent.ACTION_UP -> consumedKeys.remove(keyCode)
+            else -> false
         }
     }
 }

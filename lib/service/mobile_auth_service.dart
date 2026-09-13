@@ -565,7 +565,10 @@ class MobileAuthService {
     await clearSession();
   }
 
-  Future<void> clearSession() async {
+  Future<void> clearSession({String? expectedToken}) async {
+    // Check and clear together before yielding: a late rejected request must
+    // never invalidate a replacement session or a newer in-flight login.
+    if (expectedToken != null && expectedToken != _token) return;
     _sessionGeneration++;
     _token = null;
     user.value = null;

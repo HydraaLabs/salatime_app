@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:zabi/helper/daily_verse.dart';
+import 'package:zabi/view/screens/quran/widget/quran_translation_source_card.dart';
+import 'package:zabi/view/screens/quran/widget/quran_translation_text.dart';
 
 class DailyVerseCard extends StatefulWidget {
   const DailyVerseCard({super.key});
@@ -61,7 +62,19 @@ class _DailyVerseCardState extends State<DailyVerseCard>
   }
 
   DateTime _day = DateTime.now();
-  late Future<DailyVerse> verse = _load();
+  String? _language;
+  Future<DailyVerse>? verse;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final language = Localizations.localeOf(context).languageCode;
+    if (_language != language) {
+      _language = language;
+      verse = _load();
+    }
+  }
+
   @override
   void didUpdateWidget(covariant DailyVerseCard oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -72,14 +85,8 @@ class _DailyVerseCardState extends State<DailyVerseCard>
     }
   }
 
-  Future<DailyVerse> _load() async {
-    final prefs = await SharedPreferences.getInstance();
-    return DailyVerse.load(
-      DateTime.now(),
-      prefs.getString('selectedTranslatorId') ??
-          (Get.locale?.languageCode == 'ar' ? '4' : '1'),
-    );
-  }
+  Future<DailyVerse> _load() =>
+      DailyVerse.load(_day, _language ?? Get.locale?.languageCode ?? 'en');
 
   void _open(DailyVerse verse) => showModalBottomSheet<void>(
     context: context,
@@ -103,25 +110,27 @@ class _DailyVerseCardState extends State<DailyVerseCard>
             style: const TextStyle(fontSize: 26, height: 1.7),
           ),
           const SizedBox(height: 16),
-          SelectableText(
-            verse.translation,
-            textDirection: verse.source == 'تفسير الجلالين'
-                ? TextDirection.rtl
-                : null,
+          QuranTranslationText(
+            text: verse.translation,
+            footnotes: verse.footnotes,
+            languageCode: verse.translationSource.languageCode,
           ),
-          Text(verse.source, style: Theme.of(context).textTheme.bodySmall),
-          const Divider(height: 32),
-          Text(
-            'tafsir_arabic'.tr,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 12),
-          SelectableText(
-            verse.tafsir.isEmpty ? 'tafsir_unavailable'.tr : verse.tafsir,
-            textDirection: TextDirection.rtl,
-            style: const TextStyle(height: 1.7),
-          ),
-          const Text('تفسير الجلالين', textDirection: TextDirection.rtl),
+          QuranTranslationSourceCard(source: verse.translationSource),
+          if (!verse.translationSource.isTafsir) ...[
+            const Divider(height: 32),
+            Text(
+              'tafsir_arabic'.tr,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 12),
+            SelectableText(
+              verse.tafsir.isEmpty ? 'tafsir_unavailable'.tr : verse.tafsir,
+              textDirection: TextDirection.rtl,
+              style: const TextStyle(height: 1.7),
+            ),
+            if (verse.tafsirSource != null)
+              QuranTranslationSourceCard(source: verse.tafsirSource),
+          ],
           const SizedBox(height: 20),
           Builder(
             builder: (context) => OutlinedButton.icon(
@@ -130,8 +139,14 @@ class _DailyVerseCardState extends State<DailyVerseCard>
                 try {
                   await SharePlus.instance.share(
                     ShareParams(
-                      text:
-                          '${verse.arabic}\n\n${verse.translation}\n${verse.source}\n${verse.chapter}:${verse.number} — SalaTime',
+                      text: quranTranslationShareText(
+                        reference: '${verse.chapter}:${verse.number}',
+                        arabic: verse.arabic,
+                        translation: verse.translation,
+                        footnotes: verse.footnotes,
+                        source: verse.translationSource,
+                        appName: 'SalaTime',
+                      ),
                       sharePositionOrigin: box == null
                           ? null
                           : box.localToGlobal(Offset.zero) & box.size,
@@ -157,7 +172,9 @@ class _DailyVerseCardState extends State<DailyVerseCard>
   Widget build(BuildContext context) => FutureBuilder<DailyVerse>(
     future: verse,
     builder: (context, snapshot) {
-      final value = snapshot.data;
+      final value = snapshot.connectionState == ConnectionState.done
+          ? snapshot.data
+          : null;
       if (value == null) return const SizedBox.shrink();
       return Card(
         child: InkWell(

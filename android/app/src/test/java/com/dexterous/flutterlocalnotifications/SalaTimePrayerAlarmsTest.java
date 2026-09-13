@@ -47,6 +47,10 @@ public class SalaTimePrayerAlarmsTest {
 
     @Before public void setup() {
         app = RuntimeEnvironment.getApplication();
+        AudioManager audio = (AudioManager) app.getSystemService(Context.AUDIO_SERVICE);
+        audio.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+        audio.setMode(AudioManager.MODE_NORMAL);
+        audio.setStreamVolume(AudioManager.STREAM_ALARM, 5, 0);
         manager = (AlarmManager) app.getSystemService(Context.ALARM_SERVICE);
         Shadows.shadowOf(manager).setCanScheduleExactAlarms(true);
         now = System.currentTimeMillis();

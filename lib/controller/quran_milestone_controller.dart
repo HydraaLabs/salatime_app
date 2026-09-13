@@ -1,74 +1,38 @@
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:zabi/service/reading/reading_progress_service.dart';
 import 'package:zabi/util/app_constants.dart';
 
-/// Lightweight local-only "daily Quran reading goal" tracker.
-/// Counts each distinct surah opened (online or offline reader) once per
-/// calendar day, purely for the Modern home screen's milestone card.
+/// Counts fully confirmed surahs for today; opening a reader is not a reading.
 class QuranMilestoneController extends GetxController implements GetxService {
-  final SharedPreferences sharedPreferences;
-  QuranMilestoneController({required this.sharedPreferences}) {
-    _load();
-  }
-
-  static const int defaultDailyGoal = 20;
-
-  final RxInt dailyGoal = defaultDailyGoal.obs;
-  final RxInt pagesReadToday = 0.obs;
-  Set<int> _readSurahIdsToday = {};
-
-  String get _todayKey => DateFormat('yyyy-MM-dd').format(DateTime.now());
-
-  void _load() {
+  QuranMilestoneController({
+    required this.sharedPreferences,
+    ReadingProgressService? progress,
+  }) : _progress = progress ?? ReadingProgressService.instance {
     dailyGoal.value =
         sharedPreferences.getInt(AppConstants.QURAN_MILESTONE_GOAL_KEY) ??
         defaultDailyGoal;
-
-    final savedDate = sharedPreferences.getString(
-      '${AppConstants.QURAN_MILESTONE_PROGRESS_KEY}_date',
-    );
-    if (savedDate == _todayKey) {
-      final savedIds = sharedPreferences.getStringList(
-        AppConstants.QURAN_MILESTONE_PROGRESS_KEY,
-      );
-      _readSurahIdsToday = (savedIds ?? []).map(int.parse).toSet();
-      pagesReadToday.value = _readSurahIdsToday.length;
-    } else {
-      _readSurahIdsToday = {};
-      pagesReadToday.value = 0;
-    }
+    _progress.addListener(_refresh);
+    _refresh();
   }
 
-  Future<void> markSurahRead(int? surahId) async {
-    if (surahId == null) return;
+  final SharedPreferences sharedPreferences;
+  final ReadingProgressService _progress;
+  static const int defaultDailyGoal = 20;
+  final RxInt dailyGoal = defaultDailyGoal.obs;
+  final RxInt surahsReadToday = 0.obs;
 
-    // Roll over to a new day if needed.
-    final savedDate = sharedPreferences.getString(
-      '${AppConstants.QURAN_MILESTONE_PROGRESS_KEY}_date',
-    );
-    if (savedDate != _todayKey) {
-      _readSurahIdsToday = {};
-      pagesReadToday.value = 0;
-    }
-
-    if (_readSurahIdsToday.contains(surahId)) return;
-
-    _readSurahIdsToday.add(surahId);
-    pagesReadToday.value = _readSurahIdsToday.length;
-
-    await sharedPreferences.setString(
-      '${AppConstants.QURAN_MILESTONE_PROGRESS_KEY}_date',
-      _todayKey,
-    );
-    await sharedPreferences.setStringList(
-      AppConstants.QURAN_MILESTONE_PROGRESS_KEY,
-      _readSurahIdsToday.map((e) => e.toString()).toList(),
-    );
+  void _refresh() {
+    surahsReadToday.value = _progress.stats.todayQuranSurahs;
   }
 
-  double get progressRatio =>
-      dailyGoal.value <= 0
+  double get progressRatio => dailyGoal.value <= 0
       ? 0
-      : (pagesReadToday.value / dailyGoal.value).clamp(0, 1);
+      : (surahsReadToday.value / dailyGoal.value).clamp(0, 1);
+
+  @override
+  void onClose() {
+    _progress.removeListener(_refresh);
+    super.onClose();
+  }
 }

@@ -14,6 +14,8 @@ import 'package:zabi/util/dimensions.dart';
 import 'package:zabi/util/images.dart';
 import 'package:zabi/util/styles.dart';
 import 'package:zabi/view/base/custom_snackbar.dart';
+import 'quran_reading_check.dart';
+import 'quran_reading_keys.dart';
 
 class ArabicQuranWidget extends StatefulWidget {
   final int? pageNumber;
@@ -183,6 +185,21 @@ class _ArabicQuranWidgetState extends State<ArabicQuranWidget> {
       child: Column(
         children: [
           _buildAyahText(context, apiData.pageArabicAyah.toString()),
+          QuranReadingCheck(
+            verseKeys: quranReadingKeys(
+              int.tryParse(
+                    quranController
+                            .suraDetaileApiData!
+                            .data!
+                            .chapter!
+                            .serialNumber ??
+                        '',
+                  ) ??
+                  quranController.suraDetaileApiData!.data!.chapter!.id,
+              apiData.pageVerses,
+            ),
+            label: 'reading_quran_page_read'.tr,
+          ),
           const SizedBox(height: Dimensions.PADDING_SIZE_DEFAULT),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -70,7 +70,7 @@ class PreferenceCloudSync with WidgetsBindingObserver {
     if (auth.user.value?.id != account) return;
     final current = await auth.accessToken();
     if (auth.user.value?.id == account && current == token) {
-      await auth.clearSession();
+      await auth.clearSession(expectedToken: token);
     }
   }
 

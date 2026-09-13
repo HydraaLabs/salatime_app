@@ -121,7 +121,6 @@ class _PrayerAlarmHealthCardState extends State<PrayerAlarmHealthCard>
       'audio_error',
       'audio_timeout',
       'audio_unavailable',
-      'audio_muted',
     ].contains(status['outcome']);
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -147,6 +146,8 @@ class _PrayerAlarmHealthCardState extends State<PrayerAlarmHealthCard>
               Text('alarm_last_delay'.trParams({'minutes': '$delayMinutes'})),
             ],
             if (failedAudio) Text('alarm_audio_failed'.tr),
+            if (status['outcome'] == 'audio_muted')
+              Text('alarm_audio_muted'.tr),
             if (status['notifications'] != true)
               TextButton.icon(
                 onPressed: _busy

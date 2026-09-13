@@ -2,21 +2,35 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zabi/data/model/response/juz_list_model.dart';
 import 'package:zabi/data/model/response/offline_sura_model.dart';
 import 'package:zabi/data/model/response/sura_detile_model.dart';
 import 'package:zabi/helper/offline_quran_loader.dart';
+import 'package:zabi/service/quran/quran_translation_repository.dart';
 import 'package:zabi/view/screens/offline_quran/offline_surah_detail_screen.dart';
 
 class OfflineQuranController extends GetxController {
-  OfflineQuranController({QuranLoader? loader})
-    : _loader = loader ?? QuranLoader.instance;
+  OfflineQuranController({
+    QuranLoader? loader,
+    QuranTranslationRepository? translations,
+    String Function()? languageCode,
+  }) : _loader =
+           loader ??
+           (translations == null
+               ? QuranLoader.instance
+               : QuranLoader(translations: translations)),
+       _translations = translations ?? QuranTranslationRepository.instance,
+       _languageCode = languageCode ?? (() => Get.locale?.languageCode ?? 'en');
 
   final QuranLoader _loader;
+  final QuranTranslationRepository _translations;
+  final String Function() _languageCode;
+  final translationError = RxnString();
+  final searchError = RxnString();
+  int _translationGeneration = 0;
+  String? _requestedLanguage;
   RxBool isLoading = true.obs;
   RxList<OfflineSurahListModel> surahList = <OfflineSurahListModel>[].obs;
 
@@ -45,51 +59,49 @@ class OfflineQuranController extends GetxController {
 
   SuraDetaileModel? suraDetailsApiData;
 
+  // translatorId is retained only for compatibility with older routes.
   Future<void> loadSurahDetails({
     required int surahNumber,
     String? translatorId,
-  }) async {
+  }) => _loadTranslation(surahNumber, _languageCode());
+
+  Future<void> _loadTranslation(int number, String language) async {
+    final generation = ++_translationGeneration;
+    _requestedLanguage = language;
+    translationError.value = null;
+    suraDetailsApiData = null;
+    isSurahDetailsLoading.value = true;
+    if (number >= 1 && number <= 114) lastSurahNumber = number;
+    update();
     try {
-      // suraDetailsApiData = null;
-      isSurahDetailsLoading.value = true;
-
-      final prefs = await SharedPreferences.getInstance();
-      var selectedTranslatorId =
-          translatorId ?? prefs.getString('selectedTranslatorId') ?? '1';
-      print(
-        'Loading offline surah details for Surah $surahNumber with translator ID $selectedTranslatorId',
+      final result = await _translations.loadSurah(
+        number,
+        languageCode: language,
       );
-
-      //folder path
-      String folderPath = selectedTranslatorId == '2'
-          ? 'assets/quran/bn/s00'
-          : selectedTranslatorId == '3'
-          ? 'assets/quran/sp/s00'
-          : selectedTranslatorId == '4'
-          ? 'assets/quran/ar/s00'
-          : 'assets/quran/en/s00';
-      update();
-
-      // Load local JSON file
-      final String response = await rootBundle.loadString(
-        '$folderPath$surahNumber.json',
-      );
-      final data = json.decode(response);
-      if (data is List) {
-        suraDetailsApiData = SuraDetaileModel.fromJson(data.first);
-      } else if (data is Map<String, dynamic>) {
-        suraDetailsApiData = SuraDetaileModel.fromJson(data);
-      } else {
-        throw Exception('Unexpected JSON format');
+      if (isClosed ||
+          generation != _translationGeneration ||
+          _requestedLanguage != language) {
+        return;
       }
-    } catch (e) {
-      print('Error loading surah details: $e');
+      suraDetailsApiData = result;
+    } catch (_) {
+      if (!isClosed && generation == _translationGeneration) {
+        translationError.value = 'quran_translation_unavailable';
+      }
     } finally {
-      isSurahDetailsLoading.value = false;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        update(); // notify listeners after frame build
-      });
+      if (!isClosed && generation == _translationGeneration) {
+        isSurahDetailsLoading.value = false;
+        update();
+      }
     }
+  }
+
+  Future<void> refreshTranslation({String? languageCode}) async {
+    final language = languageCode ?? _languageCode();
+    await Future.wait<void>([
+      if (lastSurahNumber != null) _loadTranslation(lastSurahNumber!, language),
+      if (_indexRequested) _ensureSearchIndex(language),
+    ]);
   }
 
   // change surah detail ayah font size
@@ -136,27 +148,47 @@ class OfflineQuranController extends GetxController {
   final isQuranSearching = false.obs;
 
   Future<void>? _loadingVerses;
+  String? _searchLanguage;
+  int _searchGeneration = 0;
+  bool _indexRequested = false;
   String _query = '';
   Timer? _searchDebounce;
 
-  // Load the search index only when search is opened, not when reading a surah.
+  // Build the index only after search is opened, in the current app language.
   Future<void> initLoader() {
-    if (verses.isNotEmpty) return Future.value();
-    return _loadingVerses ??= _loadSearchIndex();
+    _indexRequested = true;
+    return _ensureSearchIndex(_languageCode());
   }
 
-  Future<void> _loadSearchIndex() async {
+  Future<void> _ensureSearchIndex(String language) {
+    if (_searchLanguage == language) {
+      if (verses.isNotEmpty) return Future.value();
+      if (_loadingVerses != null) return _loadingVerses!;
+    }
+    final generation = ++_searchGeneration;
+    _searchLanguage = language;
+    verses.clear();
+    results.clear();
+    searchError.value = null;
+    return _loadingVerses = _loadSearchIndex(language, generation);
+  }
+
+  Future<void> _loadSearchIndex(String language, int generation) async {
     isQuranSearching.value = true;
     try {
-      await _loader.loadAllVerses();
-      if (isClosed) return;
+      await _loader.loadAllVerses(languageCode: language);
+      if (isClosed || generation != _searchGeneration) return;
       verses.assignAll(_loader.allVerses);
       _runSearch();
-    } catch (error) {
-      debugPrint('Unable to load offline search: $error');
+    } catch (_) {
+      if (!isClosed && generation == _searchGeneration) {
+        searchError.value = 'quran_translation_unavailable';
+      }
     } finally {
-      _loadingVerses = null;
-      if (!isClosed) isQuranSearching.value = false;
+      if (!isClosed && generation == _searchGeneration) {
+        _loadingVerses = null;
+        isQuranSearching.value = false;
+      }
     }
   }
 
@@ -189,6 +221,8 @@ class OfflineQuranController extends GetxController {
 
   @override
   void onClose() {
+    _translationGeneration++;
+    _searchGeneration++;
     _searchDebounce?.cancel();
     super.onClose();
   }

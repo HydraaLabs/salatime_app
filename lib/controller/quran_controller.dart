@@ -7,21 +7,32 @@ import 'package:zabi/data/model/response/sifat_name_list_model.dart';
 import 'package:zabi/data/model/response/sura_detile_model.dart';
 import 'package:zabi/data/model/response/sura_list_model.dart';
 import 'package:zabi/data/repository/sifatname_list_repo.dart';
+import 'package:zabi/service/quran/quran_translation_repository.dart';
 
 class QuranController extends GetxController implements GetxService {
   final QuranRepo quranRepo;
-  QuranController({required this.quranRepo});
+  QuranController({
+    required this.quranRepo,
+    QuranTranslationRepository? translations,
+    String Function()? languageCode,
+  }) : _translations = translations ?? QuranTranslationRepository.instance,
+       _languageCode = languageCode ?? (() => Get.locale?.languageCode ?? 'en');
+  final QuranTranslationRepository _translations;
+  final String Function() _languageCode;
+  final translationError = RxnString();
+  int _translationGeneration = 0;
+  String? _requestedLanguage;
   @override
   void onInit() {
     // fetchSifatNameListData();
     super.onInit();
   }
 
-// local variable
+  // local variable
   RxBool isSifatNameListLoading = false.obs;
   SifatNameListModel? sifatNameApiData;
 
-// get dua list form here
+  // get dua list form here
   Future<void> fetchSifatNameListData() async {
     try {
       isSifatNameListLoading(true);
@@ -44,13 +55,14 @@ class QuranController extends GetxController implements GetxService {
   RxBool isSifatNameDetailsLoading = false.obs;
   SifatNameDetailsModel? sifatnameDetailsApidata;
 
-// get dua details function
+  // get dua details function
   Future<void> fetchSifatNameDetailsData({String? sifatNameId}) async {
     try {
       isSifatNameDetailsLoading(true);
 
-      final response =
-          await quranRepo.getSifatNameDetailsRepo(sifatNameId.toString());
+      final response = await quranRepo.getSifatNameDetailsRepo(
+        sifatNameId.toString(),
+      );
 
       if (response.statusCode == 200) {
         sifatnameDetailsApidata = SifatNameDetailsModel.fromJson(response.body);
@@ -75,7 +87,7 @@ class QuranController extends GetxController implements GetxService {
   RxBool isSuraDetaileLoading = false.obs;
   int? suraNumber;
 
-// get sura list function
+  // get sura list function
   Future<void> fetchSuraListData({String? translatorId}) async {
     try {
       isSuraListLoading(true);
@@ -83,8 +95,9 @@ class QuranController extends GetxController implements GetxService {
       var selectedTranslatorId =
           translatorId ?? prefs.getString('selectedTranslatorId') ?? 1;
 
-      final response =
-          await quranRepo.getSuraListRepo(selectedTranslatorId.toString());
+      final response = await quranRepo.getSuraListRepo(
+        selectedTranslatorId.toString(),
+      );
 
       if (response.statusCode == 200) {
         suraListApiData = SuraListModel.fromJson(response.body);
@@ -99,33 +112,60 @@ class QuranController extends GetxController implements GetxService {
     }
   }
 
-// get sura detail function
-  Future<void> fetchSuraDetaileData(
-      {String? suraId, String? translatorId}) async {
-    try {
-      isSuraDetaileLoading(true);
-      update();
-      final prefs = await SharedPreferences.getInstance();
-      var selectedTranslatorId =
-          translatorId ?? prefs.getString('selectedTranslatorId') ?? 1;
+  // Legacy translatorId remains accepted for callers; app language owns the text.
+  Future<void> fetchSuraDetaileData({String? suraId, String? translatorId}) =>
+      _loadTranslation(
+        int.tryParse(suraId ?? '') ?? suraNumber,
+        _languageCode(),
+      );
 
-      final response = await quranRepo.getSuraDetailsRepo(
-          suraId.toString(), selectedTranslatorId.toString());
-
-      if (response.statusCode == 200) {
-        suraDetaileApiData = SuraDetaileModel.fromJson(response.body);
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print("Error fetching data: $e");
-      }
-    } finally {
-      isSuraDetaileLoading(false);
-      update();
+  Future<void> refreshTranslation({String? languageCode}) async {
+    if (suraNumber != null) {
+      await _loadTranslation(suraNumber, languageCode ?? _languageCode());
     }
   }
 
-// get juz list form here
+  Future<void> _loadTranslation(int? number, String language) async {
+    final generation = ++_translationGeneration;
+    _requestedLanguage = language;
+    translationError.value = null;
+    suraDetaileApiData = null;
+    isSuraDetaileLoading(true);
+    if (number != null && number >= 1 && number <= 114) suraNumber = number;
+    update();
+    try {
+      if (number == null || number < 1 || number > 114) {
+        throw ArgumentError('Invalid Quran chapter');
+      }
+      final result = await _translations.loadSurah(
+        number,
+        languageCode: language,
+      );
+      if (isClosed ||
+          generation != _translationGeneration ||
+          _requestedLanguage != language) {
+        return;
+      }
+      suraDetaileApiData = result;
+    } catch (_) {
+      if (!isClosed && generation == _translationGeneration) {
+        translationError.value = 'quran_translation_unavailable';
+      }
+    } finally {
+      if (!isClosed && generation == _translationGeneration) {
+        isSuraDetaileLoading(false);
+        update();
+      }
+    }
+  }
+
+  @override
+  void onClose() {
+    _translationGeneration++;
+    super.onClose();
+  }
+
+  // get juz list form here
   Future<void> fetchJuzListData({String? translatorId}) async {
     try {
       isJuzListLoading(true);
@@ -133,8 +173,9 @@ class QuranController extends GetxController implements GetxService {
       var selectedTranslatorId =
           translatorId ?? prefs.getString('selectedTranslatorId') ?? 1;
 
-      final response =
-          await quranRepo.getJuzListRepo(selectedTranslatorId.toString());
+      final response = await quranRepo.getJuzListRepo(
+        selectedTranslatorId.toString(),
+      );
 
       if (response.statusCode == 200) {
         juzListApiData = JuzListModel.fromJson(response.body);

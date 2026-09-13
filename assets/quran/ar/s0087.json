@@ -1,161 +1,203 @@
 {
-    "status": true,
-    "message": "Data fetched successfully",
-    "data": {
-        "chapter": {
-            "id": 86,
-            "serial_number": "٨٦",
-            "arabic_name": "الطارق",
-            "translated_name": "الطارق",
+  "status": true,
+  "message": "Data fetched successfully",
+  "data": {
+    "chapter": {
+      "id": 87,
+      "serial_number": "٨٧",
+      "arabic_name": "الأعلى",
+      "translated_name": "الأعلى",
+      "verses_translate_name": "الآيات",
+      "verses_count": "١٩"
+    },
+    "chapter_info": [
+      {
+        "eng_page_number": 591,
+        "page_key": 0,
+        "page_number": "٥٩١",
+        "page_verses": [
+          {
+            "id": 5949,
+            "chapter_id": 87,
             "verses_translate_name": "الآيات",
-            "verses_count": "١٧"
-        },
-        "chapter_info": [
-            {
-                "eng_page_number": 591,
-                "page_number": "591",
-                "page_key": 0,
-                "page_verses": [
-                    {
-                        "id": 5932,
-                        "chapter_id": 86,
-                        "verses_translate_name": "الآيات",
-                        "verses_number": "1",
-                        "arabic_name": "وَٱلسَّمَآءِ وَٱلطَّارِقِ",
-                        "translated_name": "«والسماء والطارق» أصله كل آت ليلا ومنه النجوم لطلوعها ليلا."
-                    },
-                    {
-                        "id": 5933,
-                        "chapter_id": 86,
-                        "verses_translate_name": "الآيات",
-                        "verses_number": "2",
-                        "arabic_name": "وَمَآ أَدْرَىٰكَ مَا ٱلطَّارِقُ",
-                        "translated_name": "«وما أدراك» أعلمك «ما الطارق» مبتدأ وخبر في محل المفعول الثاني لأدرى وما بعد الأولى خبرها وفيه تعظيم لشأن الطارق المفسر بما بعده هو."
-                    },
-                    {
-                        "id": 5934,
-                        "chapter_id": 86,
-                        "verses_translate_name": "الآيات",
-                        "verses_number": "3",
-                        "arabic_name": "ٱلنَّجْمُ ٱلثَّاقِبُ",
-                        "translated_name": "«النجم» أي الثريا أو كل نجم «الثاقب» المضيء لثقبه الظلام بضوئه وجواب القسم."
-                    },
-                    {
-                        "id": 5935,
-                        "chapter_id": 86,
-                        "verses_translate_name": "الآيات",
-                        "verses_number": "4",
-                        "arabic_name": "إِن كُلُّ نَفْسٍ لَّمَّا عَلَيْهَا حَافِظٌ",
-                        "translated_name": "«إن كل نفس لمَا عليها حافظ» بتخفيف ما فهي مزيدة وإن مخففة من الثقيلة واسمها محذوف، أي إنه واللام فارقة وبتشديدها فإن نافية ولما بمعنى إلا والحافظ من الملائكة يحفظ عملها من خير وشر."
-                    },
-                    {
-                        "id": 5936,
-                        "chapter_id": 86,
-                        "verses_translate_name": "الآيات",
-                        "verses_number": "5",
-                        "arabic_name": "فَلْيَنظُرِ ٱلْإِنسَـٰنُ مِمَّ خُلِقَ",
-                        "translated_name": "«فلينظر الإنسان» نظر اعتبار «ممَّ خُلق» من أي شيء."
-                    },
-                    {
-                        "id": 5937,
-                        "chapter_id": 86,
-                        "verses_translate_name": "الآيات",
-                        "verses_number": "6",
-                        "arabic_name": "خُلِقَ مِن مَّآءٍ دَافِقٍ",
-                        "translated_name": "جوابه «خُلق من ماء دافق» ذي اندفاق من الرجل والمرأة في رحمها."
-                    },
-                    {
-                        "id": 5938,
-                        "chapter_id": 86,
-                        "verses_translate_name": "الآيات",
-                        "verses_number": "7",
-                        "arabic_name": "يَخْرُجُ مِنۢ بَيْنِ ٱلصُّلْبِ وَٱلتَّرَآئِبِ",
-                        "translated_name": "«يخرج من بين الصلب» للرجل «والترائب» للمرأة وهي عظام الصدر."
-                    },
-                    {
-                        "id": 5939,
-                        "chapter_id": 86,
-                        "verses_translate_name": "الآيات",
-                        "verses_number": "8",
-                        "arabic_name": "إِنَّهُۥ عَلَىٰ رَجْعِهِۦ لَقَادِرٌ",
-                        "translated_name": "«إنه» تعالى «على رجعه» بعث الإنسان بعد موته «لقادر» فإذا اعتبر أصله علم أن القادر على ذلك قادر على بعثه."
-                    },
-                    {
-                        "id": 5940,
-                        "chapter_id": 86,
-                        "verses_translate_name": "الآيات",
-                        "verses_number": "9",
-                        "arabic_name": "يَوْمَ تُبْلَى ٱلسَّرَآئِرُ",
-                        "translated_name": "«يوم تبلى» تختبر وتكشف «السرائر» ضمائر القلوب في العقائد والنيات."
-                    },
-                    {
-                        "id": 5941,
-                        "chapter_id": 86,
-                        "verses_translate_name": "الآيات",
-                        "verses_number": "10",
-                        "arabic_name": "فَمَا لَهُۥ مِن قُوَّةٍ وَلَا نَاصِرٍ",
-                        "translated_name": "«فما له» لمنكر البعث «من قوة» يمتنع بها من العذاب «ولا ناصر» يدفعه عنه."
-                    },
-                    {
-                        "id": 5942,
-                        "chapter_id": 86,
-                        "verses_translate_name": "الآيات",
-                        "verses_number": "11",
-                        "arabic_name": "وَٱلسَّمَآءِ ذَاتِ ٱلرَّجْعِ",
-                        "translated_name": "«والسماء ذات الرجع» المطر لعوده كل حين."
-                    },
-                    {
-                        "id": 5943,
-                        "chapter_id": 86,
-                        "verses_translate_name": "الآيات",
-                        "verses_number": "12",
-                        "arabic_name": "وَٱلْأَرْضِ ذَاتِ ٱلصَّدْعِ",
-                        "translated_name": "«والأرض ذات الصدع» الشق عن النبات."
-                    },
-                    {
-                        "id": 5944,
-                        "chapter_id": 86,
-                        "verses_translate_name": "الآيات",
-                        "verses_number": "13",
-                        "arabic_name": "إِنَّهُۥ لَقَوْلٌ فَصْلٌ",
-                        "translated_name": "«إنه» أي القرآن «لقول فصل» يفصل بين الحق والباطل."
-                    },
-                    {
-                        "id": 5945,
-                        "chapter_id": 86,
-                        "verses_translate_name": "الآيات",
-                        "verses_number": "14",
-                        "arabic_name": "وَمَا هُوَ بِٱلْهَزْلِ",
-                        "translated_name": "«وما هو بالهزل» باللعب والباطل."
-                    },
-                    {
-                        "id": 5946,
-                        "chapter_id": 86,
-                        "verses_translate_name": "الآيات",
-                        "verses_number": "15",
-                        "arabic_name": "إِنَّهُمْ يَكِيدُونَ كَيْدًا",
-                        "translated_name": "«إنهم» أي الكفار «يكيدون كيدا» يعملون المكايد للنبي صلى الله عليه وسلم."
-                    },
-                    {
-                        "id": 5947,
-                        "chapter_id": 86,
-                        "verses_translate_name": "الآيات",
-                        "verses_number": "16",
-                        "arabic_name": "وَأَكِيدُ كَيْدًا",
-                        "translated_name": "«وأكيد كيدا» أستدرجهم من حيث لا يعلمون."
-                    },
-                    {
-                        "id": 5948,
-                        "chapter_id": 86,
-                        "verses_translate_name": "الآيات",
-                        "verses_number": "17",
-                        "arabic_name": "فَمَهِّلِ ٱلْكَـٰفِرِينَ أَمْهِلْهُمْ رُوَيْدًۢا",
-                        "translated_name": "«فمهِّل» يا محمد «الكافرين أمهلهم» تأكيد حسَّنهُ مخالفة اللفظ، أي أنظرهم «رويدا» قليلا وهو مصدر مؤكد لمعنى العامل مصغر رود أو أرواد على الترخيم وقد أخذهم الله تعالى ببدر ونسخ الإمهال بآية السيف، أي الأمر بالقتال والجهاد."
-                    }
-                ],
-                "page_arabic_ayah": "وَٱلسَّمَآءِ وَٱلطَّارِقِ (١)  وَمَآ أَدْرَىٰكَ مَا ٱلطَّارِقُ (٢)  ٱلنَّجْمُ ٱلثَّاقِبُ (٣)  إِن كُلُّ نَفْسٍ لَّمَّا عَلَيْهَا حَافِظٌ (٤)  فَلْيَنظُرِ ٱلْإِنسَـٰنُ مِمَّ خُلِقَ (٥)  خُلِقَ مِن مَّآءٍ دَافِقٍ (٦)  يَخْرُجُ مِنۢ بَيْنِ ٱلصُّلْبِ وَٱلتَّرَآئِبِ (٧)  إِنَّهُۥ عَلَىٰ رَجْعِهِۦ لَقَادِرٌ (٨)  يَوْمَ تُبْلَى ٱلسَّرَآئِرُ (٩)  فَمَا لَهُۥ مِن قُوَّةٍ وَلَا نَاصِرٍ (١٠)  وَٱلسَّمَآءِ ذَاتِ ٱلرَّجْعِ (١١)  وَٱلْأَرْضِ ذَاتِ ٱلصَّدْعِ (١٢)  إِنَّهُۥ لَقَوْلٌ فَصْلٌ (١٣)  وَمَا هُوَ بِٱلْهَزْلِ (١٤)  إِنَّهُمْ يَكِيدُونَ كَيْدًا (١٥)  وَأَكِيدُ كَيْدًا (١٦)  فَمَهِّلِ ٱلْكَـٰفِرِينَ أَمْهِلْهُمْ رُوَيْدًۢا (١٧)",
-                "is_read": false
-            }
-        ]
-    }
+            "verses_number": "1",
+            "arabic_name": "سَبِّحِ ٱسْمَ رَبِّكَ ٱلْأَعْلَى",
+            "translated_name": "«سبح اسم ربك» أي نزه ربك عما لا يليق به واسم زائد «الأعلى» صفة لربك.",
+            "english_transliteration": "Sabbihisma Rabbikal A'laa"
+          },
+          {
+            "id": 5950,
+            "chapter_id": 87,
+            "verses_translate_name": "الآيات",
+            "verses_number": "2",
+            "arabic_name": "ٱلَّذِى خَلَقَ فَسَوَّىٰ",
+            "translated_name": "«الذي خلق فسوى» مخلوقه، جعله متناسب الأجزاء غير متفاوت.",
+            "english_transliteration": "Allazee khalaqa fasawwaa"
+          },
+          {
+            "id": 5951,
+            "chapter_id": 87,
+            "verses_translate_name": "الآيات",
+            "verses_number": "3",
+            "arabic_name": "وَٱلَّذِى قَدَّرَ فَهَدَىٰ",
+            "translated_name": "«والذي قدَّر» ما شاء «فهدى» إلى ما قدره من خير وشر.",
+            "english_transliteration": "Wallazee qaddara fahadaa"
+          },
+          {
+            "id": 5952,
+            "chapter_id": 87,
+            "verses_translate_name": "الآيات",
+            "verses_number": "4",
+            "arabic_name": "وَٱلَّذِىٓ أَخْرَجَ ٱلْمَرْعَىٰ",
+            "translated_name": "«والذي أخرج المرعى» أنبت العشب.",
+            "english_transliteration": "Wallazeee akhrajal mar'aa"
+          },
+          {
+            "id": 5953,
+            "chapter_id": 87,
+            "verses_translate_name": "الآيات",
+            "verses_number": "5",
+            "arabic_name": "فَجَعَلَهُۥ غُثَآءً أَحْوَىٰ",
+            "translated_name": "«فجعله» بعد الخضرة «غُثاء» جافا هشيما «أحوى» أسود يابسا.",
+            "english_transliteration": "Faja'alahoo ghusaaa'an ahwaa"
+          },
+          {
+            "id": 5954,
+            "chapter_id": 87,
+            "verses_translate_name": "الآيات",
+            "verses_number": "6",
+            "arabic_name": "سَنُقْرِئُكَ فَلَا تَنسَىٰٓ",
+            "translated_name": "«سنقرئك» القرآن «فلا تنسى» ما تقرؤه.",
+            "english_transliteration": "Sanuqri'uka falaa tansaaa"
+          },
+          {
+            "id": 5955,
+            "chapter_id": 87,
+            "verses_translate_name": "الآيات",
+            "verses_number": "7",
+            "arabic_name": "إِلَّا مَا شَآءَ ٱللَّهُ ۚ إِنَّهُۥ يَعْلَمُ ٱلْجَهْرَ وَمَا يَخْفَىٰ",
+            "translated_name": "«إلا ما شاء الله» أن تنساه بنسخ تلاوته وحكمه، وكان صلى الله عليه وسلم يجهر بالقراءة مع قراءة جبريل خوف النسيان فكأنه قيل له: لا تعجل بها إنك لا تنسى فلا تتعب نفسك بالجهر بها «إنه» تعالى «يعلم الجهر» من القول والفعل «وما يخفى» منهما.",
+            "english_transliteration": "Illaa maa shaaa'al laah; innahoo ya'lamul jahra wa maa yakhfaa"
+          },
+          {
+            "id": 5956,
+            "chapter_id": 87,
+            "verses_translate_name": "الآيات",
+            "verses_number": "8",
+            "arabic_name": "وَنُيَسِّرُكَ لِلْيُسْرَىٰ",
+            "translated_name": "«ونيسِّرك لليسرى» للشريعة السهلة وهي الإسلام.",
+            "english_transliteration": "Wa nu-yassiruka lilyusraa"
+          },
+          {
+            "id": 5957,
+            "chapter_id": 87,
+            "verses_translate_name": "الآيات",
+            "verses_number": "9",
+            "arabic_name": "فَذَكِّرْ إِن نَّفَعَتِ ٱلذِّكْرَىٰ",
+            "translated_name": "«فذكر» عظ بالقرآن «إن نفعت الذكرى» من تذكرة المذكور في سيذكر، يعني وإن لم تنفع ونفعها لبعض وعدم النفع لبعض آخر.",
+            "english_transliteration": "Fazakkir in nafa'atizzikraa"
+          },
+          {
+            "id": 5958,
+            "chapter_id": 87,
+            "verses_translate_name": "الآيات",
+            "verses_number": "10",
+            "arabic_name": "سَيَذَّكَّرُ مَن يَخْشَىٰ",
+            "translated_name": "«سيذكر» بها «من يخشى» يخاف الله تعالى كآية \" فذكر بالقرآن من يخاف وعيد \".",
+            "english_transliteration": "Sa yazzakkaru maiyakhshaa"
+          },
+          {
+            "id": 5959,
+            "chapter_id": 87,
+            "verses_translate_name": "الآيات",
+            "verses_number": "11",
+            "arabic_name": "وَيَتَجَنَّبُهَا ٱلْأَشْقَى",
+            "translated_name": "«ويتجنبها» أي الذكرى، أي يتركها جانبا لا يلتفت إليها «الأشقى» بمعنى الشقي أي الكافر.",
+            "english_transliteration": "Wa yatajannabuhal ashqaa"
+          },
+          {
+            "id": 5960,
+            "chapter_id": 87,
+            "verses_translate_name": "الآيات",
+            "verses_number": "12",
+            "arabic_name": "ٱلَّذِى يَصْلَى ٱلنَّارَ ٱلْكُبْرَىٰ",
+            "translated_name": "«الذي يصلى النار الكبرى» هي نار الآخرة والصغرى نار الدنيا.",
+            "english_transliteration": "Allazee yaslan Naaral kubraa"
+          },
+          {
+            "id": 5961,
+            "chapter_id": 87,
+            "verses_translate_name": "الآيات",
+            "verses_number": "13",
+            "arabic_name": "ثُمَّ لَا يَمُوتُ فِيهَا وَلَا يَحْيَىٰ",
+            "translated_name": "«ثم لا يموت فيها» فيستريح «ولا يحيى» حياة هنيئة.",
+            "english_transliteration": "Summa laa yamootu feehaa wa laa yahyaa"
+          },
+          {
+            "id": 5962,
+            "chapter_id": 87,
+            "verses_translate_name": "الآيات",
+            "verses_number": "14",
+            "arabic_name": "قَدْ أَفْلَحَ مَن تَزَكَّىٰ",
+            "translated_name": "«قد أفلح» فاز «من تزكى» تطهر بالإيمان.",
+            "english_transliteration": "Qad aflaha man tazakkaa"
+          },
+          {
+            "id": 5963,
+            "chapter_id": 87,
+            "verses_translate_name": "الآيات",
+            "verses_number": "15",
+            "arabic_name": "وَذَكَرَ ٱسْمَ رَبِّهِۦ فَصَلَّىٰ",
+            "translated_name": "«وذكر اسم ربه» مكبرا «فصلَّى» الصلوات الخمس وذلك من أمور الآخرة وكفار مكة مُعرضون عنها.",
+            "english_transliteration": "Wa zakaras ma Rabbihee fasallaa"
+          }
+        ],
+        "page_arabic_ayah": "سَبِّحِ ٱسْمَ رَبِّكَ ٱلْأَعْلَى (١)  ٱلَّذِى خَلَقَ فَسَوَّىٰ (٢)  وَٱلَّذِى قَدَّرَ فَهَدَىٰ (٣)  وَٱلَّذِىٓ أَخْرَجَ ٱلْمَرْعَىٰ (٤)  فَجَعَلَهُۥ غُثَآءً أَحْوَىٰ (٥)  سَنُقْرِئُكَ فَلَا تَنسَىٰٓ (٦)  إِلَّا مَا شَآءَ ٱللَّهُ ۚ إِنَّهُۥ يَعْلَمُ ٱلْجَهْرَ وَمَا يَخْفَىٰ (٧)  وَنُيَسِّرُكَ لِلْيُسْرَىٰ (٨)  فَذَكِّرْ إِن نَّفَعَتِ ٱلذِّكْرَىٰ (٩)  سَيَذَّكَّرُ مَن يَخْشَىٰ (١٠)  وَيَتَجَنَّبُهَا ٱلْأَشْقَى (١١)  ٱلَّذِى يَصْلَى ٱلنَّارَ ٱلْكُبْرَىٰ (١٢)  ثُمَّ لَا يَمُوتُ فِيهَا وَلَا يَحْيَىٰ (١٣)  قَدْ أَفْلَحَ مَن تَزَكَّىٰ (١٤)  وَذَكَرَ ٱسْمَ رَبِّهِۦ فَصَلَّىٰ (١٥)"
+      },
+      {
+        "eng_page_number": 592,
+        "page_key": 1,
+        "page_number": "٥٩٢",
+        "page_verses": [
+          {
+            "id": 5964,
+            "chapter_id": 87,
+            "verses_translate_name": "الآيات",
+            "verses_number": "16",
+            "arabic_name": "بَلْ تُؤْثِرُونَ ٱلْحَيَوٰةَ ٱلدُّنْيَا",
+            "translated_name": "«بل تؤثرون» بالفوقانية والتحتانية «الحياة الدنيا» على الآخرة.",
+            "english_transliteration": "Bal tu'siroonal hayaatad dunyaa"
+          },
+          {
+            "id": 5965,
+            "chapter_id": 87,
+            "verses_translate_name": "الآيات",
+            "verses_number": "17",
+            "arabic_name": "وَٱلْـَٔاخِرَةُ خَيْرٌ وَأَبْقَىٰٓ",
+            "translated_name": "«والآخرة» المشتملة على الجنة «خير وأبقى».",
+            "english_transliteration": "Wal Aakhiratu khairunw wa abqaa"
+          },
+          {
+            "id": 5966,
+            "chapter_id": 87,
+            "verses_translate_name": "الآيات",
+            "verses_number": "18",
+            "arabic_name": "إِنَّ هَـٰذَا لَفِى ٱلصُّحُفِ ٱلْأُولَىٰ",
+            "translated_name": "«إن هذا» إفلاحُ من تزكى وكون الآخرة خيرا «لفي الصحف الأولى» أي المنزلة قبل القرآن.",
+            "english_transliteration": "Inna haazaa lafis suhu fil oolaa"
+          },
+          {
+            "id": 5967,
+            "chapter_id": 87,
+            "verses_translate_name": "الآيات",
+            "verses_number": "19",
+            "arabic_name": "صُحُفِ إِبْرَٰهِيمَ وَمُوسَىٰ",
+            "translated_name": "«صحف إبراهيم وموسى» وهي عشر صحف لإبراهيم والتوراة لموسى.",
+            "english_transliteration": "Suhufi Ibraaheema wa Moosaa"
+          }
+        ],
+        "page_arabic_ayah": "بَلْ تُؤْثِرُونَ ٱلْحَيَوٰةَ ٱلدُّنْيَا (١٦)  وَٱلْـَٔاخِرَةُ خَيْرٌ وَأَبْقَىٰٓ (١٧)  إِنَّ هَـٰذَا لَفِى ٱلصُّحُفِ ٱلْأُولَىٰ (١٨)  صُحُفِ إِبْرَٰهِيمَ وَمُوسَىٰ (١٩)"
+      }
+    ]
+  }
 }

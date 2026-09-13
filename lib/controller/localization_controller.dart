@@ -1,9 +1,12 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/api/api_client.dart';
 import '../data/model/response/language_model.dart';
 import '../util/app_constants.dart';
+import 'quran_controller.dart';
+import 'offline_quran_controller.dart';
 
 class LocalizationController extends GetxController implements GetxService {
   final SharedPreferences sharedPreferences;
@@ -30,6 +33,7 @@ class LocalizationController extends GetxController implements GetxService {
   int get selectedIndex => _selectedIndex;
 
   void loadCurrentLanguage() {
+    final previousLanguage = _locale.languageCode;
     _locale = resolveLocale(
       systemLocale: WidgetsBinding.instance.platformDispatcher.locale,
       savedLanguageCode: sharedPreferences.getString(
@@ -47,6 +51,7 @@ class LocalizationController extends GetxController implements GetxService {
     _languages = [];
     _languages.addAll(AppConstants.languages);
     update();
+    if (previousLanguage != _locale.languageCode) _refreshQuranTranslations();
   }
 
   static Locale resolveLocale({
@@ -76,8 +81,25 @@ class LocalizationController extends GetxController implements GetxService {
     _locale = locale;
 
     _selectedIndex = index;
+    _refreshQuranTranslations();
     await saveLanguage(_locale);
     update();
+  }
+
+  void _refreshQuranTranslations() {
+    final language = _locale.languageCode;
+    if (Get.isRegistered<QuranController>()) {
+      unawaited(
+        Get.find<QuranController>().refreshTranslation(languageCode: language),
+      );
+    }
+    if (Get.isRegistered<OfflineQuranController>()) {
+      unawaited(
+        Get.find<OfflineQuranController>().refreshTranslation(
+          languageCode: language,
+        ),
+      );
+    }
   }
 
   // Save language in local database

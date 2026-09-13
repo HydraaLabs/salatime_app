@@ -1,7 +1,7 @@
 name: zabi
 description: A new Flutter project.
 publish_to: "none"
-version: 1.0.16+19
+version: 1.0.17+20
 
 environment:
   sdk: ">=3.9.0 <4.0.0"
@@ -96,6 +96,17 @@ flutter:
     - assets/quran/bn/
     - assets/quran/sp/
     - assets/quran/ar/
+    - assets/quran/translations/
+    - assets/quran/translations/ar/
+    - assets/quran/translations/bn/
+    - assets/quran/translations/en/
+    - assets/quran/translations/es/
+    - assets/quran/translations/fa/
+    - assets/quran/translations/fr/
+    - assets/quran/translations/id/
+    - assets/quran/translations/ms/
+    - assets/quran/translations/tr/
+    - assets/quran/translations/ur/
     - shorebird.yaml
 
   fonts:

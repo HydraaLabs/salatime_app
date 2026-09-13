@@ -17,7 +17,7 @@ class ModernQuranMilestoneCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetX<QuranMilestoneController>(
       builder: (controller) {
-        final read = controller.pagesReadToday.value;
+        final read = controller.surahsReadToday.value;
         final goal = controller.dailyGoal.value;
         final ratio = controller.progressRatio;
         final remaining = (goal - read).clamp(0, goal);

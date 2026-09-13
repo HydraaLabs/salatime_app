@@ -18,6 +18,7 @@ import 'package:zabi/view/screens/home/home_screen.dart';
 import 'package:zabi/view/screens/nearby_mosque/nearby_mosque_screen.dart';
 
 import 'np_internet_widgets.dart';
+import 'play_store_review_host.dart';
 
 class BottomNavbarScreen extends StatefulWidget {
   const BottomNavbarScreen({super.key, this.pageBuilder});
@@ -112,29 +113,32 @@ class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
   @override
   Widget build(BuildContext context) {
     final isIOS = Platform.isIOS;
-    return PopScope<Object?>(
-      canPop: _selectedPageIndex == 0,
-      onPopInvokedWithResult: (didPop, result) {
-        if (!didPop) _returnHome();
-      },
-      child: Scaffold(
-        body: IndexedStack(
-          index: _selectedPageIndex,
-          children: [
-            for (int i = 0; i < _pageCount; i++)
-              _visitedPages.contains(i)
-                  ? _page(context, i)
-                  : const SizedBox.shrink(),
-          ],
+    return PlayStoreReviewHost(
+      isHome: _selectedPageIndex == 0,
+      child: PopScope<Object?>(
+        canPop: _selectedPageIndex == 0,
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop) _returnHome();
+        },
+        child: Scaffold(
+          body: IndexedStack(
+            index: _selectedPageIndex,
+            children: [
+              for (int i = 0; i < _pageCount; i++)
+                _visitedPages.contains(i)
+                    ? _page(context, i)
+                    : const SizedBox.shrink(),
+            ],
+          ),
+          bottomNavigationBar: Obx(() {
+            final isModern =
+                Get.find<HomeLayoutController>().currentLayout.value ==
+                HomeLayoutController.modern;
+            return isModern
+                ? _buildModernNavBar(context)
+                : _buildClassicNavBar(context, isIOS);
+          }),
         ),
-        bottomNavigationBar: Obx(() {
-          final isModern =
-              Get.find<HomeLayoutController>().currentLayout.value ==
-              HomeLayoutController.modern;
-          return isModern
-              ? _buildModernNavBar(context)
-              : _buildClassicNavBar(context, isIOS);
-        }),
       ),
     );
   }

@@ -1,6 +1,10 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'quran_reading_check.dart';
+import 'quran_reading_keys.dart';
+import 'quran_translation_source_card.dart';
+import 'quran_translation_text.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
@@ -20,6 +24,24 @@ class AyanTranslationWidget extends StatelessWidget {
     return SingleChildScrollView(
       child: GetBuilder<QuranController>(
         builder: (quranController) {
+          if (quranController.translationError.value != null) {
+            return Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                children: [
+                  Text(
+                    quranController.translationError.value!.tr,
+                    textAlign: TextAlign.center,
+                  ),
+                  TextButton.icon(
+                    onPressed: () => quranController.refreshTranslation(),
+                    icon: const Icon(Icons.refresh),
+                    label: Text('quran_translation_retry'.tr),
+                  ),
+                ],
+              ),
+            );
+          }
           if (quranController.isSuraDetaileLoading.value ||
               quranController.suraDetaileApiData == null) {
             return const Center(
@@ -34,6 +56,14 @@ class AyanTranslationWidget extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              if (quranController.suraDetaileApiData!.translationSource != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: QuranTranslationSourceCard(
+                    source:
+                        quranController.suraDetaileApiData!.translationSource,
+                  ),
+                ),
               if (chapter.id != 1 && chapter.id != 9) _buildBismillah(context),
               ListView.builder(
                 padding: const EdgeInsets.symmetric(
@@ -148,25 +178,26 @@ class AyanTranslationWidget extends StatelessWidget {
               ),
               const SizedBox(height: Dimensions.PADDING_SIZE_SMALL),
 
-              // Transliteration
-              Obx(
-                () => Container(
-                  padding: const EdgeInsets.all(
-                    Dimensions.PADDING_SIZE_EXTRA_SMALL,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).hintColor.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: SelectableText(
-                    verse.transLiteration.toString(),
-                    textAlign: TextAlign.justify,
-                    style: robotoMedium.copyWith(
-                      fontSize: settings.translateFontSize.value,
+              // Transliteration, when it is supplied by the Arabic base text.
+              if ((verse.transLiteration as String?)?.trim().isNotEmpty == true)
+                Obx(
+                  () => Container(
+                    padding: const EdgeInsets.all(
+                      Dimensions.PADDING_SIZE_EXTRA_SMALL,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).hintColor.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: SelectableText(
+                      verse.transLiteration.toString(),
+                      textAlign: TextAlign.justify,
+                      style: robotoMedium.copyWith(
+                        fontSize: settings.translateFontSize.value,
+                      ),
                     ),
                   ),
                 ),
-              ),
               const SizedBox(height: Dimensions.PADDING_SIZE_SMALL),
               Divider(
                 color: Theme.of(context).textTheme.bodyMedium!.color,
@@ -176,9 +207,13 @@ class AyanTranslationWidget extends StatelessWidget {
 
               // Translation
               Obx(
-                () => SelectableText(
-                  verse.translatedName.toString(),
-                  textAlign: TextAlign.justify,
+                () => QuranTranslationText(
+                  text: verse.translatedName ?? '',
+                  footnotes: verse.translationFootnotes,
+                  languageCode: controller
+                      .suraDetaileApiData!
+                      .translationSource
+                      ?.languageCode,
                   style: robotoMedium.copyWith(
                     fontSize: settings.translateFontSize.value,
                   ),
@@ -187,20 +222,53 @@ class AyanTranslationWidget extends StatelessWidget {
               const SizedBox(height: Dimensions.PADDING_SIZE_SMALL),
 
               // Ayah number and Share button
+              QuranReadingCheck(
+                verseKeys: quranReadingKeys(
+                  int.tryParse(
+                        controller
+                                .suraDetaileApiData!
+                                .data!
+                                .chapter!
+                                .serialNumber ??
+                            '',
+                      ) ??
+                      controller.suraDetaileApiData!.data!.chapter!.id,
+                  [verse],
+                ),
+                label: 'reading_quran_verse_read'.tr,
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _buildAyahNumber(context, verse.versesNumber),
-                  IconButton(
-                    onPressed: () {
-                      Share.share(
-                        'Arabic Ayah: ${verse.arabicName}\n\nTranslation: ${verse.translatedName}\n\n\nSura Name: ${controller.suraDetaileApiData!.data!.chapter!.translatedName}\nAyah Number: ${verse.versesNumber}\nPowered By: ${AppConstants.APP_NAME}',
-                      );
-                    },
-                    icon: SvgPicture.asset(
-                      Images.Icon_Share,
-                      height: 28,
-                      color: Theme.of(context).primaryColor,
+                  Builder(
+                    builder: (buttonContext) => IconButton(
+                      onPressed: () {
+                        final box =
+                            buttonContext.findRenderObject() as RenderBox;
+                        final chapter =
+                            controller.suraDetaileApiData!.data!.chapter!;
+                        Share.share(
+                          quranTranslationShareText(
+                            reference:
+                                '${chapter.translatedName} ${chapter.serialNumber ?? chapter.id}:${verse.versesNumber}',
+                            arabic: verse.arabicName ?? '',
+                            translation: verse.translatedName ?? '',
+                            footnotes: verse.translationFootnotes,
+                            source: controller
+                                .suraDetaileApiData!
+                                .translationSource,
+                            appName: AppConstants.APP_NAME,
+                          ),
+                          sharePositionOrigin:
+                              box.localToGlobal(Offset.zero) & box.size,
+                        );
+                      },
+                      icon: SvgPicture.asset(
+                        Images.Icon_Share,
+                        height: 28,
+                        color: Theme.of(context).primaryColor,
+                      ),
                     ),
                   ),
                 ],

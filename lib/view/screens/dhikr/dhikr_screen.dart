@@ -5,9 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:zabi/helper/athkar_catalog.dart';
 import 'package:zabi/service/athkar_reader_preferences.dart';
+import 'package:zabi/service/reading/reading_progress_service.dart';
 import 'package:zabi/view/base/custom_app_bar.dart';
+import 'package:zabi/view/screens/dhikr/widgets/athkar_reading_controls.dart';
 import 'package:zabi/view/screens/dhikr/widgets/athkar_text_size_sheet.dart';
 import 'package:zabi/view/screens/dhikr/widgets/personal_dhikr_screen.dart';
+import 'package:zabi/view/screens/reading/reading_progress_screen.dart';
 
 class DhikrScreen extends StatefulWidget {
   const DhikrScreen({
@@ -16,12 +19,14 @@ class DhikrScreen extends StatefulWidget {
     this.onBackPressed,
     this.loadCatalog,
     this.readerPreferences = const AthkarReaderPreferences(),
+    this.readingProgress,
   });
 
   final bool appBackButton;
   final VoidCallback? onBackPressed;
   final Future<AthkarCatalog> Function()? loadCatalog;
   final AthkarReaderPreferences readerPreferences;
+  final ReadingProgressService? readingProgress;
 
   @override
   State<DhikrScreen> createState() => _DhikrScreenState();
@@ -34,7 +39,8 @@ class _DhikrScreenState extends State<DhikrScreen> {
     'after_prayer',
     'sleep',
   ];
-  final _counts = <String, ValueNotifier<int>>{};
+  late final ReadingProgressService _progress =
+      widget.readingProgress ?? ReadingProgressService.instance;
   late Future<AthkarCatalog> _catalog;
   final _arabicSize = ValueNotifier(AthkarReaderPreferences.defaultSize);
   bool _sizeReady = false;
@@ -44,10 +50,50 @@ class _DhikrScreenState extends State<DhikrScreen> {
     super.initState();
     _catalog = _loadCatalog();
     unawaited(_loadSize());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(_initializeReading());
+    });
   }
 
   Future<AthkarCatalog> _loadCatalog() =>
       widget.loadCatalog?.call() ?? AthkarCatalog.load();
+
+  Future<void> _initializeReading() async {
+    try {
+      await _progress.initialize();
+    } catch (_) {
+      _readingError();
+    }
+  }
+
+  void _readingError() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('reading_progress_save_error'.tr)));
+  }
+
+  Future<void> _saveReading(AthkarEntry entry, int count) async {
+    try {
+      await _progress.setCount(ReadingProgressKind.athkar, entry.id, count);
+    } catch (_) {
+      _readingError();
+    }
+  }
+
+  Future<void> _incrementReading(AthkarEntry entry) async {
+    try {
+      await _progress.increment(ReadingProgressKind.athkar, entry.id);
+    } catch (_) {
+      _readingError();
+    }
+  }
+
+  void _openProgress() => Navigator.of(context).push(
+    MaterialPageRoute<void>(
+      builder: (_) => ReadingProgressScreen(service: _progress),
+    ),
+  );
 
   Future<void> _loadSize() async {
     try {
@@ -76,9 +122,6 @@ class _DhikrScreenState extends State<DhikrScreen> {
   @override
   void dispose() {
     _arabicSize.dispose();
-    for (final count in _counts.values) {
-      count.dispose();
-    }
     super.dispose();
   }
 
@@ -95,6 +138,12 @@ class _DhikrScreenState extends State<DhikrScreen> {
         isBackButtonExist: widget.appBackButton,
         onBackPressed: widget.onBackPressed,
         actions: [
+          IconButton(
+            key: const ValueKey('athkar-reading-progress'),
+            tooltip: 'reading_progress_title'.tr,
+            onPressed: _openProgress,
+            icon: const Icon(Icons.bar_chart_outlined, color: Colors.white),
+          ),
           IconButton(
             key: const ValueKey('athkar-text-size'),
             tooltip: 'athkar_text_size'.tr,
@@ -192,46 +241,40 @@ class _DhikrScreenState extends State<DhikrScreen> {
   );
 
   Widget _entries(AthkarCategory category, {bool showTitle = false}) =>
-      ValueListenableBuilder<double>(
-        valueListenable: _arabicSize,
-        builder: (context, size, child) => Align(
-          alignment: Alignment.topCenter,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 820),
-            child: ListView.builder(
-              key: PageStorageKey('athkar-list-${category.id}'),
-              padding: const EdgeInsets.fromLTRB(12, 16, 12, 24),
-              itemCount: category.entries.length + (showTitle ? 1 : 0),
-              itemBuilder: (context, index) {
-                if (showTitle && index == 0) {
-                  return Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
-                    child: Text(
-                      _categoryLabel(category),
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                  );
-                }
-                final entry = category.entries[index - (showTitle ? 1 : 0)];
-                final counter = _counts.putIfAbsent(
-                  entry.id,
-                  () => ValueNotifier(0),
-                );
-                return ValueListenableBuilder<int>(
-                  valueListenable: counter,
-                  builder: (context, count, _) => _card(entry, size, counter),
-                );
-              },
+      AnimatedBuilder(
+        animation: _progress,
+        builder: (context, _) => ValueListenableBuilder<double>(
+          valueListenable: _arabicSize,
+          builder: (context, size, child) => Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 820),
+              child: ListView.builder(
+                key: PageStorageKey('athkar-list-${category.id}'),
+                padding: const EdgeInsets.fromLTRB(12, 16, 12, 24),
+                itemCount: category.entries.length + (showTitle ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (showTitle && index == 0) {
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
+                      child: Text(
+                        _categoryLabel(category),
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                    );
+                  }
+                  final entry = category.entries[index - (showTitle ? 1 : 0)];
+                  return _card(entry, size);
+                },
+              ),
             ),
           ),
         ),
       );
 
-  Widget _card(AthkarEntry entry, double size, ValueNotifier<int> counter) {
+  Widget _card(AthkarEntry entry, double size) {
     final theme = Theme.of(context);
-    final total = entry.repetitions;
-    final current = counter.value;
-    final completed = total != null && current >= total;
+    final current = _progress.todayCount(ReadingProgressKind.athkar, entry.id);
     final arabicStyle = TextStyle(
       fontFamily: 'NotoSansArabic',
       fontSize: size,
@@ -308,49 +351,14 @@ class _DhikrScreenState extends State<DhikrScreen> {
                 ),
               ),
             ],
-            if (total != null && total > 0) ...[
-              const SizedBox(height: 16),
-              const Divider(height: 1),
-              const SizedBox(height: 12),
-              Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  FilledButton.tonalIcon(
-                    key: ValueKey('athkar-count-${entry.id}'),
-                    onPressed: completed
-                        ? null
-                        : () => counter.value = current + 1,
-                    icon: Icon(
-                      completed
-                          ? Icons.check_circle_outline
-                          : Icons.touch_app_outlined,
-                    ),
-                    label: Text(
-                      completed
-                          ? 'athkar_completed'.tr
-                          : 'athkar_counter_progress'.trParams({
-                              'current': '$current',
-                              'total': '$total',
-                            }),
-                      textAlign: TextAlign.center,
-                    ),
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size(48, 48),
-                    ),
-                  ),
-                  if (current > 0)
-                    IconButton(
-                      key: ValueKey('athkar-reset-${entry.id}'),
-                      tooltip: 'athkar_reset_counter'.tr,
-                      onPressed: () => counter.value = 0,
-                      icon: const Icon(Icons.restart_alt),
-                    ),
-                ],
-              ),
-            ],
+            AthkarReadingControls(
+              itemKey: entry.id,
+              current: current,
+              repetitions: entry.repetitions,
+              enabled: _progress.initialized,
+              onChanged: (count) => unawaited(_saveReading(entry, count)),
+              onIncrement: () => unawaited(_incrementReading(entry)),
+            ),
           ],
         ),
       ),
@@ -396,6 +404,14 @@ class _DhikrScreenState extends State<DhikrScreen> {
                           title: 'athkar_title'.tr,
                           isBackButtonExist: true,
                           actions: [
+                            IconButton(
+                              tooltip: 'reading_progress_title'.tr,
+                              onPressed: _openProgress,
+                              icon: const Icon(
+                                Icons.bar_chart_outlined,
+                                color: Colors.white,
+                              ),
+                            ),
                             IconButton(
                               tooltip: 'athkar_text_size'.tr,
                               onPressed: _changeTextSize,
