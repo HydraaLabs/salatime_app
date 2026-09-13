@@ -25,6 +25,7 @@
 		17FDCAAC243740043175BBF3 /* moatheni_ring5.aiff in Resources */ = {isa = PBXBuildFile; fileRef = A90ECEA7A681796E6BE0425E /* moatheni_ring5.aiff */; };
 		180FE2F24C6235C1E7CCCA8B /* moatheni_before_prayer_jumaa.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 8B3E492A16173591F830B34A /* moatheni_before_prayer_jumaa.aiff */; };
 		20579F015B957096A1A42B09 /* moatheni_naser.aiff in Resources */ = {isa = PBXBuildFile; fileRef = B82BEDAF3964A50D401077F4 /* moatheni_naser.aiff */; };
+		21D80C50B2A7E9320E5446D6 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 0957F0C783BCAB774606DDA9 /* PrivacyInfo.xcprivacy */; };
 		235C6EA31714513947A56E57 /* moatheni_before_lastthird.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 6AA2BEDDD941435702EF9C8E /* moatheni_before_lastthird.aiff */; };
 		24F2D54E59DAF79620745DD9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 92765FC2CEA5449287FEA63F /* Foundation.framework */; };
 		2911307D84F4F1912A6ABFAB /* moatheni_heya_salah.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 091BACB60C52AA21F392223D /* moatheni_heya_salah.aiff */; };
@@ -56,6 +57,7 @@
 		8AA669E7302353C02DA7ABF7 /* moatheni_after_prayer_jumaa.aiff in Resources */ = {isa = PBXBuildFile; fileRef = D779CC930C5C64F382CEB957 /* moatheni_after_prayer_jumaa.aiff */; };
 		8F118755367B12D6E31BD21D /* moatheni_on_prayer_jumaa.aiff in Resources */ = {isa = PBXBuildFile; fileRef = FD3669147B598F232E4220C7 /* moatheni_on_prayer_jumaa.aiff */; };
 		97427C6B4F9706F5D2025192 /* moatheni_hamd.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 568EB52F56BBF0874D663E8D /* moatheni_hamd.aiff */; };
+		9786199F505D019A8FF6E63A /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 5FC9D558B16F3F94DAF61436 /* PrivacyInfo.xcprivacy */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
@@ -142,6 +144,7 @@
 /* Begin PBXFileReference section */
 		045E3757881B5285783725FA /* moatheni_tasbeeh.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_tasbeeh.aiff; sourceTree = "<group>"; };
 		091BACB60C52AA21F392223D /* moatheni_heya_salah.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_heya_salah.aiff; sourceTree = "<group>"; };
+		0957F0C783BCAB774606DDA9 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		0B0C75C3772DE1A04DFF30BD /* Pods-RunnerTests.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile.xcconfig"; sourceTree = "<group>"; };
 		0E09A4BFDA439DAD067CED59 /* SalaTimePlatformBridge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SalaTimePlatformBridge.swift; sourceTree = "<group>"; };
 		13204DAA71C227C912D5A559 /* moatheni_telephone.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_telephone.aiff; sourceTree = "<group>"; };
@@ -171,6 +174,7 @@
 		58CEA4C32E41DF8281C2A30B /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/SwiftUI.framework; sourceTree = DEVELOPER_DIR; };
 		5904316D0B982E1AA908E4B1 /* moatheni_albany.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_albany.aiff; sourceTree = "<group>"; };
 		594BF8110964027ACD9720A3 /* Widget.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Widget.xcconfig; sourceTree = "<group>"; };
+		5FC9D558B16F3F94DAF61436 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		625A22A94DA0C9578A6D278D /* moatheni_white_days.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_white_days.aiff; sourceTree = "<group>"; };
 		64F11673278D30CEB84F5D45 /* ar */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Localizable.strings; sourceTree = "<group>"; };
 		6932CEE7DACAC64B6057D756 /* moatheni_after_prayer_maghrib.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_after_prayer_maghrib.aiff; sourceTree = "<group>"; };
@@ -375,6 +379,7 @@
 				0E09A4BFDA439DAD067CED59 /* SalaTimePlatformBridge.swift */,
 				3821A6D4727B6DD8430B0E3A /* SceneDelegate.swift */,
 				49A66DD53E3E168939A02FD3 /* Runner.entitlements */,
+				0957F0C783BCAB774606DDA9 /* PrivacyInfo.xcprivacy */,
 			);
 			path = Runner;
 			sourceTree = "<group>";
@@ -396,6 +401,7 @@
 				9A257C97DF47ACB966F5159E /* Info.plist */,
 				1D1022CAEEB90DF4CEA3C8EC /* SalaTimeWidget.entitlements */,
 				10BDF6B92ABF3508A419292D /* Localizable.strings */,
+				5FC9D558B16F3F94DAF61436 /* PrivacyInfo.xcprivacy */,
 			);
 			name = SalaTimeWidget;
 			path = SalaTimeWidget;
@@ -601,6 +607,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E1FB86B56B60FC41B7B9CCE2 /* Localizable.strings in Resources */,
+				9786199F505D019A8FF6E63A /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -680,6 +687,7 @@
 				D0864F972DA32BF80064535A /* noti_beep_beep.aiff in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
+				21D80C50B2A7E9320E5446D6 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

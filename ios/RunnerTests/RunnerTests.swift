@@ -1,4 +1,5 @@
 import XCTest
+import AVFoundation
 @testable import Runner
 
 class RunnerTests: XCTestCase {
@@ -44,4 +45,15 @@ class RunnerTests: XCTestCase {
     XCTAssertEqual(PrayerWidgetOptions(["opacity": 200]).opacity, 100)
     XCTAssertTrue(PrayerWidgetOptions().countdown)
   }
+  func testAllBundledNotificationSoundsMeetIOSDurationLimit() throws {
+    let files = try XCTUnwrap(Bundle.main.urls(forResourcesWithExtension: "aiff", subdirectory: nil))
+    XCTAssertEqual(files.count, 68, "Every sound in the catalogue must be embedded in Runner")
+    for url in files {
+      let audio = try AVAudioFile(forReading: url)
+      let duration = Double(audio.length) / audio.processingFormat.sampleRate
+      XCTAssertGreaterThan(duration, 0, url.lastPathComponent)
+      XCTAssertLessThan(duration, 30, url.lastPathComponent)
+    }
+  }
+
 }

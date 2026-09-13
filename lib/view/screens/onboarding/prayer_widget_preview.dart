@@ -187,7 +187,10 @@ class _IosPreview extends StatelessWidget {
           child: Container(
             width: small ? 158 : 330,
             height: large ? 330 : 158,
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: small ? 12 : 16,
+            ),
             decoration: BoxDecoration(
               color: dark ? const Color(0xFF142117) : const Color(0xFFF5F6EF),
               borderRadius: BorderRadius.circular(22),
@@ -284,7 +287,10 @@ class _IosPreview extends StatelessWidget {
                       ),
                   ],
                   const Spacer(),
-                  Text('calendar_today'.tr, style: TextStyle(color: ink, fontSize: 10)),
+                  Text(
+                    'calendar_today'.tr,
+                    style: TextStyle(color: ink, fontSize: 10),
+                  ),
                 ],
               ),
             ),
