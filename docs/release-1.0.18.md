@@ -125,3 +125,32 @@ externe de suppression sont accessibles en EN/FR/AR/ES ; les liens e-mail
 sont lisibles sans JavaScript. Contrôles HTTP et hashes des six fichiers
 conformes ; 22 tests / 551 assertions. Aucun compte supprimé, aucun e-mail
 envoyé et aucun changement d’environnement, SMTP ou de configuration globale.
+
+## Déclarations Play complémentaires et démonstration audio
+
+La déclaration du service `FOREGROUND_SERVICE_MEDIA_PLAYBACK` est enregistrée
+pour « Lecture de contenus multimédias ». Une capture continue de la version
+signée 1.0.18+21 sur un émulateur Android API35 montre le lecteur du Coran,
+la sortie de l’application et les commandes de la notification : pause à
+49,21 s, reprise à 58,87 s, arrêt à 67,78 s. Android confirme les états
+PAUSED/PLAYING/NONE ; après arrêt, la notification disparaît et AudioService
+n’est plus au premier plan. L’audio interne devient silencieux pendant les
+pauses et après l’arrêt. Cela ne constitue pas une validation physique Samsung.
+
+Vidéo publique de 84,109 s, 7 691 676 octets, H.264/AAC :
+https://salatime.net/review/salatime-media-playback-1.0.18-657d4a27115a.mp4
+
+SHA-256 : `657d4a27115af956eb6f838da54425dcf906c7b30946c39f930e954a0fa541fb`.
+Le téléchargement HTTPS intégral correspond au fichier local. La capture
+provient d’une session invitée, sans compte ni localisation personnelle ;
+seul un remux MP4 faststart a été effectué, sans changer les images ou le son.
+L’émulateur et le périphérique audio temporaires sont arrêtés.
+
+L’envoi des déclarations complémentaires a été confirmé dans la Console.
+Google a relancé l’examen existant pour inclure la déclaration des données ;
+la déclaration du service audio accompagne ce dossier. La Console affiche
+la production 1.0.18 et « Sécurité des données » dans « Modifications en cours
+d’examen », ainsi que « Services de premier plan » mis à jour. Aucune
+modification ne reste à envoyer manuellement. Les vérifications automatiques
+Google précèdent l’examen ; la version n’est pas déclarée publiquement disponible
+sur le Play Store à ce stade. La publication gérée reste désactivée.

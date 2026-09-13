@@ -6,7 +6,7 @@ La déclaration de `net.salatime.app` a été acceptée par l’API Publisher
 de création/suppression de compte ; cet essai a été refusé HTTP400, puis
 remplacé par la déclaration complète acceptée, sans perte d’état validé.
 
-Le CSV versionné contient les782réponses envoyées, avec fins de lignes LF
+Le CSV versionné contient les 782 réponses envoyées, avec fins de lignes LF
 normalisées et espaces de fin de libellé retirés pour Git. Le CSV envoyé avait des fins de lignes CRLF.
 
 - SHA256 CSV envoyé : `3c85bf9d8e5d0fe95f440a7ac7f53c0a8ade4acd9203586db8ef9baf47dd86ac`.
@@ -64,3 +64,12 @@ https://github.com/owenbean400/fastlane-plugin-google_data_safety/blob/main/lib/
 
 Aucun contenu de compte, lecture réelle, secret ou appel IA facturable n’a été
 utilisé pour cet inventaire. Les preuves détaillées d’exécution restent hors Git.
+
+## Envoi pour examen
+
+Après l’acceptation API et la relecture des champs enregistrés, la déclaration
+a été envoyée pour examen depuis la Console. La production 1.0.18 et
+« Sécurité des données » apparaissent ensemble dans les modifications en cours
+d’examen. La relance de l’examen inclut aussi la déclaration du service audio
+et sa vidéo. Il ne reste aucun brouillon à envoyer ; l’approbation Google et
+la propagation de la fiche publique restent distinctes de cet envoi.
