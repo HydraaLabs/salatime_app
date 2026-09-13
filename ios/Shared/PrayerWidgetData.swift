@@ -7,6 +7,7 @@ struct PrayerWidgetPrayer: Codable {
     let name: String
     let shortName: String?
     var instant: Date { Date(timeIntervalSince1970: at / 1000) }
+    var id: String { "\(date):\(prayerId)" }
 }
 
 struct PrayerWidgetSnapshot: Codable {

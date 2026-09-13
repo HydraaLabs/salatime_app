@@ -60,7 +60,7 @@ struct SalaTimeWidgetView: View {
             }
             if let current = presentation, let data = snapshot {
                 Text(current.since ? data.sinceLabel.replacingOccurrences(of: "@prayer", with: current.prayer.name) : data.nextLabel)
-                    .font(.caption).lineLimit(2)
+                    .font(.caption).lineLimit(small ? 1 : 2)
                 if small {
                     Text(current.prayer.name).font(.headline).lineLimit(1).minimumScaleFactor(0.75)
                     counter(current, data: data).font(.system(size: 28, weight: .semibold, design: .rounded))
@@ -73,7 +73,7 @@ struct SalaTimeWidgetView: View {
                 }
                 if family == .systemLarge {
                     Divider()
-                    ForEach(data.prayers(on: entry.date), id: \.at) { prayer in
+                    ForEach(data.prayers(on: entry.date), id: \.id) { prayer in
                         HStack {
                             Text(prayer.name).lineLimit(1)
                             Spacer()
