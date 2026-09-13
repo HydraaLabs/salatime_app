@@ -58,4 +58,70 @@ La release Shorebird intermédiaire 1.0.17+20 n’a pas été envoyée sur Googl
 La retouche de synchronisation silencieuse passe les 34 tests ciblés
 (écran et service de lecture, y compris les sauvegardes différées).
 
-Les reçus des canaux de publication seront ajoutés après leurs contrôles.
+## Canaux vérifiés le 13 septembre 2026
+
+- Source compilée : `730c8263afbb97c49ccb9bd6d76ecf46b9ac425f`, poussée et
+  relue sur `appfolder/salatime_app` / `main`.
+- Shorebird : release **826813**, version **1.0.18+21**, Android **active**,
+  artefact AAB **3666314** téléchargé et vérifié intégralement.
+- Google Play, API Publisher : upload du code **21**, édition validée puis
+  validée définitivement ; nouvelle édition de lecture confirmant la production
+  **1.0.18**, `status: completed`, même empreinte AAB. Les autres canaux sont
+  inchangés et l’édition de contrôle a été supprimée (HTTP204).
+- Ce statut API confirme la soumission de production ; la disponibilité publique
+  immédiate ou la réception de la mise à jour sur Samsung ne sont pas revendiquées.
+
+### Fichiers signés
+
+AAB final : **143307402** octets.
+SHA-256 final :
+`b838f18bd1ccbd13b514c81239725f2df33c768a5ebb5872b9845c5cb9293ab3`.
+
+APK universel issu de ce même AAB : **166903784** octets.
+SHA-256 :
+`14f1e29e16dd4862e297046b6c3f33dc48e889f35c7f89fafa5f48ee37b78423`.
+
+Package `net.salatime.app`, version 21 / 1.0.18, non débogable,
+Android minimum 24 / cible 36, ARM32/ARM64/x86_64. Les 68 sons, le catalogue
+Athkar et les 1141 JSON des traductions sont identiques aux sources. Les
+commandes natives d’arrêt de l’adhan sont présentes. Certificat APK local
+SHA-1 `00:84:E8:31:16:A0:5D:07:A9:37:0C:66:67:81:F3:05:BE:87:AA:70`.
+
+Installation web contrôlée : archive versionnée puis deux alias,
+sauvegarde privée et vérification de 6 anciens chemins conservés.
+Trois téléchargements HTTPS intégraux vérifiés (HTTP200, type APK, taille et
+empreinte identiques ; cache Cloudflare BYPASS) :
+
+- https://salatime.net/dl/SalaTime-1.0.18-21.apk
+- https://salatime.net/dl/salatime.apk
+- https://salatime.net/app-release.apk
+
+Le Samsung est toujours absent d’ADB au contrôle final. Aucune installation
+sur le téléphone ni validation physique de cette version n’est revendiquée.
+
+## Vérification dans la Console Google Play
+
+La Console affiche explicitement la production **1.0.18** dans les modifications
+« En cours d’examen », avec publication gérée désactivée. Les vérifications
+automatiques Google précèdent la diffusion. Le statut API `completed` ne signifie
+donc pas que cette nouvelle version est déjà disponible pour tous.
+
+La déclaration des données précédente indiquait « aucune collecte » malgré les
+comptes et la synchronisation. Un inventaire des flux est préparé dans les
+métadonnées Play ; comptes, préférences, lectures et diagnostics y sont déclarés.
+Le transfert GeoIP du serveur vers le pilote IpApi utilise encore HTTP en
+production (pilote et protocole relus sans appel GeoIP ni données utilisateur).
+Aucune affirmation de chiffrement de tous les trajets n’est faite. Le trajet
+application vers SalaTime utilise HTTPS.
+
+La déclaration Data Safety complète a été acceptée (HTTP204) puis relue dans
+la Console : collecte activée, compte e-mail/mot de passe et OAuth, deux liens
+de demande de suppression corrects. Voir `data-safety-2026-09-13.md` et le CSV
+versionné. Aucune modification du ciblage d’âge ou de l’engagement Families.
+
+Backend source final : `9dbafe63945aa75862efd9a2b292734cd5ce3d12`,
+poussé et relu sur origin/main. Les notices de confidentialité et la demande
+externe de suppression sont accessibles en EN/FR/AR/ES ; les liens e-mail
+sont lisibles sans JavaScript. Contrôles HTTP et hashes des six fichiers
+conformes ; 22 tests / 551 assertions. Aucun compte supprimé, aucun e-mail
+envoyé et aucun changement d’environnement, SMTP ou de configuration globale.
