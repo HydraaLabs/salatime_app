@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:zabi/view/screens/notification/widgets/sound_selection_field.dart';
+import 'package:zabi/view/screens/notification/widgets/notification_series_switch.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -77,6 +78,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.byType(SoundSelectionField), findsNothing);
+      await tester.ensureVisible(find.byKey(const ValueKey('extra_duha')));
       await tester.tap(find.byKey(const ValueKey('extra_duha')));
       await tester.runAsync(() async {
         await Future<void>.delayed(Duration.zero);
@@ -88,6 +90,103 @@ void main() {
         isTrue,
       );
       expect((await AdditionalReminderPreferences.load())[1].enabled, isFalse);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'series switch persists all reminders without waiting for scheduling',
+    (tester) async {
+      await AdditionalReminderPreferences.save([
+        for (final type in AdditionalReminderType.values)
+          AdditionalReminderSetting.defaults(type).copyWith(
+            enabled:
+                type == AdditionalReminderType.fajrAlarm ||
+                type == AdditionalReminderType.mondayThursday,
+            sound: type == AdditionalReminderType.fajrAlarm ? 'silent' : null,
+            minutes: type == AdditionalReminderType.fajrAlarm ? 47 : null,
+            anchor: type == AdditionalReminderType.fajrAlarm
+                ? 'afterFajr'
+                : null,
+          ),
+      ]);
+      final before = await AdditionalReminderPreferences.load();
+      final refresh = Completer<void>();
+      var requests = 0;
+      await tester.pumpWidget(
+        app(
+          AdditionalRemindersScreen(
+            refreshSchedule: () {
+              requests++;
+              return refresh.future;
+            },
+          ),
+          'fr',
+        ),
+      );
+      await tester.pumpAndSettle();
+      final series = find.byKey(const ValueKey('notification_series_other'));
+      expect(tester.widget<NotificationSeriesSwitch>(series).value, true);
+
+      await tester.tap(series);
+      await tester.pumpAndSettle();
+      expect(tester.widget<NotificationSeriesSwitch>(series).value, false);
+      expect(
+        tester.widget<NotificationSeriesSwitch>(series).onChanged,
+        isNotNull,
+      );
+      expect(refresh.isCompleted, false);
+      expect(requests, 1);
+      final disabled = await AdditionalReminderPreferences.load();
+      expect(disabled.any((item) => item.enabled), false);
+      for (final setting in before) {
+        expect(
+          disabled.singleWhere((item) => item.type == setting.type).toJson(),
+          setting.copyWith(enabled: false).toJson(),
+        );
+      }
+
+      await tester.tap(series);
+      await tester.pumpAndSettle();
+      expect(tester.widget<NotificationSeriesSwitch>(series).value, true);
+      expect(
+        tester.widget<NotificationSeriesSwitch>(series).onChanged,
+        isNotNull,
+      );
+      expect(refresh.isCompleted, false);
+      expect(requests, 2);
+      final enabled = await AdditionalReminderPreferences.load();
+      expect(
+        enabled.where((item) => item.enabled).map((item) => item.type),
+        unorderedEquals(AdditionalReminderPreferences.visibleTypes),
+      );
+      final fajr = enabled.singleWhere(
+        (item) => item.type == AdditionalReminderType.fajrAlarm,
+      );
+      expect(fajr.sound, 'silent');
+      expect(fajr.minutes, 47);
+      expect(fajr.anchor, 'afterFajr');
+
+      final individual = find.byKey(const ValueKey('extra_fajrAlarm'));
+      await tester.ensureVisible(individual);
+      await tester.tap(individual);
+      await tester.pumpAndSettle();
+      expect(tester.widget<SwitchListTile>(individual).value, false);
+      // The header can be disposed when the lazy list scrolls to a reminder.
+      tester.state<ScrollableState>(find.byType(Scrollable)).position.jumpTo(0);
+      await tester.pumpAndSettle();
+      // Other reminders are still enabled, so the series remains on.
+      expect(tester.widget<NotificationSeriesSwitch>(series).value, true);
+      expect(requests, 3);
+      await tester.tap(series);
+      await tester.pumpAndSettle();
+      expect(tester.widget<NotificationSeriesSwitch>(series).value, false);
+      expect(requests, 4);
+      expect(refresh.isCompleted, false);
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      refresh.completeError(StateError('late background failure'));
+      await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
     },
   );
@@ -335,7 +434,9 @@ void main() {
       );
       await tester.pumpAndSettle();
       final toggle = find.byKey(const ValueKey('extra_fajrAlarm'));
+      final series = find.byKey(const ValueKey('notification_series_other'));
       expect(tester.widget<SwitchListTile>(toggle).value, false);
+      expect(tester.widget<NotificationSeriesSwitch>(series).value, false);
       await tester.runAsync(
         () => device.apply({
           'additionalReminders': {
@@ -351,6 +452,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(tester.widget<SwitchListTile>(toggle).value, true);
+      expect(tester.widget<NotificationSeriesSwitch>(series).value, true);
       final sound = tester.widget<SoundSelectionField>(
         find.byType(SoundSelectionField),
       );
@@ -372,6 +474,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(tester.widget<SwitchListTile>(toggle).value, false);
+      expect(tester.widget<NotificationSeriesSwitch>(series).value, false);
       expect(find.byType(SoundSelectionField), findsNothing);
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.runAsync(

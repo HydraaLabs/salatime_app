@@ -778,5 +778,13 @@
   "play_store_review_never": "Hayır, teşekkürler",
   "review_store_unavailable": "Google Play şu anda açılamıyor. Lütfen daha sonra tekrar deneyin.",
   "alarm_audio_muted": "Son ezan, telefonun ses ayarlarına uygun olarak sessiz kaldı.",
-  "alarm_volume_note": "Ezan, telefonun sessiz ve titreşim modlarına uyar. Diğer durumlarda alarm ses düzeyini kullanır. Android, bir sonraki namaz için alarm simgesi gösterebilir."
+  "alarm_volume_note": "Ezan, telefonun sessiz ve titreşim modlarına uyar. Diğer durumlarda alarm ses düzeyini kullanır. Android, bir sonraki namaz için alarm simgesi gösterebilir.",
+  "notification_series_disable_before": "Ezan öncesi bildirimleri kapat",
+  "notification_series_disable_adhan": "Ezanı kapat",
+  "notification_series_disable_after": "Ezan sonrası bildirimleri kapat",
+  "notification_series_disable_other": "Diğer bildirimleri kapat",
+  "notification_series_enable_before": "Ezan öncesi bildirimleri aç",
+  "notification_series_enable_adhan": "Ezanı aç",
+  "notification_series_enable_after": "Ezan sonrası bildirimleri aç",
+  "notification_series_enable_other": "Diğer bildirimleri aç"
 }

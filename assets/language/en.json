@@ -832,5 +832,13 @@
   "play_store_review_later": "Later",
   "play_store_review_never": "No thanks",
   "review_store_unavailable": "Google Play could not be opened right now. Please try again later.",
-  "alarm_audio_muted": "The last Adhan remained silent according to the phone’s audio settings."
+  "alarm_audio_muted": "The last Adhan remained silent according to the phone’s audio settings.",
+  "notification_series_disable_before": "Disable pre-Adhan alerts",
+  "notification_series_disable_adhan": "Disable Adhan",
+  "notification_series_disable_after": "Disable post-Adhan alerts",
+  "notification_series_disable_other": "Disable other notifications",
+  "notification_series_enable_before": "Enable pre-Adhan alerts",
+  "notification_series_enable_adhan": "Enable Adhan",
+  "notification_series_enable_after": "Enable post-Adhan alerts",
+  "notification_series_enable_other": "Enable other notifications"
 }

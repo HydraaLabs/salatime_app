@@ -340,17 +340,42 @@ class AdditionalReminderPreferences {
     return setting;
   });
 
+  /// Toggle the whole series in one write against the latest saved settings.
+  /// The retired combined fasting reminder must never be enabled alongside
+  /// its separate Monday and Thursday replacements.
+  static Future<void> setEnabled(bool enabled) => _serial(() async {
+    final prefs = await SharedPreferences.getInstance();
+    final current = _read(prefs);
+    await _write(prefs, [
+      for (final setting in current)
+        setting.copyWith(
+          enabled: enabled && visibleTypes.contains(setting.type),
+        ),
+    ]);
+  });
+
   static Future<void> _write(
     SharedPreferences prefs,
     List<AdditionalReminderSetting> settings,
   ) async {
-    if (!await prefs.setString(
-      storageKey,
-      jsonEncode({
-        for (final setting in settings) setting.type.name: setting.toJson(),
-      }),
-    )) {
-      throw StateError('Could not save reminder settings');
+    try {
+      if (!await prefs.setString(
+        storageKey,
+        jsonEncode({
+          for (final setting in settings) setting.type.name: setting.toJson(),
+        }),
+      )) {
+        throw StateError('Could not save reminder settings');
+      }
+    } catch (_) {
+      // SharedPreferences updates its memory cache before the disk result.
+      // Restore that cache so the UI can recover the persisted choices.
+      try {
+        await prefs.reload();
+      } catch (_) {
+        // Preserve the original write failure if the storage is unavailable.
+      }
+      rethrow;
     }
     _changes.add(null);
   }

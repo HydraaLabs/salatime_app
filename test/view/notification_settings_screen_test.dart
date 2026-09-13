@@ -222,6 +222,101 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  for (final phase in PrayerNotificationPhase.values) {
+    testWidgets(
+      '${phase.name} series can be disabled, reopened and edited while refresh is pending',
+      (tester) async {
+        await PrayerNotificationPreferences.update(
+          PrayerNotificationPrayer.fajr,
+          phase,
+          sound: 'moatheni_short3',
+          minutes: 22,
+        );
+        await PrayerNotificationPreferences.update(
+          PrayerNotificationPrayer.sunrise,
+          phase,
+          enabled: true,
+        );
+        final original = await PrayerNotificationPreferences.load();
+        final refresh = Completer<void>();
+        var requests = 0;
+        Widget page() => app(
+          NotificationPhaseScreen(
+            phase: phase,
+            requestPermissions: false,
+            reschedule: () {
+              requests++;
+              return refresh.future;
+            },
+          ),
+        );
+        final series = find.descendant(
+          of: find.byKey(ValueKey('notification_series_${phase.name}')),
+          matching: find.byType(SwitchListTile),
+        );
+        await tester.pumpWidget(page());
+        await tester.pumpAndSettle();
+        await tester.tap(series);
+        await tester.pumpAndSettle();
+        expect(requests, 1);
+        expect(refresh.isCompleted, isFalse);
+        expect(tester.widget<SwitchListTile>(series).value, isFalse);
+        expect(tester.widget<SwitchListTile>(series).onChanged, isNotNull);
+        expect(find.byType(SoundSelectionField), findsNothing);
+        final disabled = await PrayerNotificationPreferences.load();
+        for (var index = 0; index < original.length; index++) {
+          expect(
+            disabled[index].toJson(),
+            original[index]
+                .copyWith(
+                  enabled: original[index].phase == phase ? false : null,
+                )
+                .toJson(),
+          );
+        }
+
+        // Closing and reopening must keep the entire category disabled.
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pumpWidget(page());
+        await tester.pumpAndSettle();
+        expect(tester.widget<SwitchListTile>(series).value, isFalse);
+        await tester.tap(
+          find.byKey(ValueKey('notification_${phase.name}_fajr')),
+        );
+        await tester.pumpAndSettle();
+        expect(tester.widget<SwitchListTile>(series).value, isTrue);
+        expect(requests, 2);
+
+        await tester.tap(series); // Disable that one prayer again.
+        await tester.pumpAndSettle();
+        await tester.tap(
+          series,
+        ); // Re-enable the category; sunrise stays opt-in.
+        await tester.pumpAndSettle();
+        final restored = (await PrayerNotificationPreferences.load()).where(
+          (setting) => setting.phase == phase,
+        );
+        for (final setting in restored) {
+          expect(
+            setting.enabled,
+            setting.prayer != PrayerNotificationPrayer.sunrise,
+          );
+        }
+        expect(
+          restored
+              .firstWhere((s) => s.prayer == PrayerNotificationPrayer.fajr)
+              .sound,
+          'moatheni_short3',
+        );
+        expect(requests, 4);
+        await tester.pumpWidget(const SizedBox.shrink());
+        refresh.complete();
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+
   testWidgets('late background errors do not override the newest edit', (
     tester,
   ) async {

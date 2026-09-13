@@ -5,6 +5,9 @@ import 'package:zabi/helper/notification_sound_catalog.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hijri/hijri_calendar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+// Instrument the plugin store without adding a production dependency.
+// ignore: depend_on_referenced_packages
+import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
 import 'package:zabi/helper/additional_reminder_plan.dart';
@@ -27,6 +30,25 @@ class _DelayedReminderPreferences implements SharedPreferences {
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _SeriesReminderStore extends InMemorySharedPreferencesStore {
+  _SeriesReminderStore(SharedPreferences prefs)
+    : super.withData({
+        for (final key in prefs.getKeys()) 'flutter.$key': prefs.get(key)!,
+      });
+
+  int writes = 0;
+  bool rejectWrites = false;
+
+  @override
+  Future<bool> setValue(String valueType, String key, Object value) async {
+    if (key == 'flutter.${AdditionalReminderPreferences.storageKey}') {
+      writes++;
+      if (rejectWrites) return false;
+    }
+    return super.setValue(valueType, key, value);
+  }
 }
 
 void main() {
@@ -601,6 +623,155 @@ void main() {
       );
     },
   );
+
+  test(
+    'series toggle writes once and preserves every sound and time including legacy',
+    () async {
+      final prefs = await SharedPreferences.getInstance();
+      final legacy = AdditionalReminderSetting.defaults(
+        AdditionalReminderType.mondayThursday,
+      ).copyWith(enabled: true, sound: 'moatheni_water', minutes: 1234);
+      await AdditionalReminderPreferences.save([
+        for (final type in AdditionalReminderType.values)
+          if (type == AdditionalReminderType.mondayThursday)
+            legacy
+          else
+            AdditionalReminderSetting.defaults(type).copyWith(
+              enabled: type == AdditionalReminderType.morning,
+              sound: type == AdditionalReminderType.fajrAlarm ? 'silent' : null,
+              minutes: type == AdditionalReminderType.fajrAlarm ? 47 : null,
+              anchor: type == AdditionalReminderType.fajrAlarm
+                  ? 'afterFajr'
+                  : null,
+            ),
+      ]);
+      final before = await AdditionalReminderPreferences.load();
+      final originalStore = SharedPreferencesStorePlatform.instance;
+      final store = _SeriesReminderStore(prefs);
+      SharedPreferencesStorePlatform.instance = store;
+      addTearDown(
+        () => SharedPreferencesStorePlatform.instance = originalStore,
+      );
+      var changes = 0;
+      final subscription = AdditionalReminderPreferences.changes.listen(
+        (_) => changes++,
+      );
+      addTearDown(subscription.cancel);
+
+      await AdditionalReminderPreferences.setEnabled(false);
+      await Future<void>.delayed(Duration.zero);
+      final disabled =
+          jsonDecode(prefs.getString(AdditionalReminderPreferences.storageKey)!)
+              as Map;
+      expect(store.writes, 1);
+      expect(changes, 1);
+      expect(disabled.length, AdditionalReminderType.values.length);
+      for (final setting in before) {
+        expect(
+          disabled[setting.type.name],
+          setting.copyWith(enabled: false).toJson(),
+        );
+      }
+      expect(disabled['mondayThursday']['enabled'], false);
+      expect(disabled['mondayThursday']['minutes'], 1234);
+
+      await AdditionalReminderPreferences.setEnabled(true);
+      await Future<void>.delayed(Duration.zero);
+      await prefs.reload();
+      final enabled = await AdditionalReminderPreferences.load(prefs);
+      expect(store.writes, 2);
+      expect(changes, 2);
+      for (final setting in before) {
+        expect(
+          enabled.singleWhere((item) => item.type == setting.type).toJson(),
+          setting
+              .copyWith(
+                enabled: AdditionalReminderPreferences.visibleTypes.contains(
+                  setting.type,
+                ),
+              )
+              .toJson(),
+        );
+      }
+    },
+  );
+
+  test(
+    'series toggles serialize with cloud replacement and later individual edits',
+    () async {
+      final cloud = AdditionalReminderPreferences.decode({
+        'fajrAlarm': {
+          'enabled': false,
+          'sound': 'silent',
+          'minutes': 73,
+          'anchor': 'afterFajr',
+          'useDefaultSound': false,
+        },
+      });
+      final replacing = AdditionalReminderPreferences.save(cloud);
+      final enabling = AdditionalReminderPreferences.setEnabled(true);
+      final editing = AdditionalReminderPreferences.update(
+        AdditionalReminderType.morning,
+        minutes: 41,
+        sound: 'moatheni_morning_azkar2',
+      );
+      final disabling = AdditionalReminderPreferences.setEnabled(false);
+      final reading = AdditionalReminderPreferences.load();
+      await Future.wait<void>([
+        replacing,
+        enabling,
+        editing.then((_) {}),
+        disabling,
+      ]);
+      final result = await reading;
+      expect(result.any((item) => item.enabled), false);
+      final fajr = result.singleWhere(
+        (item) => item.type == AdditionalReminderType.fajrAlarm,
+      );
+      expect(fajr.sound, 'silent');
+      expect(fajr.minutes, 73);
+      expect(fajr.anchor, 'afterFajr');
+      final morning = result.singleWhere(
+        (item) => item.type == AdditionalReminderType.morning,
+      );
+      expect(morning.minutes, 41);
+      expect(morning.sound, 'moatheni_morning_azkar2');
+    },
+  );
+
+  test('rejected series write restores cache and releases the queue', () async {
+    final prefs = await SharedPreferences.getInstance();
+    final originalStore = SharedPreferencesStorePlatform.instance;
+    final store = _SeriesReminderStore(prefs)..rejectWrites = true;
+    SharedPreferencesStorePlatform.instance = store;
+    addTearDown(() => SharedPreferencesStorePlatform.instance = originalStore);
+    var changes = 0;
+    final subscription = AdditionalReminderPreferences.changes.listen(
+      (_) => changes++,
+    );
+    addTearDown(subscription.cancel);
+
+    await expectLater(
+      AdditionalReminderPreferences.setEnabled(true),
+      throwsStateError,
+    );
+    await Future<void>.delayed(Duration.zero);
+    expect(changes, 0);
+    expect(
+      (await AdditionalReminderPreferences.load()).any((item) => item.enabled),
+      false,
+    );
+    store.rejectWrites = false;
+    await AdditionalReminderPreferences.setEnabled(true);
+    await Future<void>.delayed(Duration.zero);
+    expect(changes, 1);
+    expect(
+      (await AdditionalReminderPreferences.load()).where(
+        (item) => item.enabled,
+      ),
+      hasLength(AdditionalReminderPreferences.visibleTypes.length),
+    );
+  });
 
   test(
     'simultaneous patches preserve unrelated fields and the final toggle',

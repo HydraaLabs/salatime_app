@@ -783,5 +783,13 @@
   "play_store_review_never": "No, gracias",
   "review_store_unavailable": "No se puede abrir Google Play en este momento. Inténtalo de nuevo más tarde.",
   "alarm_audio_muted": "El último adhan permaneció en silencio según los ajustes de audio del teléfono.",
-  "alarm_volume_note": "El adhan respeta los modos silencio y vibración del teléfono. En los demás casos, utiliza el volumen de las alarmas. Android puede mostrar un icono de alarma para la próxima oración."
+  "alarm_volume_note": "El adhan respeta los modos silencio y vibración del teléfono. En los demás casos, utiliza el volumen de las alarmas. Android puede mostrar un icono de alarma para la próxima oración.",
+  "notification_series_disable_before": "Desactivar avisos antes del adhan",
+  "notification_series_disable_adhan": "Desactivar el adhan",
+  "notification_series_disable_after": "Desactivar avisos después del adhan",
+  "notification_series_disable_other": "Desactivar otras notificaciones",
+  "notification_series_enable_before": "Activar avisos antes del adhan",
+  "notification_series_enable_adhan": "Activar el adhan",
+  "notification_series_enable_after": "Activar avisos después del adhan",
+  "notification_series_enable_other": "Activar otras notificaciones"
 }

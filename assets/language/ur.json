@@ -778,5 +778,13 @@
   "play_store_review_never": "نہیں، شکریہ",
   "review_store_unavailable": "فی الحال Google Play نہیں کھل سکتا۔ براہ کرم بعد میں دوبارہ کوشش کریں۔",
   "alarm_audio_muted": "فون کی آڈیو ترتیبات کے مطابق آخری اذان خاموش رہی۔",
-  "alarm_volume_note": "اذان فون کے خاموش اور وائبریشن موڈ کا لحاظ کرتی ہے۔ دیگر صورتوں میں الارم کی آواز کی سطح استعمال ہوتی ہے۔ Android اگلی نماز کے لیے الارم کا آئیکن دکھا سکتا ہے۔"
+  "alarm_volume_note": "اذان فون کے خاموش اور وائبریشن موڈ کا لحاظ کرتی ہے۔ دیگر صورتوں میں الارم کی آواز کی سطح استعمال ہوتی ہے۔ Android اگلی نماز کے لیے الارم کا آئیکن دکھا سکتا ہے۔",
+  "notification_series_disable_before": "اذان سے پہلے کی اطلاعات بند کریں",
+  "notification_series_disable_adhan": "اذان بند کریں",
+  "notification_series_disable_after": "اذان کے بعد کی اطلاعات بند کریں",
+  "notification_series_disable_other": "دیگر اطلاعات بند کریں",
+  "notification_series_enable_before": "اذان سے پہلے کی اطلاعات فعال کریں",
+  "notification_series_enable_adhan": "اذان فعال کریں",
+  "notification_series_enable_after": "اذان کے بعد کی اطلاعات فعال کریں",
+  "notification_series_enable_other": "دیگر اطلاعات فعال کریں"
 }

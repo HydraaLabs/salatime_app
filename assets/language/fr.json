@@ -823,5 +823,13 @@
   "play_store_review_later": "Plus tard",
   "play_store_review_never": "Non merci",
   "review_store_unavailable": "Impossible d’ouvrir Google Play pour le moment. Réessayez plus tard.",
-  "alarm_audio_muted": "Le dernier adhan est resté silencieux selon les réglages audio du téléphone."
+  "alarm_audio_muted": "Le dernier adhan est resté silencieux selon les réglages audio du téléphone.",
+  "notification_series_disable_before": "Désactiver l’avant athan",
+  "notification_series_disable_adhan": "Désactiver l’athan",
+  "notification_series_disable_after": "Désactiver l’après athan",
+  "notification_series_disable_other": "Désactiver les autres notifications",
+  "notification_series_enable_before": "Activer l’avant athan",
+  "notification_series_enable_adhan": "Activer l’athan",
+  "notification_series_enable_after": "Activer l’après athan",
+  "notification_series_enable_other": "Activer les autres notifications"
 }

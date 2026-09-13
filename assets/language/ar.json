@@ -827,5 +827,13 @@
   "play_store_review_later": "لاحقًا",
   "play_store_review_never": "لا، شكرًا",
   "review_store_unavailable": "يتعذر فتح Google Play الآن. يُرجى المحاولة لاحقًا.",
-  "alarm_audio_muted": "ظل الأذان الأخير صامتًا وفقًا لإعدادات الصوت في الهاتف."
+  "alarm_audio_muted": "ظل الأذان الأخير صامتًا وفقًا لإعدادات الصوت في الهاتف.",
+  "notification_series_disable_before": "إيقاف تنبيهات ما قبل الأذان",
+  "notification_series_disable_adhan": "إيقاف الأذان",
+  "notification_series_disable_after": "إيقاف تنبيهات ما بعد الأذان",
+  "notification_series_disable_other": "إيقاف التنبيهات الأخرى",
+  "notification_series_enable_before": "تفعيل تنبيهات ما قبل الأذان",
+  "notification_series_enable_adhan": "تفعيل الأذان",
+  "notification_series_enable_after": "تفعيل تنبيهات ما بعد الأذان",
+  "notification_series_enable_other": "تفعيل التنبيهات الأخرى"
 }

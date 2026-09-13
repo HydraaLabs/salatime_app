@@ -783,5 +783,13 @@
   "play_store_review_never": "না, ধন্যবাদ",
   "review_store_unavailable": "এই মুহূর্তে Google Play খোলা যাচ্ছে না। অনুগ্রহ করে পরে আবার চেষ্টা করুন।",
   "alarm_audio_muted": "ফোনের অডিও সেটিংস অনুযায়ী শেষ আজানটি নীরব ছিল।",
-  "alarm_volume_note": "আজান ফোনের নীরব ও ভাইব্রেশন মোড মেনে চলে। অন্য ক্ষেত্রে অ্যালার্মের ভলিউম ব্যবহার করে। Android পরবর্তী নামাজের জন্য অ্যালার্মের আইকন দেখাতে পারে।"
+  "alarm_volume_note": "আজান ফোনের নীরব ও ভাইব্রেশন মোড মেনে চলে। অন্য ক্ষেত্রে অ্যালার্মের ভলিউম ব্যবহার করে। Android পরবর্তী নামাজের জন্য অ্যালার্মের আইকন দেখাতে পারে।",
+  "notification_series_disable_before": "আজানের আগের বিজ্ঞপ্তি বন্ধ করুন",
+  "notification_series_disable_adhan": "আজান বন্ধ করুন",
+  "notification_series_disable_after": "আজানের পরের বিজ্ঞপ্তি বন্ধ করুন",
+  "notification_series_disable_other": "অন্যান্য বিজ্ঞপ্তি বন্ধ করুন",
+  "notification_series_enable_before": "আজানের আগের বিজ্ঞপ্তি চালু করুন",
+  "notification_series_enable_adhan": "আজান চালু করুন",
+  "notification_series_enable_after": "আজানের পরের বিজ্ঞপ্তি চালু করুন",
+  "notification_series_enable_other": "অন্যান্য বিজ্ঞপ্তি চালু করুন"
 }

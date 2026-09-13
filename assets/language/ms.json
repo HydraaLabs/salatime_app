@@ -778,5 +778,13 @@
   "play_store_review_never": "Tidak, terima kasih",
   "review_store_unavailable": "Google Play tidak dapat dibuka buat masa ini. Sila cuba lagi kemudian.",
   "alarm_audio_muted": "Azan terakhir kekal senyap mengikut tetapan audio telefon.",
-  "alarm_volume_note": "Azan mematuhi mod senyap dan getar telefon. Selain itu, azan menggunakan kelantangan penggera. Android mungkin memaparkan ikon penggera untuk solat seterusnya."
+  "alarm_volume_note": "Azan mematuhi mod senyap dan getar telefon. Selain itu, azan menggunakan kelantangan penggera. Android mungkin memaparkan ikon penggera untuk solat seterusnya.",
+  "notification_series_disable_before": "Nyahaktifkan peringatan sebelum azan",
+  "notification_series_disable_adhan": "Nyahaktifkan azan",
+  "notification_series_disable_after": "Nyahaktifkan peringatan selepas azan",
+  "notification_series_disable_other": "Nyahaktifkan pemberitahuan lain",
+  "notification_series_enable_before": "Aktifkan peringatan sebelum azan",
+  "notification_series_enable_adhan": "Aktifkan azan",
+  "notification_series_enable_after": "Aktifkan peringatan selepas azan",
+  "notification_series_enable_other": "Aktifkan pemberitahuan lain"
 }

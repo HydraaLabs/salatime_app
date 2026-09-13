@@ -193,6 +193,59 @@ void main() {
     },
   );
 
+  for (final selectedPhase in PrayerNotificationPhase.values) {
+    test(
+      'disabling the ${selectedPhase.name} series cancels only its cached alarms including sunrise',
+      () async {
+        for (final phase in PrayerNotificationPhase.values) {
+          await PrayerNotificationPreferences.setPhaseEnabled(phase, true);
+          await PrayerNotificationPreferences.update(
+            PrayerNotificationPrayer.sunrise,
+            phase,
+            enabled: true,
+          );
+        }
+        await harness.refresh();
+        expect(harness.pending, hasLength(18));
+        final disabledIds = harness.pending.keys
+            .where((id) => harness.payload(id)['kind'] == selectedPhase.name)
+            .toSet();
+        final retainedIds = harness.pending.keys.toSet().difference(
+          disabledIds,
+        );
+        expect(disabledIds, hasLength(6));
+        expect(
+          disabledIds.map((id) => harness.payload(id)['prayer']),
+          contains('sunrise'),
+        );
+        final retainedPayloads = {
+          for (final id in retainedIds) id: harness.pending[id]!['payload'],
+        };
+
+        harness.controller.fresh = false;
+        harness.clearCalls();
+        await PrayerNotificationPreferences.setPhaseEnabled(
+          selectedPhase,
+          false,
+        );
+        await harness.refresh();
+
+        expect(harness.cancellations.toSet(), disabledIds);
+        expect(harness.pending.keys.toSet(), retainedIds);
+        expect(harness.scheduled, isEmpty);
+        expect({
+          for (final id in retainedIds) id: harness.pending[id]!['payload'],
+        }, retainedPayloads);
+        final manifest = await SalatWaqtService.readSchedule();
+        expect(manifest.map((entry) => entry['id']).toSet(), retainedIds);
+        expect(
+          manifest.every((entry) => entry['kind'] != selectedPhase.name),
+          true,
+        );
+      },
+    );
+  }
+
   test(
     'unchanged alarms are reused, missing requests recreated and only edited prayers rewritten',
     () async {

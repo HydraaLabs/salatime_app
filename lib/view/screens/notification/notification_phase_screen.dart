@@ -8,6 +8,7 @@ import 'package:zabi/controller/noti_sound_controller.dart';
 import 'package:zabi/helper/prayer_notification_preferences.dart';
 import 'package:zabi/helper/salat_waqt_service.dart';
 import 'package:zabi/service/personal_notification_sounds.dart';
+import 'widgets/notification_series_switch.dart';
 import 'widgets/sound_selection_field.dart';
 
 String notificationPhaseTitle(PrayerNotificationPhase phase) => switch (phase) {
@@ -143,6 +144,49 @@ class _NotificationPhaseScreenState extends State<NotificationPhaseScreen>
       if (mounted && generation == _saveGeneration) {
         setState(() => _error = 'extra_reminders_save_error'.tr);
       }
+    }
+  }
+
+  Future<void> _setSeriesEnabled(bool enabled) async {
+    if (_saving || _settings == null) return;
+    final wasEnabled = _settings!.any((setting) => setting.enabled);
+    final generation = ++_saveGeneration;
+    PreferenceCloudSync.instance.noteLocalChange();
+    _loadGeneration++;
+    setState(() {
+      _saving = true;
+      _error = null;
+      _settings = [
+        for (final setting in _settings!)
+          setting.copyWith(
+            // Sunrise is opt-in, including when enabling the whole category.
+            enabled:
+                enabled && setting.prayer == PrayerNotificationPrayer.sunrise
+                ? setting.enabled
+                : enabled,
+          ),
+      ];
+    });
+    if (!enabled) unawaited(_stopPreview());
+    try {
+      // One atomic local write, one background refresh, no per-prayer loop of
+      // permission prompts or cloud requests.
+      await PrayerNotificationPreferences.setPhaseEnabled(
+        widget.phase,
+        enabled,
+      );
+      PreferenceCloudSync.instance.noteLocalChange();
+      unawaited(
+        _applyNotifications(
+          generation,
+          requestPermission: enabled && !wasEnabled,
+        ),
+      );
+    } catch (_) {
+      await _load();
+      if (mounted) setState(() => _error = 'extra_reminders_save_error'.tr);
+    } finally {
+      if (mounted) setState(() => _saving = false);
     }
   }
 
@@ -318,6 +362,14 @@ class _NotificationPhaseScreenState extends State<NotificationPhaseScreen>
                       ),
                     ),
                   ),
+                NotificationSeriesSwitch(
+                  key: ValueKey('notification_series_${widget.phase.name}'),
+                  label:
+                      'notification_series_${_settings!.any((setting) => setting.enabled) ? 'disable' : 'enable'}_${widget.phase.name}'
+                          .tr,
+                  value: _settings!.any((setting) => setting.enabled),
+                  onChanged: _saving ? null : _setSeriesEnabled,
+                ),
                 for (final setting in _settings!) _card(setting),
               ],
             ),

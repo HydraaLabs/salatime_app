@@ -778,5 +778,13 @@
   "play_store_review_never": "Tidak, terima kasih",
   "review_store_unavailable": "Google Play tidak dapat dibuka saat ini. Silakan coba lagi nanti.",
   "alarm_audio_muted": "Azan terakhir tetap senyap sesuai pengaturan audio ponsel.",
-  "alarm_volume_note": "Azan mengikuti mode senyap dan getar ponsel. Di luar mode tersebut, azan menggunakan volume alarm. Android dapat menampilkan ikon alarm untuk salat berikutnya."
+  "alarm_volume_note": "Azan mengikuti mode senyap dan getar ponsel. Di luar mode tersebut, azan menggunakan volume alarm. Android dapat menampilkan ikon alarm untuk salat berikutnya.",
+  "notification_series_disable_before": "Nonaktifkan pengingat sebelum azan",
+  "notification_series_disable_adhan": "Nonaktifkan azan",
+  "notification_series_disable_after": "Nonaktifkan pengingat setelah azan",
+  "notification_series_disable_other": "Nonaktifkan notifikasi lainnya",
+  "notification_series_enable_before": "Aktifkan pengingat sebelum azan",
+  "notification_series_enable_adhan": "Aktifkan azan",
+  "notification_series_enable_after": "Aktifkan pengingat setelah azan",
+  "notification_series_enable_other": "Aktifkan notifikasi lainnya"
 }

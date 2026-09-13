@@ -1,17 +1,55 @@
 import 'dart:convert';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+// Exercise the installed plugin's cache as well as its platform persistence.
+// ignore: depend_on_referenced_packages
+import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:zabi/data/model/response/todays_prayer_time_model.dart';
 import 'package:zabi/helper/local_prayer_calculator.dart';
 import 'package:zabi/helper/notification_sound_catalog.dart';
 import 'package:zabi/helper/prayer_alarm_plan.dart';
 import 'package:zabi/helper/prayer_notification_preferences.dart';
+import 'package:zabi/service/cloud/preference_device.dart';
 import 'package:zabi/util/app_constants.dart';
 
 typedef Prayer = PrayerNotificationPrayer;
 typedef Phase = PrayerNotificationPhase;
+
+class _RejectingPrayerStore extends InMemorySharedPreferencesStore {
+  _RejectingPrayerStore(
+    Map<String, Object> values, {
+    required this.throwOnWrite,
+  }) : super.withData({
+         for (final entry in values.entries)
+           'flutter.${entry.key}': entry.value,
+       });
+
+  final bool throwOnWrite;
+  bool rejectWrites = true;
+  int reads = 0;
+  int writeAttempts = 0;
+
+  @override
+  Future<Map<String, Object>> getAll() async {
+    reads++;
+    return super.getAll();
+  }
+
+  @override
+  Future<bool> setValue(String valueType, String key, Object value) async {
+    if (key == 'flutter.${PrayerNotificationPreferences.storageKey}') {
+      writeAttempts++;
+      if (rejectWrites) {
+        if (throwOnWrite) throw PlatformException(code: 'storage_failed');
+        return false;
+      }
+    }
+    return super.setValue(valueType, key, value);
+  }
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -215,6 +253,225 @@ void main() {
       );
     },
   );
+  for (final selectedPhase in Phase.values) {
+    test(
+      '${selectedPhase.name} series OFF and ON retain other phases and individual sounds and delays',
+      () async {
+        final personal = 'custom_${'d' * 64}';
+        final original = {
+          for (final phase in Phase.values)
+            phase.name: {
+              for (final prayer in Prayer.values)
+                prayer.name: PrayerNotificationSetting.defaults(prayer, phase)
+                    .copyWith(
+                      enabled: phase == selectedPhase || prayer.index.isEven,
+                      sound: [
+                        personal,
+                        'silent',
+                        'moatheni_water',
+                      ][prayer.index % 3],
+                      minutes: phase == Phase.adhan
+                          ? 0
+                          : 17 + phase.index * 10 + prayer.index,
+                    )
+                    .toJson(),
+            },
+        };
+        await PrayerNotificationPreferences.replaceOverrides(original);
+
+        await PrayerNotificationPreferences.setPhaseEnabled(
+          selectedPhase,
+          false,
+        );
+        final disabled = await PrayerNotificationPreferences.load();
+        for (final previous in [
+          for (final phase in Phase.values)
+            for (final prayer in Prayer.values)
+              PrayerNotificationSetting.fromJson(
+                prayer,
+                phase,
+                original[phase.name]![prayer.name],
+              ),
+        ]) {
+          expect(
+            setting(disabled, previous.prayer, previous.phase).toJson(),
+            previous
+                .copyWith(
+                  enabled: previous.phase == selectedPhase
+                      ? false
+                      : previous.enabled,
+                )
+                .toJson(),
+            reason: '${previous.phase.name}/${previous.prayer.name}',
+          );
+        }
+        // Read the durable document through a fresh preferences cache, so an
+        // in-memory change alone cannot satisfy this assertion.
+        final prefs = await SharedPreferences.getInstance();
+        SharedPreferences.setMockInitialValues({
+          PrayerNotificationPreferences.storageKey: prefs.getString(
+            PrayerNotificationPreferences.storageKey,
+          )!,
+        });
+        final reloaded = await PrayerNotificationPreferences.load();
+        expect(
+          reloaded.map((s) => s.toJson()).toList(),
+          disabled.map((s) => s.toJson()).toList(),
+        );
+
+        await PrayerNotificationPreferences.setPhaseEnabled(
+          selectedPhase,
+          true,
+        );
+        final enabledAgain = await PrayerNotificationPreferences.load();
+        for (final previous in disabled) {
+          expect(
+            setting(enabledAgain, previous.prayer, previous.phase).toJson(),
+            previous
+                .copyWith(
+                  enabled: previous.phase == selectedPhase
+                      ? previous.prayer != Prayer.sunrise
+                      : previous.enabled,
+                )
+                .toJson(),
+            reason: '${previous.phase.name}/${previous.prayer.name}',
+          );
+        }
+      },
+    );
+  }
+  test(
+    'all disabled series survive cloud export and restore over enabled legacy defaults',
+    () async {
+      await PrayerNotificationPreferences.update(
+        Prayer.jumaa,
+        Phase.before,
+        sound: 'moatheni_water',
+        minutes: 37,
+      );
+      await PrayerNotificationPreferences.update(
+        Prayer.sunrise,
+        Phase.after,
+        enabled: true,
+        sound: 'silent',
+        minutes: 11,
+      );
+      for (final phase in Phase.values) {
+        await PrayerNotificationPreferences.setPhaseEnabled(phase, false);
+      }
+      final source = AppPreferenceDevice(
+        await SharedPreferences.getInstance(),
+        scope: 'disabled-series-source',
+        reloadControllers: false,
+      );
+      final snapshot = Map<String, dynamic>.from(
+        jsonDecode(jsonEncode(await source.capture())),
+      );
+      expect(snapshot['reminders']['beforeEnabled'], false);
+      expect(snapshot['reminders']['afterEnabled'], false);
+      expect(
+        (snapshot['prayerNotifications'] as Map).values,
+        everyElement(false),
+      );
+
+      SharedPreferences.setMockInitialValues({
+        AppConstants.BEFORE_ADHAN_REMINDER_ENABLED_KEY: true,
+        AppConstants.AFTER_ADHAN_REMINDER_ENABLED_KEY: true,
+      });
+      final destination = AppPreferenceDevice(
+        await SharedPreferences.getInstance(),
+        scope: 'disabled-series-destination',
+        reloadControllers: false,
+      );
+      await destination.apply(snapshot);
+      final restored = await PrayerNotificationPreferences.load();
+      expect(restored, hasLength(21));
+      expect(restored.every((s) => !s.enabled), true);
+      expect(
+        await PrayerNotificationPreferences.loadOverrides(),
+        snapshot['prayerNotificationSettings'],
+      );
+      expect(setting(restored, Prayer.jumaa, Phase.before).minutes, 37);
+      expect(
+        setting(restored, Prayer.jumaa, Phase.before).sound,
+        'moatheni_water',
+      );
+      expect(setting(restored, Prayer.sunrise, Phase.after).sound, 'silent');
+      expect(setting(restored, Prayer.sunrise, Phase.after).minutes, 11);
+      expect(
+        (await destination.capture())['prayerNotificationSettings'],
+        snapshot['prayerNotificationSettings'],
+      );
+    },
+  );
+  for (final throwOnWrite in [false, true]) {
+    test(
+      'rejected series write (throws=$throwOnWrite) restores cached state without a change event',
+      () async {
+        final original = {
+          for (final phase in Phase.values)
+            phase.name: {
+              for (final prayer in Prayer.values)
+                prayer.name: PrayerNotificationSetting.defaults(
+                  prayer,
+                  phase,
+                ).copyWith(enabled: true).toJson(),
+            },
+        };
+        final values = <String, Object>{
+          PrayerNotificationPreferences.storageKey: jsonEncode(original),
+          'unrelated_preference': 'preserved',
+        };
+        SharedPreferences.setMockInitialValues(values);
+        final previousStore = SharedPreferencesStorePlatform.instance;
+        final store = _RejectingPrayerStore(values, throwOnWrite: throwOnWrite);
+        SharedPreferencesStorePlatform.instance = store;
+        addTearDown(
+          () => SharedPreferencesStorePlatform.instance = previousStore,
+        );
+        final prefs = await SharedPreferences.getInstance();
+        final originalNative = Map<String, Object>.from(await store.getAll());
+        final readsBeforeWrite = store.reads;
+        var changes = 0;
+        final subscription = PrayerNotificationPreferences.changes.listen(
+          (_) => changes++,
+        );
+        addTearDown(subscription.cancel);
+
+        await expectLater(
+          PrayerNotificationPreferences.setPhaseEnabled(Phase.after, false),
+          throwOnWrite ? throwsA(isA<PlatformException>()) : throwsStateError,
+        );
+        await Future<void>.delayed(Duration.zero);
+        expect(changes, 0);
+        expect(store.writeAttempts, 1);
+        expect(store.reads, greaterThan(readsBeforeWrite));
+        expect(
+          prefs.getString(PrayerNotificationPreferences.storageKey),
+          values[PrayerNotificationPreferences.storageKey],
+        );
+        expect(await store.getAll(), originalNative);
+        expect(await PrayerNotificationPreferences.loadOverrides(), original);
+        expect(
+          (await PrayerNotificationPreferences.load()).every((s) => s.enabled),
+          true,
+        );
+        expect(changes, 0);
+
+        store.rejectWrites = false;
+        await PrayerNotificationPreferences.setPhaseEnabled(Phase.after, false);
+        await Future<void>.delayed(Duration.zero);
+        expect(changes, 1);
+        expect(
+          (await PrayerNotificationPreferences.load())
+              .where((s) => s.phase == Phase.after)
+              .every((s) => !s.enabled),
+          true,
+        );
+        expect(prefs.getString('unrelated_preference'), 'preserved');
+      },
+    );
+  }
   test(
     'invalid input is bounded, empty overrides reset explicitly without remigrating',
     () async {

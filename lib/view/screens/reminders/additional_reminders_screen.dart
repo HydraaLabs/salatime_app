@@ -1,5 +1,6 @@
 import 'package:zabi/service/preference_cloud_sync.dart';
 import 'package:zabi/view/screens/notification/widgets/sound_selection_field.dart';
+import 'package:zabi/view/screens/notification/widgets/notification_series_switch.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -68,6 +69,7 @@ class _AdditionalRemindersScreenState extends State<AdditionalRemindersScreen> {
     bool? useDefaultSound,
   }) async {
     if (_saving || _settings == null) return;
+    if (enabled == false) unawaited(_stopPreview());
     final previous = _settings!.firstWhere((s) => s.type == original.type);
     final generation = ++_saveGeneration;
     PreferenceCloudSync.instance.noteLocalChange();
@@ -113,6 +115,53 @@ class _AdditionalRemindersScreenState extends State<AdditionalRemindersScreen> {
       if (mounted) setState(() => _error = 'extra_reminders_save_error'.tr);
     } finally {
       if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  Future<void> _setSeriesEnabled(bool enabled) async {
+    if (_saving || _settings == null) return;
+    if (!enabled) unawaited(_stopPreview());
+    final generation = ++_saveGeneration;
+    PreferenceCloudSync.instance.noteLocalChange();
+    _loadGeneration++;
+    setState(() {
+      _saving = true;
+      _error = null;
+      _settings = [
+        for (final setting in _settings!)
+          setting.copyWith(
+            enabled:
+                enabled &&
+                AdditionalReminderPreferences.visibleTypes.contains(
+                  setting.type,
+                ),
+          ),
+      ];
+    });
+    try {
+      await AdditionalReminderPreferences.setEnabled(enabled);
+      PreferenceCloudSync.instance.noteLocalChange();
+      unawaited(
+        _applyNotifications(
+          generation,
+          enabled: enabled,
+          requestPermission: enabled,
+        ),
+      );
+    } catch (_) {
+      await _load();
+      if (mounted) setState(() => _error = 'extra_reminders_save_error'.tr);
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  Future<void> _stopPreview() async {
+    _previewGeneration++;
+    try {
+      await _player?.stop();
+    } catch (_) {
+      // A player failure must not prevent disabling reminders.
     }
   }
 
@@ -203,6 +252,14 @@ class _AdditionalRemindersScreenState extends State<AdditionalRemindersScreen> {
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                NotificationSeriesSwitch(
+                  key: const ValueKey('notification_series_other'),
+                  label:
+                      'notification_series_${_settings!.any((setting) => setting.enabled) ? 'disable' : 'enable'}_other'
+                          .tr,
+                  value: _settings!.any((setting) => setting.enabled),
+                  onChanged: _saving ? null : _setSeriesEnabled,
+                ),
                 if (_error != null)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12),
@@ -248,10 +305,7 @@ class _AdditionalRemindersScreenState extends State<AdditionalRemindersScreen> {
                 allowImport: true,
                 label: 'reminder_sound'.tr,
                 onPreview: _preview,
-                onStopPreview: () async {
-                  _previewGeneration++;
-                  await _player?.stop();
-                },
+                onStopPreview: _stopPreview,
                 onChanged: _saving
                     ? null
                     : (value) async {

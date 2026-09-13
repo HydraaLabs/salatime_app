@@ -206,8 +206,19 @@ class PrayerNotificationPreferences {
     SharedPreferences prefs,
     Map<String, dynamic> values,
   ) async {
-    if (!await prefs.setString(storageKey, jsonEncode(values))) {
-      throw StateError('Prayer notification settings could not be saved');
+    try {
+      if (!await prefs.setString(storageKey, jsonEncode(values))) {
+        throw StateError('Prayer notification settings could not be saved');
+      }
+    } catch (_) {
+      // SharedPreferences updates its cache before the platform confirms the
+      // write. Do not display a category as disabled if persistence failed.
+      try {
+        await prefs.reload();
+      } catch (_) {
+        // Preserve the original write failure for the caller's error state.
+      }
+      rethrow;
     }
     _changes.add(null);
   }
