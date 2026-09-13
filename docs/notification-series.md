@@ -33,7 +33,8 @@ Package `net.salatime.app.preview`, version `1.0.18+21`, signature debug
 compatible avec le client Google Preview. SHA-256 :
 `6e17f747b2851e3fcb28a7bb09c3e82ce1f64482ad63576539a2903a51efad55`.
 
-La modification sera distribuée dans la version 1.0.19+22 après autorisation
-de publication ; elle n’est pas incluse dans la précédente version 1.0.18.
+La modification est incluse dans la version 1.0.19+22, publiée sur Shorebird
+et soumise à Google Play le 13 septembre 2026 ; les vérifications de Google
+sont en cours. Elle n’est pas incluse dans la précédente version 1.0.18.
 Les preuves de publication sont consignées dans `release-1.0.19.md`. Le Samsung s’est déconnecté pendant
 la préparation ; cet APK attend sa reconnexion pour installation et contrôle.
