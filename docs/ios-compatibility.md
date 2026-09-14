@@ -18,6 +18,7 @@ part of this change. The application, widget and Flutter framework target iOS
 | Widget customization | Countdown, seconds, city, date, decorative symbol and background opacity are shared with iOS. Home Screen tint and system widget backgrounds can alter the final appearance. |
 | Adhan, before/after reminders, additional reminders | Local iOS notifications use the existing nearest-60 scheduling budget, including other pending notifications. App opening/resuming and settings changes refill the window. With many reminders enabled this can cover only a few days. No guaranteed renewal after prolonged app closure is claimed. |
 | Bundled notification sounds | 68 AIFF resources, each shorter than 30 seconds. iOS notification playback is a short excerpt; bundled in-app previews can play the full source. Normal notifications respect system silence/Focus settings. |
+| Stopping sound with side buttons | Android hardware-button interception is not used on iOS. The system handles notification playback; volume/side-button behavior must be verified on a physical iPhone. |
 | Personal notification sounds | Audio document picker, conversion of the first 29 seconds to a local CAF in Library/Sounds, stable filename across container changes, preview resolution. Limit: 25 MB input and 30 unique imported sounds. Files remain device-local. |
 | Qibla | Native heading uses true north when available and magnetic heading otherwise; motion/location updates stop when leaving the view. Accuracy and calibration require a physical iPhone. |
 | Account and preference sync | Shared email account flow and Keychain token storage. The deployed API exposes email registration/reset. End-to-end iPhone login remains to be checked. |
@@ -27,6 +28,29 @@ part of this change. The application, widget and Flutter framework target iOS
 | Automatic phone silence / restoring DND | Android feature; an ordinary iOS application cannot toggle the device's global silent/Focus mode. |
 | Automatic wallpaper installation | Android feature. On iOS use sharing/saving and the system wallpaper settings. |
 | Store review | The automatic Google Play invitation remains Android-only. The iOS settings link requires a configured App Store listing. |
+
+## Verification record — 14 September 2026
+
+[GitHub Actions run 34791584226](https://github.com/HydraaLabs/salatime_app/actions/runs/34791584226)
+completed successfully for commit `8dd9782b5be995c3dddab0b012ed0ba83405da37`
+on the `ios-compatibility` branch, using Flutter 3.41.8 and Xcode 26.3:
+
+- Flutter analysis reported no issues and all 523 Flutter tests passed.
+- The simulator application and embedded WidgetKit extension compiled.
+- The unsigned physical-iPhone release compiled (Runner.app, 139.9 MB).
+- The Runner XCTest suite completed successfully: five tests cover widget timing,
+  bounded timelines/options, and all 68 bundled notification sounds.
+- The simulator launched the app. Its captured first-run screen was visually
+  checked: the SalaTime theme, language picker and Next button display without
+  visible overflow. This is a launch check, not an end-to-end UI audit.
+
+The run retains a simulator archive and launch screenshot for seven days. The
+unsigned iPhone build is a compilation check; it was not installed or submitted.
+No physical iPhone, signed App Group, provider login, background notification or
+compass calibration was verified. The public account configuration was rechecked
+on this date: email enabled, Google iOS client absent, Apple provider disabled.
+Cloud writes remain delayed by one minute, but iOS suspension can postpone a
+pending write until the app resumes.
 
 ## Configure a signed iPhone build
 
