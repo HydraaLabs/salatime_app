@@ -793,5 +793,8 @@
   "notification_series_enable_other": "Aktifkan notifikasi lainnya",
   "widget_ios_add": "Cara menambahkan",
   "widget_ios_hint": "Di iPhone, pilih ukuran di galeri widget Layar Utama.",
-  "widget_ios_steps": "1. Sentuh dan tahan area kosong di Layar Utama.\n2. Ketuk Edit, lalu Tambah Widget (atau +).\n3. Cari SalaTime.\n4. Pilih ukuran lalu ketuk Tambah Widget."
+  "widget_ios_steps": "1. Sentuh dan tahan area kosong di Layar Utama.\n2. Ketuk Edit, lalu Tambah Widget (atau +).\n3. Cari SalaTime.\n4. Pilih ukuran lalu ketuk Tambah Widget.",
+  "play_store_review_question": "Apakah Anda menyukai SalaTime?",
+  "play_store_review_yes": "Ya",
+  "play_store_review_no": "Tidak"
 }

@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 import 'package:salatime/view/base/bottom_navbar.dart';
-import 'package:salatime/view/screens/alphabet/alphabet_screen.dart';
 import 'package:salatime/view/screens/audio/audio_list.dart';
 import 'package:salatime/view/screens/audio/reciters_screen.dart';
 import 'package:salatime/view/screens/compass/compass_screen.dart';
@@ -18,7 +17,6 @@ import 'package:salatime/view/screens/haram_ingredients_food/haram_food_detaile_
 import 'package:salatime/view/screens/haram_ingredients_food/haram_ingredients_food.dart';
 import 'package:salatime/view/screens/home/home_screen.dart';
 import 'package:salatime/view/screens/location/background_location_screen.dart';
-import 'package:salatime/view/screens/name_generator/islamic_name_generator_screen.dart';
 import 'package:salatime/view/screens/nearby_mosque/nearby_mosque_screen.dart';
 import 'package:salatime/view/screens/onboarding/first_launch_setup_screen.dart';
 import 'package:salatime/view/screens/prayer_adjustment/prayer_adjustment_screen.dart';
@@ -27,7 +25,6 @@ import 'package:salatime/view/screens/quran/sura_list_screen.dart';
 import 'package:salatime/view/screens/settings/settings_screen.dart';
 import 'package:salatime/view/screens/sifat_name/sifat_name_details_screen.dart';
 import 'package:salatime/view/screens/sifat_name/sifat_name_screen.dart';
-import 'package:salatime/view/screens/wallpapers/wallpaper_screen.dart';
 import 'package:salatime/view/screens/zakat/zakat_calculator.dart';
 import 'package:salatime/view/screens/zakat/zakat_detaile.dart';
 
@@ -59,10 +56,7 @@ class RouteHelper {
   static String settings = "/settings";
   static String recters = "/recters";
   static String audioList = "/audioList";
-  static String wallpaperScreens = "/wallpaperScreens";
-  static String alphabetScreens = "/alphabetScreens";
   static String prayerAdjustment = "/prayerAdjustment";
-  static String aiNameGenerator = "/aiNameGenerator";
 
   static String getHomeRoute() => home;
   static String getBottomNavbarRoute() => bottomNavbar;
@@ -89,10 +83,7 @@ class RouteHelper {
   static String getSettingsPageRoute() => settings;
   static String getRectersPageRoute() => recters;
   static String getAudioListPageRoute() => audioList;
-  static String getWallpaperPageRoute() => wallpaperScreens;
-  static String getAlphabetPageRoute() => alphabetScreens;
   static String getPrayerAdjustmentPageRoute() => prayerAdjustment;
-  static String getAiNameGeneratorPageRoute() => aiNameGenerator;
 
   static List<GetPage> routes = [
     GetPage(
@@ -231,23 +222,8 @@ class RouteHelper {
       transition: Transition.cupertinoDialog,
     ),
     GetPage(
-      name: wallpaperScreens,
-      page: () => WallpaperScreens(appBackButton: true),
-      transition: Transition.cupertinoDialog,
-    ),
-    GetPage(
-      name: alphabetScreens,
-      page: () => AlphabetScreen(appBackButton: true),
-      transition: Transition.cupertinoDialog,
-    ),
-    GetPage(
       name: prayerAdjustment,
       page: () => PrayerAdjustmentScreen(appBackButton: true),
-      transition: Transition.cupertinoDialog,
-    ),
-    GetPage(
-      name: aiNameGenerator,
-      page: () => IslamicNameGeneratorScreen(appBackButton: true),
       transition: Transition.cupertinoDialog,
     ),
   ];

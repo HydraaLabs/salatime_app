@@ -798,5 +798,8 @@
   "notification_series_enable_other": "অন্যান্য বিজ্ঞপ্তি চালু করুন",
   "widget_ios_add": "যোগ করার ধাপ",
   "widget_ios_hint": "iPhone-এর হোম স্ক্রিনের উইজেট গ্যালারিতে আকার বেছে নিন।",
-  "widget_ios_steps": "1. হোম স্ক্রিনের একটি খালি জায়গা চেপে ধরুন।\n2. Edit, তারপর Add Widget (বা +) চাপুন।\n3. SalaTime খুঁজুন।\n4. আকার বেছে নিয়ে Add Widget চাপুন।"
+  "widget_ios_steps": "1. হোম স্ক্রিনের একটি খালি জায়গা চেপে ধরুন।\n2. Edit, তারপর Add Widget (বা +) চাপুন।\n3. SalaTime খুঁজুন।\n4. আকার বেছে নিয়ে Add Widget চাপুন।",
+  "play_store_review_question": "আপনার কি SalaTime ভালো লাগে?",
+  "play_store_review_yes": "হ্যাঁ",
+  "play_store_review_no": "না"
 }

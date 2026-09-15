@@ -798,5 +798,8 @@
   "notification_series_enable_other": "Activar otras notificaciones",
   "widget_ios_add": "Cómo añadirlo",
   "widget_ios_hint": "En iPhone, elige el tamaño en la galería de widgets de la pantalla de inicio.",
-  "widget_ios_steps": "1. Mantén pulsada una zona vacía de la pantalla de inicio.\n2. Toca Editar y Añadir widget (o +).\n3. Busca SalaTime.\n4. Desliza hasta el tamaño deseado y toca Añadir widget."
+  "widget_ios_steps": "1. Mantén pulsada una zona vacía de la pantalla de inicio.\n2. Toca Editar y Añadir widget (o +).\n3. Busca SalaTime.\n4. Desliza hasta el tamaño deseado y toca Añadir widget.",
+  "play_store_review_question": "¿Te gusta SalaTime?",
+  "play_store_review_yes": "Sí",
+  "play_store_review_no": "No"
 }

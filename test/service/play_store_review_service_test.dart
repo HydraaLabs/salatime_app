@@ -25,7 +25,7 @@ void main() {
     await service.recordVisit();
     now = now.add(const Duration(days: 1));
     await service.recordVisit();
-    now = now.add(const Duration(days: 6));
+    now = now.add(const Duration(days: 2));
     await service.recordVisit();
   }
 
@@ -39,13 +39,13 @@ void main() {
   });
 
   test(
-    'fresh install and seven-day boundary, without opening the Store',
+    'fresh install and three-day boundary, without opening the Store',
     () async {
       await service.recordVisit();
       expect(await service.claimInvitation(), false);
       now = now.add(const Duration(days: 1));
       await service.recordVisit();
-      now = now.add(const Duration(days: 6) - const Duration(seconds: 1));
+      now = now.add(const Duration(days: 2) - const Duration(seconds: 1));
       await service.recordVisit();
       expect(await service.claimInvitation(), false);
       now = now.add(const Duration(seconds: 1));

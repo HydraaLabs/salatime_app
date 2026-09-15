@@ -495,21 +495,6 @@ class ClassicHomeScreen extends StatelessWidget {
         iconPath: Images.Icon_Dikir,
         route: RouteHelper.dhikr,
       ),
-      _buildFeatureItem(
-        name: "wallpapers_key".tr,
-        iconPath: Images.wallpaper,
-        route: RouteHelper.wallpaperScreens,
-      ),
-      _buildFeatureItem(
-        name: "ai_name_key".tr,
-        iconPath: Images.nameGenerator,
-        route: RouteHelper.aiNameGenerator,
-      ),
-      _buildFeatureItem(
-        name: "alphabet_key".tr,
-        iconPath: Images.Icon_Alif,
-        route: RouteHelper.alphabetScreens,
-      ),
     ];
   }
 

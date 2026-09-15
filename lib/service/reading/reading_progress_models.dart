@@ -24,15 +24,23 @@ class ReadingProgressEntry {
 }
 
 class ReadingProgressOperation {
-  const ReadingProgressOperation({required this.id, required this.entry});
+  const ReadingProgressOperation({
+    required this.id,
+    required this.entry,
+    this.merge = false,
+  });
   final String id;
   final ReadingProgressEntry entry;
+
+  /// Guest imports preserve the greater count; ordinary edits can still uncheck.
+  final bool merge;
   Map<String, Object> toJson() => {
     'id': id,
     'kind': entry.kind.name,
     'itemKey': entry.itemKey,
     'day': entry.day,
     'count': entry.count,
+    if (merge) 'merge': true,
   };
 }
 

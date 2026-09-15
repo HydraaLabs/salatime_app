@@ -798,5 +798,8 @@
   "notification_series_enable_other": "فعال کردن اعلان‌های دیگر",
   "widget_ios_add": "روش افزودن",
   "widget_ios_hint": "در iPhone، اندازه را در گالری ابزارک صفحه اصلی انتخاب کنید.",
-  "widget_ios_steps": "1. یک فضای خالی صفحه اصلی را لمس کرده و نگه دارید.\n2. Edit سپس Add Widget (یا +) را بزنید.\n3. SalaTime را جستجو کنید.\n4. اندازه را انتخاب کرده و Add Widget را بزنید."
+  "widget_ios_steps": "1. یک فضای خالی صفحه اصلی را لمس کرده و نگه دارید.\n2. Edit سپس Add Widget (یا +) را بزنید.\n3. SalaTime را جستجو کنید.\n4. اندازه را انتخاب کرده و Add Widget را بزنید.",
+  "play_store_review_question": "آیا SalaTime را دوست دارید؟",
+  "play_store_review_yes": "بله",
+  "play_store_review_no": "خیر"
 }

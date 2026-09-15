@@ -4,8 +4,8 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-/// Device-local invitation history. It never measures satisfaction or stores a
-/// rating, and is deliberately excluded from account/cloud preferences.
+/// Device-local invitation history. No satisfaction answer or rating is stored
+/// or sent to account/cloud preferences; only invitation timing and opt-out.
 class PlayStoreReviewService {
   PlayStoreReviewService({
     Future<SharedPreferences> Function()? preferences,
@@ -17,7 +17,7 @@ class PlayStoreReviewService {
 
   static final instance = PlayStoreReviewService();
   static const storageKey = 'play_store_review_invitation_v1';
-  static const minimumAge = Duration(days: 7);
+  static const minimumAge = Duration(days: 3);
   static const reminderDelay = Duration(days: 30);
   static const minimumDays = 3;
   static const maximumInvitations = 3;

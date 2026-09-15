@@ -29,6 +29,7 @@ void main() {
       'fa',
       'ur',
       'bn',
+      'hi',
     ])
       language: Map<String, String>.from(
         jsonDecode(File('assets/language/$language.json').readAsStringSync()),
@@ -41,6 +42,7 @@ void main() {
     WidgetTester tester, {
     String language = 'fr',
     bool dark = false,
+    bool accept = true,
     double scale = 1,
     ValueChanged<PlayStoreReviewChoice?>? onResult,
   }) async {
@@ -73,11 +75,24 @@ void main() {
     );
     await tester.tap(find.byKey(const ValueKey('open-review')));
     await tester.pumpAndSettle();
+    if (accept) {
+      await tester.tap(find.byKey(const ValueKey('play-store-review-yes')));
+      await tester.pumpAndSettle();
+    }
   }
 
-  test('the neutral prompt and store error exist in all ten app languages', () {
+  test('the two-step prompt and store error exist in all app languages', () {
     for (final entry in strings.entries) {
-      for (final suffix in ['title', 'message', 'rate', 'later', 'never']) {
+      for (final suffix in [
+        'title',
+        'message',
+        'rate',
+        'later',
+        'never',
+        'question',
+        'yes',
+        'no',
+      ]) {
         expect(
           entry.value['play_store_review_$suffix']?.trim(),
           isNotEmpty,
@@ -112,6 +127,54 @@ void main() {
     });
   }
 
+  testWidgets('rating is offered only after answering Yes', (tester) async {
+    final results = <PlayStoreReviewChoice?>[];
+    await open(tester, accept: false, onResult: results.add);
+    expect(find.text('Aimez-vous SalaTime ?'), findsOneWidget);
+    expect(find.byKey(const ValueKey('play-store-review-rate')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('play-store-review-yes')));
+    await tester.pumpAndSettle();
+    expect(results, isEmpty);
+    expect(
+      find.byKey(const ValueKey('play-store-review-rate')),
+      findsOneWidget,
+    );
+    expect(find.text('Aimez-vous SalaTime ?'), findsNothing);
+  });
+
+  for (final answer in ['no', 'later']) {
+    testWidgets(
+      '$answer closes the initial question without requesting a rating',
+      (tester) async {
+        final results = <PlayStoreReviewChoice?>[];
+        await open(tester, accept: false, onResult: results.add);
+        await tester.tap(find.byKey(ValueKey('play-store-review-$answer')));
+        await tester.pumpAndSettle();
+        expect(results, [
+          answer == 'no'
+              ? PlayStoreReviewChoice.never
+              : PlayStoreReviewChoice.later,
+        ]);
+        expect(find.byType(PlayStoreReviewPrompt), findsNothing);
+        expect(
+          find.byKey(const ValueKey('play-store-review-rate')),
+          findsNothing,
+        );
+      },
+    );
+  }
+
+  testWidgets('dismissing the first question does not offer a rating', (
+    tester,
+  ) async {
+    final results = <PlayStoreReviewChoice?>[];
+    await open(tester, accept: false, onResult: results.add);
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(results, [null]);
+    expect(find.byType(PlayStoreReviewPrompt), findsNothing);
+  });
+
   testWidgets('dismissing outside the dialog returns null', (tester) async {
     final results = <PlayStoreReviewChoice?>[];
     await open(tester, onResult: results.add);
@@ -139,7 +202,26 @@ void main() {
           tester.view.devicePixelRatio = 1;
           addTearDown(tester.view.resetPhysicalSize);
           addTearDown(tester.view.resetDevicePixelRatio);
-          await open(tester, language: language, dark: dark, scale: 2);
+          await open(
+            tester,
+            language: language,
+            dark: dark,
+            scale: 2,
+            accept: false,
+          );
+          expect(
+            find.text(strings[language]!['play_store_review_question']!),
+            findsOneWidget,
+          );
+          for (final answer in ['yes', 'no', 'later']) {
+            expect(
+              find.byKey(ValueKey('play-store-review-$answer')).hitTestable(),
+              findsOneWidget,
+            );
+          }
+          expect(tester.takeException(), isNull);
+          await tester.tap(find.byKey(const ValueKey('play-store-review-yes')));
+          await tester.pumpAndSettle();
 
           final context = tester.element(find.byType(PlayStoreReviewPrompt));
           expect(

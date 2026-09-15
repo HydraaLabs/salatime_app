@@ -23,14 +23,19 @@ ce nouveau suivi. L'API a été activée indépendamment de la livraison mobile.
 - Les cases et statistiques réagissent immédiatement. Une page est enregistrée
   dans une seule écriture locale. L'envoi automatique attend 60 secondes après
   le dernier changement ; ouvrir les statistiques respecte aussi ce délai.
-  Le bouton de synchronisation explicite permet de l'envoyer immédiatement.
+  La synchronisation reste invisible dans le suivi des lectures.
 - Hors ligne, les opérations restent persistées sur le téléphone. Les essais
   automatiques reprennent lorsque l'application est active et le réseau
   disponible. Si Android suspend l'application, le cloud peut donc être mis
   à jour au prochain retour dans l'application plutôt qu'exactement à 60 s.
-- Les lectures invité restent locales. Connexion et changement de compte
-  restaurent l'historique propre au compte ; aucun historique invité n'est
-  automatiquement attribué à un autre profil.
+- Sans compte, les lectures restent locales. À la connexion, elles sont
+  transférées au compte et fusionnées par élément et date avec le maximum des
+  compteurs, sans additionner deux fois une lecture. Le cache invité des anciennes
+  versions est aussi récupéré au démarrage si le compte est déjà connecté.
+- Le destinataire du transfert est enregistré avant la copie ; les lectures,
+  opérations à envoyer et reçu sont ensuite sauvegardés ensemble dans le cache
+  du compte. Le cache invité n'est vidé qu'après cette sauvegarde. Une interruption
+  reprend le même transfert sans doublons ni copie vers un autre compte.
 
 ## Synchronisation
 
@@ -54,6 +59,27 @@ Pour deux nouvelles opérations concurrentes concernant la même lecture et le
 même jour, la dernière reçue par le serveur prévaut. Il ne s'agit pas d'une
 addition des lectures des deux appareils. Les enregistrements sont supprimés
 avec le compte par les relations de base de données.
+
+Exception pour les imports invités : `merge: true` applique le maximum sous le
+verrou transactionnel du compte, sans écraser une progression cloud supérieure.
+Le mode fait partie de l'identité immuable de l'opération ; une relance après
+une annulation plus récente ne rétablit pas une ancienne lecture. Les opérations
+ordinaires des anciennes versions gardent leur comportement (`merge: false`).
+
+### Livraison du correctif de fusion du 14 septembre 2026
+
+Déployer le serveur avant le nouveau client : appliquer la migration
+`2026_09_14_020000_add_merge_to_mobile_reading_operations.php`, puis le contrôleur
+`ReadingProgressController.php` et les quatre traductions `reading_privacy.php`.
+La migration ajoute uniquement un booléen technique aux opérations ; elle ne
+supprime aucune lecture et n'importe aucune donnée personnelle.
+Un ancien serveur refuse les imports avec `merge: true` : ils restent dans la
+file locale pour réessai, sans perte des statistiques, jusqu'à sa mise à jour.
+
+Serveur mis à jour le 14 septembre 2026 : migration confirmée, contrôleur et
+traductions vérifiés par SHA256, contrôles HTTP publics réussis. Le correctif
+mobile reste à livrer ; ce déploiement n'a pas modifié les APK ni publié sur les
+stores. Le reçu détaillé figure dans `web/documentation/mobile-reading-progress.md`.
 
 ## Corrections liées au lecteur
 

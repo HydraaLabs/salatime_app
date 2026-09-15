@@ -847,5 +847,8 @@
   "notification_series_enable_other": "Enable other notifications",
   "widget_ios_add": "How to add it",
   "widget_ios_hint": "On iPhone, choose the widget size in the Home Screen widget gallery.",
-  "widget_ios_steps": "1. Touch and hold an empty area of your Home Screen.\n2. Tap Edit, then Add Widget (or +).\n3. Search for SalaTime.\n4. Swipe to the size you want, then tap Add Widget."
+  "widget_ios_steps": "1. Touch and hold an empty area of your Home Screen.\n2. Tap Edit, then Add Widget (or +).\n3. Search for SalaTime.\n4. Swipe to the size you want, then tap Add Widget.",
+  "play_store_review_question": "Do you like SalaTime?",
+  "play_store_review_yes": "Yes",
+  "play_store_review_no": "No"
 }

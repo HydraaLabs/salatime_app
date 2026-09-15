@@ -164,34 +164,6 @@ class CategoryScreen extends StatelessWidget {
                                 itemName: "haram_codes".tr,
                                 itemImage: Images.Icon_Haram,
                               ),
-
-                              // Wallpaper Section
-                              ListViewItemWidget(
-                                onPressed: () {
-                                  Get.toNamed(RouteHelper.wallpaperScreens);
-                                },
-                                itemName: "wallpapers_key".tr,
-                                itemImage: Images.wallpaper,
-                                iconHeight: 45,
-                              ),
-                              // Alphabet Section
-                              ListViewItemWidget(
-                                onPressed: () {
-                                  Get.toNamed(RouteHelper.alphabetScreens);
-                                },
-                                itemName: "alphabet_key".tr,
-                                itemImage: Images.Icon_Alif,
-                                iconHeight: 45,
-                              ),
-                              // AI Name Generator Section
-                              ListViewItemWidget(
-                                onPressed: () {
-                                  Get.toNamed(RouteHelper.aiNameGenerator);
-                                },
-                                itemName: "ai_name_key".tr,
-                                itemImage: Images.nameGenerator,
-                                iconHeight: 45,
-                              ),
                               // more  item ===>
                               ListViewItemWidget(
                                 onPressed: () {
@@ -303,32 +275,6 @@ class CategoryScreen extends StatelessWidget {
                               },
                               itemName: "haram_codes".tr,
                               itemImage: Images.Icon_Haram,
-                            ),
-
-                            // Wallpaper Section
-                            GridViewItemWidget(
-                              onPressed: () {
-                                Get.toNamed(RouteHelper.wallpaperScreens);
-                              },
-                              itemName: "wallpapers_key".tr,
-                              itemImage: Images.wallpaper,
-                            ),
-                            // Alphabet Section
-                            GridViewItemWidget(
-                              onPressed: () {
-                                Get.toNamed(RouteHelper.alphabetScreens);
-                              },
-                              itemName: "alphabet_key".tr,
-                              itemImage: Images.Icon_Alif,
-                            ),
-
-                            // AI Name Section
-                            GridViewItemWidget(
-                              onPressed: () {
-                                Get.toNamed(RouteHelper.aiNameGenerator);
-                              },
-                              itemName: "ai_name_key".tr,
-                              itemImage: Images.nameGenerator,
                             ),
 
                             // Settings  ===>

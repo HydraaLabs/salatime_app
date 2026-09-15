@@ -136,6 +136,9 @@ public class SalaTimeAdhanSilenceTest {
         assertEquals("Keep the prayer visible even when audio is muted", 1, posted.length);
         assertEquals(ID, posted[0].getId());
         Notification notification = posted[0].getNotification();
+        assertNotNull(notification.contentView);
+        android.view.View content = notification.contentView.apply(app, new android.widget.FrameLayout(app));
+        assertNotNull(content.findViewById(com.example.zabi.R.id.adhan_notification_elapsed));
         assertNull(notification.sound);
         assertNull(notification.vibrate);
         assertEquals(0, notification.defaults & (Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE));

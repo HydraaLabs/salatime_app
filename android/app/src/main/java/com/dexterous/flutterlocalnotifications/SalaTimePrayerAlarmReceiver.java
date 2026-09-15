@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import com.dexterous.flutterlocalnotifications.models.NotificationDetails;
 import org.json.JSONObject;
@@ -52,7 +51,13 @@ public class SalaTimePrayerAlarmReceiver extends BroadcastReceiver {
                     Log.w("SalaTimeAlarms", "Adhan service unavailable; keeping a silent notification", unavailable);
                 }
             } else {
-                FlutterLocalNotificationsPlugin.showNotification(context, details);
+                if ("adhan".equals(payload.getString("kind"))) {
+                    NotificationManagerCompat.from(context).notify(details.id,
+                            SalaTimeAdhanNotification.builder(context, details).build());
+                    SalaTimeAdhanNotificationReceiver.onPosted(context, details);
+                } else {
+                    FlutterLocalNotificationsPlugin.showNotification(context, details);
+                }
             }
         } catch (Exception error) {
             Log.e("SalaTimeAlarms", "Could not deliver prayer alarm", error);
@@ -60,9 +65,9 @@ public class SalaTimePrayerAlarmReceiver extends BroadcastReceiver {
     }
 
     static void showSilent(Context context, NotificationDetails details) {
-        Notification notification = new NotificationCompat.Builder(context,
-                FlutterLocalNotificationsPlugin.createNotification(context, details))
+        Notification notification = SalaTimeAdhanNotification.builder(context, details)
                 .setSilent(true).build();
         NotificationManagerCompat.from(context).notify(details.id, notification);
+        SalaTimeAdhanNotificationReceiver.onPosted(context, details);
     }
 }

@@ -115,11 +115,12 @@ public class SalaTimeAdhanService extends Service {
             PendingIntent stop = PendingIntent.getService(this, details.id,
                     new Intent(this, SalaTimeAdhanService.class).setAction(STOP),
                     PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-            Notification notification = new NotificationCompat.Builder(this, base)
+            Notification notification = SalaTimeAdhanNotification.decorate(this, details, base)
                     .setSilent(true).setOngoing(true).setAutoCancel(false)
                     .setCategory(NotificationCompat.CATEGORY_ALARM)
                     .addAction(0, payload.optString("stopLabel", "Stop"), stop).build();
             startForeground(details.id, notification);
+            SalaTimeAdhanNotificationReceiver.onPosted(this, details);
 
             // Re-check after service startup; Android can also delay this step.
             long startedAt = System.currentTimeMillis();

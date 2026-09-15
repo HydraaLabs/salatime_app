@@ -793,5 +793,8 @@
   "notification_series_enable_other": "Diğer bildirimleri aç",
   "widget_ios_add": "Ekleme adımları",
   "widget_ios_hint": "iPhone’da boyutu Ana Ekran araç takımı galerisinden seçin.",
-  "widget_ios_steps": "1. Ana Ekranın boş bir alanına basılı tutun.\n2. Düzenle ve Araç Takımı Ekle (veya +) seçeneğine dokunun.\n3. SalaTime’ı arayın.\n4. Boyutu seçip Araç Takımı Ekle’ye dokunun."
+  "widget_ios_steps": "1. Ana Ekranın boş bir alanına basılı tutun.\n2. Düzenle ve Araç Takımı Ekle (veya +) seçeneğine dokunun.\n3. SalaTime’ı arayın.\n4. Boyutu seçip Araç Takımı Ekle’ye dokunun.",
+  "play_store_review_question": "SalaTime uygulamasını beğeniyor musunuz?",
+  "play_store_review_yes": "Evet",
+  "play_store_review_no": "Hayır"
 }

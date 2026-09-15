@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
+import 'package:hijri/hijri_calendar.dart';
+import 'package:salatime/helper/islamic_calendar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:salatime/controller/package_prayer_time_controller.dart';
 import 'package:salatime/data/api/api_client.dart';
@@ -26,6 +28,7 @@ class CachedPrayerController extends PrayerTimeController {
         ),
       );
   final String date;
+  final extraDates = <String>{};
   bool fresh = true;
   @override
   String? get prayerTimeZone => 'UTC';
@@ -37,10 +40,13 @@ class CachedPrayerController extends PrayerTimeController {
     bool allowNetwork = true,
   }) async {
     expect(allowNetwork, false);
-    if (!fresh || value.toIso8601String().split('T').first != date) return null;
+    final requested = value.toIso8601String().split('T').first;
+    if (!fresh || (requested != date && !extraDates.contains(requested))) {
+      return null;
+    }
     return PrayerTimeModel(
       data: Data(
-        date: date,
+        date: requested,
         fajrStart: '05:30',
         sunrise: '07:00',
         zuhrStart: '13:00',
@@ -150,6 +156,105 @@ void main() {
     harness = SchedulerHarness();
     await harness.initialize();
   });
+
+  test(
+    'adhan carries localized date and timer metadata and refreshes presentation',
+    () async {
+      Get.addTranslations({
+        'en': {
+          for (var month = 1; month <= 12; month++)
+            'hijri_month_$month': 'Month $month',
+          'time_since_prayer': 'Time since @prayer',
+        },
+      });
+      await PrayerNotificationPreferences.save(
+        PrayerNotificationSetting.defaults(
+          PrayerNotificationPrayer.dhuhr,
+          PrayerNotificationPhase.adhan,
+        ).copyWith(enabled: true),
+      );
+      await harness.refresh();
+      final id = harness.pending.keys.single;
+      var payload = harness.payload(id);
+      final day = DateTime.parse(harness.controller.date);
+      final hijri = HijriCalendar.fromDate(day);
+      expect(payload['prayerTime'], '13:00');
+      expect(
+        payload['hijriDate'],
+        '${hijri.hDay} Month ${hijri.hMonth} ${hijri.hYear}',
+      );
+      expect(payload['elapsedLabel'], 'Time since ${payload['prayerName']}');
+      expect(payload['locale'], 'en');
+      expect(payload['prayerAt'], payload['at']);
+      expect(payload['nextPrayer']['prayerName'], 'asr');
+      expect(payload['nextPrayer']['prayerTime'], '16:00');
+      expect(
+        payload['nextPrayer']['prayerAt'] - payload['at'],
+        const Duration(hours: 3).inMilliseconds,
+      );
+      harness.controller.fresh = false;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(IslamicCalendarPreferences.storageKey, 1);
+      harness.controller.is24HourFormat.value = false;
+      harness.clearCalls();
+      await harness.refresh();
+      payload = harness.payload(id);
+      expect(payload['prayerTime'], '1:00\u202fPM');
+      expect(payload['nextPrayer']['prayerName'], 'asr');
+      expect(payload['nextPrayer']['prayerTime'], '4:00\u202fPM');
+      final adjusted = HijriCalendar.fromDate(day.add(const Duration(days: 1)));
+      expect(
+        payload['hijriDate'],
+        '${adjusted.hDay} Month ${adjusted.hMonth} ${adjusted.hYear}',
+      );
+      expect(harness.scheduled, [id]);
+    },
+  );
+
+  test(
+    'next prayer ignores disabled sounds and sunrise and crosses midnight',
+    () async {
+      final followingDay = DateTime.parse(
+        harness.controller.date,
+      ).add(const Duration(days: 1));
+      harness.controller.extraDates.add(
+        followingDay.toIso8601String().split('T').first,
+      );
+      for (final prayer in [
+        PrayerNotificationPrayer.fajr,
+        PrayerNotificationPrayer.isha,
+      ]) {
+        await PrayerNotificationPreferences.save(
+          PrayerNotificationSetting.defaults(
+            prayer,
+            PrayerNotificationPhase.adhan,
+          ).copyWith(enabled: true),
+        );
+      }
+      await harness.refresh();
+      final payloads = harness.pending.keys.map(harness.payload).toList();
+      final fajr = payloads.firstWhere(
+        (row) =>
+            row['date'] == harness.controller.date && row['prayer'] == 'fajr',
+      );
+      expect(fajr['nextPrayer']['prayerTime'], '13:00');
+      final isha = payloads.firstWhere(
+        (row) =>
+            row['date'] == harness.controller.date && row['prayer'] == 'isha',
+      );
+      expect(isha['nextPrayer']['prayerName'], 'fajr');
+      expect(
+        isha['nextPrayer']['prayerAt'],
+        DateTime.utc(
+          followingDay.year,
+          followingDay.month,
+          followingDay.day,
+          5,
+          30,
+        ).millisecondsSinceEpoch,
+      );
+    },
+  );
 
   test('widget data is available without initializing notifications', () async {
     harness.failInitialization = true;

@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:hijri/hijri_calendar.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,6 +13,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:salatime/controller/package_prayer_time_controller.dart';
 import 'package:salatime/controller/prayer_time_adjustment.dart';
 import 'package:salatime/helper/location_auto_update_service.dart';
+import 'package:salatime/helper/islamic_calendar.dart';
 import 'package:salatime/helper/additional_reminder_plan.dart';
 import 'package:salatime/data/model/response/todays_prayer_time_model.dart';
 import 'package:salatime/helper/prayer_alarm_plan.dart';
@@ -323,6 +325,25 @@ class SalatWaqtService {
       adjustments: adjustments,
     );
     notificationPrayers.addAll(cachedPrayers);
+    prayers.addAll(cachedPrayers.where((prayer) => prayer.prayerId <= 5));
+    // The next prayer can have its sound disabled, so it may have no alarm of
+    // its own. Retain its calculation metadata for offline countdown refreshes.
+    prayers.addAll(
+      restoreUncoveredPrayerOccurrences(
+        alarms: [
+          for (final entry in oldById.values)
+            if (entry['kind'] == 'adhan' && entry['nextPrayer'] is Map)
+              {
+                ...Map<String, dynamic>.from(entry['nextPrayer'] as Map),
+                'id': entry['id'],
+                'kind': 'adhan',
+              },
+        ],
+        coveredDates: coveredDates,
+        zone: zone,
+        adjustments: adjustments,
+      ).where((prayer) => prayer.prayerId <= 5),
+    );
     final reconciledDates = {
       ...coveredDates,
       ...cachedPrayers.map((p) => p.date),
@@ -426,6 +447,38 @@ class SalatWaqtService {
         retained.remove(request.id);
       }
     }
+    Map<String, Object> describePrayer(PrayerOccurrence prayer) {
+      final day = prayer.time;
+      final correction =
+          (prefs.getInt(IslamicCalendarPreferences.storageKey) ?? 0).clamp(
+            -2,
+            2,
+          );
+      final hijri = HijriCalendar.fromDate(
+        DateTime(day.year, day.month, day.day + correction),
+      );
+      final name = prayer.nameKey.tr;
+      return {
+        'prayerId': prayer.prayerId,
+        'date': prayer.date,
+        'zone': prayer.time.location.name,
+        if (prayer.adjustmentMinutes != null)
+          'adjustmentMinutes': prayer.adjustmentMinutes!,
+        'prayerAt': day.millisecondsSinceEpoch,
+        'prayerName': name,
+        'prayerTime':
+            (controller.is24HourFormat.value
+                    ? DateFormat.Hm()
+                    : DateFormat.jm())
+                .format(day),
+        'hijriDate':
+            '${hijri.hDay} ${'hijri_month_${hijri.hMonth}'.tr} ${hijri.hYear}',
+        'elapsedLabel': 'time_since_prayer'.trParams({'prayer': name}),
+        'nextLabel': '${'next_prayer'.tr} : $name',
+        'locale': Get.locale?.toLanguageTag() ?? 'en',
+      };
+    }
+
     for (final alarm in plan) {
       if (await superseded()) return;
       final name = alarm.prayer.nameKey.tr;
@@ -447,9 +500,20 @@ class SalatWaqtService {
         }),
       };
       final previous = retained[alarm.id];
+      PrayerOccurrence? nextPrayer;
+      for (final candidate in prayers) {
+        if (candidate.time.isAfter(alarm.prayer.time) &&
+            (nextPrayer == null || candidate.time.isBefore(nextPrayer.time))) {
+          nextPrayer = candidate;
+        }
+      }
       final payload = jsonEncode({
         ...alarm.toJson(),
         'stopLabel': 'stop_adhan'.tr,
+        if (alarm.kind == PrayerAlarmKind.adhan) ...{
+          ...describePrayer(alarm.prayer),
+          if (nextPrayer != null) 'nextPrayer': describePrayer(nextPrayer),
+        },
       });
       final registered = pendingById[alarm.id];
       // The plugin rewrites its entire alarm cache for every zonedSchedule.
@@ -478,7 +542,13 @@ class SalatWaqtService {
             '${alarm.kind == PrayerAlarmKind.adhan ? '' : '${alarm.kind.name}_'}adhan_$sound',
       );
       if (saved) {
-        retained[alarm.id] = {...alarm.toJson(), 'title': title, 'body': body};
+        retained[alarm.id] = {
+          ...alarm.toJson(),
+          'title': title,
+          'body': body,
+          if (alarm.kind == PrayerAlarmKind.adhan && nextPrayer != null)
+            'nextPrayer': describePrayer(nextPrayer),
+        };
       }
     }
     for (final alarm in extraPlan.where(

@@ -793,5 +793,8 @@
   "notification_series_enable_other": "دیگر اطلاعات فعال کریں",
   "widget_ios_add": "شامل کرنے کا طریقہ",
   "widget_ios_hint": "iPhone کی ہوم اسکرین کی ویجٹ گیلری میں سائز منتخب کریں۔",
-  "widget_ios_steps": "1. ہوم اسکرین کی خالی جگہ کو دبا کر رکھیں۔\n2. Edit پھر Add Widget (یا +) منتخب کریں۔\n3. SalaTime تلاش کریں۔\n4. سائز منتخب کرکے Add Widget دبائیں۔"
+  "widget_ios_steps": "1. ہوم اسکرین کی خالی جگہ کو دبا کر رکھیں۔\n2. Edit پھر Add Widget (یا +) منتخب کریں۔\n3. SalaTime تلاش کریں۔\n4. سائز منتخب کرکے Add Widget دبائیں۔",
+  "play_store_review_question": "کیا آپ کو SalaTime پسند ہے؟",
+  "play_store_review_yes": "ہاں",
+  "play_store_review_no": "نہیں"
 }

@@ -92,6 +92,37 @@ void main() {
     await tester.pump();
   }
 
+  for (final likesApp in [false, true]) {
+    testWidgets(
+      'real dialog ${likesApp ? 'Yes then Rate opens Store' : 'No opts out without opening Store'}',
+      (tester) async {
+        prompt = showPlayStoreReviewPrompt;
+        await render(tester);
+        await tester.pump(const Duration(seconds: 30));
+        await tester.pumpAndSettle();
+        expect(service.storeOpens, 0);
+        expect(
+          find.byKey(const ValueKey('play-store-review-rate')),
+          findsNothing,
+        );
+        await tester.tap(
+          find.byKey(ValueKey('play-store-review-${likesApp ? 'yes' : 'no'}')),
+        );
+        await tester.pumpAndSettle();
+        if (likesApp) {
+          expect(service.storeOpens, 0);
+          await tester.tap(
+            find.byKey(const ValueKey('play-store-review-rate')),
+          );
+          await tester.pumpAndSettle();
+        }
+        expect(service.storeOpens, likesApp ? 1 : 0);
+        expect(service.declines, likesApp ? 0 : 1);
+        await disposeHost(tester);
+      },
+    );
+  }
+
   testWidgets(
     'an eligible home waits 30 seconds and dismissal never opens the Store',
     (tester) async {

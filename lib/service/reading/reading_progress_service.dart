@@ -16,7 +16,7 @@ export 'reading_progress_models.dart';
 export 'reading_progress_remote.dart';
 export 'reading_progress_store.dart';
 
-/// Explicit readings only. Guest history is never implicitly copied to an account.
+/// Explicit readings only. Guest history is adopted once by the signed-in account.
 class ReadingProgressService extends ChangeNotifier
     with WidgetsBindingObserver {
   ReadingProgressService({
@@ -136,11 +136,17 @@ class ReadingProgressService extends ChangeNotifier
       initialized = false;
       _scheduler.setEnabled(false);
     }
-    final owner =
-        'reading_progress_v1_${sha256.convert(utf8.encode(jsonEncode([_auth.baseUrl, account == null ? 'guest' : 'account', account])))}';
+    final owner = _ownerKey(account);
     await _serial(() async {
       if (!_states.containsKey(owner)) {
         _states[owner] = _decodeState(await _store.read(owner));
+      }
+      if (_disposed || generation != _generation) return;
+      final imported = account != null && await _adoptGuest(owner);
+      if (account == null && _states[owner]!.transferOwner != null) {
+        // Finish a previously claimed transfer before accepting fresh guest
+        // activity, which may later belong to a different account.
+        await _adoptGuest(_states[owner]!.transferOwner!);
       }
       if (_disposed || generation != _generation) return;
       _owner = owner;
@@ -156,8 +162,55 @@ class ReadingProgressService extends ChangeNotifier
             : 'cloud_pending',
       );
       _scheduler.setEnabled(automaticSync && account != null && token != null);
+      if (imported) _scheduler.noteChange();
       if (automaticSync) unawaited(_scheduler.requestAutomatic());
     });
+  }
+
+  String _ownerKey(String? account) =>
+      'reading_progress_v1_${sha256.convert(utf8.encode(jsonEncode([_auth.baseUrl, account == null ? 'guest' : 'account', account])))}';
+
+  /// Journal the recipient before copying, then atomically save the imported
+  /// readings, upload operations and receipt. A restart between writes resumes
+  /// the same transfer, even if a different account is now signed in.
+  Future<bool> _adoptGuest(String owner) async {
+    final guestKey = _ownerKey(null);
+    final guest = _states[guestKey] ??= _decodeState(
+      await _store.read(guestKey),
+    );
+    if (guest.entries.values.every((entry) => entry.count == 0)) return false;
+    var transfer = guest;
+    if (transfer.transferOwner == null) {
+      transfer = guest.copy()
+        ..transferOwner = owner
+        ..transferId = _operationId();
+      await _store.write(guestKey, transfer.json());
+      _states[guestKey] = transfer;
+    }
+    final recipient = transfer.transferOwner!;
+    final receipt = transfer.transferId!;
+    final previous = _states[recipient] ??= _decodeState(
+      await _store.read(recipient),
+    );
+    if (!previous.guestTransfers.contains(receipt)) {
+      final candidate = previous.copy();
+      for (final entry in transfer.entries.values.where((e) => e.count > 0)) {
+        candidate.outbox.add(
+          ReadingProgressOperation(
+            id: _operationId(),
+            entry: entry,
+            merge: true,
+          ),
+        );
+      }
+      candidate.guestTransfers.add(receipt);
+      await _store.write(recipient, candidate.json());
+      _states[recipient] = candidate;
+    }
+    final empty = _ReadingState();
+    await _store.write(guestKey, empty.json());
+    _states[guestKey] = empty;
+    return recipient == owner;
   }
 
   int target(ReadingProgressKind kind, String itemKey) {
@@ -423,6 +476,24 @@ class ReadingProgressService extends ChangeNotifier
       throw const FormatException('Invalid reading cache');
     }
     final state = _ReadingState(cursor: json['cursor']);
+    final receipts = json['guestTransfers'] ?? <dynamic>[];
+    final transferOwner = json['transferOwner'];
+    final transferId = json['transferId'];
+    if (receipts is! List ||
+        receipts.any((id) => id is! String || !_validUuid(id)) ||
+        ((transferOwner == null) != (transferId == null)) ||
+        (transferOwner != null &&
+            (transferOwner is! String ||
+                !RegExp(
+                  r'^reading_progress_v1_[a-f0-9]{64}$',
+                ).hasMatch(transferOwner) ||
+                transferId is! String ||
+                !_validUuid(transferId)))) {
+      throw const FormatException('Invalid guest reading transfer');
+    }
+    state.guestTransfers.addAll(receipts.cast<String>());
+    state.transferOwner = transferOwner;
+    state.transferId = transferId;
     for (final raw in json['entries']) {
       final entry = _parseEntry(Map<String, dynamic>.from(raw as Map));
       state.entries[entry.key] = entry;
@@ -437,10 +508,19 @@ class ReadingProgressService extends ChangeNotifier
         ReadingProgressOperation(
           id: id,
           entry: _parseEntry(Map<String, dynamic>.from(raw as Map)),
+          merge: _mergeFlag(raw['merge']),
         ),
       );
     }
     return state;
+  }
+
+  bool _mergeFlag(Object? value) {
+    if (value == null) return false;
+    if (value is! bool) {
+      throw const FormatException('Invalid reading merge flag');
+    }
+    return value;
   }
 
   ReadingProgressEntry _parseEntry(
@@ -493,7 +573,10 @@ class ReadingProgressService extends ChangeNotifier
   void _rebuild() {
     final visible = Map<String, ReadingProgressEntry>.of(_state.entries);
     for (final operation in _state.outbox) {
-      visible[operation.entry.key] = operation.entry;
+      if (!operation.merge ||
+          operation.entry.count > (visible[operation.entry.key]?.count ?? 0)) {
+        visible[operation.entry.key] = operation.entry;
+      }
     }
     for (final mutation in _pending.where((m) => m.owner == _owner)) {
       for (final operation in mutation.operations) {
@@ -687,14 +770,23 @@ class _ReadingState {
   _ReadingState({this.cursor = 0});
   final entries = <String, ReadingProgressEntry>{};
   final outbox = <ReadingProgressOperation>[];
+  final guestTransfers = <String>{};
+  String? transferOwner;
+  String? transferId;
   int cursor;
   _ReadingState copy() => _ReadingState(cursor: cursor)
     ..entries.addAll(entries)
-    ..outbox.addAll(outbox);
+    ..outbox.addAll(outbox)
+    ..guestTransfers.addAll(guestTransfers)
+    ..transferOwner = transferOwner
+    ..transferId = transferId;
   Map<String, dynamic> json() => {
     'schema': 1,
     'cursor': cursor,
     'entries': entries.values.map((e) => e.toJson()).toList(),
     'outbox': outbox.map((op) => op.toJson()).toList(),
+    if (guestTransfers.isNotEmpty) 'guestTransfers': guestTransfers.toList(),
+    if (transferOwner != null) 'transferOwner': transferOwner,
+    if (transferId != null) 'transferId': transferId,
   };
 }

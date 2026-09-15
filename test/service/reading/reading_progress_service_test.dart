@@ -12,13 +12,14 @@ class MemoryStore implements ReadingProgressStore {
   int writes = 0;
   Completer<void>? gate;
   bool fail = false;
+  int? failAt;
   @override
   Future<Map<String, dynamic>?> read(String key) async => values[key];
   @override
   Future<void> write(String key, Map<String, dynamic> document) async {
     writes++;
     await gate?.future;
-    if (fail) throw StateError('storage unavailable');
+    if (fail || writes == failAt) throw StateError('storage unavailable');
     values[key] = jsonDecode(jsonEncode(document)) as Map<String, dynamic>;
   }
 }
@@ -80,6 +81,12 @@ class FakeRemote implements ReadingProgressRemote {
       if (received.add(operation.id)) {
         records[operation.entry.key] = {
           ...operation.entry.toJson(),
+          'count':
+              operation.merge &&
+                  (records[operation.entry.key]?['count'] as int? ?? 0) >
+                      operation.entry.count
+              ? records[operation.entry.key]!['count']
+              : operation.entry.count,
           'revision': ++revision,
         };
       }
@@ -160,6 +167,228 @@ ReadingProgressService make({
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  test(
+    'login merges guest Athkar and Quran history without duplicates or cloud loss',
+    () async {
+      final auth = FakeAuth();
+      final remote = FakeRemote();
+      final service = make(auth: auth, remote: remote);
+      await service.initialize();
+      await service.setCount(athkar, 'morning:1', 2);
+      await service.setCount(athkar, 'morning:2', 1, day: '2026-09-12');
+      await service.setCount(quran, '1:1', 1);
+      remote.records['athkar|2026-09-13|morning:1'] = {
+        'kind': 'athkar',
+        'itemKey': 'morning:1',
+        'day': '2026-09-13',
+        'count': 3,
+        'revision': 1,
+      };
+      remote.records['quran|2026-09-13|1:2'] = {
+        'kind': 'quran',
+        'itemKey': '1:2',
+        'day': '2026-09-13',
+        'count': 1,
+        'revision': 2,
+      };
+      remote.revision = 2;
+      auth.signIn('A');
+      await settle();
+      expect(service.todayCount(athkar, 'morning:1'), 2);
+      expect(service.stats.todayQuranVerses, 1);
+      await service.syncNow();
+      expect(service.todayCount(athkar, 'morning:1'), 3);
+      expect(service.stats.todayQuranVerses, 2);
+      expect(service.stats.lifetimeAthkarCompleted, 2);
+      expect(service.stats.activeDays, 2);
+      expect(remote.batches.single.every((op) => op.merge), isTrue);
+      // An explicit later uncheck must remain possible and not be resurrected.
+      await service.setCount(quran, '1:1', 0);
+      await service.syncNow();
+      await auth.clearSession();
+      await settle();
+      auth.signIn('A');
+      await settle();
+      await service.syncNow();
+      expect(service.todayCount(quran, '1:1'), 0);
+      expect(service.pendingOperationCount, 0);
+      service.dispose();
+    },
+  );
+
+  test(
+    'existing signed-in installations recover guest cache offline after upgrade',
+    () async {
+      final store = MemoryStore();
+      final guest = make(store: store);
+      await guest.initialize();
+      await guest.setCount(athkar, 'morning:1', 3);
+      guest.dispose();
+      final auth = FakeAuth()..signIn('A');
+      final remote = FakeRemote()..fail = true;
+      final service = make(auth: auth, store: store, remote: remote);
+      await service.initialize();
+      expect(service.stats.todayAthkarCompleted, 1);
+      await expectLater(
+        service.syncNow(),
+        throwsA(isA<ReadingProgressRemoteException>()),
+      );
+      final id = remote.batches.single.single.id;
+      service.dispose();
+      final restarted = make(auth: auth, store: store, remote: remote);
+      await restarted.initialize();
+      expect(restarted.stats.todayAthkarCompleted, 1);
+      expect(restarted.pendingOperationCount, 1);
+      remote.fail = false;
+      await restarted.syncNow();
+      expect(remote.batches.last.single.id, id);
+      expect(remote.batches.last.single.merge, isTrue);
+      expect(restarted.stats.todayAthkarCompleted, 1);
+      restarted.dispose();
+    },
+  );
+
+  for (final failedStep in [1, 2, 3]) {
+    test(
+      'guest transfer recovers after storage failure at step $failedStep',
+      () async {
+        final store = MemoryStore();
+        final guest = make(store: store);
+        await guest.initialize();
+        await guest.setCount(quran, '1:1', 1);
+        guest.dispose();
+        store.failAt = store.writes + failedStep;
+        final account = make(store: store, auth: FakeAuth()..signIn('A'));
+        await expectLater(account.initialize(), throwsStateError);
+        account.dispose();
+        store.failAt = null;
+        final remote = FakeRemote();
+        final retry = make(
+          store: store,
+          remote: remote,
+          auth: FakeAuth()..signIn('A'),
+        );
+        await retry.initialize();
+        expect(retry.stats.todayQuranVerses, 1);
+        expect(retry.pendingOperationCount, 1);
+        await retry.syncNow();
+        expect(remote.revision, 1);
+        retry.dispose();
+      },
+    );
+  }
+
+  test('interrupted guest transfer cannot leak into another account', () async {
+    final store = MemoryStore();
+    final guest = make(store: store);
+    await guest.initialize();
+    await guest.setCount(quran, '1:1', 1);
+    guest.dispose();
+    store.failAt = store.writes + 2; // Recipient is journaled, copy fails.
+    final first = make(store: store, auth: FakeAuth()..signIn('A'));
+    await expectLater(first.initialize(), throwsStateError);
+    first.dispose();
+    store.failAt = null;
+    final auth = FakeAuth()..signIn('B');
+    final service = make(store: store, auth: auth);
+    await service.initialize();
+    expect(service.entries, isEmpty);
+    auth.signIn('A');
+    await settle();
+    expect(service.stats.todayQuranVerses, 1);
+    await auth.clearSession();
+    await settle();
+    // New guest activity can belong to the next account.
+    await service.setCount(quran, '1:2', 1);
+    auth.signIn('B');
+    await settle();
+    expect(service.todayCount(quran, '1:2'), 1);
+    expect(service.todayCount(quran, '1:1'), 0);
+    service.dispose();
+  });
+
+  test('login flushes in-flight guest taps before transfer', () async {
+    final auth = FakeAuth();
+    final store = MemoryStore();
+    final service = make(auth: auth, store: store);
+    await service.initialize();
+    store.gate = Completer<void>();
+    final save = service.setCount(athkar, 'morning:1', 3);
+    auth.signIn('A');
+    await settle();
+    store.gate!.complete();
+    await save;
+    await settle();
+    expect(service.stats.todayAthkarCompleted, 1);
+    expect(service.pendingOperationCount, 1);
+    service.dispose();
+  });
+
+  test(
+    'guest restart completes a claimed transfer before accepting new readings',
+    () async {
+      final store = MemoryStore();
+      final guest = make(store: store);
+      await guest.initialize();
+      await guest.setCount(quran, '1:1', 1);
+      guest.dispose();
+      store.failAt = store.writes + 3; // Copy saved, clearing guest failed.
+      final first = make(store: store, auth: FakeAuth()..signIn('A'));
+      await expectLater(first.initialize(), throwsStateError);
+      first.dispose();
+      store.failAt = null;
+      final auth = FakeAuth();
+      final restart = make(store: store, auth: auth);
+      await restart.initialize();
+      expect(restart.entries, isEmpty);
+      await restart.setCount(quran, '1:2', 1);
+      auth.signIn('B');
+      await settle();
+      expect(restart.todayCount(quran, '1:1'), 0);
+      expect(restart.todayCount(quran, '1:2'), 1);
+      auth.signIn('A');
+      await settle();
+      expect(restart.todayCount(quran, '1:1'), 1);
+      expect(restart.todayCount(quran, '1:2'), 0);
+      expect(restart.pendingOperationCount, 1);
+      restart.dispose();
+    },
+  );
+
+  test(
+    'guest import stays local for one minute and later edits reset debounce',
+    () {
+      fakeAsync((async) {
+        final auth = FakeAuth();
+        final remote = FakeRemote();
+        final start = DateTime(2026, 9, 13, 14);
+        final service = make(
+          auth: auth,
+          remote: remote,
+          automatic: true,
+          now: () => start.add(async.elapsed),
+        );
+        service.initialize();
+        async.flushMicrotasks();
+        service.setCount(quran, '1:1', 1);
+        async.flushMicrotasks();
+        auth.signIn('A');
+        async.flushMicrotasks();
+        expect(service.stats.todayQuranVerses, 1);
+        expect(remote.batches, isEmpty);
+        async.elapse(const Duration(seconds: 40));
+        service.setCount(quran, '1:2', 1);
+        async.flushMicrotasks();
+        async.elapse(const Duration(seconds: 59));
+        expect(remote.batches, isEmpty);
+        async.elapse(const Duration(seconds: 1));
+        async.flushMicrotasks();
+        expect(service.pendingOperationCount, 0);
+        expect(service.stats.todayQuranVerses, 2);
+        service.dispose();
+      });
+    },
+  );
   test('canonical Quran bounds include 87:19 and exactly 6236 verses', () {
     expect(QuranReadingKeys.verseCounts.length, 114);
     expect(QuranReadingKeys.verseCounts.reduce((a, b) => a + b), 6236);
@@ -361,7 +590,7 @@ void main() {
     },
   );
   test(
-    'account switch isolates guests and old late responses, including 401',
+    'guest transfer belongs only to its recipient and ignores late 401 responses',
     () async {
       final auth = FakeAuth();
       final remote = FakeRemote();
@@ -371,7 +600,7 @@ void main() {
       await service.setCount(quran, '1:3', 1);
       auth.signIn('A');
       await settle();
-      expect(service.stats.todayQuranVerses, 0);
+      expect(service.stats.todayQuranVerses, 1);
       await service.setCount(quran, '1:1', 1);
       remote.onPull = (_) => gate.future;
       final syncing = service.syncNow();
@@ -391,7 +620,7 @@ void main() {
       expect(service.todayCount(quran, '1:2'), 0);
       await auth.clearSession();
       await settle();
-      expect(service.todayCount(quran, '1:3'), 1);
+      expect(service.todayCount(quran, '1:3'), 0);
       service.dispose();
     },
   );

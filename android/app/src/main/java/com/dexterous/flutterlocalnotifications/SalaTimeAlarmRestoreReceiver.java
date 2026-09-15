@@ -27,6 +27,7 @@ public class SalaTimeAlarmRestoreReceiver extends BroadcastReceiver {
                 && !Intent.ACTION_TIME_CHANGED.equals(action)
                 && !Intent.ACTION_TIMEZONE_CHANGED.equals(action)
                 && !AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED.equals(action)) return;
+        SalaTimeAdhanNotificationReceiver.restore(context);
         try {
             boolean missed = repairCache(context, System.currentTimeMillis());
             // Time/permission changes may happen with all custom alarms still

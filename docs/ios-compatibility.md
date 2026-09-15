@@ -26,7 +26,6 @@ part of this change. The application, widget and Flutter framework target iOS
 | Apple login | Requires an active Apple Developer configuration, Sign in with Apple capability, backend Apple provider configuration and the enable flag. The deployed API had Apple disabled at audit time. |
 | Downloads / sharing | App Documents writes no longer request Android storage permission on iOS. Share sheets have a popover origin for iPad. |
 | Automatic phone silence / restoring DND | Android feature; an ordinary iOS application cannot toggle the device's global silent/Focus mode. |
-| Automatic wallpaper installation | Android feature. On iOS use sharing/saving and the system wallpaper settings. |
 | Store review | The automatic Google Play invitation remains Android-only. The iOS settings link requires a configured App Store listing. |
 
 ## Verification record — 14 September 2026

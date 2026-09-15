@@ -27,6 +27,10 @@ et d’e-mails transactionnels. Les transferts fonctionnels à OSM/Nominatim/
 Overpass, GeoIP et 1min.ai sont déclarés dans les catégories pertinentes.
 Aucun partage de clics/gestes n’a été déclaré faute de flux démontré.
 
+Mise à jour du 14 septembre : le correctif de fusion rattache les lectures
+invitées au compte lors de la connexion, puis les synchronise avec SalaTime.
+Le constat ci-dessous décrit la version du 13 septembre avant ce correctif.
+
 Les fichiers audio personnels, chemins locaux, permissions, recherches locales
 du Coran, signets et lectures invitées ne sont pas exportés par ces services.
 Aucune finalité de publicité n’est déclarée. L’engagement Families déjà présent
