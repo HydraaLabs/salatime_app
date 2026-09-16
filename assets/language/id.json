@@ -796,5 +796,12 @@
   "widget_ios_steps": "1. Sentuh dan tahan area kosong di Layar Utama.\n2. Ketuk Edit, lalu Tambah Widget (atau +).\n3. Cari SalaTime.\n4. Pilih ukuran lalu ketuk Tambah Widget.",
   "play_store_review_question": "Apakah Anda menyukai SalaTime?",
   "play_store_review_yes": "Ya",
-  "play_store_review_no": "Tidak"
+  "play_store_review_no": "Tidak",
+  "ai_data_consent_title": "Berbagi data dengan AI",
+  "ai_data_consent_body": "Pertanyaan dan pilihan pembuatan nama yang Anda kirim dibagikan kepada SalaTime, lalu kepada layanan AI eksternal 1min.ai untuk membuat jawaban. Hindari informasi pribadi atau sensitif. Jawaban AI dapat keliru.",
+  "ai_data_consent_remember": "Pilihan Anda disimpan di perangkat ini untuk kedua fitur AI. Anda dapat menghentikan pembagian berikutnya melalui ikon privasi di layar ini.",
+  "ai_data_consent_privacy": "Kebijakan privasi 1min.ai",
+  "ai_data_consent_cancel": "Batal",
+  "ai_data_consent_revoke": "Berhenti berbagi",
+  "ai_data_consent_allow": "Izinkan dan lanjutkan"
 }

@@ -796,5 +796,12 @@
   "widget_ios_steps": "1. Ana Ekranın boş bir alanına basılı tutun.\n2. Düzenle ve Araç Takımı Ekle (veya +) seçeneğine dokunun.\n3. SalaTime’ı arayın.\n4. Boyutu seçip Araç Takımı Ekle’ye dokunun.",
   "play_store_review_question": "SalaTime uygulamasını beğeniyor musunuz?",
   "play_store_review_yes": "Evet",
-  "play_store_review_no": "Hayır"
+  "play_store_review_no": "Hayır",
+  "ai_data_consent_title": "Yapay zekâ ile veri paylaşımı",
+  "ai_data_consent_body": "Gönderdiğiniz sorular ve isim oluşturma tercihleri, yanıt üretmek için SalaTime ve ardından harici yapay zekâ hizmeti 1min.ai ile paylaşılır. Kişisel veya hassas bilgiler eklemeyin. Yapay zekâ yanıtları hatalı olabilir.",
+  "ai_data_consent_remember": "Seçiminiz her iki yapay zekâ özelliği için bu cihazda kaydedilir. Bu ekrandaki gizlilik simgesinden sonraki paylaşımları durdurabilirsiniz.",
+  "ai_data_consent_privacy": "1min.ai gizlilik politikası",
+  "ai_data_consent_cancel": "İptal",
+  "ai_data_consent_revoke": "Paylaşımı durdur",
+  "ai_data_consent_allow": "İzin ver ve devam et"
 }

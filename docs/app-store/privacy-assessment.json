@@ -1,0 +1,264 @@
+{
+  "prepared_at": "2026-09-17",
+  "status": "audited_draft_not_published",
+  "collects_data": true,
+  "tracking_observed": false,
+  "tracking_note": "No advertising SDK, IDFA collection or cross-company advertising linkage found; verify contractual partner use before making an organization-wide declaration. Functional third-party transfers are not automatically Apple tracking.",
+  "data_types": [
+    {
+      "dataType": "Name",
+      "collected": true,
+      "purposes": [
+        "App Functionality"
+      ],
+      "linkedToUser": true,
+      "usedForTracking": false,
+      "evidence": [
+        "lib/service/mobile_auth_service.dart:MobileUser",
+        "../web/app/Http/Controllers/Mobile/AuthController.php:register/social"
+      ],
+      "status": "confirmed_source"
+    },
+    {
+      "dataType": "Email Address",
+      "collected": true,
+      "purposes": [
+        "App Functionality"
+      ],
+      "linkedToUser": true,
+      "usedForTracking": false,
+      "evidence": [
+        "lib/service/mobile_auth_service.dart:MobileUser",
+        "../web/app/Services/Mobile/EmailCodes.php",
+        "../web/app/Services/Mobile/WelcomeEmails.php"
+      ],
+      "status": "confirmed_source",
+      "note": "Includes Apple private relay addresses, account verification and transactional email. No marketing-email flow established."
+    },
+    {
+      "dataType": "User ID",
+      "collected": true,
+      "purposes": [
+        "App Functionality"
+      ],
+      "linkedToUser": true,
+      "usedForTracking": false,
+      "evidence": [
+        "../web/app/Models/Mobile/MobileAccount.php",
+        "../web/app/Models/Mobile/MobileIdentity.php"
+      ],
+      "status": "confirmed_source"
+    },
+    {
+      "dataType": "Sensitive Info",
+      "collected": true,
+      "purposes": [
+        "App Functionality"
+      ],
+      "linkedToUser": true,
+      "usedForTracking": false,
+      "evidence": [
+        "lib/service/cloud/preference_schema.dart:madhab/calculationMethod",
+        "lib/service/reading/reading_progress_service.dart",
+        "../web/app/Http/Controllers/Mobile/ReadingProgressController.php"
+      ],
+      "status": "confirmed_source",
+      "note": "Religious preferences and Quran/Athkar reading records are tied to the optional account. Guest reading history is adopted on sign-in. This category is not omitted merely because use of accounts is optional."
+    },
+    {
+      "dataType": "Product Interaction",
+      "collected": true,
+      "purposes": [
+        "App Functionality",
+        "Analytics"
+      ],
+      "linkedToUser": true,
+      "usedForTracking": false,
+      "evidence": [
+        "lib/service/reading/reading_progress_remote.dart",
+        "lib/main.dart:SentryNavigatorObserver",
+        "../web/app/Http/Controllers/Quran/API/Settings/SettingsController.php"
+      ],
+      "status": "confirmed_source",
+      "note": "Account reading events are linked. Screen navigation/performance and guest app-configuration analytics are separate streams; interactive taps/gestures are disabled in Sentry configuration."
+    },
+    {
+      "dataType": "Other Data Types",
+      "collected": true,
+      "purposes": [
+        "App Functionality",
+        "Analytics"
+      ],
+      "linkedToUser": true,
+      "usedForTracking": false,
+      "evidence": [
+        "lib/service/cloud/preference_schema.dart",
+        "../web/app/Http/Controllers/Quran/API/Settings/SettingsController.php"
+      ],
+      "status": "confirmed_source",
+      "note": "Saved account settings are linked. Raw IP and OS are also persisted in device_infos on the public settings endpoint; they are not account-table foreign keys. Do not describe guest use as no collection."
+    },
+    {
+      "dataType": "Coarse Location",
+      "collected": true,
+      "purposes": [
+        "Analytics",
+        "App Functionality"
+      ],
+      "linkedToUser": true,
+      "usedForTracking": false,
+      "evidence": [
+        "../web/app/Http/Controllers/Quran/API/Settings/SettingsController.php:getDeviceInfo",
+        "../web/config/location.php"
+      ],
+      "status": "confirmed_source",
+      "note": "Server persists GeoIP country/city/coordinates beside raw IP without full de-identification. Linked means linked through a device or other identifying information, not only an account foreign key."
+    },
+    {
+      "dataType": "Precise Location",
+      "collected": true,
+      "purposes": [
+        "App Functionality"
+      ],
+      "linkedToUser": true,
+      "usedForTracking": false,
+      "evidence": [
+        "lib/controller/nearby_mosque_controller.dart:searchNearbyPlaces",
+        "lib/view/screens/compass/widget/qibla_map.dart"
+      ],
+      "status": "source_and_partner_policy_review",
+      "note": "Exact coordinates are sent to public Overpass endpoints for mosque searches; map tile requests reveal viewed area. No account ID is added by the client. Apple defines collection based on retention beyond the immediate request, so partner retention must be checked before excluding this category. GPS is not uploaded in cloud preferences. Release coordinator checked OSM policy: IP and request/query logging means this transfer cannot be excluded as purely ephemeral or fully de-identified."
+    },
+    {
+      "dataType": "Search History",
+      "collected": true,
+      "purposes": [
+        "App Functionality"
+      ],
+      "linkedToUser": true,
+      "usedForTracking": false,
+      "evidence": [
+        "lib/controller/package_prayer_time_controller.dart:searchCitiesOnline"
+      ],
+      "status": "source_and_partner_policy_review",
+      "note": "City query text and UI language are sent to Nominatim over HTTPS; no account bearer token. Quran search is local. Verify provider retention before excluding search-history disclosure. Release coordinator checked OSM policy: IP and request/query logging means this transfer cannot be excluded as purely ephemeral or fully de-identified."
+    },
+    {
+      "dataType": "Other User Content",
+      "collected": true,
+      "purposes": [
+        "App Functionality"
+      ],
+      "linkedToUser": true,
+      "usedForTracking": false,
+      "evidence": [
+        "lib/data/repository/ai_assistant_repo.dart",
+        "../web/app/Http/Controllers/Quran/AI/AIChatController.php"
+      ],
+      "status": "source_and_partner_policy_review",
+      "note": "Free-form AI questions and name-generation inputs are transmitted to SalaTime and 1min.ai. Client sends no account bearer token in the reviewed AI repository. May contain personal or religious information. No billable AI call was made for this audit. Release coordinator checked 1min.ai policy: uploaded content may be retained up to one year. New versioned device-local permission gate now covers both AI features; users can revoke future sharing from the privacy icon."
+    },
+    {
+      "dataType": "Crash Data",
+      "collected": true,
+      "purposes": [
+        "App Functionality"
+      ],
+      "linkedToUser": false,
+      "usedForTracking": false,
+      "evidence": [
+        "lib/main.dart:SentryFlutter.init",
+        "pubspec.yaml:sentry_flutter",
+        "https://raw.githubusercontent.com/getsentry/sentry-cocoa/8.58.4/Sources/Resources/PrivacyInfo.xcprivacy"
+      ],
+      "status": "native_sdk_manifest_verified",
+      "note": "Sentry enabled in production. sendDefaultPii=false does not mean no diagnostics or no persistent installation ID. Inspect the built iOS SDK privacy manifest / sanitized event before answering linked or unlinked definitively. Exact pinned Cocoa 8.58.4 SDK manifest declares this type unlinked, not used for tracking, App Functionality. App code does not set an account user in Sentry. This is the SDK baseline; any later custom enrichment changes this assessment."
+    },
+    {
+      "dataType": "Performance Data",
+      "collected": true,
+      "purposes": [
+        "App Functionality",
+        "Analytics"
+      ],
+      "linkedToUser": false,
+      "usedForTracking": false,
+      "evidence": [
+        "lib/main.dart:tracesSampleRate=0.05",
+        "lib/main.dart:SentryNavigatorObserver",
+        "https://raw.githubusercontent.com/getsentry/sentry-cocoa/8.58.4/Sources/Resources/PrivacyInfo.xcprivacy"
+      ],
+      "status": "native_sdk_manifest_verified",
+      "note": "Five-percent trace sampling; screenshots and interaction tracing disabled. Exact pinned Cocoa 8.58.4 SDK manifest declares this type unlinked, not used for tracking, App Functionality. App code does not set an account user in Sentry. This is the SDK baseline; any later custom enrichment changes this assessment."
+    },
+    {
+      "dataType": "Other Diagnostic Data",
+      "collected": true,
+      "purposes": [
+        "App Functionality"
+      ],
+      "linkedToUser": false,
+      "usedForTracking": false,
+      "evidence": [
+        "lib/main.dart:SentryFlutter.init",
+        "https://raw.githubusercontent.com/getsentry/sentry-cocoa/8.58.4/Sources/Resources/PrivacyInfo.xcprivacy"
+      ],
+      "status": "native_sdk_manifest_verified",
+      "note": "Device/OS/runtime context accompanies diagnostics; no assertion that email/account data is sent to Sentry. Exact pinned Cocoa 8.58.4 SDK manifest declares this type unlinked, not used for tracking, App Functionality. App code does not set an account user in Sentry. This is the SDK baseline; any later custom enrichment changes this assessment."
+    },
+    {
+      "dataType": "Device ID",
+      "collected": true,
+      "purposes": [
+        "App Functionality",
+        "Analytics"
+      ],
+      "linkedToUser": null,
+      "usedForTracking": false,
+      "evidence": [
+        "docs/data-safety-2026-09-13.md",
+        "sentry_flutter 9.29.0 native Cocoa installationID binding",
+        "https://raw.githubusercontent.com/getsentry/sentry-cocoa/8.58.4/Sources/Sentry/SentryClient.m#L978-L987"
+      ],
+      "status": "anonymous_installation_id_confirmed_label_mapping_requires_final_decision",
+      "note": "Exact Cocoa source assigns a persistent random installation ID to an otherwise empty Sentry user. This is not IDFA and not the SalaTime account ID. The same SDK privacy manifest labels diagnostics unlinked and does not list a Device ID type. Decide whether to disclose this anonymous app-install identifier as User ID/Device ID under the final app-level policy; do not assert absent."
+    }
+  ],
+  "not_found_in_reviewed_flows": [
+    "Contacts/address-book upload",
+    "HealthKit/fitness collection",
+    "Payment card collection",
+    "Photo/video uploads",
+    "Personal notification audio uploads",
+    "Public posts, social feed or peer messaging",
+    "Advertising data"
+  ],
+  "local_only_exclusions": [
+    "Imported personal notification audio files and local file paths",
+    "GPS positions from cloud-preference document",
+    "Device permission grants",
+    "Local Quran bookmarks/searches"
+  ],
+  "technical_followups": [
+    "Public support/privacy URLs now confirmed HTTP200 by release coordinator.",
+    "Apple account privacy section added locally; deployment coordinated separately.",
+    "AI first-use disclosure/permission and in-screen revocation implemented; 8 targeted tests passed. Verify in the final signed iOS build.",
+    "Sentry Cocoa 8.58.4 SDK manifest reviewed; see anonymous-installation-ID mapping note.",
+    "Partner policies reviewed by release coordinator; effective production GeoIP and retention remain separate from static code audit."
+  ],
+  "sources": [
+    "https://developer.apple.com/app-store/app-privacy-details/",
+    "https://developer.apple.com/help/app-store-connect/manage-app-information/manage-app-privacy/",
+    "https://developer.apple.com/app-store/review/guidelines/#data-use-and-sharing",
+    "https://developer.apple.com/news/?id=ey6d8onl",
+    "https://osmfoundation.org/wiki/Privacy_Policy",
+    "https://1min.ai/privacy",
+    "https://raw.githubusercontent.com/getsentry/sentry-cocoa/8.58.4/Sources/Resources/PrivacyInfo.xcprivacy",
+    "https://raw.githubusercontent.com/getsentry/sentry-cocoa/8.58.4/Sources/Sentry/SentryClient.m"
+  ],
+  "owner_information_not_in_repo": [
+    "App Review contact first/last name and reachable telephone number",
+    "Business/trader details if required by the account and distribution territories",
+    "Content ownership/licensing attestation if Apple asks; code inspection alone cannot prove rights to all remote recitations and translations."
+  ]
+}

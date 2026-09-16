@@ -1,0 +1,42 @@
+{
+  "prepared_at": "2026-09-17",
+  "status": "prepared_locally_not_submitted",
+  "app_store_connect_id": "6812923710",
+  "bundle_id": "net.salatime.app",
+  "primary_locale": "en-US",
+  "primary_category": "LIFESTYLE",
+  "secondary_category": "REFERENCE",
+  "privacy_policy_url": "https://salatime.net/privacy-policy",
+  "support_url": "https://salatime.net/support",
+  "marketing_url": "https://salatime.net/",
+  "copyright": "2026 POTIZA LLC",
+  "localizations": {
+    "en-US": {
+      "name": "SalaTime: Prayer Times, Quran",
+      "subtitle": "Adhan, Qibla & daily Athkar",
+      "keywords": "salah,namaz,azan,adhan,qibla,dhikr,dua,muslim,islam,mosque,hijri,ramadan",
+      "promotionalText": "Keep prayer times, Quran reading and daily Athkar together. Set your reminders, find the Qibla and follow your reading progress.",
+      "description": "Make room for your daily practice with SalaTime: prayer times, Adhan reminders, the Quran, Qibla and Athkar in one app.\n\nPRAYER TIMES FOR YOUR LOCATION\nUse your location or select a city manually. Choose a calculation method, adjust individual prayer times and see the next prayer at a glance. Customize notification sounds and reminders to suit your routine.\n\nREAD AND LISTEN TO THE QURAN\nRead Arabic text with translations, adjust your reading display and use bookmarks to return to a passage. Bundled Quran text and translations are available offline. Listen to recitations when an internet connection is available and record the verses you have read.\n\nQIBLA, ATHKAR AND THE ISLAMIC CALENDAR\nFind the Qibla using the compass or map, follow daily Athkar and duas, browse hadith collections and consult the Hijri calendar. Locate nearby mosques using the map service.\n\nYOUR PREFERENCES, YOUR PACE\nChoose a light or dark appearance and your preferred language. Keep reading progress on your device, or use an optional SalaTime account to synchronize supported preferences and reading progress across devices. You can use the main features without creating an account.\n\nPrayer widgets put useful information on your Home Screen. Location access is optional when you choose a city manually; notification permission is needed for reminders. Online maps, nearby mosque searches, recitation streaming and account synchronization need an internet connection.\n\nSupport: https://salatime.net/support\nPrivacy: https://salatime.net/privacy-policy"
+    },
+    "fr-FR": {
+      "name": "SalaTime : Prière et Coran",
+      "subtitle": "Adhan, Qibla et Athkar",
+      "keywords": "salat,namaz,azan,adhan,qibla,dhikr,invocations,musulman,islam,mosquée,hégirien,ramadan",
+      "promotionalText": "Retrouvez vos horaires de prière, le Coran et les Athkar quotidiens. Réglez vos rappels, trouvez la Qibla et suivez vos lectures.",
+      "description": "SalaTime réunit les horaires de prière, les rappels d’adhan, le Coran, la Qibla et les Athkar pour vous accompagner au quotidien.\n\nVOS HORAIRES DE PRIÈRE\nUtilisez votre position ou choisissez une ville manuellement. Sélectionnez une méthode de calcul, ajustez chaque horaire et consultez la prochaine prière. Personnalisez les sons des notifications et les rappels selon vos habitudes.\n\nLIRE ET ÉCOUTER LE CORAN\nLisez le texte arabe avec ses traductions, adaptez l’affichage et retrouvez vos passages grâce aux signets. Le texte du Coran et les traductions intégrées restent disponibles hors connexion. Écoutez les récitations avec une connexion internet et marquez les versets que vous avez lus.\n\nQIBLA, ATHKAR ET CALENDRIER HÉGIRIEN\nRepérez la Qibla à l’aide de la boussole ou de la carte. Retrouvez les Athkar et invocations du quotidien, consultez les recueils de hadiths et le calendrier hégirien, puis recherchez les mosquées à proximité.\n\nÀ VOTRE RYTHME\nChoisissez un thème clair ou sombre et la langue de votre choix. Conservez votre progression sur l’appareil ou utilisez un compte SalaTime facultatif pour synchroniser les préférences prises en charge et vos lectures entre vos appareils. Les fonctions principales restent accessibles sans compte.\n\nLes widgets affichent les informations utiles sur votre écran d’accueil. La localisation est facultative si vous choisissez votre ville ; les rappels nécessitent l’autorisation des notifications. Les cartes, la recherche de mosquées, les récitations en streaming et la synchronisation nécessitent internet.\n\nAssistance : https://salatime.net/support\nConfidentialité : https://salatime.net/privacy-policy"
+    },
+    "ar-SA": {
+      "name": "SalaTime: الصلاة والقرآن",
+      "subtitle": "الأذان والقبلة والأذكار",
+      "keywords": "صلاة,مواقيت,أذان,قبلة,قرآن,أذكار,دعاء,مساجد,هجري,رمضان,إسلام,تلاوة",
+      "promotionalText": "مواقيت الصلاة والقرآن والأذكار اليومية في تطبيق واحد. خصّص التذكيرات وحدّد اتجاه القبلة وتابع تقدّمك في القراءة.",
+      "description": "يجمع SalaTime مواقيت الصلاة وتذكيرات الأذان والقرآن والقبلة والأذكار لمساعدتك في عباداتك اليومية.\n\nمواقيت الصلاة حسب موقعك\nاستخدم موقعك أو اختر المدينة يدويًا. حدّد طريقة الحساب، واضبط توقيت كل صلاة، وتعرّف على الصلاة القادمة. خصّص أصوات الإشعارات والتذكيرات بما يناسب يومك.\n\nقراءة القرآن والاستماع إليه\nاقرأ النص العربي مع ترجمات المعاني، واضبط مظهر القراءة، واستخدم العلامات المرجعية للعودة إلى مواضعك. يتوفر نص القرآن والترجمات المضمّنة دون اتصال بالإنترنت. استمع إلى التلاوات عند توفر الإنترنت وسجّل الآيات التي قرأتها.\n\nالقبلة والأذكار والتقويم الهجري\nحدّد اتجاه القبلة باستخدام البوصلة أو الخريطة. تابع الأذكار والأدعية اليومية، وتصفّح كتب الحديث والتقويم الهجري، وابحث عن المساجد القريبة.\n\nإعدادات تناسبك\nاختر المظهر الفاتح أو الداكن واللغة المناسبة لك. احتفظ بتقدّم القراءة على جهازك، أو استخدم حساب SalaTime اختياريًا لمزامنة الإعدادات المدعومة وتقدّم القراءة بين أجهزتك. يمكنك استخدام الميزات الأساسية دون إنشاء حساب.\n\nاعرض معلومات الصلاة على الشاشة الرئيسية باستخدام الأدوات المصغّرة. إذن الموقع اختياري عند اختيار المدينة يدويًا، وتحتاج التذكيرات إلى إذن الإشعارات. تتطلب الخرائط والبحث عن المساجد وبث التلاوات ومزامنة الحساب اتصالًا بالإنترنت.\n\nالدعم: https://salatime.net/support\nالخصوصية: https://salatime.net/privacy-policy"
+    }
+  },
+  "validation": {
+    "field_character_limits": "pass",
+    "support_route_in_code": "web/routes/web.php:339",
+    "public_url_http_check": "HTTP200 for support and privacy confirmed by release coordinator with User-Agent SalaTime-iOS-Release/1.0",
+    "copy_scope": "Actual source features; iOS device verification and signed build remain separate. No claim that all Android-only system behavior is available on iOS."
+  }
+}

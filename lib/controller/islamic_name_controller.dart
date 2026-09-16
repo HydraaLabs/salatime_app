@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:salatime/controller/quran_settings_controller.dart';
+import 'package:salatime/helper/ai_data_consent.dart';
 import 'package:salatime/util/app_constants.dart';
 import 'package:salatime/view/base/custom_snackbar.dart';
 
@@ -12,10 +12,14 @@ import '../data/repository/islamic_name_repo.dart';
 
 class IslamicNameController extends GetxController
     with GetSingleTickerProviderStateMixin {
+  IslamicNameController({IslamicNameRepo? service, AiDataConsent? consent})
+    : _service = service ?? IslamicNameRepo(),
+      _consent = consent ?? AiDataConsent.instance;
   // in IslamicNameController
   final featuredCardKey = GlobalKey();
   final shareButtonKey = GlobalKey();
-  final _service = IslamicNameRepo();
+  final IslamicNameRepo _service;
+  final AiDataConsent _consent;
 
   // ── Filter observables ────────────────────────
   final gender = 'any'.obs;
@@ -85,19 +89,20 @@ class IslamicNameController extends GetxController
 
   // ── Generate ──────────────────────────────────
   Future<void> generate(BuildContext context) async {
+    if (isLoading.value) return;
     FocusScope.of(context).unfocus();
     isLoading.value = true;
-    error.value = null;
-    names.clear();
-    featured.value = null;
-    fadeCtrl.reset();
 
     try {
+      if (!await _consent.request(context) || isClosed || !context.mounted) {
+        return;
+      }
+      error.value = null;
+      names.clear();
+      featured.value = null;
+      fadeCtrl.reset();
       final result = await _service.generateNames(
-        islamicNameApiKey: Get.find<SettingsController>()
-            .mosqueSettingsApiData
-            ?.data
-            ?.islamicNameApiKey.toString(),
+        islamicNameApiKey: null, // Provider credentials stay on the server.
         gender: gender.value,
         origin: origin.value,
         meaningTheme: themeCtrl.text.trim().isEmpty

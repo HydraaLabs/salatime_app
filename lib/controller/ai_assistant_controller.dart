@@ -3,14 +3,16 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:salatime/controller/quran_settings_controller.dart';
+import 'package:salatime/helper/ai_data_consent.dart';
 
 import '../data/repository/ai_assistant_repo.dart';
 import '../view/screens/ai_islamic_assistant/ai_islamic_assistant.dart';
 
 class AiAssistantController extends GetxController {
   final AiAssistantRepo assistantRepo;
-  AiAssistantController({required this.assistantRepo});
+  AiAssistantController({required this.assistantRepo, AiDataConsent? consent})
+    : _consent = consent ?? AiDataConsent.instance;
+  final AiDataConsent _consent;
   final questionCtrl = TextEditingController();
   final scrollCtrl = ScrollController();
 
@@ -50,22 +52,23 @@ class AiAssistantController extends GetxController {
     await prefs.setString(_storageKey, encoded);
   }
 
-  Future<void> askQuestion() async {
+  Future<void> askQuestion([BuildContext? context]) async {
     final question = questionCtrl.text.trim();
-    if (question.isEmpty) return;
-
-    messages.add(ChatMessage(text: question, isUser: true));
-    questionCtrl.clear();
-    await saveChat();
+    if (question.isEmpty || isLoading.value) return;
     isLoading.value = true;
 
     try {
+      if (!await _consent.request(context ?? Get.context) ||
+          isClosed ||
+          (context != null && !context.mounted)) {
+        return;
+      }
+      messages.add(ChatMessage(text: question, isUser: true));
+      questionCtrl.clear();
+      await saveChat();
       final answer = await assistantRepo.askAI(
         question: question,
-        apiKey: Get.find<SettingsController>()
-            .mosqueSettingsApiData
-            ?.data
-            ?.islamicNameApiKey,
+        apiKey: null, // Provider credentials stay on SalaTime's server.
       );
 
       messages.add(ChatMessage(text: answer, isUser: false));
@@ -77,9 +80,9 @@ class AiAssistantController extends GetxController {
           isUser: false,
         ),
       );
+    } finally {
+      isLoading.value = false;
     }
-
-    isLoading.value = false;
     _scrollToBottom();
   }
 

@@ -1,0 +1,116 @@
+{
+  "prepared_at": "2026-09-17",
+  "status": "partial_answers_ready_content_frequency_requires_review",
+  "do_not_force_rating": "Let App Store Connect calculate the rating; do not blindly copy Android rating or set 4+.",
+  "made_for_kids": false,
+  "made_for_kids_rationale": "General religious utility with third-party diagnostics and an AI assistant; no dedicated child-directed design/age assurance found. This is a classification recommendation, not a verified owner target-age declaration.",
+  "confirmed_capabilities": {
+    "parentalControls": false,
+    "ageAssurance": false,
+    "unrestrictedWebAccess": false,
+    "userGeneratedContent": false,
+    "messagingAndChat": false,
+    "socialMedia": false,
+    "advertising": false,
+    "gambling": false,
+    "lootBoxes": false
+  },
+  "capability_notes": [
+    "The AI assistant is not user-to-user messaging.",
+    "Users do not publish content to other users; personal readings/preferences and system sharing do not make a social feed.",
+    "External links open external destinations; no arbitrary embedded browser found.",
+    "App has no wagering or loot-box mechanics; scriptural references to gambling are content, not a gambling feature."
+  ],
+  "proposed_content_answers": {
+    "alcoholTobaccoOrDrugUseOrReferences": {
+      "suggested": "INFREQUENT_OR_MILD",
+      "evidence": [
+        "assets/quran/translations/en/5.json verses 90-91: references to intoxicants in religious text"
+      ],
+      "review": "Confirm frequency across full Quran, hadith and AI responses; not a blanket NONE."
+    },
+    "matureOrSuggestiveThemes": {
+      "suggested": "INFREQUENT_OR_MILD",
+      "evidence": [
+        "assets/quran/translations/en/5.json verses 5-6: marital/sexual topics in religious instruction",
+        "assets/quran/translations/en/5.json verses 27-33: death and ethical/historical narrative"
+      ],
+      "review": "Educational/religious context, not erotic presentation. Confirm questionnaire interpretation and full content."
+    },
+    "gunsOrOtherWeapons": {
+      "suggested": "INFREQUENT_OR_MILD",
+      "evidence": [
+        "assets/quran/translations/en/5.json verse 94: reference to spears"
+      ],
+      "review": "No combat game; textual references still exist."
+    },
+    "violenceRealistic": {
+      "suggested": null,
+      "evidence": [
+        "assets/quran/translations/en/5.json verses 27-33: narrative violence and punishment"
+      ],
+      "review": "Assess non-graphic textual historical context against Apple definition; source audit alone does not certify frequency."
+    },
+    "horrorOrFearThemes": {
+      "suggested": null,
+      "evidence": [
+        "Bundled scripture includes afterlife/punishment narratives"
+      ],
+      "review": "Do not classify ordinary religious content automatically as horror; assess actual presentation and generated replies."
+    },
+    "medicalOrTreatmentInformation": {
+      "suggested": null,
+      "evidence": [
+        "AIChatController requests broad Islamic lifestyle/fiqh replies without an enforced medical-topic filter"
+      ],
+      "review": "No medical UI found, but free-form generated answers require evaluation before asserting NONE."
+    },
+    "profanityOrCrudeHumor": {
+      "suggested": "NONE",
+      "evidence": [
+        "No feature dedicated to crude humor/profanity found"
+      ],
+      "review": "AI-generated output is not proven universally filtered."
+    },
+    "sexualContentOrNudity": {
+      "suggested": "NONE",
+      "evidence": [
+        "No erotic/nude visual feature found"
+      ],
+      "review": "Religious textual references are listed under mature themes; verify remote content."
+    },
+    "sexualContentGraphicAndNudity": {
+      "suggested": "NONE",
+      "evidence": [
+        "No explicit sexual visual feature found"
+      ],
+      "review": "Verify remote/generated content before certification."
+    },
+    "violenceCartoonOrFantasy": {
+      "suggested": "NONE",
+      "evidence": [
+        "No violent animation/gameplay found"
+      ]
+    },
+    "violenceRealisticProlongedGraphicOrSadistic": {
+      "suggested": "NONE",
+      "evidence": [
+        "No graphic violent visual feature found"
+      ]
+    },
+    "contests": {
+      "suggested": "NONE",
+      "evidence": [
+        "Personal reading goals only; no competition against other users found"
+      ]
+    },
+    "gamblingSimulated": {
+      "suggested": "NONE",
+      "evidence": [
+        "No betting mechanics found"
+      ]
+    }
+  },
+  "source": "https://developer.apple.com/help/app-store-connect/reference/app-information/age-ratings-values-and-definitions",
+  "api_schema_note": "Map only attributes currently accepted by App Store Connect API; questionnaire fields evolve. Null values here mean unresolved, not NONE."
+}

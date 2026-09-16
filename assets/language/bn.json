@@ -801,5 +801,12 @@
   "widget_ios_steps": "1. হোম স্ক্রিনের একটি খালি জায়গা চেপে ধরুন।\n2. Edit, তারপর Add Widget (বা +) চাপুন।\n3. SalaTime খুঁজুন।\n4. আকার বেছে নিয়ে Add Widget চাপুন।",
   "play_store_review_question": "আপনার কি SalaTime ভালো লাগে?",
   "play_store_review_yes": "হ্যাঁ",
-  "play_store_review_no": "না"
+  "play_store_review_no": "না",
+  "ai_data_consent_title": "এআইয়ের সঙ্গে তথ্য শেয়ার",
+  "ai_data_consent_body": "আপনার পাঠানো প্রশ্ন ও নাম তৈরির পছন্দগুলো উত্তর তৈরি করতে প্রথমে SalaTime এবং পরে বাইরের এআই সেবা 1min.ai-এর সঙ্গে শেয়ার করা হয়। ব্যক্তিগত বা সংবেদনশীল তথ্য দেবেন না। এআইয়ের উত্তর ভুল হতে পারে।",
+  "ai_data_consent_remember": "দুটি এআই সুবিধার জন্য আপনার সিদ্ধান্ত এই ডিভাইসে সংরক্ষিত থাকবে। এই পর্দার গোপনীয়তা আইকন থেকে ভবিষ্যতে তথ্য শেয়ার বন্ধ করতে পারবেন।",
+  "ai_data_consent_privacy": "1min.ai-এর গোপনীয়তা নীতি",
+  "ai_data_consent_cancel": "বাতিল",
+  "ai_data_consent_revoke": "শেয়ার বন্ধ করুন",
+  "ai_data_consent_allow": "অনুমতি দিয়ে এগিয়ে যান"
 }

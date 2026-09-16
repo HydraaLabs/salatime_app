@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:salatime/controller/ai_assistant_controller.dart';
+import 'package:salatime/helper/ai_data_consent.dart';
 import 'package:salatime/theme/light_theme.dart';
 
 import '../../../util/styles.dart';
@@ -20,6 +21,11 @@ class AiIslamicAssistantScreen extends StatelessWidget {
             isBackButtonExist: true,
             title: 'ai_islamic_assistant'.tr,
             actions: [
+              IconButton(
+                icon: const Icon(Icons.privacy_tip_outlined),
+                tooltip: 'ai_data_consent_title'.tr,
+                onPressed: () => AiDataConsent.instance.manage(context),
+              ),
               IconButton(
                 icon: Icon(Icons.delete_outline),
                 onPressed: () => ctrl.clearChat(),
@@ -168,7 +174,9 @@ class AiIslamicAssistantScreen extends StatelessWidget {
           // Send Button
           Obx(
             () => GestureDetector(
-              onTap: ctrl.isLoading.value ? null : ctrl.askQuestion,
+              onTap: ctrl.isLoading.value
+                  ? null
+                  : () => ctrl.askQuestion(context),
               child: Container(
                 width: 46,
                 height: 46,

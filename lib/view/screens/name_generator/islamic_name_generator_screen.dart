@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:salatime/helper/ai_data_consent.dart';
 import 'package:salatime/theme/light_theme.dart';
 import 'package:salatime/util/dimensions.dart';
 import 'package:salatime/util/styles.dart';
@@ -24,6 +25,11 @@ class IslamicNameGeneratorScreen extends StatelessWidget {
         isBackButtonExist: true,
         title: 'app_title'.tr,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.privacy_tip_outlined),
+            tooltip: 'ai_data_consent_title'.tr,
+            onPressed: () => AiDataConsent.instance.manage(context),
+          ),
           Obx(() {
             return Stack(
               alignment: Alignment.center,
@@ -395,11 +401,12 @@ class IslamicNameGeneratorScreen extends StatelessWidget {
                   child: Text(
                     name.arabic,
                     textDirection: TextDirection.rtl,
-                    style: Get.find<SettingsController>().selectedArabicFont.copyWith(
-                      fontSize: 22,
-                      color: Theme.of(context).primaryColor,
-                      height: 1.5,
-                    ),
+                    style: Get.find<SettingsController>().selectedArabicFont
+                        .copyWith(
+                          fontSize: 22,
+                          color: Theme.of(context).primaryColor,
+                          height: 1.5,
+                        ),
                   ),
                 ),
               ),
