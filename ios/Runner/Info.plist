@@ -31,7 +31,7 @@
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>If you enable automatic location updates, SalaTime uses your location to update prayer times and reminders as you travel, including while the app is in the background.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>SalaTime uses your location to calculate local prayer times, show the Qibla direction and find nearby mosques. You can also choose a city manually without sharing your location.</string>
+	<string>SalaTime uses your location to calculate local prayer times, show the Qibla direction and find nearby mosques. You can also choose a city manually without granting location access.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This app requires access to your photo library to upload, share, or save wallpapers.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
