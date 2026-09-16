@@ -29,9 +29,9 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>This app needs access to your location to provide continuous location-based services like mosque search and prayer times.</string>
+	<string>If you enable automatic location updates, SalaTime uses your location to update prayer times and reminders as you travel, including while the app is in the background.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Your location allows you to find a nearby mosque at your current address.</string>
+	<string>SalaTime uses your location to calculate local prayer times, show the Qibla direction and find nearby mosques. You can also choose a city manually without sharing your location.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This app requires access to your photo library to upload, share, or save wallpapers.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
