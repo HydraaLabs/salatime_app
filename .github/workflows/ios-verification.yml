@@ -47,7 +47,7 @@ jobs:
           xcrun simctl boot "$SIMULATOR_ID" || true
           xcrun simctl bootstatus "$SIMULATOR_ID" -b
           xcrun simctl install "$SIMULATOR_ID" build/ios/iphonesimulator/Runner.app
-          xcrun simctl launch "$SIMULATOR_ID" com.example.zabi
+          xcrun simctl launch "$SIMULATOR_ID" net.salatime.app
           sleep 8
           xcrun simctl io "$SIMULATOR_ID" screenshot build/ios-launch.png
       - name: Save simulator build

@@ -73,7 +73,7 @@ struct SalaTimeWidgetView: View {
                 }
                 if family == .systemLarge {
                     Divider()
-                    ForEach(data.prayers(on: entry.date), id: \.id) { prayer in
+                    ForEach(data.prayers(for: current.prayer), id: \.id) { prayer in
                         HStack {
                             Text(prayer.name).lineLimit(1)
                             Spacer()
@@ -84,7 +84,7 @@ struct SalaTimeWidgetView: View {
                     }
                 }
                 Spacer(minLength: 0)
-                if entry.options.date { Text(day(entry.date, data: data)).font(.caption2).lineLimit(1) }
+                if entry.options.date { Text(day(current.prayer.instant, data: data)).font(.caption2).lineLimit(1) }
             } else {
                 Spacer()
                 Text(snapshot?.emptyLabel ?? NSLocalizedString("widget_open", comment: "Open app to load prayer times"))
@@ -101,7 +101,7 @@ struct SalaTimeWidgetView: View {
             } else if entry.options.seconds {
                 Text(current.prayer.instant, style: .timer)
             } else {
-                let minutes = Int(abs(current.prayer.instant.timeIntervalSince(entry.date)) / 60)
+                let minutes = current.minutes(at: entry.date)
                 Text(String(format: "%02d:%02d", minutes / 60, minutes % 60))
             }
         }

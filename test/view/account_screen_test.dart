@@ -51,39 +51,48 @@ void main() {
   });
   tearDown(Get.reset);
   final calls = <String>[];
-  MobileAuthService service({bool mail = true, bool enabled = true}) =>
-      MobileAuthService(
-        apiBaseUrl: 'https://test.example.test',
-        storage: _Store(),
-        client: MockClient((request) async {
-          calls.add(request.url.path);
-          final Map<String, Object> result;
-          if (request.url.path.endsWith('/config')) {
-            result = {
-              'enabled': enabled,
-              'email': {
-                'enabled': enabled,
-                'verification_enabled': mail,
-                'password_reset_enabled': mail,
-              },
-              'google': {'enabled': false},
-              'apple': {'enabled': false},
-            };
-          } else {
-            result = {
-              'user': {
-                'id': 1,
-                'name': 'Test',
-                'email': 'test@example.test',
-                'email_verified': request.url.path.endsWith('/me'),
-                'has_password': true,
-              },
-              'token': '1|mock-session',
-            };
-          }
-          return http.Response(jsonEncode({'data': result}), 200);
-        }),
-      );
+  MobileAuthService service({
+    bool mail = true,
+    bool enabled = true,
+    bool apple = false,
+  }) => MobileAuthService(
+    apiBaseUrl: 'https://test.example.test',
+    storage: _Store(),
+    client: MockClient((request) async {
+      calls.add(request.url.path);
+      final Map<String, Object> result;
+      if (request.url.path.endsWith('/config')) {
+        result = {
+          'enabled': enabled,
+          'email': {
+            'enabled': enabled,
+            'verification_enabled': mail,
+            'password_reset_enabled': mail,
+          },
+          'google': {'enabled': false},
+          'apple': {
+            'enabled': apple,
+            'android_enabled': apple,
+            'ios_enabled': apple,
+            'client_id': 'test.service.id',
+            'redirect_uri': 'https://test.example.test/callback',
+          },
+        };
+      } else {
+        result = {
+          'user': {
+            'id': 1,
+            'name': 'Test',
+            'email': 'test@example.test',
+            'email_verified': request.url.path.endsWith('/me'),
+            'has_password': true,
+          },
+          'token': '1|mock-session',
+        };
+      }
+      return http.Response(jsonEncode({'data': result}), 200);
+    }),
+  );
   Widget app(MobileAuthService auth, String locale) => GetMaterialApp(
     locale: Locale(locale),
     translations: _Translations(),
@@ -105,6 +114,31 @@ void main() {
   );
 
   for (final locale in ['fr', 'ar']) {
+    testWidgets('Apple login button fits 320px $locale at 2x text', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(320, 568);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(app(service(apple: true), locale));
+      await tester.pumpAndSettle();
+      final button = find.widgetWithText(OutlinedButton, 'auth_apple'.tr);
+      expect(button, findsOneWidget);
+      await tester.ensureVisible(button);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      final style = tester.widget<OutlinedButton>(button).style!;
+      expect(
+        style.backgroundColor!.resolve({}),
+        locale == 'ar' ? Colors.white : Colors.black,
+      );
+      expect(
+        style.foregroundColor!.resolve({}),
+        locale == 'ar' ? Colors.black : Colors.white,
+      );
+    });
+
     testWidgets(
       'account registration and verification fit 320px $locale at 2x text',
       (tester) async {

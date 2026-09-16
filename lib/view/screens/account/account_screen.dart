@@ -418,6 +418,21 @@ class _AccountScreenState extends State<AccountScreen> {
               if (config.apple)
                 OutlinedButton.icon(
                   onPressed: _busy ? null : () => _run(_auth.signInWithApple),
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor:
+                        Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black,
+                    foregroundColor:
+                        Theme.of(context).brightness == Brightness.dark
+                        ? Colors.black
+                        : Colors.white,
+                    minimumSize: const Size(140, 48),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                  ),
                   icon: const Icon(Icons.apple),
                   label: Text('auth_apple'.tr),
                 ),

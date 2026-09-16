@@ -44,6 +44,13 @@ struct PrayerWidgetSnapshot: Codable {
         prayers.filter { calendar.isDate($0.instant, inSameDayAs: date) }
     }
 
+    func prayers(for displayedPrayer: PrayerWidgetPrayer) -> [PrayerWidgetPrayer] {
+        // The schedule follows the displayed prayer, including tomorrow's Fajr
+        // before midnight and an Isha whose adjusted time crosses midnight.
+        guard !displayedPrayer.date.isEmpty else { return prayers(on: displayedPrayer.instant) }
+        return prayers.filter { $0.date == displayedPrayer.date }
+    }
+
     // WidgetKit renders the system timer between these transitions. No polling,
     // GPS request or network access is needed in the extension.
     func transitions(after now: Date, seconds: Bool) -> [Date] {
@@ -76,6 +83,13 @@ struct PrayerWidgetPresentation {
     let prayer: PrayerWidgetPrayer
     let since: Bool
     let urgent: Bool
+
+    func minutes(at date: Date) -> Int {
+        let interval = since ? date.timeIntervalSince(prayer.instant) : prayer.instant.timeIntervalSince(date)
+        // Count remaining partial minutes, as on Android: the last 59 seconds
+        // must not look as though the prayer has already begun.
+        return max(0, Int(since ? floor(interval / 60) : ceil(interval / 60)))
+    }
 }
 
 struct PrayerWidgetOptions {

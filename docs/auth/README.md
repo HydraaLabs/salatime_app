@@ -27,6 +27,12 @@ Sur Android, créer le Service ID Apple, autoriser l’URL HTTPS `/api/mobile/au
 
 Sur iOS : ajouter la capacité Sign in with Apple dans Xcode, configurer les droits de signature et renouveler le provisioning. Le fragment `apple.entitlements.example` indique la valeur attendue, sans remplacer les autres droits du projet. Activer ensuite `--dart-define=SALATIME_APPLE_IOS_ENABLED=true`. Le backend doit accepter l’App ID natif configuré, distinct du Service ID Android.
 
+Configuration serveur pour l’app native : `MOBILE_APPLE_IOS_CLIENT_ID=net.salatime.app`, `MOBILE_APPLE_CLIENT_IDS` contenant cet identifiant, `MOBILE_APPLE_TEAM_ID`, `MOBILE_APPLE_KEY_ID` et `MOBILE_APPLE_PRIVATE_KEY_PATH`. Ce dernier désigne un fichier privé lisible par PHP, hors du répertoire public. Il s’agit d’une clé **Sign in with Apple** associée à l’App ID ; une clé API **App Store Connect** utilisée pour publier les versions ne la remplace pas. Aucun Service ID ou callback web n’est nécessaire pour la connexion native iOS.
+
+L’API expose désormais `apple.ios_enabled` et `apple.android_enabled`. La nouvelle version iOS exige `ios_enabled=true` ; déployer cette API avant la build. Android exige un Service ID présent dans les audiences autorisées et son callback HTTPS. Grouper ce Service ID avec le même App ID Apple pour que les connexions Android et iOS correspondent au même utilisateur. Configurer également les domaines/adresses d’envoi du service de relais Apple pour les emails destinés à `privaterelay.appleid.com`.
+
+Apple ne transmet le nom qu’à la première autorisation. Les connexions suivantes omettent ce champ et conservent le nom enregistré ; l’API accepte aussi le champ vide envoyé par les anciennes versions. Le client vérifie le `state` retourné et le backend vérifie la signature, l’audience et le nonce avant l’échange du code. Le refresh token est chiffré en base et révoqué avant la suppression du compte.
+
 ## Stockage et sauvegarde
 
 `flutter_secure_storage` utilise le namespace Android `salatime_auth` avec RSA OAEP + AES-GCM; les données et clés enveloppées sont exclues des sauvegardes et transferts Android. Sur iOS, la session utilise le Keychain `unlocked_this_device` et ne migre pas vers un autre appareil. Les jetons ne sont pas des préférences synchronisables.
@@ -40,3 +46,6 @@ Sources primaires :
 - https://pub.dev/packages/google_sign_in_ios
 - https://pub.dev/packages/sign_in_with_apple
 - https://pub.dev/packages/flutter_secure_storage
+- https://developer.apple.com/documentation/signinwithapple/authenticating-users-with-sign-in-with-apple
+- https://developer.apple.com/help/account/capabilities/configure-private-email-relay-service/
+- https://developer.apple.com/design/human-interface-guidelines/sign-in-with-apple

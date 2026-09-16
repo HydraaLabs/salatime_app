@@ -135,8 +135,11 @@ class MobileAuthConfiguration {
           (onAndroid || (onIos && googleIosReady && iosId != null)),
       apple:
           apple['enabled'] == true &&
-          ((onAndroid && appleId != null && secureRedirect) ||
-              (onIos && appleIosReady)),
+          ((onAndroid &&
+                  apple['android_enabled'] != false &&
+                  appleId != null &&
+                  secureRedirect) ||
+              (onIos && appleIosReady && apple['ios_enabled'] == true)),
       googleServerClientId: googleId,
       googleIosClientId: iosId,
       appleClientId: appleId,
@@ -195,7 +198,8 @@ class NativeMobileIdentityProvider implements MobileIdentityProvider {
           state is! String ||
           id is! String ||
           nonce.isEmpty ||
-          state.isEmpty) {
+          state.isEmpty ||
+          id.isEmpty) {
         throw const MobileAuthException('auth_service_unavailable');
       }
       if (!await SignInWithApple.isAvailable()) {
@@ -216,20 +220,27 @@ class NativeMobileIdentityProvider implements MobileIdentityProvider {
               )
             : null,
       );
-      if (credential.identityToken == null ||
-          (credential.state != null && credential.state != state)) {
+      final identityToken = credential.identityToken;
+      if (identityToken == null ||
+          identityToken.isEmpty ||
+          credential.authorizationCode.isEmpty ||
+          credential.state != state) {
         throw const MobileAuthException('auth_provider_unavailable');
       }
+      // Apple supplies the name only on the first authorization. Omitting it
+      // preserves the saved profile and avoids rejecting subsequent sign-ins.
+      final name = [credential.givenName, credential.familyName]
+          .whereType<String>()
+          .map((part) => part.trim())
+          .where((part) => part.isNotEmpty)
+          .join(' ');
       return {
-        'identity_token': credential.identityToken!,
+        'identity_token': identityToken,
         'authorization_code': credential.authorizationCode,
         'nonce': nonce,
         'state': state,
         'challenge_id': id,
-        'name': [
-          credential.givenName,
-          credential.familyName,
-        ].whereType<String>().join(' ').trim(),
+        if (name.isNotEmpty) 'name': String.fromCharCodes(name.runes.take(100)),
       };
     } on SignInWithAppleAuthorizationException catch (error) {
       if (error.code == AuthorizationErrorCode.canceled) {

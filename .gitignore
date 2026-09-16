@@ -121,3 +121,8 @@ sentry.properties
 !.env.example
 
 /ios/Flutter/SalaTime.local.xcconfig
+
+# Apple signing material must never enter the repository
+*.p8
+*.p12
+*.mobileprovision

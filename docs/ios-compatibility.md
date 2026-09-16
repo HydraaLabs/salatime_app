@@ -1,9 +1,10 @@
 # iOS compatibility
 
-This work adds an iOS WidgetKit extension and repairs native integration. A
+SalaTime includes an iOS WidgetKit extension and native platform integration. A
 successful simulator build does not establish that notifications, signing,
-provider login or sensors work on a physical iPhone. No App Store release is
-part of this change. The application, widget and Flutter framework target iOS
+provider login or sensors work on a physical iPhone. Compilation, physical-device
+validation and App Store publication are separate checks. The application,
+widget and Flutter framework target iOS
 15 or newer, matching [Apple’s supported deployment range for Xcode 26.3](https://developer.apple.com/xcode/system-requirements).
 
 ## Features and platform differences
@@ -14,7 +15,7 @@ part of this change. The application, widget and Flutter framework target iOS
 | Quran translations, Athkar, checked readings and statistics | Shared Flutter implementation and local/cloud persistence. Cloud writes retain the one-minute debounce. |
 | Light/dark/daylight appearance, language | Shared Flutter settings. Widget appearance follows the iPhone/widget system appearance. |
 | Small, medium and large home widgets | New WidgetKit extension, shared App Group data, three native families, startup invitation and settings entry. iOS requires manual addition through the Home Screen widget gallery. |
-| Widget data and timer | Offline snapshot of 30 days, independent of notification permissions. Elapsed time for 90 minutes after a prayer; countdown red below 45 minutes. System timer handles seconds; timeline handles phase changes. WidgetKit controls refresh timing. |
+| Widget data and timer | Offline snapshot of 30 days, independent of notification permissions. Elapsed time for 90 minutes after a prayer, switching to the next prayer once it is at most one hour away; countdown red below 45 minutes. System timer handles seconds; timeline handles phase changes. The displayed date follows the displayed prayer and the large schedule keeps a late Isha with its original prayer day. Minute countdowns round remaining time up, matching Android. WidgetKit controls refresh timing. |
 | Widget customization | Countdown, seconds, city, date, decorative symbol and background opacity are shared with iOS. Home Screen tint and system widget backgrounds can alter the final appearance. |
 | Adhan, before/after reminders, additional reminders | Local iOS notifications use the existing nearest-60 scheduling budget, including other pending notifications. App opening/resuming and settings changes refill the window. With many reminders enabled this can cover only a few days. No guaranteed renewal after prolonged app closure is claimed. |
 | Bundled notification sounds | 68 AIFF resources, each shorter than 30 seconds. iOS notification playback is a short excerpt; bundled in-app previews can play the full source. Normal notifications respect system silence/Focus settings. |
@@ -25,6 +26,7 @@ part of this change. The application, widget and Flutter framework target iOS
 | Google login | Requires an iOS OAuth client matching the signed bundle ID, its reversed URL scheme, backend `ios_client_id` and the compile-time enable flag. The deployed API had no iOS client ID at audit time. |
 | Apple login | Requires an active Apple Developer configuration, Sign in with Apple capability, backend Apple provider configuration and the enable flag. The deployed API had Apple disabled at audit time. |
 | Downloads / sharing | App Documents writes no longer request Android storage permission on iOS. Share sheets have a popover origin for iPad. |
+| Wallpaper | Download/share flow is shared. Directly applying a wallpaper remains Android-only; iPhone users select the saved image through iOS. |
 | Automatic phone silence / restoring DND | Android feature; an ordinary iOS application cannot toggle the device's global silent/Focus mode. |
 | Store review | The automatic Google Play invitation remains Android-only. The iOS settings link requires a configured App Store listing. |
 
@@ -50,6 +52,44 @@ compass calibration was verified. The public account configuration was rechecked
 on this date: email enabled, Google iOS client absent, Apple provider disabled.
 Cloud writes remain delayed by one minute, but iOS suspension can postpone a
 pending write until the app resumes.
+
+## Local parity review — 17 September 2026
+
+The shared regression suite passed **590 Flutter tests**, and `flutter analyze`
+reported no issues on the Linux workspace. The suite includes iOS notification
+sound/silence and badge behavior, widget onboarding/settings, imported audio,
+offline Quran, prayer calculations/adjustments, cloud synchronization, sharing,
+and layout tests. These are automated code checks, not physical-iPhone results.
+
+The review repaired two native widget differences from Android:
+
+- The large widget's timetable and displayed date now follow the displayed
+  prayer when the countdown switches to tomorrow before midnight. Prayer-day
+  grouping also keeps an Isha adjusted past midnight with its original timetable.
+- With seconds hidden, the countdown rounds remaining minutes up, preventing
+  `00:00` from appearing while a prayer is still up to 59 seconds away. Elapsed
+  minutes continue to round down.
+
+Native regression coverage now includes these boundaries and late-Isha grouping.
+The additional XCTest cases must run on macOS; the Linux Flutter suite cannot
+execute WidgetKit or XCTest. The historical macOS run above does not validate
+these later native edits or a signed release.
+
+Before claiming iPhone parity, record results on a signed physical-device build:
+
+| Check | Required result |
+| --- | --- |
+| Installation and first launch | Cold startup, language selection, permission refusal/retry, and saved/manual city all work. |
+| Widgets | Add all three sizes; change options; check tomorrow before midnight, late Isha, city time zone, elapsed/next switch, and last minute. |
+| Prayer notifications | Receive adhan and before/after/additional reminders in foreground, background, and with the phone locked; check silent/Focus behavior and imported audio. Reopen after the rolling schedule expires and confirm renewal. |
+| Quran and audio | Read/bookmark/check passages offline; resume cloud synchronization when online; play/pause Quran with lock-screen audio controls. |
+| Location and Qibla | Revoke/regrant location, change manual city, move with auto-update enabled, rotate/calibrate the compass, and leave the screen to stop sensors. |
+| Account | Complete email, enabled provider logins, logout/relogin, account deletion, and preference restoration. |
+| iPad | Check both orientations, text scaling, calendar export, and share sheets. |
+
+An adhan notification's short audio excerpt, the rolling notification window,
+manual widget addition, and the absence of global silent/Focus control are
+documented iOS differences; they are not evidence of Android-equivalent behavior.
 
 ## Configure a signed iPhone build
 

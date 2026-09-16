@@ -54,7 +54,7 @@ class RunnerTests: XCTestCase {
     XCTAssertEqual(presentation.prayer.prayerId, 4)
     XCTAssertFalse(presentation.since)
     XCTAssertFalse(presentation.urgent)
-    XCTAssertEqual(data.prayers(on: presentation.prayer.instant).map(\.prayerId), [4])
+    XCTAssertEqual(data.prayers(for: presentation.prayer).map(\.prayerId), [4])
     XCTAssertEqual(data.calendar.component(.day, from: presentation.prayer.instant), 17)
     XCTAssertEqual(data.calendar.component(.day, from: beforeMidnight), 16)
     XCTAssertTrue(data.transitions(after: previous, seconds: true)
@@ -78,6 +78,40 @@ class RunnerTests: XCTestCase {
     XCTAssertEqual(PrayerWidgetOptions(["opacity": -10]).opacity, 0)
     XCTAssertEqual(PrayerWidgetOptions(["opacity": 200]).opacity, 100)
     XCTAssertTrue(PrayerWidgetOptions().countdown)
+  }
+
+  func testMinuteCountdownRoundsUpAndElapsedRoundsDown() throws {
+    let data = snapshot()
+    let next = base.addingTimeInterval(3 * 3600)
+    for (remaining, minutes) in [(61.0, 2), (60.0, 1), (59.0, 1), (1.0, 1)] {
+      let now = next.addingTimeInterval(-remaining)
+      let presentation = try XCTUnwrap(data.presentation(at: now))
+      XCTAssertFalse(presentation.since)
+      XCTAssertEqual(presentation.minutes(at: now), minutes)
+    }
+    for (elapsed, minutes) in [(0.0, 0), (59.0, 0), (60.0, 1), (61.0, 1)] {
+      let now = base.addingTimeInterval(elapsed)
+      let presentation = try XCTUnwrap(data.presentation(at: now))
+      XCTAssertTrue(presentation.since)
+      XCTAssertEqual(presentation.minutes(at: now), minutes)
+    }
+  }
+
+  func testScheduleKeepsLateIshaWithItsPrayerDay() throws {
+    let lateIsha = try XCTUnwrap(ISO8601DateFormatter().date(from: "2026-09-17T00:15:00Z"))
+    let data = PrayerWidgetSnapshot(prayers: [
+      PrayerWidgetPrayer(at: lateIsha.addingTimeInterval(-3 * 3600).timeIntervalSince1970 * 1000,
+                         prayerId: 4, date: "2026-09-16", name: "Maghrib", shortName: "Maghrib"),
+      PrayerWidgetPrayer(at: lateIsha.timeIntervalSince1970 * 1000,
+                         prayerId: 5, date: "2026-09-16", name: "Isha", shortName: "Isha"),
+      PrayerWidgetPrayer(at: lateIsha.addingTimeInterval(5 * 3600).timeIntervalSince1970 * 1000,
+                         prayerId: 1, date: "2026-09-17", name: "Fajr", shortName: "Fajr")
+    ], city: "Fès", nextLabel: "Next", sinceLabel: "Since @prayer", emptyLabel: "Open SalaTime",
+       locale: "en", timeZone: "UTC", use24HourFormat: true)
+    let isha = try XCTUnwrap(data.presentation(at: lateIsha.addingTimeInterval(-3600)))
+    XCTAssertEqual(data.prayers(for: isha.prayer).map(\.prayerId), [4, 5])
+    let fajr = try XCTUnwrap(data.presentation(at: lateIsha.addingTimeInterval(2 * 3600)))
+    XCTAssertEqual(data.prayers(for: fajr.prayer).map(\.prayerId), [1])
   }
   func testAllBundledNotificationSoundsMeetIOSDurationLimit() throws {
     let files = try XCTUnwrap(Bundle.main.urls(forResourcesWithExtension: "aiff", subdirectory: nil))
