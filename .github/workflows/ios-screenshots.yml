@@ -1,0 +1,53 @@
+name: iOS App Store screenshots
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: macos-15
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        family: [iphone, ipad]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select Xcode and location time zone
+        run: |
+          sudo xcode-select --switch /Applications/Xcode_26.3.app/Contents/Developer
+          sudo systemsetup -settimezone Africa/Casablanca
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.8'
+          channel: stable
+          cache: true
+      - name: Select full-size store simulator
+        env:
+          CAPTURE_FAMILY: ${{ matrix.family }}
+        run: |
+          python3 - <<'PY'
+          import json, os, subprocess
+          data = json.loads(subprocess.check_output(['xcrun', 'simctl', 'list', 'devices', 'available', '-j']))
+          names = ['iPhone 17 Pro Max', 'iPhone 16 Pro Max', 'iPhone 15 Pro Max'] if os.environ['CAPTURE_FAMILY'] == 'iphone' else ['iPad Pro 13-inch (M5)', 'iPad Pro 13-inch (M4)']
+          devices = [device for runtime, group in data['devices'].items() if 'iOS' in runtime for device in group]
+          device = next((d for name in names for d in devices if d['name'] == name), None)
+          if device is None:
+              raise SystemExit('No supported App Store size simulator is installed: ' + ', '.join(d['name'] for d in devices))
+          with open(os.environ['GITHUB_ENV'], 'a') as env:
+              env.write('SIMULATOR_ID=' + device['udid'] + '\n')
+          print(device['name'], device['udid'])
+          subprocess.run(['xcrun', 'simctl', 'boot', device['udid']], check=device['state'] != 'Booted')
+          subprocess.run(['xcrun', 'simctl', 'bootstatus', device['udid'], '-b'], check=True)
+          subprocess.run(['xcrun', 'simctl', 'status_bar', device['udid'], 'override', '--time', '9:41', '--dataNetwork', 'wifi', '--wifiMode', 'active', '--wifiBars', '3', '--batteryState', 'charged', '--batteryLevel', '100'], check=True)
+          PY
+      - name: Resolve dependencies
+        run: flutter pub get
+      - name: Capture real application screens
+        run: python3 scripts/capture_ios.py --device "$SIMULATOR_ID" --output "build/app-store/${{ matrix.family }}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: SalaTime-App-Store-${{ matrix.family }}
+          path: build/app-store/${{ matrix.family }}
+          retention-days: 14
