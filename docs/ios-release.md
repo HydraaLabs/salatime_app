@@ -1,0 +1,88 @@
+# Signed iOS release
+
+The manually dispatched `iOS App Store release` GitHub Actions workflow builds
+SalaTime on macOS 15 with Xcode 26.3 and Flutter 3.41.8. It checks the public
+production account configuration, runs the Flutter analyzer and tests plus the
+iOS simulator native regression suite, archives
+Runner and its WidgetKit extension, exports a signed App Store IPA, and checks
+the entitlements of both the archive and the exported IPA.
+
+## Apple configuration
+
+Register these explicit identifiers on the same Apple Developer team:
+
+| Target | Bundle identifier | Required capabilities |
+| --- | --- | --- |
+| Runner | `net.salatime.app` | Sign in with Apple, App Groups, Keychain |
+| SalaTimeWidget | `net.salatime.app.SalaTimeWidget` | App Groups |
+
+Both targets use `group.net.salatime.app`. The App Store provisioning profiles
+must include that group, match the installed Apple Distribution certificate,
+and remain valid for more than 24 hours. The app profile must also permit Apple
+login and the app's Keychain group. Development, ad hoc and enterprise profiles
+are rejected before compilation.
+
+Create the matching app record in App Store Connect before uploading. Configure
+the production account API to accept the native app's Apple audience and expose
+`apple.enabled=true` and `apple.ios_enabled=true`. The workflow checks that
+configuration and compiles with `SALATIME_APPLE_IOS_ENABLED=true`.
+
+## GitHub repository configuration
+
+Set repository secrets through GitHub's encrypted secret interface:
+
+| Secret | Value |
+| --- | --- |
+| `ASC_API_KEY_P8` | Raw PEM content of the App Store Connect API private key |
+| `ASC_KEY_ID` | App Store Connect API key identifier |
+| `ASC_ISSUER_ID` | App Store Connect issuer UUID |
+| `IOS_DISTRIBUTION_P12_BASE64` | Single-line base64 of the Apple Distribution certificate and private key in PKCS#12 format |
+| `IOS_DISTRIBUTION_P12_PASSWORD` | Password protecting that PKCS#12 file |
+| `IOS_APP_PROFILE_BASE64` | Single-line base64 of the app's App Store provisioning profile |
+| `IOS_WIDGET_PROFILE_BASE64` | Single-line base64 of the widget's App Store provisioning profile |
+
+Set repository variable `IOS_TEAM_ID` to the Apple Developer team ID. The API
+key needs permission to upload to the corresponding App Store Connect app.
+Never paste key material into issues, logs, workflow inputs or this repository.
+
+Google login remains disabled on iOS until its OAuth client is configured in
+the production API. Once configured, set repository variable
+`IOS_GOOGLE_REVERSED_CLIENT_ID` to its reversed URL scheme. The workflow compares
+that scheme with the API's iOS client ID and only then enables the Google flag.
+Android provider settings are independent.
+
+## Build and upload
+
+Open the repository's Actions page, choose **iOS App Store release**, and run it
+against the reviewed commit. Supply a build number that has never been uploaded
+for this app version. The default `26` is only a starting value; increment it for
+each upload. The app version comes from `pubspec.yaml`.
+
+`upload_to_testflight=false` builds and saves the validated IPA without an
+upload. Set it to `true` to validate with Apple and upload to App Store Connect.
+There are no push or pull-request triggers. The concurrency group queues release
+runs instead of cancelling an upload already in progress.
+
+The IPA and a public validation report are retained as build artifacts for seven
+days. Private keys, the PKCS#12 file and unembedded profile copies are held in
+`RUNNER_TEMP`; an `always()` cleanup removes them and restores the runner's
+keychain search list. No raw signing material is included as a CI artifact.
+An IPA necessarily contains its signed distribution profiles and public
+certificates, as required by iOS.
+
+Successful upload means Apple accepted the transfer. Check processing status,
+TestFlight availability and installation separately. Public App Store release
+also requires listing metadata, screenshots, privacy answers, review submission
+and Apple's approval. A successful CI build does not verify physical-device
+Apple login, reminder delivery, location/compass behavior or widget refresh.
+Use the iOS compatibility checklist for those device checks.
+
+## Local checks without a Mac
+
+Run `python3 tool/ios_release.py self-test` to check profile rejection safeguards
+and `ruby -c tool/ios_release_signing.rb` to check Ruby syntax. macOS and real
+signing material are needed to validate a signed archive and IPA.
+
+Sources: [Flutter iOS deployment](https://docs.flutter.dev/deployment/ios),
+[GitHub signing on macOS runners](https://docs.github.com/en/actions/how-tos/deploy/deploy-to-third-party-platforms/sign-xcode-applications),
+[Apple build uploads](https://developer.apple.com/help/app-store-connect/manage-builds/upload-builds).

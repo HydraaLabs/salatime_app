@@ -1,0 +1,113 @@
+name: iOS App Store release
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_number:
+        description: Unique CFBundleVersion for this upload
+        required: true
+        default: '26'
+        type: string
+      upload_to_testflight:
+        description: Upload the validated IPA to App Store Connect
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-app-store-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: macos-15
+    timeout-minutes: 75
+    env:
+      IOS_TEAM_ID: ${{ vars.IOS_TEAM_ID }}
+      IOS_GOOGLE_REVERSED_CLIENT_ID: ${{ vars.IOS_GOOGLE_REVERSED_CLIENT_ID }}
+      RELEASE_BUILD_NUMBER: ${{ inputs.build_number }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Select Xcode 26.3 and check release configuration
+        run: |
+          test -d /Applications/Xcode_26.3.app
+          sudo xcode-select --switch /Applications/Xcode_26.3.app/Contents/Developer
+          xcodebuild -version
+          python3 tool/ios_release.py preflight
+          python3 tool/ios_release.py self-test
+          ruby -e 'require "xcodeproj"; puts "xcodeproj #{Xcodeproj::VERSION}"'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.8'
+          channel: stable
+          cache: true
+      - name: Resolve dependencies and verify shared code
+        run: |
+          flutter pub get
+          flutter analyze
+          flutter test --dart-define=SALATIME_APPLE_IOS_ENABLED=true
+      - name: Build simulator and run native iOS regression tests
+        run: |
+          flutter build ios --simulator --debug --no-codesign \
+            --dart-define=SALATIME_APPLE_IOS_ENABLED=true \
+            --dart-define=SALATIME_GOOGLE_IOS_ENABLED="$GOOGLE_IOS_ENABLED"
+          SIMULATOR_ID=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; data=json.load(sys.stdin); print(next(d["udid"] for devices in data["devices"].values() for d in devices if d["name"].startswith("iPhone")))')
+          xcrun simctl boot "$SIMULATOR_ID" || true
+          xcrun simctl bootstatus "$SIMULATOR_ID" -b
+          xcodebuild -quiet -workspace ios/Runner.xcworkspace -scheme Runner \
+            -configuration Debug -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
+            -parallel-testing-enabled NO BUILD_DIR="$PWD/build/ios" \
+            ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO -only-testing:RunnerTests test
+      - name: Prepare App Store signing
+        env:
+          IOS_DISTRIBUTION_P12_BASE64: ${{ secrets.IOS_DISTRIBUTION_P12_BASE64 }}
+          IOS_DISTRIBUTION_P12_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_P12_PASSWORD }}
+          IOS_APP_PROFILE_BASE64: ${{ secrets.IOS_APP_PROFILE_BASE64 }}
+          IOS_WIDGET_PROFILE_BASE64: ${{ secrets.IOS_WIDGET_PROFILE_BASE64 }}
+        run: |
+          python3 tool/ios_release.py prepare
+          ruby tool/ios_release_signing.rb "$RUNNER_TEMP/salatime-ios-signing/state.json"
+      - name: Build signed App Store archive and IPA
+        run: |
+          flutter build ipa --release \
+            --build-number="$RELEASE_BUILD_NUMBER" \
+            --export-options-plist="$RUNNER_TEMP/salatime-ios-signing/ExportOptions.plist" \
+            --dart-define=SALATIME_APPLE_IOS_ENABLED=true \
+            --dart-define=SALATIME_GOOGLE_IOS_ENABLED="$GOOGLE_IOS_ENABLED"
+      - name: Verify signed archive, IPA and WidgetKit extension
+        run: python3 tool/ios_release.py verify
+      - name: Save validated distribution files
+        uses: actions/upload-artifact@v4
+        with:
+          name: SalaTime-iOS-${{ inputs.build_number }}
+          path: |
+            build/ios/ipa/*.ipa
+            build/ios/release-validation.json
+          if-no-files-found: error
+          retention-days: 7
+      - name: Upload validated build to App Store Connect
+        if: inputs.upload_to_testflight
+        env:
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          API_PRIVATE_KEYS_DIR: ${{ runner.temp }}/salatime-ios-signing/private_keys
+        run: |
+          python3 tool/ios_release.py api-key
+          shopt -s nullglob
+          packages=(build/ios/ipa/*.ipa)
+          test "${#packages[@]}" -eq 1
+          xcrun altool --validate-app --type ios --file "${packages[0]}" \
+            --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
+          xcrun altool --upload-app --type ios --file "${packages[0]}" \
+            --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
+          printf '%s\n' 'Upload accepted. Apple processing and TestFlight availability must be checked in App Store Connect.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Remove signing material
+        if: always()
+        run: python3 tool/ios_release.py cleanup
