@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.NotificationChannel;
 import android.content.Context;
 import android.os.SystemClock;
 import android.view.View;
@@ -88,13 +89,14 @@ public class SalaTimeAdhanNotificationTest {
                 .findViewById(R.id.adhan_notification_elapsed)).getBase();
         SalaTimePrayerAlarmReceiver.showSilent(app, d);
         NotificationManager manager = (NotificationManager)app.getSystemService(Context.NOTIFICATION_SERVICE);
-        Notification n = Shadows.shadowOf(manager).getNotification(d.id);
+        Notification n = Shadows.shadowOf(manager).getNotification(SalaTimeNotificationTray.PRAYER_ID);
         Chronometer timer = inflate(n).findViewById(R.id.adhan_notification_elapsed);
         // Application wall time and Robolectric uptime are separate clocks.
         assertEquals(originalBase, timer.getBase(), 1000);
         long elapsed = SystemClock.elapsedRealtime() - timer.getBase();
         SystemClock.sleep(60000);
         assertEquals(elapsed + 60000, SystemClock.elapsedRealtime() - timer.getBase());
+        assertQuietPriority(n);
         assertNull(n.sound);
         assertEquals(0, n.flags & Notification.FLAG_ONGOING_EVENT);
         assertTrue(n.actions == null || n.actions.length == 0);
@@ -194,11 +196,12 @@ public class SalaTimeAdhanNotificationTest {
         assertEquals(at + hour, alarms().getScheduledAlarms().get(0).triggerAtTime);
         for (long now : new long[] {at + hour, at + 3 * hour}) {
             SalaTimeAdhanNotificationReceiver.refresh(app, d.id, now);
-            Notification n = Shadows.shadowOf(notifications()).getNotification(d.id);
+            Notification n = Shadows.shadowOf(notifications()).getNotification(SalaTimeNotificationTray.PRAYER_ID);
             Chronometer timer = inflate(n).findViewById(R.id.adhan_notification_elapsed);
             assertTrue(timer.isCountDown());
             assertEquals(app.getColor(now == at + hour ? R.color.adhan_elapsed_green
                     : R.color.adhan_countdown_red), timer.getCurrentTextColor());
+            assertQuietPriority(n);
             assertNull(n.sound);
             assertNull(n.vibrate);
             assertEquals(0, n.number);
@@ -217,7 +220,7 @@ public class SalaTimeAdhanNotificationTest {
         NotificationDetails d = withNext();
         long at = SalaTimeAdhanNotification.prayerAt(new JSONObject(d.payload));
         SalaTimePrayerAlarmReceiver.showSilent(app, d);
-        notifications().cancel(d.id);
+        notifications().cancel(SalaTimeNotificationTray.PRAYER_ID);
         SalaTimeAdhanNotificationReceiver.refresh(app, d.id, at + SalaTimeAdhanNotification.HOUR);
         assertEquals(0, notifications().getActiveNotifications().length);
         assertTrue(alarms().getScheduledAlarms().isEmpty());
@@ -226,7 +229,7 @@ public class SalaTimeAdhanNotificationTest {
         newer.id = d.id + 1;
         SalaTimePrayerAlarmReceiver.showSilent(app, newer);
         assertEquals(1, notifications().getActiveNotifications().length);
-        assertEquals((int)newer.id, notifications().getActiveNotifications()[0].getId());
+        assertEquals(SalaTimeNotificationTray.PRAYER_ID, notifications().getActiveNotifications()[0].getId());
         SalaTimeAdhanNotificationReceiver.refresh(app, d.id, at + 5 * SalaTimeAdhanNotification.HOUR);
         assertEquals("Stale deliveries must not dismiss the new prayer", 1, notifications().getActiveNotifications().length);
     }
@@ -254,6 +257,68 @@ public class SalaTimeAdhanNotificationTest {
         SalaTimePrayerAlarmReceiver.showSilent(app, withNext());
         assertEquals(1, alarms().getScheduledAlarms().size());
         assertNull(((AlarmManager)app.getSystemService(Context.ALARM_SERVICE)).getNextAlarmClock());
+    }
+
+    private void assertQuietPriority(Notification n) {
+        assertEquals(NotificationCompat.PRIORITY_LOW, n.priority);
+        assertEquals(NotificationCompat.CATEGORY_STATUS, n.category);
+        assertEquals(0, n.flags & Notification.FLAG_ONGOING_EVENT);
+        if (Build.VERSION.SDK_INT >= 26) {
+            assertEquals(SalaTimeAdhanNotification.TRACKING_CHANNEL, n.getChannelId());
+            NotificationChannel channel = notifications().getNotificationChannel(n.getChannelId());
+            assertEquals(NotificationManager.IMPORTANCE_LOW, channel.getImportance());
+            assertNull(channel.getSound());
+            assertFalse(channel.shouldVibrate());
+            assertFalse(channel.canShowBadge());
+        }
+    }
+
+    @Test public void quietChannelDoesNotLowerTheNextAudibleAdhanPriority() throws Exception {
+        NotificationDetails d = withNext();
+        Notification quiet = SalaTimeAdhanNotification.silentNotification(app, d, System.currentTimeMillis());
+        assertQuietPriority(quiet);
+        Notification audible = SalaTimeAdhanNotification.builder(app, d).build();
+        assertEquals(NotificationCompat.PRIORITY_HIGH, audible.priority);
+        if (Build.VERSION.SDK_INT >= 26) {
+            assertEquals(d.channelId, audible.getChannelId());
+            assertEquals(NotificationManager.IMPORTANCE_HIGH,
+                    notifications().getNotificationChannel(d.channelId).getImportance());
+            assertEquals("Suivi des prières", notifications().getNotificationChannel(
+                    SalaTimeAdhanNotification.TRACKING_CHANNEL).getName());
+        }
+    }
+
+    @Test @Config(sdk = 33) public void disabledPrayerChannelCannotBeBypassedByTrackingChannel() throws Exception {
+        NotificationDetails d = withNext();
+        notifications().createNotificationChannel(new NotificationChannel(
+                d.channelId, "Adhan", NotificationManager.IMPORTANCE_NONE));
+        SalaTimePrayerAlarmReceiver.showSilent(app, d);
+        assertEquals(0, notifications().getActiveNotifications().length);
+        assertTrue(alarms().getScheduledAlarms().isEmpty());
+    }
+
+    @Test @Config(sdk = 33) public void disabledTrackingChannelIsRespectedOnEveryTransition() throws Exception {
+        NotificationDetails d = withNext();
+        SalaTimePrayerAlarmReceiver.showSilent(app, d);
+        assertEquals(1, notifications().getActiveNotifications().length);
+        NotificationChannel tracking = notifications().getNotificationChannel(SalaTimeAdhanNotification.TRACKING_CHANNEL);
+        tracking.setImportance(NotificationManager.IMPORTANCE_NONE);
+        notifications().createNotificationChannel(tracking);
+        long at = SalaTimeAdhanNotification.prayerAt(new JSONObject(d.payload));
+        SalaTimeAdhanNotificationReceiver.refresh(app, d.id, at + SalaTimeAdhanNotification.HOUR);
+        assertEquals(0, notifications().getActiveNotifications().length);
+        assertTrue(alarms().getScheduledAlarms().isEmpty());
+        assertEquals(NotificationManager.IMPORTANCE_NONE,
+                notifications().getNotificationChannel(SalaTimeAdhanNotification.TRACKING_CHANNEL).getImportance());
+    }
+
+    @Test public void lateNonAdhanRemindersKeepTheirExistingChannel() throws Exception {
+        NotificationDetails d = details();
+        d.payload = new JSONObject(d.payload).put("kind", "before").toString();
+        Notification n = SalaTimeAdhanNotification.silentNotification(app, d, System.currentTimeMillis());
+        assertEquals(d.priority.intValue(), n.priority);
+        if (Build.VERSION.SDK_INT >= 26) assertEquals(d.channelId, n.getChannelId());
+        assertNull(n.sound);
     }
 
 }

@@ -119,8 +119,10 @@ public class SalaTimeAdhanService extends Service {
                     .setSilent(true).setOngoing(true).setAutoCancel(false)
                     .setCategory(NotificationCompat.CATEGORY_ALARM)
                     .addAction(0, payload.optString("stopLabel", "Stop"), stop).build();
-            startForeground(details.id, notification);
-            SalaTimeAdhanNotificationReceiver.onPosted(this, details);
+            synchronized (SalaTimeNotificationTray.class) {
+                startForeground(SalaTimeNotificationTray.displayId(details), notification);
+                SalaTimeNotificationTray.foregroundPosted(this, details);
+            }
 
             // Re-check after service startup; Android can also delay this step.
             long startedAt = System.currentTimeMillis();

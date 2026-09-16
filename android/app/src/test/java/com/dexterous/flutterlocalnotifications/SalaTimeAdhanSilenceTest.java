@@ -134,15 +134,20 @@ public class SalaTimeAdhanSilenceTest {
     private void assertSilentNotification() {
         StatusBarNotification[] posted = notifications.getActiveNotifications();
         assertEquals("Keep the prayer visible even when audio is muted", 1, posted.length);
-        assertEquals(ID, posted[0].getId());
+        assertEquals(SalaTimeNotificationTray.PRAYER_ID, posted[0].getId());
         Notification notification = posted[0].getNotification();
         assertNotNull(notification.contentView);
         android.view.View content = notification.contentView.apply(app, new android.widget.FrameLayout(app));
         assertNotNull(content.findViewById(com.example.zabi.R.id.adhan_notification_elapsed));
+        assertEquals(NotificationCompat.PRIORITY_LOW, notification.priority);
+        assertEquals(NotificationCompat.CATEGORY_STATUS, notification.category);
         assertNull(notification.sound);
         assertNull(notification.vibrate);
         assertEquals(0, notification.defaults & (Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE));
         if (Build.VERSION.SDK_INT >= 26) {
+            assertEquals(SalaTimeAdhanNotification.TRACKING_CHANNEL, notification.getChannelId());
+            assertEquals(NotificationManager.IMPORTANCE_LOW,
+                    notifications.getNotificationChannel(notification.getChannelId()).getImportance());
             assertFalse(notifications.getNotificationChannel(notification.getChannelId()).canShowBadge());
         }
     }

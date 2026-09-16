@@ -57,6 +57,49 @@ restauration, affichage, langue arabe, thème sombre, mode silencieux, contrôle
 audio et alarmes) réussis ; analyse
 Dart ciblée sans erreur. Aucun appareil ADB connecté pendant cette validation.
 
+### Priorité après la lecture
+
+Pendant l'audio, la notification reste sur le canal d'adhan prioritaire avec
+l'action « Arrêter ». Dès la fin, l'arrêt ou la suppression du son, le suivi
+utilise `prayer_tracking_no_badge_v1` (« Suivi des prières ») : importance LOW,
+catégorie STATUS, sans son, vibration, badge ou maintien au premier plan. Les
+mises à jour du compteur gardent ce canal, y compris au passage en rouge.
+Android 7 utilise également la priorité LOW. La création du canal de suivi ne
+modifie pas les canaux d'adhan et ne contourne pas leur désactivation par
+l'utilisateur. L'ordre final reste décidé par Android/One UI et ses réglages.
+
+Validation du correctif : 128 tests Android natifs réussis (API 24/33),
+avec vérification du canal et de la priorité après arrêt, pendant les transitions,
+et du respect des canaux désactivés. Samsung non connecté pendant ces tests.
+
+### Une seule notification conservée
+
+Le suivi et la lecture de l'adhan partagent maintenant l'identifiant d'affichage
+9901. Les identifiants des occurrences programmées, leurs actions et leurs données
+restent distincts : remplacer une carte ne supprime aucune alarme à venir.
+Les transitions de compteur mettent à jour cette même carte ; publication et
+état sauvegardé sont protégés contre une mise à jour concurrente en arrière-plan.
+
+Avant/après l'adhan et autres rappels utilisent une seule carte temporaire (9902),
+qui remplace le rappel précédent. Sa durée est de 60 secondes, raccourcie à
+l'heure de la prière pour un rappel « avant ». Android 8+ reçoit une expiration
+système ; une alarme native assure aussi le retrait sur Android 7 et restaure
+le délai après recréation du processus. Les restrictions d'alarmes Android
+peuvent retarder ce repli. L'arrivée de l'adhan retire le rappel immédiatement.
+Les sons configurés et les futures programmations sont conservés.
+
+À la publication d'une alerte et au rétablissement des alarmes (lancement,
+reprise ou mise à jour), les anciennes cartes de prière/rappel sont retirées
+selon leurs identifiants et canaux connus. Les notifications d'autres fonctions
+et les services audio en cours restent protégés. Si un compteur d'une version
+précédente est encore affiché avec son état sauvegardé, il est repris sous 9901.
+Les notifications effacées volontairement ne sont pas recréées.
+
+Validation du 16 septembre 2026 : 140 tests Android réussis (API 24/33),
+dont répétition des prières, remplacement/expiration des rappels, ancienne pile,
+conservation des futures alarmes et reprise du compteur existant. Pas de Samsung
+connecté pendant cette validation.
+
 ### Commandes pendant la lecture
 
 - SalaTime visible : Volume +, Volume − ou Muet arrête l'adhan actif, y compris

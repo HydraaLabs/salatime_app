@@ -141,6 +141,7 @@ public final class SalaTimePrayerAlarms {
     }
 
     public static Map<String, Object> routeAll(Context context) throws Exception {
+        SalaTimeAdhanNotificationReceiver.restore(context);
         int routed = 0, failed = 0;
         boolean inexact = false;
         JSONArray rows = cached(context);

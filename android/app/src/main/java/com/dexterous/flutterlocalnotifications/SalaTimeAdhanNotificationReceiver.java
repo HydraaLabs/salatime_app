@@ -11,7 +11,6 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
-import androidx.core.app.NotificationCompat;
 import com.dexterous.flutterlocalnotifications.models.NotificationDetails;
 import org.json.JSONObject;
 
@@ -64,10 +63,6 @@ public class SalaTimeAdhanNotificationReceiver extends BroadcastReceiver {
             JSONObject payload = new JSONObject(details.payload);
             if (!"adhan".equals(payload.optString("kind")) || payload.optBoolean("test", false)
                     || SalaTimeAdhanNotification.prayerAt(payload) <= 0) return;
-            NotificationDetails previous = saved(context);
-            if (previous != null && !previous.id.equals(details.id)) {
-                ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(previous.id);
-            }
             if (!preferences(context).edit().putString(ROW,
                     FlutterLocalNotificationsPlugin.buildGson().toJson(details)).commit()) {
                 throw new IllegalStateException("Could not save notification transition");
@@ -84,17 +79,34 @@ public class SalaTimeAdhanNotificationReceiver extends BroadcastReceiver {
 
     static void restore(Context context) {
         refresh(context, -1, System.currentTimeMillis());
+        SalaTimeNotificationTray.cleanupLegacy(context);
+        SalaTimeNotificationTray.expire(context, System.currentTimeMillis());
     }
 
     static void refresh(Context context, int expectedId, long now) {
+        // A background refresh must not overwrite the next prayer between its
+        // notification post and saved-state commit (the display ID is shared).
+        synchronized (SalaTimeNotificationTray.class) {
+            refreshLocked(context, expectedId, now);
+        }
+    }
+
+    private static void refreshLocked(Context context, int expectedId, long now) {
         try {
             NotificationDetails details = saved(context);
             if (details == null) { clear(context); return; }
             if (expectedId != -1 && expectedId != details.id) return; // A newer prayer replaced it.
             NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             Notification active = null;
+            int visibleId = SalaTimeNotificationTray.PRAYER_ID;
+            // Adopt the notification saved by a pre-single-card version if still visible.
             for (StatusBarNotification row : manager.getActiveNotifications()) {
-                if (row.getId() == details.id && row.getTag() == null) active = row.getNotification();
+                if (row.getTag() == null && (row.getId() == SalaTimeNotificationTray.PRAYER_ID || row.getId() == details.id)) {
+                    if (active == null || row.getId() == SalaTimeNotificationTray.PRAYER_ID) {
+                        active = row.getNotification();
+                        visibleId = row.getId();
+                    }
+                }
             }
             // In particular, never restore a user-dismissed notification or one cleared at reboot.
             if (active == null) { clear(context); return; }
@@ -102,15 +114,19 @@ public class SalaTimeAdhanNotificationReceiver extends BroadcastReceiver {
             JSONObject next = SalaTimeAdhanNotification.nextPrayer(payload);
             if (now < SalaTimeAdhanNotification.prayerAt(payload)
                     || (next != null && now >= SalaTimeAdhanNotification.prayerAt(next))) {
-                manager.cancel(details.id);
+                manager.cancel(visibleId);
                 clear(context);
                 return;
             }
             if ((active.flags & Notification.FLAG_ONGOING_EVENT) == 0) {
-                Notification base = FlutterLocalNotificationsPlugin.createNotification(context, details);
-                Notification notification = SalaTimeAdhanNotification.decorate(context, details, base, now)
-                        .setSilent(true).setOnlyAlertOnce(true).setPriority(NotificationCompat.PRIORITY_LOW).build();
-                manager.notify(details.id, notification);
+                Notification notification = SalaTimeAdhanNotification.silentNotification(context, details, now);
+                if (notification == null) {
+                    manager.cancel(visibleId);
+                    clear(context);
+                    return;
+                }
+                manager.notify(SalaTimeNotificationTray.PRAYER_ID, notification);
+                if (visibleId != SalaTimeNotificationTray.PRAYER_ID) manager.cancel(visibleId);
             }
             // An in-flight audio notification keeps its stop action. Its first transition is still an hour away.
             schedule(context, details, payload, now);

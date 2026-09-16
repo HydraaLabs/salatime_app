@@ -3,6 +3,7 @@ package com.dexterous.flutterlocalnotifications;
 import static org.junit.Assert.*;
 
 import android.app.Application;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
@@ -108,6 +109,10 @@ public class SalaTimeAdhanControlsTest {
         assertEquals(SalaTimePrayerAlarms.status(app).toString(), 1, players.size());
         ShadowMediaPlayer player = Shadows.shadowOf(players.get(0));
         assertTrue(player.isReallyPlaying());
+        Notification live = Shadows.shadowOf((NotificationManager)app.getSystemService(Context.NOTIFICATION_SERVICE)).getNotification(SalaTimeNotificationTray.PRAYER_ID);
+        assertEquals(NotificationCompat.PRIORITY_HIGH, live.priority);
+        assertEquals(NotificationCompat.CATEGORY_ALARM, live.category);
+        assertTrue((live.flags & Notification.FLAG_ONGOING_EVENT) != 0);
         assertEquals(AudioAttributes.USAGE_ALARM, player.getAudioAttributes().getUsage());
         assertTrue(ShadowPowerManager.getLatestWakeLock().isHeld());
         assertNotNull(Shadows.shadowOf(audio).getLastAudioFocusRequest());
@@ -148,6 +153,10 @@ public class SalaTimeAdhanControlsTest {
         assertResourcesReleased(player, handler);
         assertTrue(Shadows.shadowOf(controller.get()).isStoppedBySelf());
         assertEquals("audio_stopped", SalaTimePrayerAlarms.status(app).get("outcome"));
+        Notification kept = Shadows.shadowOf((NotificationManager)app.getSystemService(Context.NOTIFICATION_SERVICE)).getNotification(SalaTimeNotificationTray.PRAYER_ID);
+        assertEquals(NotificationCompat.PRIORITY_LOW, kept.priority);
+        assertEquals(NotificationCompat.CATEGORY_STATUS, kept.category);
+        if (Build.VERSION.SDK_INT >= 26) assertEquals(SalaTimeAdhanNotification.TRACKING_CHANNEL, kept.getChannelId());
     }
 
     private void volumeChangesStop(int stream) throws Exception {

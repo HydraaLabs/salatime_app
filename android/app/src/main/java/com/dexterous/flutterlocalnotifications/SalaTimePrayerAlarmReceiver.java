@@ -52,11 +52,15 @@ public class SalaTimePrayerAlarmReceiver extends BroadcastReceiver {
                 }
             } else {
                 if ("adhan".equals(payload.getString("kind"))) {
-                    NotificationManagerCompat.from(context).notify(details.id,
-                            SalaTimeAdhanNotification.builder(context, details).build());
-                    SalaTimeAdhanNotificationReceiver.onPosted(context, details);
+                    if (!Boolean.TRUE.equals(details.playSound)) {
+                        showSilent(context, details);
+                    } else {
+                        SalaTimeNotificationTray.post(context, details,
+                                SalaTimeAdhanNotification.builder(context, details).build());
+                    }
                 } else {
-                    FlutterLocalNotificationsPlugin.showNotification(context, details);
+                    SalaTimeNotificationTray.post(context, details,
+                            FlutterLocalNotificationsPlugin.createNotification(context, details));
                 }
             }
         } catch (Exception error) {
@@ -65,9 +69,11 @@ public class SalaTimePrayerAlarmReceiver extends BroadcastReceiver {
     }
 
     static void showSilent(Context context, NotificationDetails details) {
-        Notification notification = SalaTimeAdhanNotification.builder(context, details)
-                .setSilent(true).build();
-        NotificationManagerCompat.from(context).notify(details.id, notification);
-        SalaTimeAdhanNotificationReceiver.onPosted(context, details);
+        Notification notification = SalaTimeAdhanNotification.silentNotification(context, details, System.currentTimeMillis());
+        if (notification == null) {
+            NotificationManagerCompat.from(context).cancel(SalaTimeNotificationTray.displayId(details));
+            return;
+        }
+        SalaTimeNotificationTray.post(context, details, notification);
     }
 }

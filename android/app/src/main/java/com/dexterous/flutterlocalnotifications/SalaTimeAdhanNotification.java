@@ -1,13 +1,18 @@
 package com.dexterous.flutterlocalnotifications;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.RemoteViews;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import com.example.zabi.R;
 import com.dexterous.flutterlocalnotifications.models.NotificationDetails;
 import java.util.Locale;
@@ -16,6 +21,7 @@ import org.json.JSONObject;
 /** SystemUI owns the elapsed timer, including after the audio service exits. */
 final class SalaTimeAdhanNotification {
     static final long HOUR = 60 * 60 * 1000L;
+    static final String TRACKING_CHANNEL = "prayer_tracking_no_badge_v1";
     private SalaTimeAdhanNotification() {}
 
     static long prayerAt(JSONObject payload) {
@@ -39,6 +45,47 @@ final class SalaTimeAdhanNotification {
 
     static NotificationCompat.Builder builder(Context context, NotificationDetails details) {
         return decorate(context, details, FlutterLocalNotificationsPlugin.createNotification(context, details));
+    }
+
+    /** Completed/muted adhans are status updates, not urgent alarms. */
+    static Notification silentNotification(Context context, NotificationDetails details, long now) {
+        Notification base = FlutterLocalNotificationsPlugin.createNotification(context, details);
+        NotificationCompat.Builder builder = decorate(context, details, base, now).setSilent(true);
+        JSONObject payload;
+        try { payload = new JSONObject(details.payload); }
+        catch (Exception ignored) { return builder.build(); }
+        if (!"adhan".equals(payload.optString("kind"))) return builder.build();
+        if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) return null;
+        if (Build.VERSION.SDK_INT >= 26) {
+            NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            NotificationChannel source = manager.getNotificationChannel(details.channelId);
+            // Moving to the status channel must not bypass a disabled prayer channel.
+            if (source != null && source.getImportance() == NotificationManager.IMPORTANCE_NONE) return null;
+            if (Build.VERSION.SDK_INT >= 28 && source != null && source.getGroup() != null) {
+                android.app.NotificationChannelGroup group = manager.getNotificationChannelGroup(source.getGroup());
+                if (group != null && group.isBlocked()) return null;
+            }
+            NotificationChannel tracking = manager.getNotificationChannel(TRACKING_CHANNEL);
+            if (tracking == null) {
+                Configuration configuration = new Configuration(context.getResources().getConfiguration());
+                String locale = payload.optString("locale", "");
+                if (!locale.isEmpty()) configuration.setLocale(Locale.forLanguageTag(locale.replace('_', '-')));
+                String name = context.createConfigurationContext(configuration)
+                        .getString(R.string.prayer_notification_tracking);
+                tracking = new NotificationChannel(TRACKING_CHANNEL, name, NotificationManager.IMPORTANCE_LOW);
+                tracking.setSound(null, null);
+                tracking.enableVibration(false);
+                tracking.enableLights(false);
+                tracking.setShowBadge(false);
+                manager.createNotificationChannel(tracking);
+            }
+            if (tracking.getImportance() == NotificationManager.IMPORTANCE_NONE) return null;
+            builder.setChannelId(TRACKING_CHANNEL);
+        }
+        return builder.setPriority(NotificationCompat.PRIORITY_LOW)
+                .setCategory(NotificationCompat.CATEGORY_STATUS)
+                .setOngoing(false).setAutoCancel(true).setOnlyAlertOnce(true)
+                .setNumber(0).setBadgeIconType(NotificationCompat.BADGE_ICON_NONE).build();
     }
 
     static NotificationCompat.Builder decorate(Context context, NotificationDetails details, Notification base) {
