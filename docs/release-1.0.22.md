@@ -60,8 +60,8 @@ Une modification concurrente du service de connexion Apple est intervenue
 après la compilation Dart. Le kernel contient exactement le fichier du commit
 et pas cette modification. Les trois bibliothèques finales correspondent à
 celles du bundle, avec raccord des étapes AOT et suppression des symboles.
-Les modifications concurrentes ultérieures de connexion et d'iOS restent
-locales et hors de cette release. Reçu :
+Les modifications concurrentes ultérieures de connexion et d'iOS sont
+gérées séparément et ne sont pas incluses dans cette release Android. Reçu :
 `/tmp/salatime-1.0.22-source-provenance.json`.
 
 L'APK universel signé est dérivé de ce même AAB : **166641719 octets**,
