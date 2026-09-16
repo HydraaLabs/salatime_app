@@ -1,0 +1,38 @@
+{
+  "verified_at": "2026-09-17",
+  "app_id": "6812923710",
+  "price": "free",
+  "platforms": [
+    "iPhone",
+    "iPad"
+  ],
+  "mac_opted_out": true,
+  "vision_pro_opted_out": true,
+  "territories_available": 174,
+  "territories_excluded": [
+    "CHN"
+  ],
+  "china_exclusion_reason": "Apple requires an Internet Religious Information Permit for religious apps in mainland China; no permit has been provided. Owner content-rights confirmation is not a replacement for this permit.",
+  "china_source": "https://developer.apple.com/help/app-store-connect/reference/app-information/app-information",
+  "sign_in_with_apple": {
+    "ios_enabled": true,
+    "android_enabled": false,
+    "public_configuration_verified": true,
+    "server_key_signing_verified": true,
+    "apple_token_endpoint_reached_from_web_runtime": true,
+    "invalid_test_code_rejected_by_apple": "invalid_grant",
+    "native_user_authorization_on_device": "not_yet_verified"
+  },
+  "google_ios": {
+    "configured": true,
+    "public_configuration_verified": true,
+    "native_user_authorization_on_device": "not_yet_verified"
+  },
+  "apple_private_email_relay": {
+    "registered_domain": "salatime.net",
+    "registered_sender": "no-reply@salatime.net",
+    "apple_spf_validation": "green_pass_for_both",
+    "real_relay_delivery": "not_yet_verified"
+  },
+  "app_store_state": "PREPARE_FOR_SUBMISSION"
+}
