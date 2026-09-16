@@ -1,6 +1,12 @@
 name: iOS App Store screenshots
 on:
   workflow_dispatch:
+    inputs:
+      family:
+        description: Device family to capture
+        type: choice
+        options: [both, iphone, ipad]
+        default: both
 permissions:
   contents: read
 jobs:
@@ -10,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        family: [iphone, ipad]
+        family: ${{ fromJSON(inputs.family == 'iphone' && '["iphone"]' || inputs.family == 'ipad' && '["ipad"]' || '["iphone","ipad"]') }}
     steps:
       - uses: actions/checkout@v4
       - name: Select Xcode and location time zone
@@ -37,9 +43,18 @@ jobs:
           with open(os.environ['GITHUB_ENV'], 'a') as env:
               env.write('SIMULATOR_ID=' + device['udid'] + '\n')
           print(device['name'], device['udid'])
-          subprocess.run(['xcrun', 'simctl', 'boot', device['udid']], check=device['state'] != 'Booted')
-          subprocess.run(['xcrun', 'simctl', 'bootstatus', device['udid'], '-b'], check=True)
-          subprocess.run(['xcrun', 'simctl', 'status_bar', device['udid'], 'override', '--time', '9:41', '--dataNetwork', 'wifi', '--wifiMode', 'active', '--wifiBars', '3', '--batteryState', 'charged', '--batteryLevel', '100'], check=True)
+          for attempt in range(2):
+              try:
+                  subprocess.run(['xcrun', 'simctl', 'boot', device['udid']], check=attempt > 0 or device['state'] != 'Booted', timeout=60)
+                  subprocess.run(['xcrun', 'simctl', 'bootstatus', device['udid'], '-b'], check=True, timeout=300)
+                  break
+              except subprocess.TimeoutExpired:
+                  if attempt == 1:
+                      raise
+                  print('Simulator boot timed out; retrying this disposable simulator once.', flush=True)
+                  subprocess.run(['xcrun', 'simctl', 'shutdown', device['udid']], check=False, timeout=60)
+                  subprocess.run(['xcrun', 'simctl', 'erase', device['udid']], check=True, timeout=60)
+          subprocess.run(['xcrun', 'simctl', 'status_bar', device['udid'], 'override', '--time', '9:41', '--dataNetwork', 'wifi', '--wifiMode', 'active', '--wifiBars', '3', '--batteryState', 'charged', '--batteryLevel', '100'], check=True, timeout=60)
           PY
       - name: Resolve dependencies
         run: flutter pub get
