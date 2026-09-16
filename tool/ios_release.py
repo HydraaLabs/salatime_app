@@ -93,15 +93,16 @@ def check_profile(profile: dict, bundle_id: str, team_id: str) -> dict:
     return {"uuid": uuid, "bundle_id": bundle_id, "prefix": prefixes[0], "certificates": certificates}
 
 
-def preflight() -> None:
+def preflight(*, require_apple: bool = False) -> None:
     require(bool(re.fullmatch(r"[1-9][0-9]{0,3}(?:\.[0-9]{1,2}){0,2}", required_env("RELEASE_BUILD_NUMBER"))),
             "Build number must use Apple's numeric CFBundleVersion format")
     require(bool(re.fullmatch(r"[A-Z0-9]{10}", required_env("IOS_TEAM_ID"))), "Invalid IOS_TEAM_ID")
-    with urllib.request.urlopen("https://salatime.net/api/mobile/auth/config", timeout=30) as response:
+    request = urllib.request.Request("https://salatime.net/api/mobile/auth/config",
+                                     headers={"Accept": "application/json", "User-Agent": "SalaTime-iOS-Release/1.0"})
+    with urllib.request.urlopen(request, timeout=30) as response:
         data = json.load(response)["data"]
-    require(data.get("enabled") is True and data.get("apple", {}).get("enabled") is True and
-            data.get("apple", {}).get("ios_enabled") is True,
-            "Production API must enable native Apple login before the release build")
+    apple_ready = (data.get("enabled") is True and data.get("apple", {}).get("enabled") is True and
+                   data.get("apple", {}).get("ios_enabled") is True)
     reverse = os.environ.get("IOS_GOOGLE_REVERSED_CLIENT_ID", "")
     if reverse:
         google = data.get("google", {})
@@ -113,7 +114,26 @@ def preflight() -> None:
     github_env = Path(required_env("GITHUB_ENV"))
     with github_env.open("a") as output:
         output.write(f"GOOGLE_IOS_ENABLED={'true' if reverse else 'false'}\n")
-    print("Production Apple login is enabled; Google iOS " + ("enabled." if reverse else "disabled (not configured)."))
+    report = {"checked_at": dt.datetime.now(dt.timezone.utc).isoformat(),
+              "configuration_url": "https://salatime.net/api/mobile/auth/config",
+              "apple_ios_ready": apple_ready, "google_ios_enabled": bool(reverse),
+              "upload_requires_apple": require_apple,
+              "mode": "upload" if require_apple else "build-only"}
+    report_path = Path("build/ios/provider-configuration.json")
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.write_text(json.dumps(report, indent=2) + "\n")
+    status = "enabled" if apple_ready else "not active"
+    message = (f"Production Apple login: {status}. Mode: {report['mode']}. "
+               + ("Google iOS enabled." if reverse else "Google iOS disabled (not configured)."))
+    print(message)
+    if summary := os.environ.get("GITHUB_STEP_SUMMARY"):
+        with Path(summary).open("a") as output:
+            output.write(message + "\n\n")
+            if not apple_ready and not require_apple:
+                output.write("The signed IPA is for build validation. Apple login still needs server activation; "
+                             "this run cannot upload to App Store Connect.\n\n")
+    require(not require_apple or apple_ready,
+            "Upload blocked: the production API must enable native Apple login")
 
 
 def api_key() -> None:
@@ -190,7 +210,8 @@ def verify() -> None:
     require(len(archives) == 1, "Expected exactly one archived iPhone app")
     packages = list(Path("build/ios/ipa").glob("*.ipa"))
     require(len(packages) == 1, "Expected exactly one exported IPA")
-    report = {"team_id": state["team_id"], "app_group": APP_GROUP, "targets": {}}
+    report = {"team_id": state["team_id"], "app_group": APP_GROUP, "targets": {},
+              "provider_configuration": json.loads(Path("build/ios/provider-configuration.json").read_text())}
     # Check the archive as well as the exported IPA: export may re-sign bundles.
     with tempfile.TemporaryDirectory(prefix="salatime-ipa-", dir=state_directory()) as unpacked:
         with zipfile.ZipFile(packages[0]) as package:
@@ -288,14 +309,49 @@ def self_test() -> None:
             continue
         raise AssertionError("Invalid provisioning profile was accepted")
     print(f"Profile safeguards passed: one valid profile and {len(invalid)} invalid profiles.")
+    # Publishing is an external side effect: test both modes and a provider
+    # being disabled between the initial preflight and the final upload guard.
+    import contextlib
+    import io
+    from unittest import mock
+    original_directory = Path.cwd()
+    with tempfile.TemporaryDirectory(prefix="salatime-release-tests-") as temporary:
+        try:
+            os.chdir(temporary)
+            fixture_env = {"RELEASE_BUILD_NUMBER": "26", "IOS_TEAM_ID": team,
+                           "IOS_GOOGLE_REVERSED_CLIENT_ID": "", "GITHUB_ENV": str(Path(temporary) / "env"),
+                           "GITHUB_STEP_SUMMARY": str(Path(temporary) / "summary")}
+            for enabled, strict, accepted in [(False, False, True), (False, True, False),
+                                               (True, False, True), (True, True, True),
+                                               (False, True, False)]:
+                payload = {"data": {"enabled": True, "apple": {"enabled": enabled, "ios_enabled": enabled}}}
+                with mock.patch.dict(os.environ, fixture_env), mock.patch.object(
+                        urllib.request, "urlopen", return_value=io.BytesIO(json.dumps(payload).encode())), \
+                        contextlib.redirect_stdout(io.StringIO()):
+                    rejected = False
+                    try:
+                        preflight(require_apple=strict)
+                    except ValueError as error:
+                        require(str(error).startswith("Upload blocked:"), "Unexpected preflight failure")
+                        rejected = True
+                    require(rejected is not accepted, "Apple upload guard accepted an unsafe mode")
+                    report = json.loads(Path("build/ios/provider-configuration.json").read_text())
+                    require(report["apple_ios_ready"] == enabled and report["upload_requires_apple"] == strict,
+                            "Provider status report does not match the verified API state")
+        finally:
+            os.chdir(original_directory)
+    print("Release modes passed: build-only accepts inactive Apple; initial/final upload guards refuse it.")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=["preflight", "api-key", "prepare", "verify", "cleanup", "self-test"])
+    parser.add_argument("--require-apple", action="store_true",
+                        help="Block preflight unless production native Apple login is active")
     args = parser.parse_args()
     try:
-        {"preflight": preflight, "api-key": api_key, "prepare": prepare, "verify": verify,
+        {"preflight": lambda: preflight(require_apple=args.require_apple),
+         "api-key": api_key, "prepare": prepare, "verify": verify,
          "cleanup": cleanup, "self-test": self_test}[args.command]()
     except (ValueError, RuntimeError, OSError, plistlib.InvalidFileException, KeyError) as error:
         # Exception details never include secret values or subprocess arguments.

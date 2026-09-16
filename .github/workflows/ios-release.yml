@@ -30,6 +30,7 @@ jobs:
       IOS_TEAM_ID: ${{ vars.IOS_TEAM_ID }}
       IOS_GOOGLE_REVERSED_CLIENT_ID: ${{ vars.IOS_GOOGLE_REVERSED_CLIENT_ID }}
       RELEASE_BUILD_NUMBER: ${{ inputs.build_number }}
+      UPLOAD_TO_TESTFLIGHT: ${{ inputs.upload_to_testflight }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -39,7 +40,11 @@ jobs:
           test -d /Applications/Xcode_26.3.app
           sudo xcode-select --switch /Applications/Xcode_26.3.app/Contents/Developer
           xcodebuild -version
-          python3 tool/ios_release.py preflight
+          if [ "$UPLOAD_TO_TESTFLIGHT" = "true" ]; then
+            python3 tool/ios_release.py preflight --require-apple
+          else
+            python3 tool/ios_release.py preflight
+          fi
           python3 tool/ios_release.py self-test
           ruby -e 'require "xcodeproj"; puts "xcodeproj #{Xcodeproj::VERSION}"'
       - uses: subosito/flutter-action@v2
@@ -89,6 +94,7 @@ jobs:
           path: |
             build/ios/ipa/*.ipa
             build/ios/release-validation.json
+            build/ios/provider-configuration.json
           if-no-files-found: error
           retention-days: 7
       - name: Upload validated build to App Store Connect
@@ -99,6 +105,7 @@ jobs:
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
           API_PRIVATE_KEYS_DIR: ${{ runner.temp }}/salatime-ios-signing/private_keys
         run: |
+          python3 tool/ios_release.py preflight --require-apple
           python3 tool/ios_release.py api-key
           shopt -s nullglob
           packages=(build/ios/ipa/*.ipa)

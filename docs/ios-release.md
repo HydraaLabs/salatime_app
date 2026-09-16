@@ -24,8 +24,10 @@ are rejected before compilation.
 
 Create the matching app record in App Store Connect before uploading. Configure
 the production account API to accept the native app's Apple audience and expose
-`apple.enabled=true` and `apple.ios_enabled=true`. The workflow checks that
-configuration and compiles with `SALATIME_APPLE_IOS_ENABLED=true`.
+`apple.enabled=true` and `apple.ios_enabled=true`. Upload runs require that
+configuration both before compilation and immediately before contacting Apple's
+upload service. Every build compiles with `SALATIME_APPLE_IOS_ENABLED=true`;
+the API still controls whether the app offers Apple login at runtime.
 
 ## GitHub repository configuration
 
@@ -59,12 +61,21 @@ for this app version. The default `26` is only a starting value; increment it fo
 each upload. The app version comes from `pubspec.yaml`.
 
 `upload_to_testflight=false` builds and saves the validated IPA without an
-upload. Set it to `true` to validate with Apple and upload to App Store Connect.
+upload, including when the production API has not activated Apple login yet.
+The workflow summary and `provider-configuration.json` explicitly record the
+provider status. Such a run verifies compilation, native tests and signing;
+it does not demonstrate an operational Apple login.
+
+Set `upload_to_testflight=true` to validate with Apple and upload to App Store
+Connect. This mode refuses to start when native Apple login is inactive and
+reads the API again immediately before upload to prevent release after a
+configuration change. Rebuild with a new build number after final account/code
+configuration changes, then use that reviewed build for distribution.
 There are no push or pull-request triggers. The concurrency group queues release
 runs instead of cancelling an upload already in progress.
 
-The IPA and a public validation report are retained as build artifacts for seven
-days. Private keys, the PKCS#12 file and unembedded profile copies are held in
+The IPA, provider configuration status and public signing report are retained
+as build artifacts for seven days. Private keys, the PKCS#12 file and unembedded profile copies are held in
 `RUNNER_TEMP`; an `always()` cleanup removes them and restores the runner's
 keychain search list. No raw signing material is included as a CI artifact.
 An IPA necessarily contains its signed distribution profiles and public
