@@ -1,6 +1,6 @@
 {
   "prepared_at": "2026-09-17",
-  "status": "audited_draft_not_published",
+  "status": "published_in_app_store_connect_2026-09-17",
   "collects_data": true,
   "tracking_observed": false,
   "tracking_note": "No advertising SDK, IDFA collection or cross-company advertising linkage found; verify contractual partner use before making an organization-wide declaration. Functional third-party transfers are not automatically Apple tracking.",
@@ -213,15 +213,15 @@
         "App Functionality",
         "Analytics"
       ],
-      "linkedToUser": null,
+      "linkedToUser": true,
       "usedForTracking": false,
       "evidence": [
         "docs/data-safety-2026-09-13.md",
         "sentry_flutter 9.29.0 native Cocoa installationID binding",
         "https://raw.githubusercontent.com/getsentry/sentry-cocoa/8.58.4/Sources/Sentry/SentryClient.m#L978-L987"
       ],
-      "status": "anonymous_installation_id_confirmed_label_mapping_requires_final_decision",
-      "note": "Exact Cocoa source assigns a persistent random installation ID to an otherwise empty Sentry user. This is not IDFA and not the SalaTime account ID. The same SDK privacy manifest labels diagnostics unlinked and does not list a Device ID type. Decide whether to disclose this anonymous app-install identifier as User ID/Device ID under the final app-level policy; do not assert absent."
+      "status": "declared_linked_to_installation",
+      "note": "Exact Cocoa source assigns a persistent random installation ID to an otherwise empty Sentry user. This is not IDFA and not the SalaTime account ID. The same SDK privacy manifest labels diagnostics unlinked and does not list a Device ID type. Decide whether to disclose this anonymous app-install identifier as User ID/Device ID under the final app-level policy; do not assert absent. Final declaration includes this persistent app-install identifier as Device ID linked to the installation, for functionality and analytics, with no advertising tracking. It is not declared to be the user account ID."
     }
   ],
   "not_found_in_reviewed_flows": [
@@ -257,8 +257,8 @@
     "https://raw.githubusercontent.com/getsentry/sentry-cocoa/8.58.4/Sources/Sentry/SentryClient.m"
   ],
   "owner_information_not_in_repo": [
-    "App Review contact first/last name and reachable telephone number",
-    "Business/trader details if required by the account and distribution territories",
-    "Content ownership/licensing attestation if Apple asks; code inspection alone cannot prove rights to all remote recitations and translations."
-  ]
+    "Business/trader details if required by account/distribution territories"
+  ],
+  "app_store_app_id": "6812923710",
+  "content_rights_confirmation": "Owner explicitly confirmed third-party contents are authorized on 2026-09-17; recorded USES_THIRD_PARTY_CONTENT in ASC."
 }
