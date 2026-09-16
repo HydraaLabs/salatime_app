@@ -10,6 +10,7 @@ import 'package:salatime/helper/automatic_prayer_method.dart';
 import 'package:salatime/helper/get_di.dart' as di;
 import 'package:salatime/helper/route_helper.dart';
 import 'package:salatime/main.dart' as app;
+import 'package:salatime/service/reading/reading_progress_service.dart';
 import 'package:salatime/util/app_constants.dart';
 import 'package:salatime/view/base/bottom_navbar.dart';
 import 'package:salatime/view/screens/dhikr/dhikr_screen.dart';
@@ -46,6 +47,7 @@ void main() {
         longitude: -5.0003,
       );
       final languages = await di.init();
+      await ReadingProgressService.instance.initialize();
       final prayer = Get.find<PrayerTimeController>();
       await Get.find<PrayerTimeAdjustmentController>().init();
       await prayer.refreshConfiguredPrayerTime();
