@@ -1,0 +1,26 @@
+{
+  "app_store_connect": {
+    "verified_at": "2026-09-16T23:44:36.029004+00:00",
+    "app_id": "6812923710",
+    "app_store_version_id": "fec07b01-c9f0-4325-9adc-b9245542fce6",
+    "review_detail_id": "f73f9e57-3955-43fe-b20d-9d66a16095c6",
+    "contact_fields_verified": true,
+    "demo_account_required": true,
+    "demo_account_credentials_verified": true,
+    "notes_verified": true,
+    "notes_utf8_bytes": 2047
+  },
+  "account_api_verification": {
+    "verified_at": "2026-09-16T23:43:32.064926+00:00",
+    "checks": {
+      "two_https_logins": true,
+      "authenticated_profile": true,
+      "cross_session_preferences_sync": true,
+      "test_preferences_restored": true,
+      "reading_progress_access": true,
+      "test_tokens_revoked": true
+    }
+  },
+  "credential_storage": "Private owner-readable storage outside Git; App Store Connect secure sign-in fields. No credentials are included in this document.",
+  "publication_status": "PREPARE_FOR_SUBMISSION; saving review details did not submit or publish the app."
+}

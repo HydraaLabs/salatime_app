@@ -1,35 +1,43 @@
 # App Review preparation — 17 September 2026
 
-Prepared locally for App Store Connect app 6812923710. No remote changes were made by this preparation.
+App Store Connect app `6812923710`, iOS version `1.0.22` (`fec07b01-c9f0-4325-9adc-b9245542fce6`). The version remains a draft. Saving its review information does not submit or publish it.
 
-## Copy-ready review notes (finalize after signed-build verification)
+## Review information saved and verified
 
-SalaTime provides prayer times, Quran reading and recitation, Qibla, Athkar, a Hijri calendar and prayer widgets. The main features work without an account. Location can be declined: select a city manually during setup or in location settings. Notification permission is optional and used for prayer reminders. Online map, nearby-mosque and recitation services require internet.
+The owner-confirmed review contact and a dedicated, verified SalaTime mobile account were saved in App Store Connect through the API and read back successfully. The record ID is `f73f9e57-3955-43fe-b20d-9d66a16095c6`. Contact details and credentials are deliberately excluded from this public repository; the password is kept in private owner-readable storage and the App Store Connect sign-in fields.
 
-The optional account is under Settings > Account. It supports saving supported preferences and Quran/Athkar reading progress across devices. Account deletion is available inside that account screen. The app may ask for a recent sign-in or password confirmation before deletion. Sign in with Apple must be activated and verified with the final signed provisioning profile before these notes are submitted.
+`demoAccountRequired` is **true**. Main app features are available to guests, but an authenticated account is needed to exercise synchronization and account management. Apple's review guidelines require access to account-based features, including when social sign-in is offered. The supplied credentials are for the app's email sign-in and are not Apple Account credentials. The account has no administration privileges, needs no one-time email code, and contains no personal user history. No registration email was sent.
 
-The Classic home layout also exposes an Islamic AI assistant, and the app includes an AI name generator. These send user-entered questions or generator choices to SalaTime's server and then 1min.ai. Before the first transmission, the app names 1min.ai, describes the data sent and asks permission. Consent is saved on that device for both AI features, and the privacy icon lets users stop future sharing. Verify this flow in the exact submitted build. Do not claim generated answers have a verified universal content filter.
+[app-review-notes.txt](app-review-notes.txt) is the exact note body saved remotely, excluding its final newline: 2,047 UTF-8 bytes, below Apple's 4,000-byte limit. It explains guest access, optional permissions, account/sync access, native Apple sign-in, deletion and the explicit 1min.ai consent. [review-details-verification.json](review-details-verification.json) records non-secret API readback and verification results.
 
-## Fields the owner/account must supply or confirm
+## Verified access and remaining device checks
 
-- Copyright confirmed by the release coordinator from the organization account: 2026 POTIZA LLC.
-- App Review contact first name, last name and reachable phone number. `contact@salatime.net` is the public support address found in code, not proof of a named reviewer contact.
-- If account features require a review-only account, create that account separately and provide credentials through App Store Connect's secure review fields. Do not put credentials in Git. Guest access alone covers only guest features.
-- Any trader/business identity and distribution-region declarations required by the Apple account.
+Two HTTPS login sessions successfully accessed the dedicated account. A preference update made in one session was read from the other, then the test preferences were restored to an empty object. The reading-progress endpoint was accessible and both preparation tokens were revoked. The account remains active for review. Deletion was not executed on the review account, since that would remove the credentials supplied to Apple.
 
-## Files
+The account/API test does not prove native Apple authorization, final provisioning, notification delivery, widgets, audio or background behavior on iPhone/iPad. Verify these flows in the exact signed build before submission. The AI consent unit/widget tests cover cancellation without transmission, stored consent, revocation and translated layouts; an exact-build device check is still required. Generated answers do not have a verified universal content filter.
 
-- `store-listing.json`: EN/FR/AR names, subtitles, keywords, promotional text and descriptions; character limits checked. Lifestyle primary and Reference secondary are proposed categories.
-- `privacy-assessment.json`: data-flow inventory, proposed purposes, known linkage and unresolved partner/SDK details. `null` means unresolved, never “No”.
-- `age-rating-assessment.json`: confirmed feature flags and source-based content recommendations. Keep Apple’s calculated rating; do not force 4+ or copy Google Play.
+## Store data and readiness snapshot
 
-## Specific verification still needed
+At the API audit on 16 September 2026 at 23:48 UTC (17 September local time):
 
-- Public `/support` and `/privacy-policy` returned HTTP200 to the release coordinator using User-Agent SalaTime-iOS-Release/1.0. An uncustomized direct client previously got403; maintain public access for review.
-- Apple privacy paragraphs are now in the local account-privacy Blade partial; targeted deployment is coordinated separately.
-- Exact pinned Cocoa8.58.4 manifest declares crash/performance/other diagnostics unlinked, for app functionality, without tracking. Source confirms a random persistent installationID as Sentry userId. No account setUser calls exist; final label mapping of that anonymous installation identifier is documented in the privacy JSON. No real user event was needed.
-- Public settings API persists guest IP/OS and GeoIP-derived country/city/coordinates. Check current runtime provider and retention before final disclosures. The repository driver default is IpApi with fallbacks; no runtime secrets were read.
-- Mosque searches send exact coordinates to Overpass, city search text goes to Nominatim, and viewed map tiles go to OpenStreetMap. Cloud preferences explicitly exclude GPS and personal audio files.
-- Full scriptural content and generated responses require editorial age-rating assessment. Sampled bundled Quran passages contain textual references to intoxicants, weapons and mature topics. These were recorded as content evidence, not a judgement about the religion or an assumed automatic rating.
+- EN/FR/AR listing and app-information localizations were saved; support and privacy URLs were populated. Copyright is `2026 POTIZA LLC`, confirmed from the organization account.
+- Lifestyle and Reference categories were saved. The current USA price point was `0.0` USD.
+- Apple calculated **12+**, and **14 in Brazil**, with all age overrides `NONE`. [age-rating-assessment.json](age-rating-assessment.json) contains the actual saved answers and their evidence, including the limitations of the source audit.
+- No build was uploaded or selected, and all three localized screenshot-set collections were empty.
+- The release coordinator configured all 175 territories; readback confirms all 175 have `available=true`. Each reports `CANNOT_SELL` and `AVAILABLE_FOR_SALE_UNRELEASED_APP`, consistent with an app that has not been released. This is configured distribution, not a public release.
+- After the owner explicitly confirmed permission to distribute the content, `contentRightsDeclaration=USES_THIRD_PARTY_CONTENT` was saved by the release coordinator and verified by this audit.
+- The Arabic keywords were shortened and read back as 90 UTF-8 bytes; EN and FR were 72 and 88 bytes. All are within the 100-byte limit in Apple's current help.
+- No trader-specific blocking status appeared in the territory API results. The official API schema exposes neither a DSA/trader verification endpoint nor commercial-agreement status (only beta/EULA license resources). The release coordinator separately verified the Business screen: the free-app agreement is active from 16 September 2026 to 16 September 2027, and DSA status is Active for the 27 EU countries, updated 17 September 2026. The pending paid-app tax setup does not block this free release.
+- The release coordinator opted out of automatic Mac and Vision distribution for this initial iPhone/iPad release.
 
-Sources: [Apple privacy details](https://developer.apple.com/app-store/app-privacy-details/), [current age-rating definitions](https://developer.apple.com/help/app-store-connect/reference/app-information/age-ratings-values-and-definitions), [AI disclosure update](https://developer.apple.com/news/?id=ey6d8onl).
+This snapshot is not a claim that these fields remain unchanged after the release coordinator's subsequent work. Screenshots and an accepted signed build remain distinct from saving the review record.
+
+## Privacy evidence
+
+Public `/support` and `/privacy-policy` returned HTTP 200 to the release coordinator using User-Agent `SalaTime-iOS-Release/1.0`. An uncustomized direct client previously received 403; preserve access for Apple review.
+
+The account-privacy partial now describes Apple sign-in; its deployment is coordinated separately. The public settings API persists guest IP/OS and GeoIP-derived country/city/coordinates. Nearby-mosque requests send exact coordinates to Overpass, city-search queries go to Nominatim, and map tiles go to OpenStreetMap. Cloud preferences exclude GPS coordinates and personal audio files.
+
+The exact pinned Sentry Cocoa 8.58.4 manifest declares crash/performance/other diagnostics unlinked, for app functionality, without tracking. Its source assigns a random persistent installation ID as Sentry user ID; there is no app account `setUser` call. The release coordinator separately published the 14 data categories in App Store Connect, including the installation Device ID as linked to the device, without tracking. [privacy-assessment.json](privacy-assessment.json) documents that inventory and the disclosure decisions. This review subtask did not change the App Privacy UI.
+
+Sources: [Apple App Review Guidelines, 2.1](https://developer.apple.com/app-store/review/guidelines/#app-completeness), [platform-version fields and App Review information](https://developer.apple.com/help/app-store-connect/reference/app-information/platform-version-information), [age-rating definitions](https://developer.apple.com/help/app-store-connect/reference/app-information/age-ratings-values-and-definitions), [App Privacy details](https://developer.apple.com/app-store/app-privacy-details/).

@@ -1,116 +1,158 @@
 {
   "prepared_at": "2026-09-17",
-  "status": "partial_answers_ready_content_frequency_requires_review",
-  "do_not_force_rating": "Let App Store Connect calculate the rating; do not blindly copy Android rating or set 4+.",
+  "status": "saved_in_app_store_connect_and_read_back",
+  "app_id": "6812923710",
+  "app_info_id": "211483e1-1a7b-4b95-8b87-7cc00efdd1ec",
+  "declaration_id": "211483e1-1a7b-4b95-8b87-7cc00efdd1ec",
+  "calculated_rating": {
+    "appStoreAgeRating": "TWELVE_PLUS",
+    "brazilAgeRating": "FOURTEEN",
+    "brazilAgeRatingV2": "SELF_RATED_FOURTEEN",
+    "ageRatingOverride": "NONE",
+    "ageRatingOverrideV2": "NONE",
+    "koreaAgeRatingOverride": "NONE",
+    "kidsAgeBand": null
+  },
   "made_for_kids": false,
-  "made_for_kids_rationale": "General religious utility with third-party diagnostics and an AI assistant; no dedicated child-directed design/age assurance found. This is a classification recommendation, not a verified owner target-age declaration.",
-  "confirmed_capabilities": {
+  "made_for_kids_rationale": "App Store Connect isOrEverWasMadeForKids is false. The app is a general religious utility with no dedicated child-directed design or age assurance identified.",
+  "saved_answers": {
+    "advertising": false,
+    "contests": "NONE",
+    "gambling": false,
+    "gamblingSimulated": "NONE",
+    "lootBox": false,
+    "messagingAndChat": false,
     "parentalControls": false,
     "ageAssurance": false,
+    "socialMedia": false,
+    "socialMediaAgeRestricted": false,
     "unrestrictedWebAccess": false,
     "userGeneratedContent": false,
-    "messagingAndChat": false,
-    "socialMedia": false,
-    "advertising": false,
-    "gambling": false,
-    "lootBoxes": false
+    "violenceCartoonOrFantasy": "NONE",
+    "violenceRealisticProlongedGraphicOrSadistic": "NONE",
+    "sexualContentGraphicAndNudity": "NONE",
+    "sexualContentOrNudity": "NONE",
+    "alcoholTobaccoOrDrugUseOrReferences": "INFREQUENT_OR_MILD",
+    "gunsOrOtherWeapons": "INFREQUENT_OR_MILD",
+    "matureOrSuggestiveThemes": "INFREQUENT_OR_MILD",
+    "profanityOrCrudeHumor": "NONE",
+    "healthOrWellnessTopics": false,
+    "medicalOrTreatmentInformation": "NONE",
+    "horrorOrFearThemes": "NONE",
+    "violenceRealistic": "INFREQUENT_OR_MILD"
   },
   "capability_notes": [
     "The AI assistant is not user-to-user messaging.",
     "Users do not publish content to other users; personal readings/preferences and system sharing do not make a social feed.",
     "External links open external destinations; no arbitrary embedded browser found.",
-    "App has no wagering or loot-box mechanics; scriptural references to gambling are content, not a gambling feature."
+    "App has no wagering or loot-box mechanics; scriptural references to gambling are content, not a gambling feature.",
+    "No advertising, parental controls, age assurance, social media, health/wellness program or competition feature was identified in the audited app.",
+    "The AI assistant serves religious information; the saved healthOrWellnessTopics=false is the current declaration, not a certification of every generated reply."
   ],
-  "proposed_content_answers": {
+  "content_rationale": {
     "alcoholTobaccoOrDrugUseOrReferences": {
-      "suggested": "INFREQUENT_OR_MILD",
+      "saved_answer": "INFREQUENT_OR_MILD",
       "evidence": [
         "assets/quran/translations/en/5.json verses 90-91: references to intoxicants in religious text"
       ],
-      "review": "Confirm frequency across full Quran, hadith and AI responses; not a blanket NONE."
+      "validation_limit": "Sampled evidence supports the selected answer; complete Quran, hadith and dynamic AI content were not exhaustively reviewed."
     },
     "matureOrSuggestiveThemes": {
-      "suggested": "INFREQUENT_OR_MILD",
+      "saved_answer": "INFREQUENT_OR_MILD",
       "evidence": [
         "assets/quran/translations/en/5.json verses 5-6: marital/sexual topics in religious instruction",
         "assets/quran/translations/en/5.json verses 27-33: death and ethical/historical narrative"
       ],
-      "review": "Educational/religious context, not erotic presentation. Confirm questionnaire interpretation and full content."
+      "validation_limit": "Religious/educational textual context, not erotic presentation. Full remote and generated content was not exhaustively reviewed."
     },
     "gunsOrOtherWeapons": {
-      "suggested": "INFREQUENT_OR_MILD",
+      "saved_answer": "INFREQUENT_OR_MILD",
       "evidence": [
         "assets/quran/translations/en/5.json verse 94: reference to spears"
       ],
-      "review": "No combat game; textual references still exist."
+      "validation_limit": "No combat game; textual references still exist."
     },
     "violenceRealistic": {
-      "suggested": null,
+      "saved_answer": "INFREQUENT_OR_MILD",
       "evidence": [
         "assets/quran/translations/en/5.json verses 27-33: narrative violence and punishment"
       ],
-      "review": "Assess non-graphic textual historical context against Apple definition; source audit alone does not certify frequency."
+      "validation_limit": "The full corpus and dynamic replies were not exhaustively reviewed; no physical-device validation is claimed.",
+      "rationale": "Non-graphic textual accounts of violence in scriptural/historical context; INFREQUENT_OR_MILD was saved, without an age override."
     },
     "horrorOrFearThemes": {
-      "suggested": null,
+      "saved_answer": "NONE",
       "evidence": [
         "Bundled scripture includes afterlife/punishment narratives"
       ],
-      "review": "Do not classify ordinary religious content automatically as horror; assess actual presentation and generated replies."
+      "validation_limit": "Do not classify ordinary religious content automatically as horror; assess actual presentation and generated replies.",
+      "rationale": "Ordinary religious accounts are not automatically classified as a horror feature; no horror presentation was identified."
     },
     "medicalOrTreatmentInformation": {
-      "suggested": null,
+      "saved_answer": "NONE",
       "evidence": [
         "AIChatController requests broad Islamic lifestyle/fiqh replies without an enforced medical-topic filter"
       ],
-      "review": "No medical UI found, but free-form generated answers require evaluation before asserting NONE."
+      "validation_limit": "No medical UI found, but free-form generated answers require evaluation before asserting NONE.",
+      "rationale": "No medical or treatment feature is offered. Free-form AI output remains a runtime verification limit; this is not a guarantee that any generated answer cannot mention health."
     },
     "profanityOrCrudeHumor": {
-      "suggested": "NONE",
+      "saved_answer": "NONE",
       "evidence": [
         "No feature dedicated to crude humor/profanity found"
       ],
-      "review": "AI-generated output is not proven universally filtered."
+      "validation_limit": "No dedicated profanity/crude-humor feature identified; generated AI output is not proven universally filtered."
     },
     "sexualContentOrNudity": {
-      "suggested": "NONE",
+      "saved_answer": "NONE",
       "evidence": [
         "No erotic/nude visual feature found"
       ],
-      "review": "Religious textual references are listed under mature themes; verify remote content."
+      "validation_limit": "Religious textual references are listed under mature themes; verify remote content."
     },
     "sexualContentGraphicAndNudity": {
-      "suggested": "NONE",
+      "saved_answer": "NONE",
       "evidence": [
         "No explicit sexual visual feature found"
       ],
-      "review": "Verify remote/generated content before certification."
+      "validation_limit": "Verify remote/generated content before certification."
     },
     "violenceCartoonOrFantasy": {
-      "suggested": "NONE",
+      "saved_answer": "NONE",
       "evidence": [
         "No violent animation/gameplay found"
-      ]
+      ],
+      "validation_limit": "Source audit does not replace a review of all remote/generated content in the submitted build."
     },
     "violenceRealisticProlongedGraphicOrSadistic": {
-      "suggested": "NONE",
+      "saved_answer": "NONE",
       "evidence": [
         "No graphic violent visual feature found"
-      ]
+      ],
+      "validation_limit": "Source audit does not replace a review of all remote/generated content in the submitted build."
     },
     "contests": {
-      "suggested": "NONE",
+      "saved_answer": "NONE",
       "evidence": [
         "Personal reading goals only; no competition against other users found"
-      ]
+      ],
+      "validation_limit": "Source audit does not replace a review of all remote/generated content in the submitted build."
     },
     "gamblingSimulated": {
-      "suggested": "NONE",
+      "saved_answer": "NONE",
       "evidence": [
         "No betting mechanics found"
-      ]
+      ],
+      "validation_limit": "Source audit does not replace a review of all remote/generated content in the submitted build."
     }
   },
-  "source": "https://developer.apple.com/help/app-store-connect/reference/app-information/age-ratings-values-and-definitions",
-  "api_schema_note": "Map only attributes currently accepted by App Store Connect API; questionnaire fields evolve. Null values here mean unresolved, not NONE."
+  "validation_limits": [
+    "Apple calculated 12+ and Brazil 14 from the saved answers; no rating override was requested.",
+    "The source audit sampled bundled texts and inspected feature flows. It did not exhaustively review all scripture, remote content or generated AI responses.",
+    "A signed-build review on physical iPhone/iPad remains separate from these API readbacks."
+  ],
+  "sources": [
+    "https://developer.apple.com/help/app-store-connect/reference/app-information/age-ratings-values-and-definitions",
+    "https://developer.apple.com/help/app-store-connect/manage-app-information/set-an-app-age-rating/"
+  ]
 }
