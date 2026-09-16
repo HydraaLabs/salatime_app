@@ -51,6 +51,9 @@ Google login remains disabled on iOS until its OAuth client is configured in
 the production API. Once configured, set repository variable
 `IOS_GOOGLE_REVERSED_CLIENT_ID` to its reversed URL scheme. The workflow compares
 that scheme with the API's iOS client ID and only then enables the Google flag.
+Before upload, both the archive and exported IPA must contain that exact Google
+URL scheme once, with no placeholder, unresolved macro or alternate Google
+scheme. A native `GIDClientID`, if present, must match the same iOS client.
 Android provider settings are independent.
 
 ## Build and upload

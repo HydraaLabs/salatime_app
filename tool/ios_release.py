@@ -93,6 +93,26 @@ def check_profile(profile: dict, bundle_id: str, team_id: str) -> dict:
     return {"uuid": uuid, "bundle_id": bundle_id, "prefix": prefixes[0], "certificates": certificates}
 
 
+def check_google_url_scheme(info: dict, reversed_client_id: str) -> bool:
+    """Validate the effective signed Info.plist when Google iOS is enabled."""
+    if not reversed_client_id:
+        return False
+    schemes = [scheme for entry in info.get("CFBundleURLTypes", [])
+               for scheme in entry.get("CFBundleURLSchemes", [])]
+    require(all(isinstance(scheme, str) and "$(" not in scheme for scheme in schemes),
+            "The signed app contains an unresolved URL scheme")
+    google_schemes = [scheme for scheme in schemes if scheme.startswith("com.googleusercontent.apps.")]
+    require(google_schemes == [reversed_client_id] and
+            reversed_client_id != "com.googleusercontent.apps.unconfigured",
+            "The signed app must contain exactly the configured Google iOS URL scheme")
+    # The app normally obtains its client ID from the API at runtime. If a
+    # native plist override is added later, it must agree with that same client.
+    expected_client_id = reversed_client_id.removeprefix("com.googleusercontent.apps.") + ".apps.googleusercontent.com"
+    require("GIDClientID" not in info or info["GIDClientID"] == expected_client_id,
+            "The signed app's GIDClientID conflicts with its Google iOS URL scheme")
+    return True
+
+
 def preflight(*, require_apple: bool = False) -> None:
     require(bool(re.fullmatch(r"[1-9][0-9]{0,3}(?:\.[0-9]{1,2}){0,2}", required_env("RELEASE_BUILD_NUMBER"))),
             "Build number must use Apple's numeric CFBundleVersion format")
@@ -211,6 +231,7 @@ def verify() -> None:
     packages = list(Path("build/ios/ipa").glob("*.ipa"))
     require(len(packages) == 1, "Expected exactly one exported IPA")
     report = {"team_id": state["team_id"], "app_group": APP_GROUP, "targets": {},
+              "google_ios_url_scheme_verified": {},
               "provider_configuration": json.loads(Path("build/ios/provider-configuration.json").read_text())}
     # Check the archive as well as the exported IPA: export may re-sign bundles.
     with tempfile.TemporaryDirectory(prefix="salatime-ipa-", dir=state_directory()) as unpacked:
@@ -243,13 +264,15 @@ def verify() -> None:
                             "Signed app is missing Sign in with Apple")
                     require(f"{checked['prefix']}.{APP_ID}" in entitlements.get("keychain-access-groups", []),
                             "Signed app has no expected Keychain group")
+                    report["google_ios_url_scheme_verified"][location] = check_google_url_scheme(
+                        info, state.get("google_reversed_client_id", ""))
                 report["targets"][f"{location}/{name}"] = {"bundle_id": expected,
                     "version": info["CFBundleShortVersionString"], "build": info["CFBundleVersion"]}
     require(len({item["version"] for item in report["targets"].values()}) == 1 and
             len({item["build"] for item in report["targets"].values()}) == 1,
             "App and widget versions must match in the archive and IPA")
     Path("build/ios/release-validation.json").write_text(json.dumps(report, indent=2) + "\n")
-    print("Signed archive and IPA verified: app/widget IDs, versions, profiles, App Group, Keychain and Apple login.")
+    print("Signed archive and IPA verified: app/widget IDs, versions, profiles, App Group, Keychain, Apple login and configured Google URL scheme.")
 
 
 def cleanup() -> None:
@@ -309,6 +332,29 @@ def self_test() -> None:
             continue
         raise AssertionError("Invalid provisioning profile was accepted")
     print(f"Profile safeguards passed: one valid profile and {len(invalid)} invalid profiles.")
+    reverse = "com.googleusercontent.apps.123-ios-client"
+    google_info = {"CFBundleURLTypes": [{"CFBundleURLSchemes": ["salatime"]},
+                                       {"CFBundleURLSchemes": [reverse]}]}
+    require(check_google_url_scheme(google_info, reverse), "A matching Google URL scheme was rejected")
+    require(not check_google_url_scheme({}, ""), "Google-disabled build unexpectedly requires an OAuth URL scheme")
+    matching_native_id = copy.deepcopy(google_info)
+    matching_native_id["GIDClientID"] = "123-ios-client.apps.googleusercontent.com"
+    check_google_url_scheme(matching_native_id, reverse)
+    invalid_google = []
+    for schemes in [[], ["com.googleusercontent.apps.unconfigured"], ["$(SALATIME_GOOGLE_REVERSED_CLIENT_ID)"],
+                    ["com.googleusercontent.apps.wrong"], [reverse, reverse],
+                    [reverse, "com.googleusercontent.apps.unconfigured"]]:
+        invalid_google.append({"CFBundleURLTypes": [{"CFBundleURLSchemes": schemes}]})
+    wrong_native_id = copy.deepcopy(google_info)
+    wrong_native_id["GIDClientID"] = "123-wrong.apps.googleusercontent.com"
+    invalid_google.append(wrong_native_id)
+    for changed in invalid_google:
+        try:
+            check_google_url_scheme(changed, reverse)
+        except ValueError:
+            continue
+        raise AssertionError("Invalid Google iOS URL configuration was accepted")
+    print(f"Google URL guards passed: matching/disabled clients and {len(invalid_google)} invalid configurations.")
     # Publishing is an external side effect: test both modes and a provider
     # being disabled between the initial preflight and the final upload guard.
     import contextlib
