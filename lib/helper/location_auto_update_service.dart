@@ -42,7 +42,9 @@ class LocationAutoUpdateService {
     final prefs = await SharedPreferences.getInstance();
     if (prefs.getBool(enabledKey) != true) return;
 
-    if (!await Permission.locationAlways.isGranted) {
+    final backgroundPermissionGranted =
+        await Permission.locationAlways.isGranted;
+    if (!backgroundPermissionGranted) {
       // Opt-in without the permission: fall back to "while in use", which is
       // still enough to adapt the adhan when the app is used.
       if (!await Permission.location.isGranted) return;
@@ -54,9 +56,8 @@ class LocationAutoUpdateService {
 
     _subscription =
         Geolocator.getPositionStream(
-              locationSettings: const LocationSettings(
-                accuracy: LocationAccuracy.low,
-                distanceFilter: _distanceFilterMeters ~/ 2,
+              locationSettings: streamSettingsForPermission(
+                backgroundPermissionGranted: backgroundPermissionGranted,
               ),
             )
             .asyncMap<void>((position) async {
@@ -97,6 +98,24 @@ class LocationAutoUpdateService {
     if (kDebugMode) {
       print('LocationAutoUpdateService started');
     }
+  }
+
+  @visibleForTesting
+  static LocationSettings streamSettingsForPermission({
+    required bool backgroundPermissionGranted,
+  }) {
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
+      return AppleSettings(
+        accuracy: LocationAccuracy.low,
+        distanceFilter: _distanceFilterMeters ~/ 2,
+        allowBackgroundLocationUpdates: backgroundPermissionGranted,
+        showBackgroundLocationIndicator: backgroundPermissionGranted,
+      );
+    }
+    return const LocationSettings(
+      accuracy: LocationAccuracy.low,
+      distanceFilter: _distanceFilterMeters ~/ 2,
+    );
   }
 
   static Future<void> stop() async {
