@@ -111,7 +111,7 @@ Future<Map<String, Map<String, String>>> init() async {
     () => SettingsController(quranSettingRepo: Get.find()),
     fenix: true,
   );
-  Get.lazyPut(() => BookMarkController());
+  Get.lazyPut(() => BookMarkController(), fenix: true);
   Get.lazyPut(() => CategoryListController());
   Get.lazyPut(() => ZakatCalculatorController());
 

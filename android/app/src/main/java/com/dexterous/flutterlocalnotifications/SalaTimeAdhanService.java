@@ -46,6 +46,7 @@ public class SalaTimeAdhanService extends Service {
     private PowerManager.WakeLock wakeLock;
     private NotificationDetails details;
     private JSONObject payload;
+    private String playbackChannelId;
     private boolean controlsRegistered;
     private boolean finished;
     private final BroadcastReceiver deviceStateReceiver = new BroadcastReceiver() {
@@ -64,7 +65,7 @@ public class SalaTimeAdhanService extends Service {
     private final Runnable checkDeviceControls = new Runnable() {
         @Override public void run() {
             if (activeService != SalaTimeAdhanService.this || finished) return;
-            if (isDeviceMuted(SalaTimeAdhanService.this)) {
+            if (isPlaybackMuted()) {
                 finishPlayback("audio_muted");
                 return;
             }
@@ -115,10 +116,25 @@ public class SalaTimeAdhanService extends Service {
             PendingIntent stop = PendingIntent.getService(this, details.id,
                     new Intent(this, SalaTimeAdhanService.class).setAction(STOP),
                     PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-            Notification notification = SalaTimeAdhanNotification.decorate(this, details, base)
+            NotificationCompat.Builder notificationBuilder = SalaTimeAdhanNotification.decorate(this, details, base)
                     .setSilent(true).setOngoing(true).setAutoCancel(false)
+                    .setOnlyAlertOnce(false)
+                    .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
                     .setCategory(NotificationCompat.CATEGORY_ALARM)
-                    .addAction(0, payload.optString("stopLabel", "Stop"), stop).build();
+                    .addAction(0, payload.optString("stopLabel", "Stop"), stop);
+            if (!isDeviceMuted(this) && playableSound(this, details) != null
+                    && "on_time".equals(SalaTimePrayerAlarms.deliveryPolicy(payload, System.currentTimeMillis()))) {
+                NotificationChannel playback = SalaTimeAdhanPlaybackChannel.prepare(this, details, payload);
+                if (playback != null) {
+                    playbackChannelId = playback.getId();
+                    notificationBuilder.setChannelId(playbackChannelId)
+                            .setSound(null).setVibrate(null).setDefaults(0)
+                            // Keep MediaPlayer as the sole audio source even if
+                            // the user later adds a sound to this display channel.
+                            .setSilent(playback.getSound() != null);
+                }
+            }
+            Notification notification = notificationBuilder.build();
             synchronized (SalaTimeNotificationTray.class) {
                 startForeground(SalaTimeNotificationTray.displayId(details), notification);
                 SalaTimeNotificationTray.foregroundPosted(this, details);
@@ -133,7 +149,7 @@ public class SalaTimeAdhanService extends Service {
             }
             audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
             Uri sound = playableSound(this, details);
-            if (sound == null || isDeviceMuted(this)) {
+            if (sound == null || isPlaybackMuted()) {
                 finishPlayback("audio_muted");
                 return START_NOT_STICKY;
             }
@@ -187,9 +203,9 @@ public class SalaTimeAdhanService extends Service {
                         finishPlayback("late_silent");
                         return;
                     }
-                    // Preparation is asynchronous: a user may mute the phone
-                    // between the alarm delivery and the first audio sample.
-                    if (isDeviceMuted(this)) {
+                    // Preparation is asynchronous: phone mute, notification
+                    // access or channel sound can change before the first sample.
+                    if (isPlaybackMuted()) {
                         finishPlayback("audio_muted");
                         return;
                     }
@@ -220,6 +236,14 @@ public class SalaTimeAdhanService extends Service {
                 || audio.getMode() != AudioManager.MODE_NORMAL;
     }
 
+    private boolean isPlaybackMuted() {
+        // Consult current system/channel settings as well as phone controls.
+        // playableSound only reads metadata and parses URIs; it opens no audio
+        // file and never prepares/restarts a player from this bounded poll.
+        return isDeviceMuted(this) || playableSound(this, details) == null
+                || SalaTimeAdhanPlaybackChannel.isBlocked(this, playbackChannelId);
+    }
+
     public static boolean stopFromVolumeKey(int keyCode) {
         if (keyCode != KeyEvent.KEYCODE_VOLUME_UP && keyCode != KeyEvent.KEYCODE_VOLUME_DOWN
                 && keyCode != KeyEvent.KEYCODE_VOLUME_MUTE) return false;
@@ -237,7 +261,8 @@ public class SalaTimeAdhanService extends Service {
                     .getNotificationChannel(details.channelId);
             // Respect channels muted or disabled by the user, including custom sounds.
             if (channel != null) {
-                if (channel.getImportance() < NotificationManager.IMPORTANCE_DEFAULT) return null;
+                if (channel.getImportance() < NotificationManager.IMPORTANCE_DEFAULT
+                        || SalaTimeAdhanPlaybackChannel.isBlocked(context, details.channelId)) return null;
                 return channel.getSound();
             }
         }
@@ -280,6 +305,7 @@ public class SalaTimeAdhanService extends Service {
         }
         audio = null;
         focus = null;
+        playbackChannelId = null;
         if (wakeLock != null && wakeLock.isHeld()) wakeLock.release();
         wakeLock = null;
     }

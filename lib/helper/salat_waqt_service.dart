@@ -160,7 +160,7 @@ class SalatWaqtService {
     required bool Function() isCurrent,
   }) async {
     if (!Get.isRegistered<PrayerTimeController>()) return;
-    final service = AdhanNotificationServiceImpl();
+    final service = AdhanNotificationServiceImpl(batchAndroidScheduling: true);
     await service.initializeNotification(
       requestPermissions: requestPermissions,
     );
@@ -407,6 +407,7 @@ class SalatWaqtService {
         if (oldById[request.id] != null) request.id: oldById[request.id]!,
     };
     Future<void> checkpoint() async {
+      await service.flushPendingAndroidSchedule();
       for (final (key, extra) in [
         (scheduleKey, false),
         (AdditionalReminderPreferences.scheduleKey, true),
@@ -580,6 +581,9 @@ class SalatWaqtService {
       }
     }
     if (await superseded()) return;
+    // A staged return value does not prove registration. Keep legacy alarms
+    // armed until their replacements are durable and native routing completed.
+    await service.flushPendingAndroidSchedule();
     // Old releases used three IDs per prayer. Retire only after replacements
     // succeed, or immediately when the user explicitly disables that prayer.
     for (var id = 1; id <= 5; id++) {
@@ -637,11 +641,12 @@ class SalatWaqtService {
           await repository.saveSalatWaqt(setting);
         }
       }
-      if (Platform.isAndroid) {
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
         try {
           final routed = await _native.invokeMapMethod<String, dynamic>(
             'update',
             {
+              'scheduleAlreadyApplied': service.nativeScheduleApplied,
               'alarms': jsonEncode(
                 retained.values
                     .where((entry) => entry['kind'] != 'extra_reminder')

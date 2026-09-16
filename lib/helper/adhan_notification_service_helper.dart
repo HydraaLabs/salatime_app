@@ -1,10 +1,16 @@
 import 'package:salatime/service/personal_notification_sounds.dart';
 import 'dart:io';
+import 'dart:convert';
 import 'notification_sound_catalog.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+// Adapter pinned to flutter_local_notifications 17.2.4, like the native cache.
+// ignore: implementation_imports
+import 'package:flutter_local_notifications/src/platform_specifics/android/method_channel_mappers.dart';
+// ignore: implementation_imports
+import 'package:flutter_local_notifications/src/tz_datetime_mapper.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -40,10 +46,95 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
   bool usedInexactAlarms = false;
   tz.Location? _location;
   bool? _exactAllowed;
+  final bool batchAndroidScheduling;
+  bool _nativeBatchUnavailable = false;
+  bool _nativeScheduleApplied = false;
+  bool get nativeScheduleApplied =>
+      _nativeScheduleApplied &&
+      !_schedulingFailed &&
+      _stagedSchedules.isEmpty &&
+      _stagedCancellations.isEmpty;
+  final _stagedSchedules =
+      <
+        int,
+        ({Map<String, Object?> arguments, Future<bool> Function() fallback})
+      >{};
+  final _stagedCancellations = <int>{};
 
-  AdhanNotificationServiceImpl()
+  AdhanNotificationServiceImpl({this.batchAndroidScheduling = false})
     : _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin() {
     LocalPrayerCalculator.initializeTimeZones();
+  }
+
+  bool get _canUseNativeSchedule =>
+      !_nativeBatchUnavailable &&
+      !kIsWeb &&
+      defaultTargetPlatform == TargetPlatform.android;
+
+  static bool _managedId(int id) =>
+      (id >= 10000000 && id < 30000000) || id == 1999000001;
+
+  bool _managedPayload(int id, String? payload) {
+    if (!_managedId(id) || payload == null) return false;
+    try {
+      final data = jsonDecode(payload);
+      return data is Map &&
+          data['id'] == id &&
+          const [
+            'adhan',
+            'before',
+            'after',
+            'extra_reminder',
+          ].contains(data['kind']);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Persist the calculated reserve once, then let native code arm its window.
+  /// A superseded Flutter pass flushes here before saving its manifest too.
+  Future<void> flushPendingAndroidSchedule() async {
+    if (_stagedSchedules.isEmpty && _stagedCancellations.isEmpty) return;
+    final schedules = Map.of(_stagedSchedules);
+    final cancellations = _stagedCancellations.toList();
+    _nativeScheduleApplied = false;
+    try {
+      final result = await PrayerAlarmHealth.channel
+          .invokeMapMethod<String, dynamic>('applyScheduleChanges', {
+            'notifications': schedules.values
+                .map((entry) => entry.arguments)
+                .toList(),
+            'cancelIds': cancellations,
+          });
+      if (result == null) {
+        throw MissingPluginException('Native batch scheduling unavailable');
+      }
+      usedInexactAlarms |= result['inexact'] == true;
+      _schedulingFailed |= (result['failed'] as int? ?? 0) > 0;
+      _nativeScheduleApplied = true;
+    } on MissingPluginException {
+      // A Dart update may run on an older Android binary. Keep its established
+      // plugin registrations and route them individually when supported.
+      _nativeBatchUnavailable = true;
+      for (final id in cancellations) {
+        await cancelNotification(id);
+      }
+      var failed = false;
+      for (final entry in schedules.values) {
+        if (!await entry.fallback()) failed = true;
+      }
+      if (failed) {
+        _schedulingFailed = true;
+        // Some individual plugin writes may have succeeded. Let the manifest
+        // checkpoint retain their ownership; the final health flag reports the
+        // partial failure, and the next refresh retries missing pending IDs.
+      }
+    } catch (_) {
+      _schedulingFailed = true;
+      rethrow;
+    }
+    _stagedSchedules.clear();
+    _stagedCancellations.clear();
   }
 
   // Future<void> _checkNotificationPermission() async {
@@ -211,6 +302,38 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
       var mode = exactAllowed
           ? AndroidScheduleMode.exactAllowWhileIdle
           : AndroidScheduleMode.inexactAllowWhileIdle;
+      if (_canUseNativeSchedule && _managedPayload(id, payload)) {
+        final details = _getNotificationDetails(
+          sound: selectedSound,
+          channel: selectedChannel,
+          when: dateTime.millisecondsSinceEpoch,
+        );
+        _stagedSchedules[id] = (
+          arguments: {
+            'id': id,
+            'title': title,
+            'body': body,
+            'payload': payload,
+            'platformSpecifics': {
+              ...details.android!.toMap(),
+              'scheduleMode': mode.name,
+            },
+            ...scheduledDate.toMap(),
+          },
+          fallback: () => scheduleNotification(
+            id: id,
+            title: title,
+            body: body,
+            dateTime: scheduledDate,
+            payload: payload,
+            sound: selectedSound,
+            channel: selectedChannel,
+          ),
+        );
+        _stagedCancellations.remove(id);
+        if (!batchAndroidScheduling) await flushPendingAndroidSchedule();
+        return true;
+      }
       Future<void> schedule(AndroidScheduleMode schedulingMode) =>
           _flutterLocalNotificationsPlugin.zonedSchedule(
             id,
@@ -266,6 +389,12 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
 
   @override
   Future<void> cancelNotification(int id) async {
+    if (_canUseNativeSchedule && _managedId(id)) {
+      _stagedSchedules.remove(id);
+      _stagedCancellations.add(id);
+      if (!batchAndroidScheduling) await flushPendingAndroidSchedule();
+      return;
+    }
     await PrayerAlarmHealth.cancel(id: id);
     await _flutterLocalNotificationsPlugin.cancel(id);
   }
@@ -323,7 +452,9 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
         channel ?? 'channelName',
         channelShowBadge: false,
         number: 0,
-        importance: Importance.max,
+        // HIGH is the highest app channel level; MAX is reserved for Android.
+        // createIfNotExists keeps the user's existing channel settings intact.
+        importance: Importance.high,
         priority: Priority.max,
         category: AndroidNotificationCategory.alarm,
         when: when,

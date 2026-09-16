@@ -1,0 +1,10 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="net.salatime.alarmprobe">
+    <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="36" />
+    <application android:label="SalaTime alarm probe" android:debuggable="true" />
+    <instrumentation
+        android:name="net.salatime.alarmprobe.AlarmProbeInstrumentation"
+        android:targetPackage="net.salatime.app.preview"
+        android:functionalTest="true"
+        android:handleProfiling="false" />
+</manifest>

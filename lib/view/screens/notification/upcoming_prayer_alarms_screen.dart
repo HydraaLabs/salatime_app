@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:salatime/helper/adhan_notification_service_helper.dart';
+import 'package:salatime/helper/prayer_alarm_health.dart';
+import 'package:salatime/helper/prayer_notification_preferences.dart';
 import 'package:salatime/helper/salat_waqt_service.dart';
 import 'package:salatime/view/base/custom_app_bar.dart';
 import 'package:salatime/view/screens/notification/widgets/prayer_alarm_health_card.dart';
@@ -22,6 +24,7 @@ class _UpcomingPrayerAlarmsScreenState
   List<String> _skipped = [];
   bool _loading = true;
   bool _failed = false;
+  int? _windowDays;
 
   @override
   void initState() {
@@ -41,17 +44,22 @@ class _UpcomingPrayerAlarmsScreenState
           (await SalatWaqtService.readSchedule())
               .where(
                 (item) =>
+                    _validAlarm(item) &&
                     ids.contains(item['id']) &&
                     (item['at'] as int) > DateTime.now().millisecondsSinceEpoch,
               )
               .toList()
             ..sort((a, b) => (a['at'] as int).compareTo(b['at'] as int));
       final prefs = await SharedPreferences.getInstance();
+      final health = await PrayerAlarmHealth.status();
       if (!mounted) return;
       setState(() {
         _alarms = alarms;
-        _skipped = prefs.getStringList(SalatWaqtService.skippedKey) ?? [];
+        _skipped = (prefs.getStringList(SalatWaqtService.skippedKey) ?? [])
+            .where((key) => _skippedPrayer(key) != null)
+            .toList();
         _failed = prefs.getBool(SalatWaqtService.failedKey) ?? false;
+        _windowDays = health?['armedWindowDays'] as int?;
       });
     } catch (_) {
       if (mounted) setState(() => _failed = true);
@@ -75,7 +83,27 @@ class _UpcomingPrayerAlarmsScreenState
     }
   }
 
-  String _name(int id) => ['fajr', 'dhuhr', 'asr', 'magrib', 'isha'][id - 1].tr;
+  PrayerNotificationPrayer? _prayer(Object? id, Object? date) {
+    if (id is! int || id < 1 || id > 6 || date is! String) return null;
+    final parsed = DateTime.tryParse(date);
+    if (parsed == null || parsed.toIso8601String().split('T').first != date) {
+      return null;
+    }
+    return PrayerNotificationPrayer.fromLegacyId(id, date: parsed);
+  }
+
+  bool _validAlarm(Map<String, dynamic> alarm) =>
+      alarm['id'] is int &&
+      alarm['at'] is int &&
+      _prayer(alarm['prayerId'], alarm['date']) != null &&
+      alarm['key'] == '${alarm['date']}:${alarm['prayerId']}' &&
+      const ['adhan', 'before', 'after'].contains(alarm['kind']);
+
+  PrayerNotificationPrayer? _skippedPrayer(String key) {
+    final parts = key.split(':');
+    if (parts.length != 2) return null;
+    return _prayer(int.tryParse(parts.last), parts.first);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +121,13 @@ class _UpcomingPrayerAlarmsScreenState
                 padding: const EdgeInsets.all(16),
                 children: [
                   const PrayerAlarmHealthCard(),
-                  Text('alarm_window_description'.tr),
+                  Text(
+                    _windowDays == null
+                        ? 'alarm_window_description'.tr
+                        : 'alarm_rolling_window_description'.trParams({
+                            'days': '$_windowDays',
+                          }),
+                  ),
                   const SizedBox(height: 12),
                   if (_failed)
                     ListTile(
@@ -128,7 +162,7 @@ class _UpcomingPrayerAlarmsScreenState
                             : Icons.alarm,
                       ),
                       title: Text(
-                        '${_name(alarm['prayerId'] as int)}${alarm['kind'] == 'before'
+                        '${_prayer(alarm['prayerId'], alarm['date'])!.titleKey.tr}${alarm['kind'] == 'before'
                             ? ' · ${'before_adhan'.tr}'
                             : alarm['kind'] == 'after'
                             ? ' · ${'iqama_reminder_title'.tr}'
@@ -160,7 +194,7 @@ class _UpcomingPrayerAlarmsScreenState
                   for (final key in _skipped)
                     ListTile(
                       title: Text(
-                        '${_name(int.parse(key.split(':').last))} · ${key.split(':').first}',
+                        '${_skippedPrayer(key)!.titleKey.tr} · ${key.split(':').first}',
                       ),
                       trailing: TextButton(
                         onPressed: () => _skip(key, false),

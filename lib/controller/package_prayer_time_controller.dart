@@ -22,6 +22,8 @@ import 'package:salatime/controller/theme_controller.dart';
 import 'package:salatime/helper/location_helper.dart';
 import 'package:salatime/helper/location_auto_update_service.dart';
 import 'package:salatime/helper/local_prayer_calculator.dart';
+import 'package:salatime/helper/automatic_prayer_method.dart';
+import 'package:salatime/helper/ramadan_isha_settings.dart';
 import 'package:salatime/helper/prayer_calculation_methods.dart';
 import 'package:salatime/helper/salat_waqt_service.dart';
 import 'package:salatime/service/preference_cloud_sync.dart';
@@ -117,6 +119,34 @@ class PrayerTimeController extends GetxController implements GetxService {
     return currentAddress.value;
   }
 
+  Future<void> _cacheAutomaticLocation(
+    SharedPreferences prefs,
+    Position position,
+  ) async {
+    await prefs.setDouble(_automaticLatitudeKey, position.latitude);
+    await prefs.setDouble(_automaticLongitudeKey, position.longitude);
+    try {
+      final addressList = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+      final address = addressList.first;
+      currentAddress.value = _placemarkCity(address);
+      await prefs.setString(_automaticCityKey, currentAddress.value);
+      await AutomaticPrayerMethod.saveCountry(
+        prefs,
+        manual: false,
+        code: address.isoCountryCode,
+        latitude: position.latitude,
+        longitude: position.longitude,
+      );
+    } catch (_) {
+      // A cached country is only reusable when its coordinates still match.
+      currentAddress.value =
+          prefs.getString(_automaticCityKey) ?? currentAddress.value;
+    }
+  }
+
   Future<void> getLocation() async {
     bool serviceEnabled = false;
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -201,19 +231,7 @@ class PrayerTimeController extends GetxController implements GetxService {
         latitude = position.latitude;
         longitude = position.longitude;
 
-        await prefs.setDouble(_automaticLatitudeKey, position.latitude);
-        await prefs.setDouble(_automaticLongitudeKey, position.longitude);
-        try {
-          final addressList = await placemarkFromCoordinates(
-            position.latitude,
-            position.longitude,
-          );
-          currentAddress.value = _placemarkCity(addressList.first);
-          await prefs.setString(_automaticCityKey, currentAddress.value);
-        } catch (_) {
-          currentAddress.value =
-              prefs.getString(_automaticCityKey) ?? currentAddress.value;
-        }
+        await _cacheAutomaticLocation(prefs, position);
 
         final isPrayerTme = prefs.getBool(AppConstants.isPrayerTme);
         bool isTimeTrue = prefs.getBool(AppConstants.isPrayerTme) ?? false;
@@ -258,6 +276,10 @@ class PrayerTimeController extends GetxController implements GetxService {
   int _calculationRevision = 0;
   String? _selectedCalculationMethod;
   String? get selectedCalculationMethod => _selectedCalculationMethod;
+  bool _automaticCalculationMethod = false;
+  bool get automaticCalculationMethod => _automaticCalculationMethod;
+  String? _calculationCountry;
+  String? get calculationCountry => _calculationCountry;
 
   // Madhab List
   final List<Map<String, String>> _prayerMadhabList = [
@@ -272,19 +294,49 @@ class PrayerTimeController extends GetxController implements GetxService {
 
   /// Load the settings from local storage or set default values.
   Future<void> loadPrayerTimeSettings() async {
-    await _methodWrites;
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final write = _methodWrites.then((_) => _loadCalculationSettings());
+    _methodWrites = write.catchError((Object _) {});
+    await write;
+  }
+
+  Future<void> _loadCalculationSettings({bool? manualLocation}) async {
+    final prefs = await SharedPreferences.getInstance();
 
     isManualPrayerTime.value =
         prefs.getBool(AppConstants.IS_MANUAL_PRAYER_TIME) ?? false;
 
     final savedMethod = prefs.getString('selectedCalculationMethod');
-    final method = PrayerCalculationMethods.contains(savedMethod)
+    final automatic =
+        prefs.getBool(AutomaticPrayerMethod.enabledKey) ??
+        (savedMethod == null);
+    if (!prefs.containsKey(AutomaticPrayerMethod.enabledKey)) {
+      if (!await prefs.setBool(AutomaticPrayerMethod.enabledKey, automatic)) {
+        throw StateError('Automatic calculation preference could not be saved');
+      }
+    }
+    _calculationCountry = AutomaticPrayerMethod.configuredCountry(
+      prefs,
+      manual: manualLocation,
+    );
+    final lastAutomatic = prefs.getString(AutomaticPrayerMethod.lastMethodKey);
+    final manualMethod = PrayerCalculationMethods.contains(savedMethod)
         ? savedMethod!
         : PrayerCalculationMethods.defaultId;
-    if (savedMethod != method) {
-      await prefs.setString('selectedCalculationMethod', method);
+    final method = automatic
+        ? AutomaticPrayerMethod.methodForCountry(_calculationCountry) ??
+              (PrayerCalculationMethods.contains(lastAutomatic)
+                  ? lastAutomatic!
+                  : manualMethod)
+        : manualMethod;
+    // The cloud field remains the user's manual choice. Moving between countries
+    // must not overwrite a manual choice on another device.
+    if (savedMethod != manualMethod) {
+      await _persistCalculationMethod(manualMethod);
     }
+    if (automatic && lastAutomatic != method) {
+      await _persistCalculationMethod(method, automatic: true);
+    }
+    _automaticCalculationMethod = automatic;
     if (_selectedCalculationMethod != method) _calculationRevision++;
     _selectedCalculationMethod = method;
 
@@ -310,25 +362,138 @@ class PrayerTimeController extends GetxController implements GetxService {
     if (!PrayerCalculationMethods.contains(value)) {
       throw ArgumentError.value(value, 'value', 'Unknown calculation method');
     }
-    final write = _methodWrites.then((_) => _persistCalculationMethod(value));
+    final write = _methodWrites.then(
+      (_) => _persistCalculationChoice(value, automatic: false),
+    );
     _methodWrites = write.catchError((Object _) {});
     await write;
   }
 
-  Future<void> _persistCalculationMethod(String value) async {
+  Future<void> _persistCalculationChoice(
+    String value, {
+    required bool automatic,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
-    final previous = prefs.getString('selectedCalculationMethod');
+    final previous = prefs.getBool(AutomaticPrayerMethod.enabledKey);
     try {
-      if (!await prefs.setString('selectedCalculationMethod', value)) {
+      if (!await prefs.setBool(AutomaticPrayerMethod.enabledKey, automatic)) {
+        throw StateError('Automatic calculation preference could not be saved');
+      }
+      await _persistCalculationMethod(value, automatic: automatic);
+    } catch (_) {
+      try {
+        if (previous == null) {
+          await prefs.remove(AutomaticPrayerMethod.enabledKey);
+        } else {
+          await prefs.setBool(AutomaticPrayerMethod.enabledKey, previous);
+        }
+      } catch (_) {
+        // Preserve the original persistence failure for the settings screen.
+      }
+      rethrow;
+    }
+    _automaticCalculationMethod = automatic;
+    update();
+  }
+
+  Future<void> setAutomaticCalculationMethod(bool enabled) async {
+    final write = _methodWrites.then((_) async {
+      final prefs = await SharedPreferences.getInstance();
+      _calculationCountry = AutomaticPrayerMethod.configuredCountry(prefs);
+      final saved =
+          _selectedCalculationMethod ??
+          prefs.getString('selectedCalculationMethod');
+      final lastAutomatic = prefs.getString(
+        AutomaticPrayerMethod.lastMethodKey,
+      );
+      final method =
+          (enabled
+              ? AutomaticPrayerMethod.methodForCountry(_calculationCountry) ??
+                    (PrayerCalculationMethods.contains(lastAutomatic)
+                        ? lastAutomatic
+                        : null)
+              : null) ??
+          (PrayerCalculationMethods.contains(saved)
+              ? saved!
+              : PrayerCalculationMethods.defaultId);
+      await _persistCalculationChoice(method, automatic: enabled);
+    });
+    _methodWrites = write.catchError((Object _) {});
+    await write;
+  }
+
+  Future<void> selectAutomaticCalculationMethod(bool enabled) async {
+    if (enabled) await _resolveConfiguredCountry();
+    PreferenceCloudSync.instance.noteLocalChange();
+    await setAutomaticCalculationMethod(enabled);
+    PreferenceCloudSync.instance.noteLocalChange();
+    _refreshCalculation();
+  }
+
+  /// An explicit opt-in can upgrade an existing saved city without asking for
+  /// GPS or location permission. Passive refreshes never perform this lookup.
+  Future<void> _resolveConfiguredCountry() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (AutomaticPrayerMethod.configuredCountry(prefs) != null) return;
+    final manual =
+        !(prefs.getBool(LocationAutoUpdateService.enabledKey) ?? false) &&
+        (prefs.getBool(AppConstants.isPrayerTme) ??
+            prefs.getBool(AppConstants.IS_MANUAL_PRAYER_TIME) ??
+            false);
+    final latKey = manual ? AppConstants.manualCityLat : _automaticLatitudeKey;
+    final lngKey = manual ? AppConstants.manualCityLng : _automaticLongitudeKey;
+    final lat = prefs.getDouble(latKey);
+    final lng = prefs.getDouble(lngKey);
+    if (lat == null ||
+        lng == null ||
+        !lat.isFinite ||
+        !lng.isFinite ||
+        lat.abs() > 90 ||
+        lng.abs() > 180) {
+      return;
+    }
+    try {
+      final addresses = await placemarkFromCoordinates(
+        lat,
+        lng,
+      ).timeout(const Duration(seconds: 5));
+      if (addresses.isEmpty ||
+          prefs.getDouble(latKey) != lat ||
+          prefs.getDouble(lngKey) != lng) {
+        return;
+      }
+      await AutomaticPrayerMethod.saveCountry(
+        prefs,
+        manual: manual,
+        code: addresses.first.isoCountryCode,
+        latitude: lat,
+        longitude: lng,
+      );
+    } catch (_) {
+      // Offline/unavailable geocoding leaves the previous method in place.
+    }
+  }
+
+  Future<void> _persistCalculationMethod(
+    String value, {
+    bool automatic = false,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = automatic
+        ? AutomaticPrayerMethod.lastMethodKey
+        : 'selectedCalculationMethod';
+    final previous = prefs.getString(key);
+    try {
+      if (!await prefs.setString(key, value)) {
         throw StateError('Calculation method could not be saved');
       }
     } catch (_) {
       // SharedPreferences updates its memory cache before writing to the device.
       try {
         if (previous == null) {
-          await prefs.remove('selectedCalculationMethod');
+          await prefs.remove(key);
         } else {
-          await prefs.setString('selectedCalculationMethod', previous);
+          await prefs.setString(key, previous);
         }
       } catch (_) {
         // Keep the original persistence error visible to the selection screen.
@@ -349,6 +514,10 @@ class PrayerTimeController extends GetxController implements GetxService {
     PreferenceCloudSync.instance.noteLocalChange();
     await setSelectedCalculationMethod(id);
     PreferenceCloudSync.instance.noteLocalChange();
+    _refreshCalculation();
+  }
+
+  void _refreshCalculation() {
     unawaited(
       SalatWaqtService.requestRefresh().catchError((Object error) {
         // The scheduler persists its failure status for the alarm diagnostics.
@@ -526,7 +695,9 @@ class PrayerTimeController extends GetxController implements GetxService {
     bool allowNetwork = true,
   }) async {
     if (requestBody['type'] == 'automatic') {
-      return LocalPrayerCalculator.calculate(requestBody);
+      return LocalPrayerCalculator.calculate(
+        RamadanIshaSettings.enrichRequest(requestBody, prefs),
+      );
     }
     final cacheKey = _prayerTimeCacheKey(requestBody);
     final cached = await _cachedPrayerTime(prefs, cacheKey);
@@ -813,7 +984,7 @@ class PrayerTimeController extends GetxController implements GetxService {
   }) async {
     try {
       await loadPrayerTimeSettings();
-      final revision = _calculationRevision;
+      var revision = _calculationRevision;
       if (reload) isprayerTimeLoading(true);
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -862,19 +1033,7 @@ class PrayerTimeController extends GetxController implements GetxService {
       saveLocalStoreCity = prefs.getString(AppConstants.saveCityName);
       saveAddress.value = prefs.getString(AppConstants.saveCityName) ?? "";
       if (position != null) {
-        await prefs.setDouble(_automaticLatitudeKey, position.latitude);
-        await prefs.setDouble(_automaticLongitudeKey, position.longitude);
-        try {
-          final addressList = await placemarkFromCoordinates(
-            position.latitude,
-            position.longitude,
-          );
-          currentAddress.value = _placemarkCity(addressList.first);
-          await prefs.setString(_automaticCityKey, currentAddress.value);
-        } catch (_) {
-          currentAddress.value =
-              prefs.getString(_automaticCityKey) ?? currentAddress.value;
-        }
+        await _cacheAutomaticLocation(prefs, position);
         if (kDebugMode) {
           print("Address: ${currentAddress.value}");
         }
@@ -882,6 +1041,13 @@ class PrayerTimeController extends GetxController implements GetxService {
         currentAddress.value =
             prefs.getString(_automaticCityKey) ?? currentAddress.value;
       }
+      if (revision != _calculationRevision) return null;
+      final resolve = _methodWrites.then(
+        (_) => _loadCalculationSettings(manualLocation: isManualPrayerTme),
+      );
+      _methodWrites = resolve.catchError((Object _) {});
+      await resolve;
+      revision = _calculationRevision;
       final requestedDate = date ?? DateTime.now();
       final formattedDate = DateFormat('yyyy-MM-dd').format(requestedDate);
 

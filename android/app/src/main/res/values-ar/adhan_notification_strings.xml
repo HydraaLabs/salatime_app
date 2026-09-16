@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="prayer_notification_tracking">متابعة أوقات الصلاة</string>
+    <string name="prayer_notification_playback">تشغيل الأذان</string>
 </resources>

@@ -1,7 +1,7 @@
 name: salatime
 description: SalaTime — prayer times, Adhan reminders, Qibla, Quran and Athkar with optional self-hosted account sync.
 publish_to: "none"
-version: 1.0.21+24
+version: 1.0.22+25
 
 environment:
   sdk: ">=3.9.0 <4.0.0"
@@ -64,6 +64,9 @@ dependencies:
   # path_provider: ^2.1.3
 
 dependency_overrides:
+  # MIT upstream 2.0.0+1 with configurable raw-instant rounding for Singapore.
+  adhan:
+    path: third_party/adhan
   flutter_compass_v2:
     path: packages/flutter_compass_v2
 

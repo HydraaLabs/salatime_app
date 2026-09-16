@@ -385,6 +385,7 @@
   "battery_optimization_not_granted": "L'optimisation de la batterie est toujours active. Vous pourrez réessayer à tout moment.",
   "upcoming_prayer_alarms": "Alarmes à venir",
   "alarm_window_description": "Les alarmes sont actualisées à l’ouverture de SalaTime. Ignorer une prière désactive uniquement cette occurrence et ses rappels. Faites glisser vers le bas pour actualiser.",
+  "alarm_rolling_window_description": "Les alertes des @days prochains jours sont renouvelées automatiquement. La liste inclut les jours en réserve : ouvrez SalaTime régulièrement pour prolonger les horaires disponibles. Ignorer une prière désactive uniquement cette occurrence et ses rappels.",
   "alarm_refresh_failed": "Certaines alarmes n’ont pas pu être mises à jour. Vérifiez les autorisations puis actualisez.",
   "alarm_precision_limited": "Précision des alarmes limitée",
   "alarm_precision_description": "Android peut retarder ces rappels. Autorisez les alarmes exactes pour améliorer leur ponctualité.",
@@ -841,5 +842,13 @@
   "widget_ios_steps": "1. Maintenez une zone vide de l’écran d’accueil.\n2. Touchez Modifier, puis Ajouter un widget (ou +).\n3. Recherchez SalaTime.\n4. Faites défiler les tailles, puis touchez Ajouter le widget.",
   "play_store_review_question": "Aimez-vous SalaTime ?",
   "play_store_review_yes": "Oui",
-  "play_store_review_no": "Non"
+  "play_store_review_no": "Non",
+  "ramadan_isha_title": "Isha pendant Ramadan",
+  "ramadan_isha_method": "Garder la méthode de calcul",
+  "ramadan_isha_interval": "@minutes min après Maghrib",
+  "ramadan_isha_description": "Option appliquée uniquement aux nuits de Ramadan, dès la veille du premier jour, selon le calendrier hégirien de SalaTime et sa correction. Les corrections personnelles de Maghrib et d’Isha restent prises en compte.",
+  "calculation_method_auto_title": "Méthode automatique selon le pays",
+  "calculation_method_auto_description": "Utilise le pays de votre position GPS ou de la ville choisie. Choisir une méthode ci-dessous désactive la sélection automatique.",
+  "calculation_method_auto_resolved": "@country · @method",
+  "calculation_method_auto_unavailable": "Pays indisponible. La méthode @method est conservée en attendant votre localisation."
 }

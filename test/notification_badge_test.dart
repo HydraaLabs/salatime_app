@@ -128,6 +128,9 @@ void main() {
             .arguments['platformSpecifics'];
         expect(details['sound'], uri);
         expect(details['playSound'], isTrue);
+        expect(details['importance'], 4);
+        expect(details['priority'], 2);
+        expect(details['channelAction'], 0);
         expect(details['channelShowBadge'], isFalse);
       }
       await prefs.remove(PersonalNotificationSounds.storageKey);

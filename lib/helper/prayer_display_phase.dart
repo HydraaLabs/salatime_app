@@ -18,8 +18,18 @@ class PrayerDisplayPhase {
     DateTime now,
     Data? today, {
     Data? previousDay,
+    Data? nextDay,
     Map<String, int> adjustments = const {},
   }) {
+    final upcoming = next(now, [
+      previousDay,
+      today,
+      nextDay,
+    ], adjustments: adjustments);
+    if (upcoming != null &&
+        upcoming.startedAt.difference(now) <= const Duration(hours: 1)) {
+      return null;
+    }
     PrayerDisplayPhase? latest;
     for (final moment in moments([
       previousDay,
@@ -64,8 +74,18 @@ class PrayerDisplayPhase {
         final hour = int.parse(match[1]!);
         final minute = int.parse(match[2]!);
         if (hour > 23 || minute > 59) continue;
-        var at = DateTime(date.year, date.month, date.day, hour, minute);
-        if (entry.key == 'isha' && previous != null && at.isBefore(previous)) {
+        final ishaDayOffset = entry.key == 'isha' ? day.ishaDayOffset : null;
+        var at = DateTime(
+          date.year,
+          date.month,
+          date.day + (ishaDayOffset ?? 0),
+          hour,
+          minute,
+        );
+        if (entry.key == 'isha' &&
+            ishaDayOffset == null &&
+            previous != null &&
+            at.isBefore(previous)) {
           at = DateTime(date.year, date.month, date.day + 1, hour, minute);
         }
         previous = at;

@@ -149,6 +149,19 @@ class _AdjustmentHarness {
       return null;
     });
     messenger.setMockMethodCallHandler(PrayerAlarmHealth.channel, (call) async {
+      if (call.method == 'applyScheduleChanges') {
+        for (final id in (call.arguments['cancelIds'] as List).cast<int>()) {
+          cancelled.add(id);
+          pending.remove(id);
+        }
+        for (final raw in call.arguments['notifications'] as List) {
+          final arguments = Map<String, dynamic>.from(raw);
+          final id = arguments['id'] as int;
+          scheduled.add(id);
+          routed.add(id);
+          pending[id] = arguments;
+        }
+      }
       if (call.method == 'route' && call.arguments is Map) {
         routed.add(call.arguments['id'] as int);
       }
@@ -367,7 +380,11 @@ void main() {
       );
       harness.expectPhases(6, harness.day.add(const Duration(hours: 7)));
       expect(harness.scheduled.toSet(), fajrIds);
-      expect(harness.cancelled.toSet(), fajrIds);
+      expect(
+        harness.cancelled,
+        isEmpty,
+        reason: 'Changed instants are replaced by the same native transaction',
+      );
       expect(harness.prayerIds(6), sunriseIds);
 
       await harness.adjustment.resetPrayerTime(prayerKey: 'fajr');

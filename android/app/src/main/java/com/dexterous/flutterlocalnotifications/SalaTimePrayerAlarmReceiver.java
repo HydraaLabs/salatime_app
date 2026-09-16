@@ -11,19 +11,30 @@ import org.json.JSONObject;
 
 public class SalaTimePrayerAlarmReceiver extends BroadcastReceiver {
     @Override public void onReceive(Context context, Intent intent) {
+        receiveAt(context, intent, System.currentTimeMillis());
+    }
+
+    void receiveAt(Context context, Intent intent, long now) {
+        synchronized (SalaTimePrayerAlarms.class) {
+            receiveLocked(context, intent, now);
+        }
+    }
+
+    private void receiveLocked(Context context, Intent intent, long now) {
+        boolean consumed = false;
         try {
             int id = intent.getIntExtra("id", -1);
             JSONObject row = SalaTimePrayerAlarms.find(context, id);
             if (row == null) return; // Already delivered, cancelled or skipped.
             JSONObject payload = SalaTimePrayerAlarms.prayer(row);
             if (payload == null || payload.getLong("at") != intent.getLongExtra("at", -1)) return;
-            long now = System.currentTimeMillis();
             String policy = SalaTimePrayerAlarms.deliveryPolicy(payload, now);
             if ("early".equals(policy)) {
                 SalaTimePrayerAlarms.register(context, row, now);
                 return;
             }
             FlutterLocalNotificationsPlugin.removeNotificationFromCache(context, id);
+            consumed = true;
             SalaTimePrayerAlarms.cancel(context, id);
             SalaTimePrayerAlarms.record(context, payload, now, policy);
             if ("expired".equals(policy)) return;
@@ -56,7 +67,8 @@ public class SalaTimePrayerAlarmReceiver extends BroadcastReceiver {
                         showSilent(context, details);
                     } else {
                         SalaTimeNotificationTray.post(context, details,
-                                SalaTimeAdhanNotification.builder(context, details).build());
+                                SalaTimeAdhanNotification.builder(context, details)
+                                        .setOnlyAlertOnce(false).build());
                     }
                 } else {
                     SalaTimeNotificationTray.post(context, details,
@@ -65,6 +77,11 @@ public class SalaTimePrayerAlarmReceiver extends BroadcastReceiver {
             }
         } catch (Exception error) {
             Log.e("SalaTimeAlarms", "Could not deliver prayer alarm", error);
+        } finally {
+            if (consumed) {
+                try { SalaTimePrayerAlarms.renewIfNeeded(context, now); }
+                catch (Exception error) { Log.e("SalaTimeAlarms", "Could not extend the prayer alarm window", error); }
+            }
         }
     }
 

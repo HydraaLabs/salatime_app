@@ -6,6 +6,8 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:salatime/controller/package_prayer_time_controller.dart';
 import 'package:salatime/helper/salat_waqt_service.dart';
+import 'package:salatime/helper/automatic_prayer_method.dart';
+import 'package:salatime/helper/location_auto_update_service.dart';
 import 'package:salatime/util/app_constants.dart';
 import 'package:salatime/util/dimensions.dart';
 import 'package:salatime/util/images.dart';
@@ -38,8 +40,9 @@ class CustomCityDialog extends StatelessWidget {
                 child: Container(
                   decoration: BoxDecoration(
                     color: Theme.of(context).hintColor.withOpacity(0.1),
-                    borderRadius:
-                        BorderRadius.circular(Dimensions.RADIUS_SMALL),
+                    borderRadius: BorderRadius.circular(
+                      Dimensions.RADIUS_SMALL,
+                    ),
                   ),
                   child: TextField(
                     controller: prayerTimeController.citySearchController,
@@ -70,6 +73,7 @@ class CustomCityDialog extends StatelessWidget {
                     // Back to GPS mode: drop any saved manual city coords.
                     await prefs.remove(AppConstants.manualCityLat);
                     await prefs.remove(AppConstants.manualCityLng);
+                    await prefs.remove(AutomaticPrayerMethod.manualCountryKey);
 
                     prayerTimeController.fetchPrayerTime(
                       isManualPrayerTme: false,
@@ -81,7 +85,9 @@ class CustomCityDialog extends StatelessWidget {
                   },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 10),
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
                     child: Row(
                       children: [
                         SvgPicture.asset(
@@ -129,7 +135,8 @@ class CustomCityDialog extends StatelessWidget {
                         child: Text(
                           'no_data_found'.tr,
                           style: robotoMedium.copyWith(
-                              fontSize: Dimensions.FONT_SIZE_LARGE),
+                            fontSize: Dimensions.FONT_SIZE_LARGE,
+                          ),
                         ),
                       );
                     }
@@ -146,14 +153,30 @@ class CustomCityDialog extends StatelessWidget {
                             onTap: () async {
                               final prefs =
                                   await SharedPreferences.getInstance();
+                              await LocationAutoUpdateService.disable();
                               await prefs.setBool(
-                                  AppConstants.isPrayerTme, true);
+                                AppConstants.isPrayerTme,
+                                true,
+                              );
                               await prefs.setString(
-                                  AppConstants.saveCityName, city.displayName);
+                                AppConstants.saveCityName,
+                                city.displayName,
+                              );
                               await prefs.setDouble(
-                                  AppConstants.manualCityLat, city.lat);
+                                AppConstants.manualCityLat,
+                                city.lat,
+                              );
                               await prefs.setDouble(
-                                  AppConstants.manualCityLng, city.lng);
+                                AppConstants.manualCityLng,
+                                city.lng,
+                              );
+                              await AutomaticPrayerMethod.saveCountry(
+                                prefs,
+                                manual: true,
+                                code: city.countryCode,
+                                latitude: city.lat,
+                                longitude: city.lng,
+                              );
 
                               prayerTimeController.fetchPrayerTime(
                                 isManualPrayerTme: true,
@@ -165,7 +188,9 @@ class CustomCityDialog extends StatelessWidget {
                             },
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 10),
+                                horizontal: 12,
+                                vertical: 10,
+                              ),
                               child: Row(
                                 children: [
                                   SvgPicture.asset(
@@ -204,7 +229,8 @@ class CustomCityDialog extends StatelessWidget {
                       child: Text(
                         'no_data_found'.tr,
                         style: robotoMedium.copyWith(
-                            fontSize: Dimensions.FONT_SIZE_LARGE),
+                          fontSize: Dimensions.FONT_SIZE_LARGE,
+                        ),
                       ),
                     );
                   }
@@ -219,12 +245,18 @@ class CustomCityDialog extends StatelessWidget {
                         child: InkWell(
                           onTap: () async {
                             final prefs = await SharedPreferences.getInstance();
+                            await LocationAutoUpdateService.disable();
                             await prefs.setBool(AppConstants.isPrayerTme, true);
                             await prefs.setString(
-                                AppConstants.saveCityName, cityName);
+                              AppConstants.saveCityName,
+                              cityName,
+                            );
                             // Legacy manual mode: no coordinates for this city.
                             await prefs.remove(AppConstants.manualCityLat);
                             await prefs.remove(AppConstants.manualCityLng);
+                            await prefs.remove(
+                              AutomaticPrayerMethod.manualCountryKey,
+                            );
 
                             prayerTimeController.fetchPrayerTime(
                               isManualPrayerTme: true,
@@ -236,7 +268,9 @@ class CustomCityDialog extends StatelessWidget {
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 10),
+                              horizontal: 12,
+                              vertical: 10,
+                            ),
                             child: Row(
                               children: [
                                 SvgPicture.asset(

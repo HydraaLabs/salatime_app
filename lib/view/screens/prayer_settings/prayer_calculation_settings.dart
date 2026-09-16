@@ -7,6 +7,7 @@ import 'package:salatime/controller/package_prayer_time_controller.dart';
 import 'package:salatime/helper/route_helper.dart';
 import 'package:salatime/helper/prayer_calculation_methods.dart';
 import 'package:salatime/view/screens/prayer_settings/calculation_method_screen.dart';
+import 'package:salatime/view/screens/prayer_settings/ramadan_isha_setting.dart';
 import 'package:salatime/helper/salat_waqt_service.dart';
 import 'package:salatime/util/dimensions.dart';
 import 'package:salatime/util/images.dart';
@@ -274,6 +275,12 @@ class _PrayerTimeCalculationSettingsState
                         ),
                       ),
                       const SizedBox(height: Dimensions.PADDING_SIZE_SMALL),
+                      if (prayerTimeController.isPrayerTimes.value == false ||
+                          (prayerTimeController
+                                  .prayerTimeModel
+                                  ?.calculatedLocally ??
+                              false))
+                        const RamadanIshaSetting(),
                       if (prayerTimeController.isPrayerTimes.value == false)
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,

@@ -4,6 +4,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.PowerManager;
@@ -11,7 +12,9 @@ import android.util.Log;
 import androidx.core.app.NotificationManagerCompat;
 import com.example.zabi.PrayerWidgetProvider;
 import java.util.HashMap;
+import java.util.Calendar;
 import java.util.Map;
+import java.util.TimeZone;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -20,10 +23,12 @@ import org.json.JSONObject;
 public final class SalaTimePrayerAlarms {
     static final String STORE = "scheduled_notifications";
     static final String DELIVERY_STORE = "salatime_alarm_delivery";
+    static final String WINDOW_STORE = "salatime_alarm_window";
+    static final int ARMED_WINDOW_DAYS = 3;
     static final long LATE_TOLERANCE_MS = 2 * 60 * 1000L;
     private SalaTimePrayerAlarms() {}
 
-    static JSONArray cached(Context context) throws Exception {
+    static synchronized JSONArray cached(Context context) throws Exception {
         return new JSONArray(context.getSharedPreferences(STORE, 0).getString(STORE, "[]"));
     }
 
@@ -51,7 +56,7 @@ public final class SalaTimePrayerAlarms {
         } catch (Exception ignored) { return null; }
     }
 
-    static JSONObject find(Context context, int id) throws Exception {
+    static synchronized JSONObject find(Context context, int id) throws Exception {
         JSONArray rows = cached(context);
         for (int i = 0; i < rows.length(); i++) {
             JSONObject row = rows.getJSONObject(i);
@@ -81,7 +86,7 @@ public final class SalaTimePrayerAlarms {
         }
     }
 
-    public static void cancel(Context context, int id) {
+    public static synchronized void cancel(Context context, int id) {
         PendingIntent pending = operation(context, id, false);
         if (pending != null) {
             ((AlarmManager) context.getSystemService(Context.ALARM_SERVICE)).cancel(pending);
@@ -89,18 +94,56 @@ public final class SalaTimePrayerAlarms {
         }
     }
 
-    public static void cancelAll(Context context) throws Exception {
+    public static synchronized void cancelAll(Context context) throws Exception {
         JSONArray rows = cached(context);
         for (int i = 0; i < rows.length(); i++) {
             JSONObject row = rows.getJSONObject(i);
             if (prayer(row) != null) cancel(context, row.getInt("id"));
         }
+        cancelMaintenance(context);
+        context.getSharedPreferences(WINDOW_STORE, 0).edit().clear().apply();
     }
 
-    static String register(Context context, JSONObject row, long now) throws Exception {
+    private static TimeZone validZone(String name) {
+        if (name == null || name.isEmpty()) return null;
+        TimeZone zone = TimeZone.getTimeZone(name);
+        return !"GMT".equals(zone.getID()) || "GMT".equals(name) || "UTC".equals(name) ? zone : null;
+    }
+
+    static TimeZone windowZone(Context context, JSONObject row) {
+        TimeZone configured = validZone(context.getSharedPreferences("salatime_prayer_widget", 0)
+                .getString("timeZone", null));
+        if (configured != null) return configured;
+        TimeZone stored = row == null ? null : validZone(row.optString("timeZoneName"));
+        return stored == null ? TimeZone.getDefault() : stored;
+    }
+
+    static long midnightAfter(long now, TimeZone zone, int days) {
+        Calendar date = Calendar.getInstance(zone);
+        date.setTimeInMillis(now);
+        date.add(Calendar.DATE, days);
+        date.set(Calendar.HOUR_OF_DAY, 0);
+        date.set(Calendar.MINUTE, 0);
+        date.set(Calendar.SECOND, 0);
+        date.set(Calendar.MILLISECOND, 0);
+        return date.getTimeInMillis();
+    }
+
+    static long windowEnd(Context context, JSONObject row, long now) {
+        return midnightAfter(now, windowZone(context, row), ARMED_WINDOW_DAYS);
+    }
+
+    static synchronized String register(Context context, JSONObject row, long now) throws Exception {
         JSONObject payload = prayer(row);
         if (payload == null || payload.getLong("at") <= now) return null;
         int id = row.getInt("id");
+        if (payload.getLong("at") >= windowEnd(context, row, now)) {
+            // Keep the full occurrence in the plugin cache as an offline reserve.
+            // Its temporary plugin registration must not escape the active window.
+            cancel(context, id);
+            cancelLegacy(context, id);
+            return null;
+        }
         Intent intent = new Intent(context, SalaTimePrayerAlarmReceiver.class)
                 .addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
                 .putExtra("id", id).putExtra("at", payload.getLong("at"));
@@ -110,17 +153,14 @@ public final class SalaTimePrayerAlarms {
         String mode;
         try {
             if (!exactAllowed(context)) throw new SecurityException("Exact alarms unavailable");
-            if ("adhan".equals(payload.getString("kind"))) {
-                // Unlike allowWhileIdle, a visible alarm clock is not batched with
-                // nearby reminders in Doze. The clock shortcut must OPEN the app,
-                // never send the broadcast (which would trigger a prayer early).
-                manager.setAlarmClock(new AlarmManager.AlarmClockInfo(payload.getLong("at"),
-                        PrayerWidgetProvider.openApp(context)), pending);
-                mode = "alarmClock";
-            } else {
-                manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, payload.getLong("at"), pending);
-                mode = "exactAllowWhileIdle";
-            }
+            // Every enabled prayer/reminder has a user-selected time, including
+            // optional Fajr and night alerts. allowWhileIdle can throttle nearby
+            // alerts in Doze beyond our missed-reminder tolerance. The system's
+            // next alarm therefore shows the earliest enabled occurrence.
+            // Its shortcut opens the app; it must never trigger the receiver.
+            manager.setAlarmClock(new AlarmManager.AlarmClockInfo(payload.getLong("at"),
+                    PrayerWidgetProvider.openApp(context)), pending);
+            mode = "alarmClock";
         } catch (SecurityException denied) {
             manager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, payload.getLong("at"), pending);
             mode = "inexactAllowWhileIdle";
@@ -130,9 +170,11 @@ public final class SalaTimePrayerAlarms {
         return mode;
     }
 
-    public static Map<String, Object> route(Context context, int id) throws Exception {
+    public static synchronized Map<String, Object> route(Context context, int id) throws Exception {
         JSONObject row = find(context, id);
-        String mode = row == null ? null : register(context, row, System.currentTimeMillis());
+        long now = System.currentTimeMillis();
+        String mode = row == null ? null : register(context, row, now);
+        if (row != null && prayer(row) != null) armMaintenance(context, cached(context), now);
         Map<String, Object> result = new HashMap<>();
         result.put("routed", mode == null ? 0 : 1);
         result.put("failed", 0);
@@ -140,12 +182,15 @@ public final class SalaTimePrayerAlarms {
         return result;
     }
 
-    public static Map<String, Object> routeAll(Context context) throws Exception {
+    public static synchronized Map<String, Object> routeAll(Context context) throws Exception {
         SalaTimeAdhanNotificationReceiver.restore(context);
+        return routeWindow(context, System.currentTimeMillis());
+    }
+
+    static synchronized Map<String, Object> routeWindow(Context context, long now) throws Exception {
         int routed = 0, failed = 0;
         boolean inexact = false;
         JSONArray rows = cached(context);
-        long now = System.currentTimeMillis();
         for (int i = 0; i < rows.length(); i++) {
             try {
                 String mode = register(context, rows.getJSONObject(i), now);
@@ -156,11 +201,93 @@ public final class SalaTimePrayerAlarms {
                 Log.e("SalaTimeAlarms", "Could not route a prayer alarm", error);
             }
         }
+        TimeZone zone = reserveZone(context, rows);
+        armMaintenance(context, rows, now);
+        context.getSharedPreferences(WINDOW_STORE, 0).edit()
+                .putLong("windowEnd", midnightAfter(now, zone, ARMED_WINDOW_DAYS))
+                .putString("timeZone", zone.getID())
+                .putBoolean("exact", exactAllowed(context))
+                .putBoolean("failed", failed > 0)
+                .putLong("lastRenewalAt", now).apply();
         Map<String, Object> result = new HashMap<>();
         result.put("routed", routed);
         result.put("failed", failed);
         result.put("inexact", inexact);
         return result;
+    }
+
+    private static TimeZone reserveZone(Context context, JSONArray rows) {
+        for (int i = 0; i < rows.length(); i++) {
+            JSONObject row = rows.optJSONObject(i);
+            if (row != null && prayer(row) != null) return windowZone(context, row);
+        }
+        return windowZone(context, null);
+    }
+
+    private static PendingIntent maintenance(Context context, boolean create) {
+        return PendingIntent.getBroadcast(context, 0, new Intent(context, SalaTimePrayerWindowReceiver.class),
+                (create ? PendingIntent.FLAG_UPDATE_CURRENT : PendingIntent.FLAG_NO_CREATE)
+                        | PendingIntent.FLAG_IMMUTABLE);
+    }
+
+    private static void cancelMaintenance(Context context) {
+        PendingIntent pending = maintenance(context, false);
+        if (pending != null) {
+            ((AlarmManager) context.getSystemService(Context.ALARM_SERVICE)).cancel(pending);
+            pending.cancel();
+        }
+        context.getSharedPreferences(WINDOW_STORE, 0).edit().remove("nextRenewalAt").apply();
+    }
+
+    private static void armMaintenance(Context context, JSONArray rows, long now) {
+        boolean future = false;
+        for (int i = 0; i < rows.length(); i++) {
+            JSONObject row = rows.optJSONObject(i);
+            JSONObject payload = row == null ? null : prayer(row);
+            if (payload != null && payload.optLong("at") > now) { future = true; break; }
+        }
+        if (!future) { cancelMaintenance(context); return; }
+        long at = midnightAfter(now, reserveZone(context, rows), 1);
+        // One inexact maintenance alarm, with two already-armed days of margin.
+        // Actual prayer deliveries can also advance the window after midnight.
+        ((AlarmManager) context.getSystemService(Context.ALARM_SERVICE))
+                .setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, maintenance(context, true));
+        context.getSharedPreferences(WINDOW_STORE, 0).edit().putLong("nextRenewalAt", at).apply();
+    }
+
+    /** Recheck a completed batch after widget metadata has been updated. */
+    public static synchronized Map<String, Object> refreshWindowIfNeeded(Context context) throws Exception {
+        return refreshWindowIfNeeded(context, System.currentTimeMillis());
+    }
+
+    static synchronized Map<String, Object> refreshWindowIfNeeded(Context context, long now) throws Exception {
+        SharedPreferences state = context.getSharedPreferences(WINDOW_STORE, 0);
+        JSONObject zoneHint = new JSONObject().put("timeZoneName", state.getString("timeZone", ""));
+        TimeZone zone = windowZone(context, zoneHint);
+        if (state.getLong("windowEnd", 0) == midnightAfter(now, zone, ARMED_WINDOW_DAYS)
+                && zone.getID().equals(state.getString("timeZone", ""))
+                && state.getBoolean("exact", false) == exactAllowed(context)
+                && !state.getBoolean("failed", false)) {
+            Map<String, Object> result = new HashMap<>();
+            result.put("routed", 0);
+            result.put("failed", 0);
+            result.put("inexact", false);
+            return result;
+        }
+        // Do not prune at <= now: a simultaneous alarm may still be queued for
+        // delivery. Only its receiver consumes it; strict pruning is for boot.
+        return routeWindow(context, now);
+    }
+
+    static synchronized void renewIfNeeded(Context context, long now) throws Exception {
+        refreshWindowIfNeeded(context, now);
+    }
+
+    static synchronized void maintainWindow(Context context, long now) throws Exception {
+        renewIfNeeded(context, now);
+        // Also recover an unexpectedly early maintenance delivery without
+        // rebuilding all alarms when the local calendar day has not changed.
+        armMaintenance(context, cached(context), now);
     }
 
     static String deliveryPolicy(JSONObject payload, long now) {
@@ -182,7 +309,7 @@ public final class SalaTimePrayerAlarms {
                 .putString("outcome", outcome).apply();
     }
 
-    public static Map<String, Object> status(Context context) {
+    public static synchronized Map<String, Object> status(Context context) {
         Map<String, Object> result = new HashMap<>();
         result.put("exact", exactAllowed(context));
         result.put("notifications", NotificationManagerCompat.from(context).areNotificationsEnabled());
@@ -192,6 +319,29 @@ public final class SalaTimePrayerAlarms {
         result.put("alarmVolume", audio.getStreamVolume(AudioManager.STREAM_ALARM));
         result.put("alarmVolumeMax", audio.getStreamMaxVolume(AudioManager.STREAM_ALARM));
         result.put("manufacturer", Build.MANUFACTURER);
+        result.put("armedWindowDays", ARMED_WINDOW_DAYS);
+        SharedPreferences window = context.getSharedPreferences(WINDOW_STORE, 0);
+        result.put("lastWindowRenewalAt", window.getLong("lastRenewalAt", 0));
+        result.put("nextWindowRenewalAt", window.getLong("nextRenewalAt", 0));
+        try {
+            JSONArray rows = cached(context);
+            int reserveCount = 0, armedCount = 0;
+            long lastAt = 0, now = System.currentTimeMillis();
+            for (int i = 0; i < rows.length(); i++) {
+                JSONObject row = rows.optJSONObject(i);
+                JSONObject payload = row == null ? null : prayer(row);
+                if (payload == null || payload.optLong("at") <= now) continue;
+                reserveCount++;
+                lastAt = Math.max(lastAt, payload.optLong("at"));
+                if (payload.optLong("at") < windowEnd(context, row, now)
+                        && operation(context, row.optInt("id"), false) != null) armedCount++;
+            }
+            result.put("reserveCount", reserveCount);
+            result.put("reserveLastAt", lastAt);
+            result.put("armedCount", armedCount);
+        } catch (Exception error) {
+            Log.w("SalaTimeAlarms", "Could not inspect the alarm reserve", error);
+        }
         android.content.SharedPreferences delivery = context.getSharedPreferences(DELIVERY_STORE, 0);
         if (delivery.contains("plannedAt")) {
             result.put("plannedAt", delivery.getLong("plannedAt", 0));

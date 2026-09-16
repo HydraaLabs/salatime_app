@@ -48,8 +48,17 @@ class PrayerShareData {
       final hour = int.parse(time[1]!);
       final minute = int.parse(time[2]!);
       if (hour > 23 || minute > 59) return null;
-      var base = DateTime(year, month, number, hour, minute);
-      if (previous != null && base.isBefore(previous)) {
+      final ishaDayOffset = adjustmentKey == 'isha' ? day.ishaDayOffset : null;
+      var base = DateTime(
+        year,
+        month,
+        number + (ishaDayOffset ?? 0),
+        hour,
+        minute,
+      );
+      if (previous != null &&
+          base.isBefore(previous) &&
+          ishaDayOffset == null) {
         if (adjustmentKey != 'isha') return null;
         base = DateTime(year, month, number + 1, hour, minute);
       }

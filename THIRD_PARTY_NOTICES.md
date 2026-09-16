@@ -13,6 +13,11 @@ Dependencies retain the licenses shipped with them. Consult `composer.lock` and
 `vendor/*/*/LICENSE*` for PHP, `package-lock.json` and package license files for
 JavaScript, or `pubspec.lock` and `third_party/` for Flutter, as applicable.
 
+`third_party/adhan` contains Adhan Dart 2.0.0+1 by Riajul Islam, under its
+preserved MIT license, with a local configurable-rounding patch. See its README
+for the exact changes. Calculation reference fixtures are produced separately
+with the public MIT Adhan Kotlin library; no Moatheni application code is copied.
+
 Quran translations and commentary identify their translators in the reference
 data (including Ahmed Ali, Zohurul Hoque, Bornez and Jalalayn). Those texts are
 not authored or relicensed by HydraaLabs. Bundled and remotely retrieved audio,

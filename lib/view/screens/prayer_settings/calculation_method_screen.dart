@@ -43,7 +43,8 @@ class _CalculationMethodScreenState extends State<CalculationMethodScreen> {
 
   Future<void> _select(PrayerCalculationMethod method) async {
     if (_savingId != null) return;
-    if (_controller.selectedCalculationMethod == method.id) {
+    if (!_controller.automaticCalculationMethod &&
+        _controller.selectedCalculationMethod == method.id) {
       Navigator.of(context).pop();
       return;
     }
@@ -63,6 +64,41 @@ class _CalculationMethodScreenState extends State<CalculationMethodScreen> {
     } finally {
       if (mounted) setState(() => _savingId = null);
     }
+  }
+
+  Future<void> _setAutomatic(bool enabled) async {
+    if (_savingId != null) return;
+    setState(() {
+      _savingId = 'automatic';
+      _error = null;
+    });
+    try {
+      await _controller.selectAutomaticCalculationMethod(enabled);
+    } catch (_) {
+      if (mounted) {
+        setState(() => _error = 'calculation_method_save_error'.tr);
+      }
+    } finally {
+      if (mounted) setState(() => _savingId = null);
+    }
+  }
+
+  String _automaticDescription(PrayerTimeController controller) {
+    final method = PrayerCalculationMethods.byId(
+      controller.selectedCalculationMethod,
+    );
+    if (!controller.automaticCalculationMethod) {
+      return 'calculation_method_auto_description'.tr;
+    }
+    if (controller.calculationCountry == null || method == null) {
+      return 'calculation_method_auto_unavailable'.trParams({
+        'method': method == null ? '' : calculationMethodLabel(method),
+      });
+    }
+    return 'calculation_method_auto_resolved'.trParams({
+      'country': controller.calculationCountry!,
+      'method': calculationMethodLabel(method),
+    });
   }
 
   @override
@@ -112,6 +148,17 @@ class _CalculationMethodScreenState extends State<CalculationMethodScreen> {
                         ),
                       ),
                     ),
+                  Card(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    elevation: 0,
+                    child: SwitchListTile(
+                      key: const ValueKey('calculation-method-automatic'),
+                      title: Text('calculation_method_auto_title'.tr),
+                      subtitle: Text(_automaticDescription(controller)),
+                      value: controller.automaticCalculationMethod,
+                      onChanged: _savingId == null ? _setAutomatic : null,
+                    ),
+                  ),
                   Card(
                     margin: EdgeInsets.zero,
                     elevation: 0,

@@ -390,6 +390,7 @@
   "battery_optimization_not_granted": "لا يزال تحسين البطارية مفعّلًا. يمكنك المحاولة مرة أخرى في أي وقت.",
   "upcoming_prayer_alarms": "التنبيهات القادمة",
   "alarm_window_description": "تُحدَّث التنبيهات عند فتح SalaTime. يمكنك تخطي تنبيه صلاة واحدة وتذكيراتها فقط. اسحب إلى الأسفل للتحديث.",
+  "alarm_rolling_window_description": "تُجدَّد تنبيهات الأيام @days القادمة تلقائيًا. تشمل القائمة أيامًا محفوظة مسبقًا؛ افتح SalaTime بانتظام لتمديد المواقيت المتاحة. تخطي صلاة يكتم تنبيه هذه الصلاة وتذكيراتها فقط.",
   "alarm_refresh_failed": "تعذر تحديث بعض التنبيهات. تحقق من الأذونات ثم أعد التحديث.",
   "alarm_precision_limited": "دقة التنبيهات محدودة",
   "alarm_precision_description": "قد يؤخر Android هذه التذكيرات. اسمح بالتنبيهات الدقيقة لتحسين توقيتها.",
@@ -845,5 +846,13 @@
   "widget_ios_steps": "1. المس مطولاً مساحة فارغة على الشاشة الرئيسية.\n2. اضغط على تعديل ثم إضافة أداة (أو +).\n3. ابحث عن SalaTime.\n4. مرّر لاختيار الحجم ثم اضغط على إضافة أداة.",
   "play_store_review_question": "هل يعجبك SalaTime؟",
   "play_store_review_yes": "نعم",
-  "play_store_review_no": "لا"
+  "play_store_review_no": "لا",
+  "ramadan_isha_title": "العشاء في رمضان",
+  "ramadan_isha_method": "الإبقاء على طريقة الحساب",
+  "ramadan_isha_interval": "بعد المغرب بـ @minutes دقيقة",
+  "ramadan_isha_description": "يُطبّق الخيار على ليالي رمضان فقط، بدءًا من مساء اليوم السابق لأول يوم، وفق تقويم SalaTime الهجري وتصحيحه. تبقى تعديلاتك الشخصية للمغرب والعشاء سارية.",
+  "calculation_method_auto_title": "طريقة الحساب تلقائيًا حسب البلد",
+  "calculation_method_auto_description": "استخدام بلد موقعك أو المدينة المختارة. اختيار طريقة أدناه يوقف الاختيار التلقائي.",
+  "calculation_method_auto_resolved": "@country · @method",
+  "calculation_method_auto_unavailable": "البلد غير متاح. تبقى طريقة @method حتى يتوفر موقعك."
 }

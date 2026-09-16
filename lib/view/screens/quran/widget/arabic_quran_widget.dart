@@ -104,6 +104,8 @@ class _ArabicQuranWidgetState extends State<ArabicQuranWidget> {
     int index,
   ) {
     return GetBuilder<BookMarkController>(
+      // A recycled Quran page must not dispose the shared bookmark store.
+      autoRemove: false,
       init: BookMarkController(),
       builder: (bookMarkController) {
         final pageKey =

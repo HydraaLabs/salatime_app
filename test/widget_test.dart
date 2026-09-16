@@ -20,6 +20,7 @@ import 'package:salatime/helper/salat_waqt_service.dart';
 import 'package:salatime/helper/translator_helper.dart';
 import 'package:salatime/service/first_launch_setup_service.dart';
 import 'package:salatime/util/app_constants.dart';
+import 'package:salatime/theme/brand_colors.dart';
 import 'package:salatime/view/screens/home/modern/widget/modern_daily_hadith_card.dart';
 import 'package:salatime/view/screens/home/modern/widget/modern_next_prayer_card.dart';
 import 'package:salatime/view/screens/home/modern/widget/modern_prayer_dashboard.dart';
@@ -710,6 +711,69 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
   });
+
+  testWidgets(
+    'home prioritizes the next prayer at one hour and warns below 45 minutes',
+    (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      Get.put<SharedPreferences>(prefs);
+      addTearDown(Get.reset);
+      final controller =
+          PrayerTimeController(
+              apiClient: ApiClient(
+                appBaseUrl: AppConstants.BASE_URL,
+                sharedPreferences: prefs,
+              ),
+            )
+            ..prayerTimeModel = PrayerTimeModel(
+              data: Data(
+                date: '2026-09-16',
+                maghribStart: '19:25',
+                ishaStart: '20:51',
+              ),
+            );
+      var now = DateTime(2026, 9, 16, 19, 50, 59);
+      await tester.pumpWidget(
+        GetMaterialApp(
+          translations: _PrayerDashboardTestTranslations(),
+          locale: const Locale('en', 'US'),
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: ModernPrayerDashboard(
+                prayerTimeController: controller,
+                now: () => now,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(find.text('Time since Maghrib'), findsOneWidget);
+      now = DateTime(2026, 9, 16, 19, 51);
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.text('Time since Maghrib'), findsNothing);
+      expect(find.text('Next prayer'), findsOneWidget);
+      expect(find.text('Isha'), findsWidgets);
+      expect(find.text('in 01:00:00'), findsOneWidget);
+      now = DateTime(2026, 9, 16, 20, 6);
+      await tester.pump(const Duration(seconds: 1));
+      final normal = tester.widget<Text>(find.text('in 00:45:00')).style!.color;
+      expect(normal, Colors.white);
+      now = DateTime(2026, 9, 16, 20, 6, 1);
+      await tester.pump(const Duration(seconds: 1));
+      final warning = tester
+          .widget<Text>(find.text('in 00:44:59'))
+          .style!
+          .color;
+      expect(warning, BrandColors.countdownWarningOnPrimary);
+      now = DateTime(2026, 9, 16, 20, 51);
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.text('Time since Isha'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
 
   testWidgets('a home bell toggles only its prayer notifications', (
     tester,

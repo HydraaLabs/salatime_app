@@ -94,7 +94,8 @@ open class PrayerWidgetProvider : AppWidgetProvider() {
             val showCountdown = options.getBoolean("countdown", true)
             val next = prayers.firstOrNull { it.optLong("at") > now }
             val recent = prayers.lastOrNull { it.optLong("at") <= now && now - it.optLong("at") < 90 * 60000 }
-            val elapsed = showCountdown && recent != null
+            val nextIsClose = next != null && next.optLong("at") - now <= 60 * 60000L
+            val elapsed = showCountdown && recent != null && !nextIsClose
             val displayed = if (elapsed) recent else next
             val views = RemoteViews(context.packageName, if (expanded) R.layout.prayer_widget_expanded else R.layout.prayer_widget)
             val city = prefs.getString("city", "") ?: ""
@@ -211,7 +212,9 @@ open class PrayerWidgetProvider : AppWidgetProvider() {
             // when the remaining time becomes strictly less than 45 minutes.
             val warningAt = if (options.getBoolean("countdown", true))
                 nextAt?.minus(WARNING_WINDOW_MS)?.plus(1)?.takeIf { it > now } else null
-            val at = listOfNotNull(nextAt, expiry, warningAt).minOrNull()
+            val nextPriorityAt = if (options.getBoolean("countdown", true))
+                nextAt?.minus(60 * 60000L)?.takeIf { it > now } else null
+            val at = listOfNotNull(nextAt, expiry, nextPriorityAt, warningAt).minOrNull()
             val alarm = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             alarm.cancel(refreshIntent(context))
             if (at != null) {

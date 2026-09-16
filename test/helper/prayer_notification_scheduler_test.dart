@@ -65,6 +65,7 @@ class SchedulerHarness {
   final nativeCalls = <MethodCall>[];
   int initializeCalls = 0;
   bool failInitialization = false;
+  bool failBatch = false;
   Future<void> Function(Map<String, dynamic>)? beforeSchedule;
   late final CachedPrayerController controller;
 
@@ -118,6 +119,20 @@ class SchedulerHarness {
     messenger.setMockMethodCallHandler(timezone, (_) async => 'UTC');
     messenger.setMockMethodCallHandler(PrayerAlarmHealth.channel, (call) async {
       nativeCalls.add(call);
+      if (call.method == 'applyScheduleChanges') {
+        if (failBatch) throw PlatformException(code: 'reserve_write_failed');
+        for (final id in (call.arguments['cancelIds'] as List).cast<int>()) {
+          pending.remove(id);
+          cancellations.add(id);
+        }
+        for (final raw in call.arguments['notifications'] as List) {
+          final args = Map<String, dynamic>.from(raw);
+          final id = args['id'] as int;
+          await beforeSchedule?.call(args);
+          scheduled.add(id);
+          pending[id] = args;
+        }
+      }
       return {'failed': 0};
     });
     addTearDown(() async {
@@ -156,6 +171,64 @@ void main() {
     harness = SchedulerHarness();
     await harness.initialize();
   });
+
+  test('a failed native reserve commit preserves legacy alarms', () async {
+    await PrayerNotificationPreferences.update(
+      PrayerNotificationPrayer.fajr,
+      PrayerNotificationPhase.adhan,
+      enabled: true,
+    );
+    harness.pending[1] = {'id': 1, 'title': 'Fajr', 'body': '', 'payload': ''};
+    harness.failBatch = true;
+    await expectLater(harness.refresh(), throwsA(isA<PlatformException>()));
+    expect(harness.pending.containsKey(1), isTrue);
+    expect(harness.cancellations, isNot(contains(1)));
+    expect(
+      (await SharedPreferences.getInstance()).getBool(
+        SalatWaqtService.failedKey,
+      ),
+      isTrue,
+    );
+  });
+
+  test(
+    'only an applied native batch skips the final full routing pass',
+    () async {
+      await PrayerNotificationPreferences.update(
+        PrayerNotificationPrayer.fajr,
+        PrayerNotificationPhase.adhan,
+        enabled: true,
+      );
+      await harness.refresh();
+      expect(
+        harness.nativeCalls.where(
+          (call) => call.method == 'applyScheduleChanges',
+        ),
+        hasLength(1),
+      );
+      expect(
+        harness.nativeCalls
+            .singleWhere((call) => call.method == 'update')
+            .arguments['scheduleAlreadyApplied'],
+        isTrue,
+      );
+
+      harness.clearCalls();
+      await harness.refresh();
+      expect(
+        harness.nativeCalls.where(
+          (call) => call.method == 'applyScheduleChanges',
+        ),
+        isEmpty,
+      );
+      expect(
+        harness.nativeCalls
+            .singleWhere((call) => call.method == 'update')
+            .arguments['scheduleAlreadyApplied'],
+        isFalse,
+      );
+    },
+  );
 
   test(
     'adhan carries localized date and timer metadata and refreshes presentation',
@@ -335,7 +408,11 @@ void main() {
         payload['at'],
         originalAt - const Duration(minutes: 12).inMilliseconds,
       );
-      expect(harness.cancellations, contains(id));
+      expect(
+        harness.cancellations,
+        isEmpty,
+        reason: 'The native transaction replaces the existing alarm atomically',
+      );
       harness.clearCalls();
       await harness.refresh();
       expect(
@@ -621,7 +698,7 @@ void main() {
       expect(
         harness.scheduled,
         hasLength(2),
-        reason: 'The stale pass must stop before scheduling Asr',
+        reason: 'The committed batch is reused by the latest scheduling pass',
       );
       expect(harness.pending, hasLength(1));
       final asr = harness.prayerId(PrayerNotificationPrayer.asr);

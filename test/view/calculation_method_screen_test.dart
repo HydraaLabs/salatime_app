@@ -36,6 +36,12 @@ class _Controller extends PrayerTimeController {
   final SharedPreferences prefs;
   String selected = '10';
   bool manual = false;
+  bool automatic = false;
+  String? country;
+  @override
+  bool get automaticCalculationMethod => automatic;
+  @override
+  String? get calculationCountry => country;
   Future<void> Function()? persist;
   final List<String> selections = [];
 
@@ -54,9 +60,17 @@ class _Controller extends PrayerTimeController {
   @override
   Future<void> selectCalculationMethod(String id) async {
     selections.add(id);
+    automatic = false;
     await persist?.call();
     await prefs.setString('selectedCalculationMethod', id);
     selected = id;
+    update();
+  }
+
+  @override
+  Future<void> selectAutomaticCalculationMethod(bool enabled) async {
+    await persist?.call();
+    automatic = enabled;
     update();
   }
 
@@ -158,7 +172,7 @@ void main() {
       await open(tester);
       expect(
         find.byType(ListTile),
-        findsNWidgets(PrayerCalculationMethods.all.length),
+        findsNWidgets(PrayerCalculationMethods.all.length + 1),
       );
       expect(tester.widget<ListTile>(tile('10')).selected, isTrue);
       await tester.ensureVisible(tile('10'));
@@ -178,6 +192,40 @@ void main() {
       expect(prefs.getString('selectedCalculationMethod'), '10');
     },
   );
+
+  testWidgets(
+    'automatic option displays the resolved method and same method tap disables auto',
+    (tester) async {
+      controller.automatic = true;
+      controller.country = 'QA';
+      await tester.pumpWidget(app());
+      await open(tester);
+      expect(tester.widget<SwitchListTile>(tile('automatic')).value, isTrue);
+      expect(find.textContaining('QA ·'), findsOneWidget);
+      await tester.ensureVisible(tile('10'));
+      await tester.tap(tile('10'));
+      await tester.pumpAndSettle();
+      expect(controller.selections, ['10']);
+      expect(controller.automatic, isFalse);
+    },
+  );
+
+  testWidgets('automatic toggle retains errors and allows retry', (
+    tester,
+  ) async {
+    await tester.pumpWidget(app());
+    await open(tester);
+    controller.persist = () => Future.error(StateError('storage unavailable'));
+    await tester.tap(tile('automatic'));
+    await tester.pumpAndSettle();
+    expect(find.text('calculation_method_save_error'.tr), findsOneWidget);
+    expect(controller.automatic, isFalse);
+    controller.persist = null;
+    await tester.tap(tile('automatic'));
+    await tester.pumpAndSettle();
+    expect(controller.automatic, isTrue);
+    expect(find.textContaining('Pays indisponible'), findsOneWidget);
+  });
 
   testWidgets(
     'persists the selected method before returning and prevents overlapping writes',
@@ -211,6 +259,10 @@ void main() {
     await tester.ensureVisible(tile('3'));
     await tester.tap(tile('3'));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('calculation_method_save_error'.tr),
+      -200,
+    );
     expect(find.text('calculation_method_save_error'.tr), findsOneWidget);
     expect(prefs.getString('selectedCalculationMethod'), '10');
     expect(tester.widget<ListTile>(tile('10')).selected, isTrue);
@@ -318,6 +370,7 @@ void main() {
               }
             });
           }
+          await tester.scrollUntilVisible(tile('3'), 200);
           for (final method in PrayerCalculationMethods.all) {
             await tester.ensureVisible(tile(method.id));
             await tester.pump();

@@ -44,6 +44,63 @@ void main() {
     maghribStart: '17:20',
     ishaStart: '23:40',
   );
+  test('next prayer wins at one hour even during the elapsed window', () {
+    final close = Data(
+      date: '2026-09-16',
+      maghribStart: '19:25',
+      ishaStart: '20:51',
+    );
+    expect(
+      PrayerDisplayPhase.resolve(
+        DateTime(2026, 9, 16, 19, 50, 59),
+        close,
+      )!.prayerKey,
+      'magrib',
+    );
+    expect(
+      PrayerDisplayPhase.resolve(DateTime(2026, 9, 16, 19, 51), close),
+      isNull,
+    );
+    final now = DateTime(2026, 9, 16, 20, 35);
+    expect(PrayerDisplayPhase.resolve(now, close), isNull);
+    final next = PrayerDisplayPhase.next(now, [close])!;
+    expect(next.prayerKey, 'isha');
+    expect(next.startedAt.difference(now), const Duration(minutes: 16));
+    expect(
+      PrayerDisplayPhase.isApproaching(next.startedAt.difference(now)),
+      isTrue,
+    );
+    expect(
+      PrayerDisplayPhase.resolve(
+        DateTime(2026, 9, 16, 20, 51),
+        close,
+      )!.prayerKey,
+      'isha',
+    );
+  });
+  test('next priority uses tomorrow and adjusted prayer instants', () {
+    final today = Data(date: '2026-09-16', ishaStart: '23:10');
+    final tomorrow = Data(date: '2026-09-17', fajrStart: '00:20');
+    final now = DateTime(2026, 9, 16, 23, 30);
+    expect(
+      PrayerDisplayPhase.resolve(
+        now,
+        today,
+        nextDay: tomorrow,
+        adjustments: {'fajr': 10},
+      ),
+      isNull,
+    );
+    expect(
+      PrayerDisplayPhase.resolve(
+        now.subtract(const Duration(seconds: 1)),
+        today,
+        nextDay: tomorrow,
+        adjustments: {'fajr': 10},
+      )!.prayerKey,
+      'isha',
+    );
+  });
   test('adjustments crossing midnight keep the original prayer date', () {
     final phase = PrayerDisplayPhase.resolve(
       DateTime(2026, 9, 13, 0, 20),

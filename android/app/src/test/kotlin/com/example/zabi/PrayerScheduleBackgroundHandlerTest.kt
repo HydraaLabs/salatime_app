@@ -1,6 +1,7 @@
 package com.example.zabi
 
 import android.app.Application
+import android.app.AlarmManager
 import android.content.Context
 import android.content.ContextWrapper
 import android.os.Handler
@@ -14,6 +15,9 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.TimeUnit
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -199,5 +203,57 @@ class PrayerScheduleBackgroundHandlerTest {
         assertEquals("preserved-alarm-manifest", preferences.getString("alarms", null))
         assertEquals("preserved-title", preferences.getString("missedTitle", null))
         assertTrue(app.getSharedPreferences(AutomaticSilence.PREFS, 0).getBoolean("active", false))
+    }
+
+    @Test fun realBatchThenWidgetUpdateReusesArmedWindowButOrdinaryRefreshRepairsIt() {
+        val channel = PrayerScheduleBackgroundHandler(app, executor)
+        app.getSharedPreferences("salatime_prayer_widget", 0).edit().putString("timeZone", "UTC").commit()
+        val at = System.currentTimeMillis() + 60000
+        val notification = mapOf(
+            "id" to 12000001, "title" to "Fajr", "body" to "Prayer",
+            "scheduledDateTime" to LocalDateTime.ofInstant(Instant.ofEpochMilli(at), ZoneOffset.UTC).toString(),
+            "timeZoneName" to "UTC",
+            "payload" to """{"id":12000001,"prayerId":1,"kind":"adhan","at":$at,"prayerAt":$at}""",
+            "platformSpecifics" to mapOf(
+                "style" to 0, "styleInformation" to mapOf("htmlFormatTitle" to false, "htmlFormatContent" to false),
+                "channelId" to "batch_test", "channelName" to "Prayer", "channelAction" to 0,
+                "importance" to 4, "priority" to 2, "playSound" to false, "scheduleMode" to "exactAllowWhileIdle",
+            ),
+        )
+        assertTrue(channel.handle(MethodCall("applyScheduleChanges", mapOf(
+            "notifications" to listOf(notification), "cancelIds" to emptyList<Int>(),
+        )), Reply("batch")))
+        drain()
+        assertNull(responses.last().code)
+        assertEquals(1, (responses.last().value as Map<*, *>)["routed"])
+        val manager = app.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        fun prayerAlarms() = Shadows.shadowOf(manager).scheduledAlarms.filter {
+            val receiver = Shadows.shadowOf(it.operation).savedIntent.component?.className
+            receiver == "com.dexterous.flutterlocalnotifications.SalaTimePrayerAlarmReceiver" ||
+                receiver == "com.dexterous.flutterlocalnotifications.SalaTimePrayerWindowReceiver"
+        }
+        val before = prayerAlarms()
+        assertEquals(2, before.size)
+        val metadata = mapOf("city" to "Fès", "prayers" to "[]", "alarms" to "[]", "timeZone" to "UTC")
+        assertTrue(channel.handle(MethodCall("update", metadata + ("scheduleAlreadyApplied" to true)), Reply("handoff")))
+        drain()
+        assertNull(responses.last().code)
+        assertEquals(0, (responses.last().value as Map<*, *>)["routed"])
+        assertEquals(before, prayerAlarms())
+        assertEquals("Fès", app.getSharedPreferences("salatime_prayer_widget", 0).getString("city", null))
+
+        assertTrue(channel.handle(MethodCall("update", metadata), Reply("ordinary")))
+        drain()
+        assertNull(responses.last().code)
+        assertEquals(1, (responses.last().value as Map<*, *>)["routed"])
+        assertFalse(before == prayerAlarms())
+
+        assertTrue(channel.handle(MethodCall("update", metadata + mapOf(
+            "scheduleAlreadyApplied" to true, "timeZone" to "Asia/Tokyo",
+        )), Reply("zone-changed")))
+        drain()
+        assertNull(responses.last().code)
+        assertEquals(1, (responses.last().value as Map<*, *>)["routed"])
+        assertEquals("Asia/Tokyo", app.getSharedPreferences("salatime_alarm_window", 0).getString("timeZone", null))
     }
 }

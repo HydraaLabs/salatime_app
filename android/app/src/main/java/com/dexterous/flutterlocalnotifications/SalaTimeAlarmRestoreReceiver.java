@@ -27,11 +27,18 @@ public class SalaTimeAlarmRestoreReceiver extends BroadcastReceiver {
                 && !Intent.ACTION_TIME_CHANGED.equals(action)
                 && !Intent.ACTION_TIMEZONE_CHANGED.equals(action)
                 && !AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED.equals(action)) return;
+        synchronized (SalaTimePrayerAlarms.class) {
+            restoreLocked(context, action);
+        }
+    }
+
+    private void restoreLocked(Context context, String action) {
         SalaTimeAdhanNotificationReceiver.restore(context);
         try {
             boolean missed = repairCache(context, System.currentTimeMillis());
-            // Time/permission changes may happen with all custom alarms still
-            // armed. Avoid doubling the 450-alarm window while rebuilding it.
+            // Rare boot/update/time restores still use the plugin for foreign
+            // notifications. Cancel our active window before its transient full
+            // reserve registration; routeAll immediately removes distant alarms.
             SalaTimePrayerAlarms.cancelAll(context);
             try { FlutterLocalNotificationsPlugin.rescheduleNotifications(context); }
             finally { SalaTimePrayerAlarms.routeAll(context); }
@@ -43,6 +50,12 @@ public class SalaTimeAlarmRestoreReceiver extends BroadcastReceiver {
     }
 
     public static boolean repairCache(Context context, long now) throws Exception {
+        synchronized (SalaTimePrayerAlarms.class) {
+            return repairCacheLocked(context, now);
+        }
+    }
+
+    private static boolean repairCacheLocked(Context context, long now) throws Exception {
         SharedPreferences preferences = context.getSharedPreferences(STORE, Context.MODE_PRIVATE);
         JSONArray old = new JSONArray(preferences.getString(STORE, "[]"));
         JSONArray future = new JSONArray();

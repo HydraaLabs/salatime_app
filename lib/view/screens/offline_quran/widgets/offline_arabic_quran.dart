@@ -184,6 +184,8 @@ class _OfflineArabicQuranAutoDetectScreenState
     int index,
   ) {
     return GetBuilder<BookMarkController>(
+      // A recycled Quran page must not dispose the shared bookmark store.
+      autoRemove: false,
       builder: (bookMarkController) {
         final apiData =
             quranController.suraDetailsApiData!.data!.chapterInfo![index];
@@ -251,7 +253,7 @@ class _OfflineArabicQuranAutoDetectScreenState
     BuildContext context,
     OfflineQuranController suraDetaileController,
     int index,
-    String highlightedText,
+    String? highlightedText,
   ) {
     // Get.find<MosqueSettingsController>().fetchMosqueSettingsData();
     final apiData =
@@ -358,7 +360,7 @@ class _OfflineArabicQuranAutoDetectScreenState
                     context,
                     suraDetaileController,
                     index,
-                    highlightedText!,
+                    highlightedText,
                   ),
                   const SizedBox(height: Dimensions.PADDING_SIZE_LARGE),
                 ],

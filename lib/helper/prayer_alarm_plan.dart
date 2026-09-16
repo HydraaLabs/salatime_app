@@ -49,16 +49,19 @@ class PrayerOccurrence {
         return [];
       }
       final parts = clock.split(':').map(int.parse).toList();
+      final ishaDayOffset = i == 4 ? day.ishaDayOffset : null;
       var time = tz.TZDateTime(
         zone,
         date.year,
         date.month,
-        date.day,
+        date.day + (ishaDayOffset ?? 0),
         parts[0],
         parts[1],
       );
       // At high latitudes Isha can fall after midnight on the next civil day.
-      if (previous != null && time.isBefore(previous)) {
+      if (previous != null &&
+          time.isBefore(previous) &&
+          ishaDayOffset == null) {
         if (i != 4) return [];
         time = tz.TZDateTime(
           zone,

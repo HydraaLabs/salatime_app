@@ -40,6 +40,9 @@ class Data {
   String? asrStart;
   String? maghribStart;
   String? ishaStart;
+  // Explicit only for a calculated override whose clock can precede the raw
+  // Maghrib clock after a personal correction. Older/server data has no hint.
+  int? ishaDayOffset;
   String? sehriEnd;
   String? iftarStart;
 
@@ -53,9 +56,13 @@ class Data {
     this.asrStart,
     this.maghribStart,
     this.ishaStart,
+    int? ishaDayOffset,
     this.sehriEnd,
     this.iftarStart,
-  });
+  }) : ishaDayOffset = _validDayOffset(ishaDayOffset);
+
+  static int? _validDayOffset(Object? value) =>
+      value is int && value >= -1 && value <= 2 ? value : null;
 
   Data.fromJson(Map<String, dynamic> json) {
     date = json['date'];
@@ -67,6 +74,7 @@ class Data {
     asrStart = json['asr_start'];
     maghribStart = json['maghrib_start'];
     ishaStart = json['isha_start'];
+    ishaDayOffset = _validDayOffset(json['isha_day_offset']);
     sehriEnd = json['sehri'];
     iftarStart = json['iftar'];
   }
@@ -82,6 +90,9 @@ class Data {
     data['asr_start'] = asrStart;
     data['maghrib_start'] = maghribStart;
     data['isha_start'] = ishaStart;
+    if (_validDayOffset(ishaDayOffset) != null) {
+      data['isha_day_offset'] = ishaDayOffset;
+    }
     data['sehri'] = sehriEnd;
     data['iftar'] = iftarStart;
     return data;

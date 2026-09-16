@@ -73,6 +73,7 @@
         </provider>
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.SalaTimePrayerAlarmReceiver" />
+        <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.SalaTimePrayerWindowReceiver" />
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.SalaTimeAdhanNotificationReceiver" />
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.SalaTimeNotificationTray" />
         <service android:exported="false" android:name="com.dexterous.flutterlocalnotifications.SalaTimeAdhanService"

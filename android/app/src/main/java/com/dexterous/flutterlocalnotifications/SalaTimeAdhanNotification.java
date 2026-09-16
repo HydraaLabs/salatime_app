@@ -21,6 +21,7 @@ import org.json.JSONObject;
 /** SystemUI owns the elapsed timer, including after the audio service exits. */
 final class SalaTimeAdhanNotification {
     static final long HOUR = 60 * 60 * 1000L;
+    static final long WARNING_WINDOW = 45 * 60 * 1000L;
     static final String TRACKING_CHANNEL = "prayer_tracking_no_badge_v1";
     private SalaTimeAdhanNotification() {}
 
@@ -39,8 +40,10 @@ final class SalaTimeAdhanNotification {
         long at = prayerAt(payload);
         long nextAt = prayerAt(next);
         if (now >= nextAt) return 0;
-        if (now < at + HOUR) return Math.min(at + HOUR, nextAt);
-        return now < nextAt - HOUR ? nextAt - HOUR : nextAt;
+        long countdownAt = Math.min(at + HOUR, nextAt - HOUR);
+        if (now < countdownAt) return countdownAt;
+        long warningAt = nextAt - WARNING_WINDOW + 1;
+        return now < warningAt ? warningAt : nextAt;
     }
 
     static NotificationCompat.Builder builder(Context context, NotificationDetails details) {
@@ -102,10 +105,11 @@ final class SalaTimeAdhanNotification {
                 || payload.optBoolean("test", false) || at > now) return builder;
 
         JSONObject next = nextPrayer(payload);
-        boolean countdown = next != null && now >= at + HOUR && now < prayerAt(next);
+        boolean countdown = next != null && now < prayerAt(next)
+                && (now >= at + HOUR || prayerAt(next) - now <= HOUR);
         JSONObject shown = countdown ? next : payload;
         long target = prayerAt(shown);
-        boolean urgent = countdown && target - now <= HOUR;
+        boolean urgent = countdown && target - now < WARNING_WINDOW;
 
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.adhan_notification);
         String date = shown.optString("hijriDate", "");

@@ -7,6 +7,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
+// Register the real method-channel adapter on the Linux test host.
+// ignore: depend_on_referenced_packages
+import 'package:geocoding_android/geocoding_android.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // Instrument the existing plugin store without changing production dependencies.
 // ignore: depend_on_referenced_packages
@@ -15,6 +18,7 @@ import 'package:salatime/controller/package_prayer_time_controller.dart';
 import 'package:salatime/data/api/api_client.dart';
 import 'package:salatime/data/model/response/todays_prayer_time_model.dart';
 import 'package:salatime/helper/local_prayer_calculator.dart';
+import 'package:salatime/helper/automatic_prayer_method.dart';
 import 'package:salatime/helper/location_auto_update_service.dart';
 import 'package:salatime/helper/prayer_alarm_health.dart';
 import 'package:salatime/helper/prayer_calculation_methods.dart';
@@ -61,10 +65,16 @@ class _ControlledStore extends InMemorySharedPreferencesStore {
   final writeStarted = Completer<void>();
   Completer<void>? firstWriteGate;
   bool rejectFrance = false;
+  bool rejectAutomaticFrance = false;
   bool throwOnRejection = false;
 
   @override
   Future<bool> setValue(String valueType, String key, Object value) async {
+    if (key == 'flutter.${AutomaticPrayerMethod.lastMethodKey}' &&
+        value == '12' &&
+        rejectAutomaticFrance) {
+      return false;
+    }
     if (key == 'flutter.selectedCalculationMethod') {
       writes.add(value as String);
       if (!writeStarted.isCompleted) {
@@ -105,12 +115,15 @@ class _Harness {
   late PrayerTimeController controller;
   final notificationCalls = <String>[];
   final locationCalls = <String>[];
+  final countryLookups = <String>[];
+  String? reverseCountry;
   final permissionCalls = <String>[];
   Completer<void>? initializationGate;
   final initializationStarted = Completer<void>();
 
   Future<void> initialize([Map<String, Object> values = city]) async {
     debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    GeocodingAndroid.registerWith();
     Get.testMode = true;
     Get.locale = const Locale('en');
     SharedPreferences.setMockInitialValues(values);
@@ -123,6 +136,13 @@ class _Harness {
     messenger.setMockMethodCallHandler(_timezone, (_) async => 'Europe/Paris');
     for (final channel in [_location, _geocoding]) {
       messenger.setMockMethodCallHandler(channel, (call) async {
+        if (channel == _geocoding && reverseCountry != null) {
+          countryLookups.add(call.method);
+          if (reverseCountry == 'offline') throw StateError('offline');
+          return [
+            {'isoCountryCode': reverseCountry, 'locality': 'Paris'},
+          ];
+        }
         locationCalls.add(call.method);
         throw StateError('Passive calculation must not access location');
       });
@@ -205,6 +225,206 @@ class _Harness {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(LocalPrayerCalculator.initializeTimeZones);
+
+  Future<void> country(_Harness harness, String code, {bool manual = true}) =>
+      AutomaticPrayerMethod.saveCountry(
+        harness.prefs,
+        manual: manual,
+        code: code,
+        latitude: 48.8566,
+        longitude: 2.3522,
+      );
+
+  test(
+    'fresh installation resolves the actual city country and persists auto',
+    () async {
+      final harness = _Harness();
+      await harness.initialize(
+        {..._Harness.city}..remove('selectedCalculationMethod'),
+      );
+      await country(harness, 'fr');
+      await harness.controller.refreshConfiguredPrayerTime();
+      expect(harness.controller.automaticCalculationMethod, isTrue);
+      expect(harness.controller.selectedCalculationMethod, '12');
+      expect(harness.prefs.getBool(AutomaticPrayerMethod.enabledKey), isTrue);
+      expect(
+        harness.controller.prayerTimeModel!.data!.toJson(),
+        harness.expected('12').data!.toJson(),
+      );
+      final restarted = PrayerTimeController(apiClient: harness.api);
+      await restarted.loadPrayerTimeSettings();
+      expect(restarted.automaticCalculationMethod, isTrue);
+      expect(restarted.selectedCalculationMethod, '12');
+    },
+  );
+
+  test(
+    'existing manual preference survives country changes until explicit opt in',
+    () async {
+      final harness = _Harness();
+      await harness.initialize();
+      await country(harness, 'FR');
+      await harness.controller.loadPrayerTimeSettings();
+      expect(harness.controller.automaticCalculationMethod, isFalse);
+      expect(harness.controller.selectedCalculationMethod, '3');
+      await harness.controller.setAutomaticCalculationMethod(true);
+      expect(harness.controller.selectedCalculationMethod, '12');
+      await country(harness, 'MA');
+      await harness.controller.refreshConfiguredPrayerTime();
+      expect(harness.controller.selectedCalculationMethod, '21');
+      expect(
+        harness.controller.prayerTimeModel!.data!.toJson(),
+        harness.expected('21').data!.toJson(),
+      );
+      // Selecting the same resolved method is still an explicit manual choice.
+      await harness.controller.setSelectedCalculationMethod('21');
+      await country(harness, 'FR');
+      await harness.controller.loadPrayerTimeSettings();
+      expect(harness.controller.automaticCalculationMethod, isFalse);
+      expect(harness.controller.selectedCalculationMethod, '21');
+      final restarted = PrayerTimeController(apiClient: harness.api);
+      await restarted.loadPrayerTimeSettings();
+      expect(restarted.automaticCalculationMethod, isFalse);
+      expect(restarted.selectedCalculationMethod, '21');
+    },
+  );
+
+  test(
+    'auto uses cached GPS country and coordinates over a previous manual city',
+    () async {
+      final harness = _Harness();
+      await harness.initialize({
+        ..._Harness.city,
+        AutomaticPrayerMethod.enabledKey: true,
+        LocationAutoUpdateService.enabledKey: true,
+        'prayer_time_automatic_latitude': 48.8566,
+        'prayer_time_automatic_longitude': 2.3522,
+      });
+      await country(harness, 'MA');
+      await country(harness, 'FR', manual: false);
+      await harness.controller.refreshConfiguredPrayerTime();
+      expect(harness.controller.calculationCountry, 'FR');
+      expect(harness.controller.selectedCalculationMethod, '12');
+      expect(
+        harness.controller.prayerTimeModel!.data!.toJson(),
+        harness.expected('12').data!.toJson(),
+      );
+      expect(harness.locationCalls, isEmpty);
+    },
+  );
+
+  test(
+    'missing or invalid geographic country never uses UI country or stale city metadata',
+    () async {
+      final harness = _Harness();
+      await harness.initialize({
+        ..._Harness.city,
+        AutomaticPrayerMethod.enabledKey: true,
+        'country_code': 'SA',
+      });
+      await harness.controller.loadPrayerTimeSettings();
+      expect(harness.controller.selectedCalculationMethod, '3');
+      await country(harness, 'XX');
+      await harness.controller.loadPrayerTimeSettings();
+      expect(harness.controller.selectedCalculationMethod, '3');
+      await country(harness, 'MA');
+      await harness.prefs.setDouble(AppConstants.manualCityLat, 40);
+      await harness.controller.loadPrayerTimeSettings();
+      expect(harness.controller.calculationCountry, isNull);
+      expect(harness.controller.selectedCalculationMethod, '3');
+    },
+  );
+
+  test(
+    'cloud method restores cannot override active country resolution',
+    () async {
+      final harness = _Harness();
+      await harness.initialize({
+        ..._Harness.city,
+        AutomaticPrayerMethod.enabledKey: true,
+      });
+      await country(harness, 'FR');
+      await harness.controller.loadPrayerTimeSettings();
+      await harness.prefs.setString('selectedCalculationMethod', '4');
+      await harness.controller.refreshConfiguredPrayerTime();
+      expect(harness.controller.selectedCalculationMethod, '12');
+      expect(harness.prefs.getString('selectedCalculationMethod'), '4');
+    },
+  );
+
+  test(
+    'failed auto-method persistence restores both manual mode and method',
+    () async {
+      final harness = _Harness();
+      await harness.initialize();
+      await country(harness, 'FR');
+      await harness.controller.loadPrayerTimeSettings();
+      final previousStore = SharedPreferencesStorePlatform.instance;
+      final store = _ControlledStore(harness.prefs)
+        ..rejectAutomaticFrance = true;
+      SharedPreferencesStorePlatform.instance = store;
+      addTearDown(
+        () => SharedPreferencesStorePlatform.instance = previousStore,
+      );
+      await expectLater(
+        harness.controller.setAutomaticCalculationMethod(true),
+        throwsStateError,
+      );
+      expect(harness.controller.automaticCalculationMethod, isFalse);
+      expect(harness.prefs.getBool(AutomaticPrayerMethod.enabledKey), isFalse);
+      expect(harness.controller.selectedCalculationMethod, '3');
+      expect(harness.prefs.getString('selectedCalculationMethod'), '3');
+      store.rejectAutomaticFrance = false;
+      await harness.controller.setAutomaticCalculationMethod(true);
+      expect(harness.controller.automaticCalculationMethod, isTrue);
+      expect(harness.controller.selectedCalculationMethod, '12');
+    },
+  );
+
+  test(
+    'explicit auto opt-in upgrades a legacy city from its saved coordinates once',
+    () async {
+      final harness = _Harness();
+      await harness.initialize();
+      harness.reverseCountry = 'FR';
+      await harness.controller.selectAutomaticCalculationMethod(true);
+      expect(harness.countryLookups, ['placemarkFromCoordinates']);
+      expect(harness.controller.selectedCalculationMethod, '12');
+      expect(harness.prefs.getString('selectedCalculationMethod'), '3');
+      await harness.drain();
+      await harness.controller.refreshConfiguredPrayerTime();
+      expect(harness.countryLookups, hasLength(1));
+      expect(
+        harness.controller.prayerTimeModel!.data!.toJson(),
+        harness.expected('12').data!.toJson(),
+      );
+    },
+  );
+
+  test(
+    'unavailable country retains the last effective method across restarts and auto can be disabled',
+    () async {
+      final harness = _Harness();
+      await harness.initialize({
+        ..._Harness.city,
+        AutomaticPrayerMethod.enabledKey: true,
+      });
+      await country(harness, 'FR');
+      await harness.controller.loadPrayerTimeSettings();
+      expect(harness.prefs.getString('selectedCalculationMethod'), '3');
+      await harness.prefs.remove(AutomaticPrayerMethod.manualCountryKey);
+      harness.reverseCountry = 'offline';
+      await harness.controller.selectAutomaticCalculationMethod(true);
+      expect(harness.controller.selectedCalculationMethod, '12');
+      final restarted = PrayerTimeController(apiClient: harness.api);
+      await restarted.loadPrayerTimeSettings();
+      expect(restarted.selectedCalculationMethod, '12');
+      expect(restarted.calculationCountry, isNull);
+      await restarted.setAutomaticCalculationMethod(false);
+      expect(restarted.automaticCalculationMethod, isFalse);
+      expect(harness.prefs.getString('selectedCalculationMethod'), '12');
+    },
+  );
 
   test('all 23 selectable methods are calculable and cloud-compatible', () {
     const expectedIds = {

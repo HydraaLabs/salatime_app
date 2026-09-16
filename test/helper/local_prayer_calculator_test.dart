@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:adhan/adhan.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:salatime/helper/local_prayer_calculator.dart';
@@ -22,7 +23,7 @@ void main() {
   }
 
   test(
-    '736 reference days cover all 23 methods, both schools and four cities',
+    '384 legacy reference days preserve 12 regional methods and both schools',
     () {
       final cases =
           jsonDecode(
@@ -32,7 +33,30 @@ void main() {
               )
               as List;
       expect(cases, hasLength(736));
-      for (final fixture in cases) {
+      // These eleven methods now use the named Adhan presets and recommended
+      // night bounds. Their independent Adhan reference has separate coverage;
+      // the historical PHP fixtures remain authoritative for regional methods.
+      const standardMethods = {
+        '1',
+        '2',
+        '3',
+        '4',
+        '5',
+        '9',
+        '10',
+        '11',
+        '13',
+        '15',
+        '16',
+      };
+      final regionalCases = cases
+          .where(
+            (fixture) =>
+                !standardMethods.contains(fixture['request']['prayer_method']),
+          )
+          .toList();
+      expect(regionalCases, hasLength(384));
+      for (final fixture in regionalCases) {
         final context = Map<String, dynamic>.from(fixture['request'] as Map);
         final model = LocalPrayerCalculator.calculate(context);
         expect(model, isNotNull, reason: '$context');
@@ -60,18 +84,97 @@ void main() {
                       minutes(fixture['expected'][time.key] as String))
                   .abs();
           if (delta > 720) delta = 1440 - delta;
-          // Adhan's Moonsighting implementation uses different seasonal bounds
-          // and +5/+3 minute Dhuhr/Maghrib corrections from the legacy backend.
-          final tolerance = context['prayer_method'] == '15' ? 8 : 2;
           expect(
             delta,
-            lessThanOrEqualTo(tolerance),
+            lessThanOrEqualTo(2),
             reason: '${fixture['city']} $context ${time.key}',
           );
         }
       }
     },
   );
+
+  test(
+    'shared methods use stable named presets instead of ordinal positions',
+    () {
+      const expected = {
+        '3': CalculationMethod.muslim_world_league,
+        '5': CalculationMethod.egyptian,
+        '1': CalculationMethod.karachi,
+        '4': CalculationMethod.umm_al_qura,
+        '16': CalculationMethod.dubai,
+        '15': CalculationMethod.moon_sighting_committee,
+        '2': CalculationMethod.north_america,
+        '9': CalculationMethod.kuwait,
+        '10': CalculationMethod.qatar,
+        '11': CalculationMethod.singapore,
+        '13': CalculationMethod.turkey,
+      };
+      for (final entry in expected.entries) {
+        final standard = LocalPrayerCalculator.parameters(
+          entry.key,
+          'STANDARD',
+        )!;
+        final hanafi = LocalPrayerCalculator.parameters(entry.key, 'HANAFI')!;
+        expect(standard.method, entry.value, reason: entry.key);
+        expect(standard.madhab, Madhab.shafi);
+        expect(hanafi.method, entry.value, reason: entry.key);
+        expect(hanafi.madhab, Madhab.hanafi);
+      }
+    },
+  );
+
+  test('recommended night bounds apply only to the shared presets', () {
+    for (final latitude in [-55.0, 0.0, 48.0, 48.0001, 55.0]) {
+      expect(
+        LocalPrayerCalculator.parameters(
+          '3',
+          'STANDARD',
+          latitude: latitude,
+        )!.highLatitudeRule,
+        latitude > 48
+            ? HighLatitudeRule.seventh_of_the_night
+            : HighLatitudeRule.middle_of_the_night,
+      );
+      expect(
+        LocalPrayerCalculator.parameters(
+          '21',
+          'STANDARD',
+          latitude: latitude,
+        )!.highLatitudeRule,
+        HighLatitudeRule.twilight_angle,
+      );
+    }
+    for (final method in ['4', '10']) {
+      // Fixed-interval presets leave Isha's angle undefined. Their night rule
+      // must still allow the Fajr bound and the 90-minute Isha to calculate.
+      expect(
+        LocalPrayerCalculator.calculate({...request, 'prayer_method': method}),
+        isNotNull,
+      );
+    }
+  });
+
+  test('method corrections and Singapore upward rounding remain distinct', () {
+    final dubai = LocalPrayerCalculator.parameters('16', 'STANDARD')!;
+    expect(dubai.methodAdjustments.sunrise, -3);
+    expect(dubai.methodAdjustments.dhuhr, 3);
+    expect(dubai.methodAdjustments.asr, 3);
+    expect(dubai.methodAdjustments.maghrib, 3);
+    final turkey = LocalPrayerCalculator.parameters('13', 'STANDARD')!;
+    expect(turkey.methodAdjustments.sunrise, -7);
+    expect(turkey.methodAdjustments.dhuhr, 5);
+    expect(turkey.methodAdjustments.asr, 4);
+    expect(turkey.methodAdjustments.maghrib, 7);
+    final singapore = LocalPrayerCalculator.parameters('11', 'STANDARD')!;
+    expect(singapore.methodAdjustments.dhuhr, 1);
+    expect(singapore.rounding, Rounding.up);
+    expect(dubai.rounding, Rounding.nearest);
+    expect(
+      LocalPrayerCalculator.parameters('21', 'STANDARD')!.rounding,
+      Rounding.nearest,
+    );
+  });
 
   test('method and school choices materially affect the requested times', () {
     final morocco = LocalPrayerCalculator.calculate(request)!.data!;

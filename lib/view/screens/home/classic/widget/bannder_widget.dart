@@ -118,6 +118,7 @@ class _BannerWidgetState extends State<BannerWidget> {
       now,
       day,
       previousDay: previous,
+      nextDay: tomorrow,
       adjustments: adjustments,
     );
     final next = PrayerDisplayPhase.next(now, [

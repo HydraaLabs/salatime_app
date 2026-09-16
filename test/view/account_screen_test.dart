@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -201,5 +202,36 @@ void main() {
       findsOneWidget,
     );
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('account observer remains valid while configuration is pending', (
+    tester,
+  ) async {
+    final response = Completer<http.Response>();
+    final auth = MobileAuthService(
+      apiBaseUrl: 'https://test.example.test',
+      storage: _Store(),
+      client: MockClient((_) => response.future),
+    );
+    await tester.pumpWidget(app(auth, 'fr'));
+    await tester.pump(const Duration(seconds: 1));
+    expect(tester.takeException(), isNull);
+    expect(find.byType(LinearProgressIndicator), findsOneWidget);
+    response.complete(
+      http.Response(
+        jsonEncode({
+          'data': {
+            'enabled': true,
+            'email': {'enabled': true},
+            'google': {'enabled': false},
+            'apple': {'enabled': false},
+          },
+        }),
+        200,
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(find.byKey(const ValueKey('auth_email')), findsOneWidget);
   });
 }

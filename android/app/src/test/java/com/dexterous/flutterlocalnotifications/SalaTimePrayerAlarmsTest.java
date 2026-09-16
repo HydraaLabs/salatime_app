@@ -93,6 +93,12 @@ public class SalaTimePrayerAlarmsTest {
         return new Intent(app, SalaTimePrayerAlarmReceiver.class).putExtra("id", ID).putExtra("at", at);
     }
 
+    private long alarmCount(Class<?> receiver) {
+        return Shadows.shadowOf(manager).getScheduledAlarms().stream().filter(alarm ->
+                receiver.getName().equals(Shadows.shadowOf(alarm.operation).getSavedIntent()
+                        .getComponent().getClassName())).count();
+    }
+
     @Test public void adhanUsesVisibleAlarmClockAndShortcutOpensApp() throws Exception {
         long at = now + 600000;
         JSONObject row = row(at, "adhan");
@@ -103,25 +109,82 @@ public class SalaTimePrayerAlarmsTest {
         assertEquals(1, SalaTimePrayerAlarms.route(app, ID).get("routed"));
         assertEquals(at, manager.getNextAlarmClock().getTriggerTime());
         assertTrue(Shadows.shadowOf(manager.getNextAlarmClock().getShowIntent()).isActivityIntent());
-        assertEquals(1, Shadows.shadowOf(manager).getScheduledAlarms().size());
+        assertEquals(1, alarmCount(SalaTimePrayerAlarmReceiver.class));
+        assertEquals(0, alarmCount(ScheduledNotificationReceiver.class));
+        assertEquals(1, alarmCount(SalaTimePrayerWindowReceiver.class));
         assertNotNull(SalaTimePrayerAlarms.find(app, ID));
         assertNotNull(SalaTimePrayerAlarms.operation(app, ID, false));
         assertTrue((Shadows.shadowOf(SalaTimePrayerAlarms.operation(app, ID, false))
                 .getSavedIntent().getFlags() & Intent.FLAG_RECEIVER_FOREGROUND) != 0);
     }
 
-    @Test public void reminderDoesNotReplaceNextPrayerClockAndCancellationRemovesIt() throws Exception {
+    @Test public void closelySpacedPrayerPhasesEachUseAlarmClockAndCancelIndependently() throws Exception {
         JSONObject adhan = row(now + 600000, "adhan");
         SalaTimePrayerAlarms.register(app, adhan, now);
-        JSONObject before = row(now + 60000, "before");
+        JSONObject before = row(now + 300000, "before");
         JSONObject payload = SalaTimePrayerAlarms.prayer(before);
-        payload.put("id", ID + 10);
+        payload.put("id", ID + 10).put("prayerAt", now + 600000);
         before.put("id", ID + 10).put("payload", payload.toString());
-        assertEquals("exactAllowWhileIdle", SalaTimePrayerAlarms.register(app, before, now));
+        JSONObject after = row(now + 780000, "after");
+        JSONObject afterPayload = SalaTimePrayerAlarms.prayer(after);
+        afterPayload.put("id", ID + 20).put("prayerAt", now + 600000);
+        after.put("id", ID + 20).put("payload", afterPayload.toString());
+        assertEquals("alarmClock", SalaTimePrayerAlarms.register(app, before, now));
+        assertEquals("alarmClock", SalaTimePrayerAlarms.register(app, after, now));
+        assertEquals(3, Shadows.shadowOf(manager).getScheduledAlarms().size());
+        assertEquals(now + 300000, manager.getNextAlarmClock().getTriggerTime());
+        assertTrue(Shadows.shadowOf(manager.getNextAlarmClock().getShowIntent()).isActivityIntent());
+        SalaTimePrayerAlarms.cancel(app, ID + 10);
         assertEquals(now + 600000, manager.getNextAlarmClock().getTriggerTime());
         SalaTimePrayerAlarms.cancel(app, ID);
         assertNull(SalaTimePrayerAlarms.operation(app, ID, false));
         assertEquals(1, Shadows.shadowOf(manager).getScheduledAlarms().size());
+        assertEquals(now + 780000, manager.getNextAlarmClock().getTriggerTime());
+        SalaTimePrayerAlarms.cancel(app, ID + 20);
+        assertNull(manager.getNextAlarmClock());
+    }
+
+    @Test public void enabledAdditionalReminderUsesItsExactWakeTimeAndCancelsIndependently() throws Exception {
+        SalaTimePrayerAlarms.register(app, row(now + 600000, "adhan"), now);
+        JSONObject reminder = row(now + 60000, "adhan");
+        JSONObject payload = new JSONObject().put("id", 22000001)
+                .put("kind", "extra_reminder").put("type", "morning")
+                .put("date", "2026-09-16").put("at", now + 60000);
+        reminder.put("id", 22000001).put("payload", payload.toString());
+        assertEquals("alarmClock", SalaTimePrayerAlarms.register(app, reminder, now));
+        assertEquals(now + 60000, manager.getNextAlarmClock().getTriggerTime());
+        assertTrue(Shadows.shadowOf(manager.getNextAlarmClock().getShowIntent()).isActivityIntent());
+        assertEquals(2, Shadows.shadowOf(manager).getScheduledAlarms().size());
+        SalaTimePrayerAlarms.cancel(app, 22000001);
+        assertEquals(now + 600000, manager.getNextAlarmClock().getTriggerTime());
+        assertEquals(1, Shadows.shadowOf(manager).getScheduledAlarms().size());
+    }
+
+    @Test public void additionalReminderWithoutExactPermissionKeepsInexactFallback() throws Exception {
+        if (Build.VERSION.SDK_INT < 31) return;
+        Shadows.shadowOf(manager).setCanScheduleExactAlarms(false);
+        JSONObject reminder = row(now + 60000, "adhan");
+        JSONObject payload = new JSONObject().put("id", 22000001)
+                .put("kind", "extra_reminder").put("type", "fajrAlarm")
+                .put("date", "2026-09-16").put("at", now + 60000);
+        reminder.put("id", 22000001).put("payload", payload.toString());
+        assertEquals("inexactAllowWhileIdle", SalaTimePrayerAlarms.register(app, reminder, now));
+        assertNull(manager.getNextAlarmClock());
+        assertNotNull(SalaTimePrayerAlarms.operation(app, 22000001, false));
+    }
+
+    @Test public void prayerRemindersSurviveMissingExactAlarmPermission() throws Exception {
+        if (Build.VERSION.SDK_INT < 31) return;
+        Shadows.shadowOf(manager).setCanScheduleExactAlarms(false);
+        for (String kind : new String[] {"before", "after"}) {
+            JSONObject reminder = row(now + 60000, kind);
+            save(reminder);
+            assertEquals("inexactAllowWhileIdle", SalaTimePrayerAlarms.register(app, reminder, now));
+            assertNull(manager.getNextAlarmClock());
+            assertEquals(1, Shadows.shadowOf(manager).getScheduledAlarms().size());
+            assertNotNull(SalaTimePrayerAlarms.find(app, ID));
+            SalaTimePrayerAlarms.cancel(app, ID);
+        }
     }
 
     @Test public void deniedExactPermissionFallsBackWithoutDroppingThePrayer() throws Exception {
@@ -265,7 +328,7 @@ public class SalaTimePrayerAlarmsTest {
                     .put("type", types[i]).put("date", "2026-09-12").put("at", now + 60000);
             JSONObject row = new JSONObject().put("id", id).put("payload", payload.toString());
             assertNotNull(types[i], SalaTimePrayerAlarms.prayer(row));
-            assertEquals("exactAllowWhileIdle", SalaTimePrayerAlarms.register(app, row, now));
+            assertEquals("alarmClock", SalaTimePrayerAlarms.register(app, row, now));
             assertNotNull(SalaTimePrayerAlarms.operation(app, id, false));
         }
     }
@@ -408,7 +471,9 @@ public class SalaTimePrayerAlarmsTest {
             assertNotNull(SalaTimePrayerAlarms.find(app, 8));
             assertNull(SalaTimePrayerAlarms.find(app, ID + 1));
             assertEquals(futureAt, manager.getNextAlarmClock().getTriggerTime());
-            assertEquals(2, Shadows.shadowOf(manager).getScheduledAlarms().size());
+            assertEquals(1, alarmCount(SalaTimePrayerAlarmReceiver.class));
+            assertEquals(1, alarmCount(ScheduledNotificationReceiver.class));
+            assertEquals(1, alarmCount(SalaTimePrayerWindowReceiver.class));
             assertNull(Shadows.shadowOf((Application) app).getNextStartedService());
             android.service.notification.StatusBarNotification[] posted = notifications.getActiveNotifications();
             assertEquals(Intent.ACTION_BOOT_COMPLETED.equals(action) ? 1 : 0, posted.length);

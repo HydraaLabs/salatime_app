@@ -205,6 +205,7 @@ class _ModernPrayerDashboardState extends State<ModernPrayerDashboard> {
       now,
       widget.prayerTimeController.prayerTimeModel?.data,
       previousDay: _previousDay,
+      nextDay: _nextDay,
       adjustments: PrayerTimeAdjustmentController.displayOffsets,
     );
     final nextPrayer = PrayerDisplayPhase.next(now, [

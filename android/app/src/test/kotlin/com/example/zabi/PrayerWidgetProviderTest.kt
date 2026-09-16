@@ -46,6 +46,82 @@ class PrayerWidgetProviderTest {
         }
     }
 
+    @Test fun nearbyNextPrayerOverridesElapsedTimeAtOneHourForEveryWidgetMode() {
+        val app = RuntimeEnvironment.getApplication()
+        val previous = java.time.Instant.parse("2026-09-16T18:25:00Z").toEpochMilli()
+        val next = previous + 90 * 60000
+        app.getSharedPreferences("salatime_prayer_widget", 0).edit().clear()
+            .putString("prayers", JSONArray()
+                .put(JSONObject().put("at", previous).put("name", "Maghrib"))
+                .put(JSONObject().put("at", next).put("name", "Isha")).toString()).apply()
+        for (expanded in listOf(false, true)) {
+            for (seconds in listOf(false, true)) {
+                app.getSharedPreferences("salatime_widget_options", 0).edit().clear()
+                    .putBoolean("countdown", true).putBoolean("seconds", seconds).apply()
+                for ((remaining, expectedPrayer, expectedColor) in listOf(
+                    Triple(60 * 60000L + 1, "Maghrib", 0xFF2F5233.toInt()),
+                    Triple(60 * 60000L, "Isha", 0xFF2F5233.toInt()),
+                    Triple(45 * 60000L, "Isha", 0xFF2F5233.toInt()),
+                    Triple(45 * 60000L - 1, "Isha", 0xFFC62828.toInt()),
+                    Triple(44 * 60000L + 59000, "Isha", 0xFFC62828.toInt())
+                )) {
+                    val view = PrayerWidgetProvider.createViews(app, expanded, next - remaining)
+                        .apply(app, FrameLayout(app))
+                    assertEquals(expectedPrayer, view.findViewById<TextView>(R.id.widget_prayer).text.toString())
+                    assertEquals(expectedPrayer == "Isha",
+                        view.findViewById<android.widget.Chronometer>(R.id.widget_countdown).isCountDown)
+                    assertEquals(expectedColor, view.findViewById<TextView>(R.id.widget_time).currentTextColor)
+                    assertEquals(expectedColor, view.findViewById<TextView>(R.id.widget_countdown).currentTextColor)
+                }
+            }
+        }
+    }
+
+    @Test fun widgetSchedulesEarlySwitchThenStrictRedBoundaryWhenPrayersAreNinetyMinutesApart() {
+        val app = RuntimeEnvironment.getApplication()
+        val previous = System.currentTimeMillis()
+        val next = previous + 90 * 60000
+        app.getSharedPreferences("salatime_prayer_widget", 0).edit().clear()
+            .putString("prayers", JSONArray()
+                .put(JSONObject().put("at", previous).put("name", "Maghrib"))
+                .put(JSONObject().put("at", next).put("name", "Isha")).toString()).apply()
+        app.getSharedPreferences("salatime_widget_options", 0).edit().clear()
+            .putBoolean("countdown", true).putBoolean("seconds", true).apply()
+        val manager = Shadows.shadowOf(AppWidgetManager.getInstance(app))
+        val id = manager.createWidget(SmallPrayerWidgetProvider::class.java, R.layout.prayer_widget)
+        val alarms = Shadows.shadowOf(app.getSystemService(android.app.AlarmManager::class.java))
+        PrayerWidgetProvider.refreshAll(app, previous)
+        assertEquals("Maghrib", manager.getViewFor(id).findViewById<TextView>(R.id.widget_prayer).text.toString())
+        assertEquals(next - 60 * 60000, alarms.peekNextScheduledAlarm()!!.triggerAtTime)
+        PrayerWidgetProvider.refreshAll(app, next - 60 * 60000)
+        assertEquals("Isha", manager.getViewFor(id).findViewById<TextView>(R.id.widget_prayer).text.toString())
+        assertEquals(next - 45 * 60000 + 1, alarms.peekNextScheduledAlarm()!!.triggerAtTime)
+        PrayerWidgetProvider.refreshAll(app, next - 45 * 60000 + 1)
+        assertEquals(0xFFC62828.toInt(), manager.getViewFor(id)
+            .findViewById<TextView>(R.id.widget_countdown).currentTextColor)
+        assertEquals(next, alarms.peekNextScheduledAlarm()!!.triggerAtTime)
+        assertEquals(1, alarms.scheduledAlarms.size)
+    }
+
+    @Test fun earlySwitchAcrossMidnightDisplaysTheNextPrayersDateAndDay() {
+        val app = RuntimeEnvironment.getApplication()
+        val next = java.time.Instant.parse("2026-09-17T00:15:00Z").toEpochMilli()
+        app.getSharedPreferences("salatime_prayer_widget", 0).edit().clear()
+            .putString("prayers", JSONArray()
+                .put(JSONObject().put("at", next - 90 * 60000).put("name", "Previous"))
+                .put(JSONObject().put("at", next).put("name", "Next"))
+                .put(JSONObject().put("at", next + 8 * 3600000).put("name", "Later")).toString())
+            .putString("locale", "en-US").putString("timeZone", "UTC").apply()
+        app.getSharedPreferences("salatime_widget_options", 0).edit().clear()
+            .putBoolean("countdown", true).putBoolean("seconds", true).apply()
+        val view = PrayerWidgetProvider.createViews(app, true, next - 60 * 60000)
+            .apply(app, FrameLayout(app))
+        assertEquals("Next", view.findViewById<TextView>(R.id.widget_prayer).text.toString())
+        assertTrue(view.findViewById<TextView>(R.id.widget_date).text.toString().contains("17"))
+        assertEquals("Next", view.findViewById<TextView>(R.id.widget_slot_name_0).text.toString())
+        assertEquals("Later", view.findViewById<TextView>(R.id.widget_slot_name_1).text.toString())
+    }
+
     @Test fun clockAndEmptyWidgetStayGreenEvenInsideTheWarningWindow() {
         val app = RuntimeEnvironment.getApplication()
         val now = System.currentTimeMillis()
