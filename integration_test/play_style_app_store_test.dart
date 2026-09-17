@@ -112,8 +112,16 @@ void main() {
         await _capture(tester, '${entry.key}/02-home-reading');
 
         Get.to<void>(() => const MainOfflineQuranScreen(appBackButton: true));
-        await tester.pump(const Duration(seconds: 1));
-        await tester.tap(find.text('surah_list'.tr));
+        final quranTabs = find.descendant(
+          of: find.byType(MainOfflineQuranScreen),
+          matching: find.byType(TabBar),
+        );
+        await _waitFor(tester, () => quranTabs.evaluate().isNotEmpty);
+        await tester.pump(const Duration(milliseconds: 500));
+        // Wait for the destination route to build before selecting its real
+        // first tab. The label varies by locale and is not a stable identifier.
+        final surahTab = tester.widget<TabBar>(quranTabs).tabs.first;
+        await tester.tap(find.byWidget(surahTab));
         await _waitFor(
           tester,
           () =>
@@ -144,6 +152,7 @@ void main() {
         await _waitFor(
           tester,
           () =>
+              find.byType(OfflineSuraDetaileScreen).evaluate().isNotEmpty &&
               Get.isRegistered<OfflineQuranController>() &&
               Get.find<OfflineQuranController>().suraDetailsApiData != null &&
               !Get.find<OfflineQuranController>().isSurahDetailsLoading.value,
