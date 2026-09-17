@@ -114,6 +114,9 @@ class MyApp extends StatelessWidget {
                         statusBarIconBrightness: themeController.darkTheme
                             ? Brightness.light
                             : Brightness.dark,
+                        statusBarBrightness: themeController.darkTheme
+                            ? Brightness.dark
+                            : Brightness.light,
                         systemNavigationBarColor: Theme.of(
                           context,
                         ).scaffoldBackgroundColor,
