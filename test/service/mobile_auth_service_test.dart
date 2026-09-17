@@ -486,6 +486,73 @@ void main() {
       expect(auth.user.value!.id, '7');
     },
   );
+  for (final platform in {
+    TargetPlatform.iOS: 'ios',
+    TargetPlatform.android: 'android',
+  }.entries) {
+    for (final link in [false, true]) {
+      test(
+        'Apple challenge uses the API platform ${platform.value} when link=$link',
+        () async {
+          debugDefaultTargetPlatformOverride = platform.key;
+          final identity = FakeIdentityProvider();
+          final auth = service((request) {
+            if (request.url.path.endsWith('/challenge')) {
+              // Match the API's case-sensitive platform validation.
+              if (request.url.queryParameters['platform'] != platform.value) {
+                return http.Response(
+                  jsonEncode({
+                    'errors': {
+                      'platform': ['The selected platform is invalid.'],
+                    },
+                  }),
+                  422,
+                );
+              }
+              return data({
+                'challenge_id': 'd682b988-cdb3-4a3a-9b96-2856127c9ba3',
+                'nonce': 'a' * 64,
+                'state': 'single-use-server-state',
+              });
+            }
+            return data(session());
+          }, identity: identity);
+          auth.configuration.value = const MobileAuthConfiguration(apple: true);
+          if (link) {
+            await auth.login(
+              email: 'test@example.test',
+              password: 'Alphabet2026!',
+            );
+          }
+
+          await auth.signInWithApple(link: link);
+
+          final challenge = requests.singleWhere(
+            (request) => request.url.path.endsWith('/challenge'),
+          );
+          expect(challenge.method, 'GET');
+          expect(challenge.url.queryParameters, {
+            'provider': 'apple',
+            'platform': platform.value,
+          });
+          expect(challenge.headers.containsKey('authorization'), isFalse);
+          expect(identity.calls, 1);
+          final proof = requests.last;
+          expect(proof.method, 'POST');
+          expect(
+            proof.url.path,
+            '/api/mobile/auth/${link ? 'link/apple' : 'apple'}',
+          );
+          expect(
+            proof.headers['authorization'],
+            link ? 'Bearer 7|test-session-token' : isNull,
+          );
+          expect(jsonDecode(proof.body)['identity_token'], 'mock-apple-token');
+          expect(auth.user.value!.id, '7');
+        },
+      );
+    }
+  }
   for (final provider in ['google', 'apple']) {
     test('late $provider proof cannot link a different account', () async {
       final identity = FakeIdentityProvider()..gate = Completer<void>();

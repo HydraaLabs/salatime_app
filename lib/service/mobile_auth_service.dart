@@ -471,7 +471,7 @@ class MobileAuthService {
     }
     final challenge = await _request(
       'GET',
-      '/challenge?provider=apple&platform=${defaultTargetPlatform.name}',
+      '/challenge?provider=apple&platform=${defaultTargetPlatform.name.toLowerCase()}',
     );
     _checkProviderSession(generation, token);
     final identity = await _identity.apple(configuration.value, challenge);
