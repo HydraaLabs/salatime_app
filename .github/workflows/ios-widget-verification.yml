@@ -23,3 +23,14 @@ jobs:
             -target arm64-apple-ios16.0-simulator \
             ios/Shared/PrayerWidgetData.swift \
             ios/SalaTimeWidget/SalaTimeWidget.swift
+      - name: Check delivered prayer history selection
+        run: |
+          xcrun swiftc -swift-version 5 -parse-as-library \
+            ios/Runner/PrayerNotificationHistory.swift \
+            tool/prayer_notification_history_check.swift \
+            -o "$RUNNER_TEMP/prayer-history-check"
+          "$RUNNER_TEMP/prayer-history-check"
+          xcrun --sdk iphonesimulator swiftc -typecheck -parse-as-library \
+            -sdk "$(xcrun --sdk iphonesimulator --show-sdk-path)" \
+            -target arm64-apple-ios16.0-simulator \
+            ios/Runner/PrayerNotificationHistory.swift

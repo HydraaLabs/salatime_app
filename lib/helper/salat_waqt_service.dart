@@ -510,6 +510,8 @@ class SalatWaqtService {
       }
       final payload = jsonEncode({
         ...alarm.toJson(),
+        if (defaultTargetPlatform == TargetPlatform.iOS)
+          'iosThread': 'salatime.prayer-reminders',
         'stopLabel': 'stop_adhan'.tr,
         if (alarm.kind == PrayerAlarmKind.adhan) ...{
           ...describePrayer(alarm.prayer),
@@ -558,7 +560,12 @@ class SalatWaqtService {
       if (await superseded()) return;
       final title = alarm.setting.titleKey.tr;
       final body = '${alarm.setting.titleKey}_body'.tr;
-      final data = {...alarm.toJson(), 'sound': alarm.setting.sound};
+      final data = {
+        ...alarm.toJson(),
+        'sound': alarm.setting.sound,
+        if (defaultTargetPlatform == TargetPlatform.iOS)
+          'iosThread': 'salatime.prayer-reminders',
+      };
       final payload = jsonEncode(data);
       final registered = pendingById[alarm.id];
       if (retained.containsKey(alarm.id) &&

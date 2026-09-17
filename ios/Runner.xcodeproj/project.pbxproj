@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AF58E3A019CC4D6A90246CC1 /* PrayerNotificationHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF58E3A019CC4D6A90246CC2 /* PrayerNotificationHistory.swift */; };
 		0817352E3B15B69C19C33A2D /* moatheni_short_sound.aiff in Resources */ = {isa = PBXBuildFile; fileRef = A402243939B3F5E48A2743D3 /* moatheni_short_sound.aiff */; };
 		097C4E199F128F39D0A1FDBD /* moatheni_after_prayer_dhuhr.aiff in Resources */ = {isa = PBXBuildFile; fileRef = E2C9FB276351B8AECC8BC954 /* moatheni_after_prayer_dhuhr.aiff */; };
 		0A03F6F926608D13998B0F86 /* moatheni_before_prayer_fajr.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 4B7B39EE0E2C47F71006C920 /* moatheni_before_prayer_fajr.aiff */; };
@@ -142,6 +143,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		AF58E3A019CC4D6A90246CC2 /* PrayerNotificationHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrayerNotificationHistory.swift; sourceTree = "<group>"; };
 		045E3757881B5285783725FA /* moatheni_tasbeeh.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_tasbeeh.aiff; sourceTree = "<group>"; };
 		091BACB60C52AA21F392223D /* moatheni_heya_salah.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = moatheni_heya_salah.aiff; sourceTree = "<group>"; };
 		0957F0C783BCAB774606DDA9 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -378,6 +380,7 @@
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
 				0E09A4BFDA439DAD067CED59 /* SalaTimePlatformBridge.swift */,
 				3821A6D4727B6DD8430B0E3A /* SceneDelegate.swift */,
+				AF58E3A019CC4D6A90246CC2 /* PrayerNotificationHistory.swift */,
 				49A66DD53E3E168939A02FD3 /* Runner.entitlements */,
 				0957F0C783BCAB774606DDA9 /* PrivacyInfo.xcprivacy */,
 			);
@@ -832,6 +835,7 @@
 				99A9157ECDAFAA4AB27438B3 /* PrayerWidgetData.swift in Sources */,
 				3FEDB4C1684FE3ADCAE35A55 /* SalaTimePlatformBridge.swift in Sources */,
 				16D7B7BF6E18F6AF6B6380D9 /* SceneDelegate.swift in Sources */,
+				AF58E3A019CC4D6A90246CC1 /* PrayerNotificationHistory.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

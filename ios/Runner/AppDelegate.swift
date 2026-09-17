@@ -15,6 +15,7 @@ import flutter_local_notifications
       GeneratedPluginRegistrant.register(with: registry)
     }
     Self.clearApplicationBadge(application)
+    PrayerNotificationHistory.retainLatestDelivered()
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 

@@ -307,6 +307,7 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
           sound: selectedSound,
           channel: selectedChannel,
           when: dateTime.millisecondsSinceEpoch,
+          prayerReminder: _managedPayload(id, payload),
         );
         _stagedSchedules[id] = (
           arguments: {
@@ -344,6 +345,7 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
               sound: selectedSound,
               channel: selectedChannel,
               when: dateTime.millisecondsSinceEpoch,
+              prayerReminder: _managedPayload(id, payload),
             ),
             androidScheduleMode: schedulingMode,
             uiLocalNotificationDateInterpretation:
@@ -433,6 +435,7 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
   }
 
   NotificationDetails _getNotificationDetails({
+    bool prayerReminder = false,
     String? channel,
     String? sound,
     int? when,
@@ -472,6 +475,7 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
         colorized: true,
       ),
       iOS: DarwinNotificationDetails(
+        threadIdentifier: prayerReminder ? 'salatime.prayer-reminders' : null,
         presentAlert: true,
         presentSound: !silent,
         presentBadge: false,
