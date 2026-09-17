@@ -76,7 +76,7 @@ Native regression coverage now includes these boundaries and late-Isha grouping.
 The Linux Flutter suite cannot execute WidgetKit or XCTest. The subsequent
 [macOS release verification run 35162482024](https://github.com/HydraaLabs/salatime_app/actions/runs/35162482024),
 at commit `3ae33cd4627bafcf75f91eeca05e4de051863372`, passed Flutter analysis,
-the Flutter suite with Apple enabled, and its simulator build plus Runner XCTest
+600 Flutter tests with Apple enabled, and its simulator build plus Runner XCTest
 step. The native suite contains nine test methods, including the new boundaries.
 Those successful steps do not establish a signed physical-device test.
 

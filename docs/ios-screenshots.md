@@ -3,6 +3,8 @@
 Run the manual **iOS App Store screenshots** GitHub Actions workflow. It captures
 the real Flutter application screens on separate iPhone Pro Max and 13-inch iPad
 simulators using Xcode 26.3 and Flutter 3.41.8. It requires no Apple credentials.
+The `family` input selects both devices by default, or a targeted iPhone/iPad
+retry. Simulator startup has a five-minute deadline and one clean restart.
 
 The integration entrypoint saves a French/light-theme/manual-Fès setup in the
 fresh simulator. Prayer times are calculated by the production local calculator
@@ -29,6 +31,26 @@ Review every PNG visually before uploading: successful collection alone does not
 establish that a screenshot is free of a system dialog or unexpected layout.
 The screenshot job is separate from release signing/submission and does not
 replace a physical-iPhone functionality check.
+
+## Verified captures — 17 September 2026
+
+All six final images were opened individually and checked for loading errors,
+permission dialogs and visible overflow. Quran reading state was initialized and
+its reading control was active. The original PNG hashes and dimensions matched
+their manifests; each integration capture returned exit code zero.
+
+| Device | Capture source | Original dimensions |
+| --- | --- | --- |
+| iPhone Pro Max | [Run 35164407561](https://github.com/HydraaLabs/salatime_app/actions/runs/35164407561), successful job `105022145821` | 1320×2868, three images |
+| iPad Pro 13-inch | [Run 35163576197](https://github.com/HydraaLabs/salatime_app/actions/runs/35163576197), successful job `105019574370` | 2064×2752, three images |
+
+The latter run was cancelled only after its iPad job and artifact upload had
+succeeded, to stop its separate iPhone simulator from hanging during startup.
+The iPhone-only retry above supplied the final iPhone images. Both sets display
+French UI, actual Fès prayer calculations, and bundled Arabic Quran/Athkar.
+Original simulator PNGs retain their native alpha channel; any App Store upload
+copy must verify the channel is fully opaque before removing it, preserving the
+RGB pixels and keeping the originals unchanged.
 
 Accepted portrait sizes are checked against Apple's
 [screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/):
