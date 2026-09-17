@@ -34,14 +34,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           sudo xcode-select --switch /Applications/Xcode_26.3.app/Contents/Developer
-          gh api "repos/$GITHUB_REPOSITORY/actions/runs/35170268900" > "$SOURCE_RUN_METADATA"
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/35203619716" > "$SOURCE_RUN_METADATA"
           python3 -m pip install --quiet --target "$RUNNER_TEMP/adhoc-python" "cryptography>=44,<49"
           python3 tool/ios_adhoc.py self-test
       - uses: actions/download-artifact@v4
         with:
-          name: SalaTime-iOS-28
+          name: SalaTime-iOS-29
           path: ${{ env.SOURCE_ARTIFACT_DIRECTORY }}
-          run-id: 35170268900
+          run-id: 35203619716
           github-token: ${{ github.token }}
       - name: Re-sign for the registered device and encrypt IPA
         env:
@@ -54,9 +54,9 @@ jobs:
       - name: Save encrypted device package
         uses: actions/upload-artifact@v4
         with:
-          name: SalaTime-iOS-AdHoc-28-encrypted
+          name: SalaTime-iOS-AdHoc-29-encrypted
           path: |
-            ${{ env.ENCRYPTED_ARTIFACT_DIRECTORY }}/SalaTime-AdHoc-28.ipa.enc
+            ${{ env.ENCRYPTED_ARTIFACT_DIRECTORY }}/SalaTime-AdHoc-29.ipa.enc
             ${{ env.ENCRYPTED_ARTIFACT_DIRECTORY }}/validation.json
           if-no-files-found: error
           retention-days: 1
