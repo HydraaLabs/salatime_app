@@ -1,0 +1,24 @@
+{
+  "app_id": "6812923710",
+  "version": "1.0.22",
+  "build_number": "28",
+  "build_id": "ce3b2484-ec6f-4ccc-92d2-7371874ed4a7",
+  "source_commit": "4e253321884885c37ea4658a69d79266c12ce789",
+  "app_store_version_id": "fec07b01-c9f0-4325-9adc-b9245542fce6",
+  "review_submission_id": "e80271c7-c411-4e24-870d-011dd4272d79",
+  "submitted_at": "2026-09-17T02:03:13.147Z",
+  "verified_at": "2026-09-17T02:03:17.527065+00:00",
+  "state": "WAITING_FOR_REVIEW",
+  "release_type": "AFTER_APPROVAL",
+  "screenshots": 42,
+  "localizations": [
+    "en-US",
+    "fr-FR",
+    "ar-SA"
+  ],
+  "flutter_tests_passed": 621,
+  "native_ios_tests_passed": true,
+  "physical_installed_version": "1.0.22 (28)",
+  "physical_social_signin_after_fix": "awaiting_user_confirmation",
+  "app_store_ipa_sha256": "c9f0562f43c87b25513ecc657fe8ef1a629a51f51e1ee7e3b0ba624ffe8fb837"
+}
