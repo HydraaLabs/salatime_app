@@ -106,10 +106,32 @@ the native screenshot command took over fourteen seconds, exceeding the screen's
 ten-second hold and capturing the following name screen. The rejected original
 is preserved for audit. The approved French Al-Fatiha image from run
 `35164407561` above supplies this one slot, with its original light theme and
-provenance. The resulting source set contains 41 images from the new run and
-that one previously verified reader image. No further capture run or replacement
-of the original files was needed. A successful test alone therefore remains
+provenance. That intermediate source set contained 41 images from the new run
+and one previously verified reader image. A successful test alone remains
 insufficient to approve store images; visual review is mandatory.
+
+### Final targeted refresh after the iOS status-bar fix
+
+Visual review also identified white status-bar icons on a light home after
+navigation. The application fix explicitly sets iOS `statusBarBrightness` and
+has its own route/theme regression test. Capture source `8c58b52` includes that
+product fix and the new native screenshot acknowledgement protocol.
+
+| Final replacement | Successful source job | Native dimensions |
+| --- | --- | --- |
+| iPad home, FR/EN/AR (3) | [Run 35170463359](https://github.com/HydraaLabs/salatime_app/actions/runs/35170463359), job `105040824484` | 2064×2752 |
+| iPhone home, FR/EN/AR and French Al-Fatiha (4) | [Run 35171325163](https://github.com/HydraaLabs/salatime_app/actions/runs/35171325163), job `105043424576` | 1320×2868 |
+
+All seven replacements passed hash/dimension/opaque-alpha checks and visual
+review. The home status bars are dark and readable in all three languages; the
+French reader shows complete Al-Fatiha in the light theme. Every native capture
+was acknowledged before navigation. The first run's separate iPhone job failed
+during simulator boot, before application compilation; the iPhone-only retry
+above succeeded on a new runner.
+
+The final 42-source selection now uses 35 images from run `35168462494`, three
+from `35170463359`, and four from `35171325163`. The older French reader fallback
+and the rejected frame remain preserved for audit but are no longer selected.
 
 Accepted portrait sizes are checked against Apple's
 [screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/):
