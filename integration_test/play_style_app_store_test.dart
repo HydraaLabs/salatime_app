@@ -240,7 +240,11 @@ Future<void> _language(WidgetTester tester, Locale locale) async {
 
 Future<void> _back(WidgetTester tester) async {
   Get.back<void>();
-  await tester.pump(const Duration(seconds: 1));
+  await _waitFor(
+    tester,
+    () => find.byType(ModernHomeScreen).evaluate().isNotEmpty,
+  );
+  await tester.pump(const Duration(milliseconds: 500));
   expect(find.byType(ModernHomeScreen), findsOneWidget);
 }
 
@@ -257,7 +261,22 @@ Future<void> _waitFor(
 }
 
 Future<void> _capture(WidgetTester tester, String name) async {
-  await tester.pump(const Duration(seconds: 3));
+  // Theme transitions trigger nested AnimatedDefaultTextStyle transitions.
+  // One long pump finishes the first animation but starts the second at t=0;
+  // render multiple actual frames before the host collects native pixels.
+  for (var frame = 0; frame < 30; frame++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+  if (name.endsWith('/02-home-reading')) {
+    final titleContext = tester.element(
+      find.text('quran_reading_progress_title'.tr),
+    );
+    expect(
+      DefaultTextStyle.of(titleContext).style.color,
+      Theme.of(titleContext).textTheme.bodyMedium!.color,
+      reason: 'The real dark theme text animation must finish before capture.',
+    );
+  }
   expect(tester.takeException(), isNull);
   expect(find.byType(AlertDialog), findsNothing);
   // ignore: avoid_print
