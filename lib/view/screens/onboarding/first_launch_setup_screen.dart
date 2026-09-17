@@ -3,6 +3,7 @@ import 'package:salatime/helper/prayer_notification_preferences.dart';
 import 'package:salatime/view/screens/notification/notification_settings_screen.dart';
 import 'widget_prompt.dart';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -315,11 +316,13 @@ class _NotificationSettingsStep extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           NotificationSettingsMenu(soundPreview: soundPreview),
-          const SizedBox(height: 24),
-          Text(
-            'onboarding_battery_note'.tr,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
+          if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) ...[
+            const SizedBox(height: 24),
+            Text(
+              'onboarding_battery_note'.tr,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ],
         ],
       ),
     );
