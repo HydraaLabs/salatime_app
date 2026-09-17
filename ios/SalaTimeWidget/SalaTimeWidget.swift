@@ -38,6 +38,7 @@ struct SalaTimeWidgetView: View {
     private var primary: Color { colorScheme == .dark ? Color(red: 0.56, green: 0.71, blue: 0.57) : Color(red: 0.184, green: 0.322, blue: 0.2) }
     private var backdrop: Color { colorScheme == .dark ? Color(red: 0.08, green: 0.13, blue: 0.09) : Color(red: 0.961, green: 0.965, blue: 0.937) }
     private var small: Bool { family == .systemSmall }
+    private var medium: Bool { family == .systemMedium }
     private var snapshot: PrayerWidgetSnapshot? { entry.snapshot }
     private var presentation: PrayerWidgetPresentation? { snapshot?.presentation(at: entry.date, countdown: entry.options.countdown) }
 
@@ -51,7 +52,7 @@ struct SalaTimeWidgetView: View {
     }
 
     private var content: some View {
-        VStack(alignment: .leading, spacing: small ? 6 : 10) {
+        VStack(alignment: .leading, spacing: medium ? 4 : (small ? 6 : 10)) {
             HStack(spacing: 6) {
                 if entry.options.illustration { Image(systemName: "moon.stars.fill").foregroundColor(Color(red: 0.67, green: 0.51, blue: 0.22)) }
                 Text("SalaTime").font(.caption.weight(.semibold))
@@ -60,7 +61,7 @@ struct SalaTimeWidgetView: View {
             }
             if let current = presentation, let data = snapshot {
                 Text(current.since ? data.sinceLabel.replacingOccurrences(of: "@prayer", with: current.prayer.name) : data.nextLabel)
-                    .font(.caption).lineLimit(small ? 1 : 2)
+                    .font(.caption).lineLimit(small || medium ? 1 : 2)
                 if small {
                     Text(current.prayer.name).font(.headline).lineLimit(1).minimumScaleFactor(0.75)
                     counter(current, data: data).font(.system(size: 28, weight: .semibold, design: .rounded))
@@ -68,7 +69,31 @@ struct SalaTimeWidgetView: View {
                     HStack(alignment: .firstTextBaseline) {
                         Text(current.prayer.name).font(.title2.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.7)
                         Spacer(minLength: 8)
-                        counter(current, data: data).font(.system(size: 32, weight: .semibold, design: .rounded))
+                        counter(current, data: data).font(.system(size: medium ? 28 : 32, weight: .semibold, design: .rounded))
+                    }
+                }
+                if medium {
+                    Divider()
+                    HStack(spacing: 2) {
+                        ForEach(data.prayers(for: current.prayer), id: \.id) { prayer in
+                            let selected = prayer.id == current.prayer.id
+                            VStack(spacing: 2) {
+                                Text(prayer.shortName ?? prayer.name)
+                                    .font(.caption2.weight(selected ? .bold : .medium))
+                                Text(clock(prayer.instant, data: data))
+                                    .font(.caption.weight(selected ? .bold : .regular))
+                                    .monospacedDigit()
+                            }
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.65)
+                            .frame(maxWidth: .infinity)
+                            .padding(.horizontal, 2)
+                            .padding(.vertical, 4)
+                            .foregroundColor(selected || prayer.instant >= entry.date ? primary : .secondary)
+                            .background(RoundedRectangle(cornerRadius: 6).fill(primary.opacity(selected ? 0.1 : 0)))
+                            .accessibilityElement(children: .ignore)
+                            .accessibilityLabel(Text("\(prayer.name), \(clock(prayer.instant, data: data))"))
+                        }
                     }
                 }
                 if family == .systemLarge {
