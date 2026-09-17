@@ -100,3 +100,31 @@ signing material are needed to validate a signed archive and IPA.
 Sources: [Flutter iOS deployment](https://docs.flutter.dev/deployment/ios),
 [GitHub signing on macOS runners](https://docs.github.com/en/actions/how-tos/deploy/deploy-to-third-party-platforms/sign-xcode-applications),
 [Apple build uploads](https://developer.apple.com/help/app-store-connect/manage-builds/upload-builds).
+
+## Private iPhone installation for build 27
+
+The manually dispatched `ios-adhoc-device.yml` workflow is deliberately limited
+to App Store build 27 from successful run `35165814554` and its reviewed source
+commit. It reuses the same distribution certificate and two single-device ad hoc
+profiles (`IOS_ADHOC_APP_PROFILE_BASE64`, `IOS_ADHOC_WIDGET_PROFILE_BASE64`). It
+preserves executable code, resources, bundle IDs, versions, Google callback,
+Apple login, App Group and Keychain capabilities. Only signing and embedded
+profiles change. It does not upload to App Store Connect.
+
+Because an ad hoc profile contains a device identifier, only an encrypted IPA
+and a sanitized validation report are retained, for one day. Encryption uses
+AES-256-GCM with a random salt/nonce and PBKDF2-HMAC-SHA256 (600,000 iterations);
+the report is authenticated as associated data. The random password is supplied
+through `IOS_ADHOC_ARTIFACT_PASSWORD` and stored locally in a private directory.
+Remove that GitHub secret after the verified artifact has been recovered.
+
+`python3 tool/ios_adhoc.py self-test` checks entitlement restrictions, single-device
+profiles, encryption roundtrip and tamper rejection. Local decryption uses the
+`decrypt` command with `ENCRYPTED_ARTIFACT_DIRECTORY`, `ADHOC_PASSWORD_FILE` and
+`ADHOC_OUTPUT_IPA`; it authenticates the entire artifact before writing a file
+with mode 600. Installation and actual device behavior are separate checks.
+
+Sources: [Apple provisioning profiles](https://developer.apple.com/documentation/technotes/tn3125-inside-code-signing-provisioning-profiles),
+[Apple signature format](https://developer.apple.com/documentation/xcode/using-the-latest-code-signature-format),
+[GitHub workflow artifacts](https://docs.github.com/en/actions/tutorials/store-and-share-data),
+[AES-GCM authenticated encryption](https://cryptography.io/en/latest/hazmat/primitives/aead/).
