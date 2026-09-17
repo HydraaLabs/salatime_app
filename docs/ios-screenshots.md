@@ -41,6 +41,11 @@ The driver announces each ready screen, then leaves it visible for ten seconds.
 `scripts/capture_ios.py` immediately runs `xcrun simctl io screenshot` to capture
 the original simulator pixels, including the active UIScene and status bar.
 Images are not resized, composited or replaced with rendered mockups.
+The extended harness renders thirty frames before announcing a screen, so nested
+theme/text transitions complete. Its dark reading title must match the theme's
+inherited text color. Two tests in
+`test/integration_support/capture_frames_test.dart` cover this timing with and
+without the application-style overlay; no product theme change was necessary.
 
 Artifacts **SalaTime-App-Store-iphone** and **SalaTime-App-Store-ipad** contain:
 
@@ -74,6 +79,30 @@ French UI, actual Fès prayer calculations, and bundled Arabic Quran/Athkar.
 Original simulator PNGs retain their native alpha channel; any App Store upload
 copy must verify the channel is fully opaque before removing it, preserving the
 RGB pixels and keeping the originals unchanged.
+
+### Seven features in three languages
+
+[Run 35168462494](https://github.com/HydraaLabs/salatime_app/actions/runs/35168462494)
+completed both device jobs successfully on capture source `7bf817b`. It produced
+21 native screenshots per family: 1320×2868 on iPhone and 2064×2752 on iPad.
+All 42 PNG hashes/dimensions matched their manifests and their alpha channels
+were fully opaque. Visual review approved all 21 iPad images and 20 iPhone
+images: readable dark text, real Quran content, actual Fès map tiles/mosques,
+and no loading screen or permission dialog. The iPad reader uses the existing
+font-size setting of 40. Bukhari chapter labels returned by the live CDN are
+English even in the French/Arabic editions; the surrounding app UI uses the
+selected language. These are actual application screenshots, without invented
+content or image-level translation.
+
+The iPhone French `04-quran-reading` was rejected despite the successful test:
+the native screenshot command took over fourteen seconds, exceeding the screen's
+ten-second hold and capturing the following name screen. The rejected original
+is preserved for audit. The approved French Al-Fatiha image from run
+`35164407561` above supplies this one slot, with its original light theme and
+provenance. The resulting source set contains 41 images from the new run and
+that one previously verified reader image. No further capture run or replacement
+of the original files was needed. A successful test alone therefore remains
+insufficient to approve store images; visual review is mandatory.
 
 Accepted portrait sizes are checked against Apple's
 [screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/):
