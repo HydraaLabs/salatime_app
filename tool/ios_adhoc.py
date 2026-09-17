@@ -153,7 +153,7 @@ def resign() -> None:
         original = check_profile(source_profile, expected, team)
         require(original["prefix"] == profiles[name][2]["prefix"], "App ID prefix must remain unchanged")
         certificate_prefix = directory / f"{name}-original-certificate-"
-        run("codesign", "-d", "--extract-certificates", str(certificate_prefix), str(bundle))
+        run("codesign", "-d", f"--extract-certificates={certificate_prefix}", str(bundle))
         original_certificate = Path(str(certificate_prefix) + "0").read_bytes()
         require(hashlib.sha1(original_certificate).hexdigest().upper() == identity,
                 "Re-signing must use the exact source distribution certificate")
