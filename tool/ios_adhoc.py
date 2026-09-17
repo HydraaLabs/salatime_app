@@ -25,8 +25,8 @@ from ios_release import (APP_ID, APP_GROUP, WIDGET_ID, check_google_url_scheme,
                          check_profile, cleanup, require, required_env, run,
                          secret_file, state_directory, write_state)
 
-SOURCE_RUN = 35169632691
-SOURCE_SHA = "88a56b89649b51101b31eaff793c4b729ecd36b9"
+SOURCE_RUN = 35170268900
+SOURCE_SHA = "4e253321884885c37ea4658a69d79266c12ce789"
 BUILD = "28"
 VERSION = "1.0.22"
 
