@@ -26,6 +26,8 @@ import 'package:salatime/view/screens/nearby_mosque/nearby_mosque_screen.dart';
 import 'package:salatime/view/screens/offline_quran/main_offline_quran_screen.dart';
 import 'package:salatime/view/screens/offline_quran/offline_surah_detail_screen.dart';
 
+import 'support/capture_frames.dart';
+
 const _locales = <String, Locale>{
   'fr-FR': Locale('fr', 'FR'),
   'en-US': Locale('en', 'US'),
@@ -261,12 +263,7 @@ Future<void> _waitFor(
 }
 
 Future<void> _capture(WidgetTester tester, String name) async {
-  // Theme transitions trigger nested AnimatedDefaultTextStyle transitions.
-  // One long pump finishes the first animation but starts the second at t=0;
-  // render multiple actual frames before the host collects native pixels.
-  for (var frame = 0; frame < 30; frame++) {
-    await tester.pump(const Duration(milliseconds: 100));
-  }
+  await renderCaptureFrames(tester);
   if (name.endsWith('/02-home-reading')) {
     final titleContext = tester.element(
       find.text('quran_reading_progress_title'.tr),
