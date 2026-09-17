@@ -9,6 +9,9 @@ retry. Simulator startup has a five-minute deadline and one clean restart.
 The optional `collection=play-style` input captures seven features in `fr-FR`,
 `en-US` and `ar` during one application launch per device family. The default
 `basic` collection and its original three-screen harness remain available.
+The targeted `light-home-reader` collection captures only the light home in all
+three languages, plus the French Al-Fatiha reader on iPhone. It preserves the
+same filenames so these seven sources can replace individual store composites.
 The extended artifacts contain `<locale>/<feature>.png`:
 
 | Feature filename | Actual application state |
@@ -37,9 +40,13 @@ translations and navigation shell are production widgets. The entrypoint skips
 onboarding and alarm scheduling; it creates no account and changes no server
 data. Sentry is disabled.
 
-The driver announces each ready screen, then leaves it visible for ten seconds.
-`scripts/capture_ios.py` immediately runs `xcrun simctl io screenshot` to capture
-the original simulator pixels, including the active UIScene and status bar.
+The extended driver sends each ready screen to a loopback-only HTTP collector
+on the Mac. It waits for acknowledgement after `xcrun simctl io screenshot` has
+saved and checked the native PNG, so a slow capture cannot photograph the next
+screen. This handshake is covered by three protocol tests and uses no account
+or server data. The original basic driver still holds each screen ten seconds.
+Both paths collect original simulator pixels, including the active UIScene and
+status bar.
 Images are not resized, composited or replaced with rendered mockups.
 The extended harness renders thirty frames before announcing a screen, so nested
 theme/text transitions complete. Its dark reading title must match the theme's

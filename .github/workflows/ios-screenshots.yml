@@ -10,7 +10,7 @@ on:
       collection:
         description: Original three screens or seven Play features in three languages
         type: choice
-        options: [basic, play-style]
+        options: [basic, play-style, light-home-reader]
         default: basic
 permissions:
   contents: read
@@ -63,10 +63,12 @@ jobs:
           PY
       - name: Resolve dependencies
         run: flutter pub get
+      - name: Check capture acknowledgement protocol
+        run: python3 -m unittest discover -s scripts -p 'test_capture_ios_protocol.py'
       - name: Capture real application screens
         env:
           CAPTURE_COLLECTION: ${{ inputs.collection || 'basic' }}
-        run: python3 scripts/capture_ios.py --device "$SIMULATOR_ID" --output "build/app-store/${{ matrix.family }}" --collection "$CAPTURE_COLLECTION"
+        run: python3 scripts/capture_ios.py --device "$SIMULATOR_ID" --output "build/app-store/${{ matrix.family }}" --collection "$CAPTURE_COLLECTION" --family "${{ matrix.family }}"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

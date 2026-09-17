@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
@@ -84,6 +87,34 @@ void main() {
         tester,
         () => find.byType(ModernHomeScreen).evaluate().isNotEmpty,
       );
+
+      if (const String.fromEnvironment('SALATIME_CAPTURE_SET') ==
+          'light-home-reader') {
+        for (final entry in _locales.entries) {
+          await _language(tester, entry.value);
+          await Get.find<ThemeController>().setMode(ThemeController.light);
+          await _capture(tester, '${entry.key}/01-prayer-times');
+        }
+        if (const bool.fromEnvironment('SALATIME_CAPTURE_READER')) {
+          await _language(tester, _locales['fr-FR']!);
+          Get.to<void>(
+            () => const OfflineSuraDetaileScreen(
+              appBackButton: true,
+              surahNumber: '1',
+            ),
+          );
+          await _waitFor(
+            tester,
+            () =>
+                find.byType(OfflineSuraDetaileScreen).evaluate().isNotEmpty &&
+                Get.isRegistered<OfflineQuranController>() &&
+                Get.find<OfflineQuranController>().suraDetailsApiData != null &&
+                !Get.find<OfflineQuranController>().isSurahDetailsLoading.value,
+          );
+          await _capture(tester, 'fr-FR/04-quran-reading');
+        }
+        return;
+      }
 
       // The host sets the simulator's real location service to public Fès
       // coordinates and grants while-in-use permission after this app is installed.
@@ -278,5 +309,26 @@ Future<void> _capture(WidgetTester tester, String name) async {
   expect(find.byType(AlertDialog), findsNothing);
   // ignore: avoid_print
   print('SALATIME_STORE_CAPTURE:$name');
-  await tester.pump(const Duration(seconds: 10));
+  final port = int.parse(const String.fromEnvironment('SALATIME_CAPTURE_PORT'));
+  final client = HttpClient()..connectionTimeout = const Duration(seconds: 30);
+  try {
+    // iOS simulators share the Mac's loopback network. The collector responds
+    // only after simctl has saved and verified the native PNG. Never navigate
+    // away merely because a fixed capture delay elapsed on a busy Mac runner.
+    final request = await client.postUrl(
+      Uri.parse('http://127.0.0.1:$port/capture'),
+    );
+    request.headers.contentType = ContentType.json;
+    final body = utf8.encode(jsonEncode({'name': name}));
+    request.contentLength = body.length;
+    request.add(body);
+    final response = await request.close().timeout(
+      const Duration(seconds: 120),
+    );
+    final payload = await response.transform(utf8.decoder).join();
+    expect(response.statusCode, HttpStatus.ok);
+    expect(jsonDecode(payload), {'ok': true, 'name': name});
+  } finally {
+    client.close(force: true);
+  }
 }
