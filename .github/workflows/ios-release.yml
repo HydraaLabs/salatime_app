@@ -56,7 +56,8 @@ jobs:
         run: |
           flutter pub get
           flutter analyze
-          flutter test --dart-define=SALATIME_APPLE_IOS_ENABLED=true
+          flutter test --dart-define=SALATIME_APPLE_IOS_ENABLED=true \
+            --dart-define=SALATIME_GOOGLE_IOS_ENABLED="$GOOGLE_IOS_ENABLED"
       - name: Build simulator and run native iOS regression tests
         run: |
           flutter build ios --simulator --debug --no-codesign \
