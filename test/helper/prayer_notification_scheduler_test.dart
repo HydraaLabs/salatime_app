@@ -27,7 +27,7 @@ class CachedPrayerController extends PrayerTimeController {
           sharedPreferences: prefs,
         ),
       );
-  final String date;
+  String date;
   final extraDates = <String>{};
   bool fresh = true;
   @override
@@ -230,59 +230,79 @@ void main() {
     },
   );
 
-  test(
-    'adhan carries localized date and timer metadata and refreshes presentation',
-    () async {
-      Get.addTranslations({
-        'en': {
-          for (var month = 1; month <= 12; month++)
-            'hijri_month_$month': 'Month $month',
-          'time_since_prayer': 'Time since @prayer',
-        },
-      });
-      await PrayerNotificationPreferences.save(
-        PrayerNotificationSetting.defaults(
-          PrayerNotificationPrayer.dhuhr,
-          PrayerNotificationPhase.adhan,
-        ).copyWith(enabled: true),
-      );
-      await harness.refresh();
-      final id = harness.pending.keys.single;
-      var payload = harness.payload(id);
-      final day = DateTime.parse(harness.controller.date);
-      final hijri = HijriCalendar.fromDate(day);
-      expect(payload['prayerTime'], '13:00');
-      expect(
-        payload['hijriDate'],
-        '${hijri.hDay} Month ${hijri.hMonth} ${hijri.hYear}',
-      );
-      expect(payload['elapsedLabel'], 'Time since ${payload['prayerName']}');
-      expect(payload['locale'], 'en');
-      expect(payload['prayerAt'], payload['at']);
-      expect(payload['nextPrayer']['prayerName'], 'asr');
-      expect(payload['nextPrayer']['prayerTime'], '16:00');
-      expect(
-        payload['nextPrayer']['prayerAt'] - payload['at'],
-        const Duration(hours: 3).inMilliseconds,
-      );
-      harness.controller.fresh = false;
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt(IslamicCalendarPreferences.storageKey, 1);
-      harness.controller.is24HourFormat.value = false;
-      harness.clearCalls();
-      await harness.refresh();
-      payload = harness.payload(id);
-      expect(payload['prayerTime'], '1:00\u202fPM');
-      expect(payload['nextPrayer']['prayerName'], 'asr');
-      expect(payload['nextPrayer']['prayerTime'], '4:00\u202fPM');
-      final adjusted = HijriCalendar.fromDate(day.add(const Duration(days: 1)));
-      expect(
-        payload['hijriDate'],
-        '${adjusted.hDay} Month ${adjusted.hMonth} ${adjusted.hYear}',
-      );
-      expect(harness.scheduled, [id]);
-    },
-  );
+  for (final (weekday, prayer) in [
+    (DateTime.friday, PrayerNotificationPrayer.jumaa),
+    (DateTime.saturday, PrayerNotificationPrayer.dhuhr),
+  ]) {
+    test(
+      'adhan carries localized date and timer metadata and refreshes presentation for ${prayer.name}',
+      () async {
+        // Keep the occurrence in the real scheduler's future, but fix the weekday
+        // explicitly: Friday uses the independent Jumaa preference, not Dhuhr.
+        final tomorrow = DateTime.parse(
+          '${harness.controller.date}T00:00:00Z',
+        );
+        final day = tomorrow.add(
+          Duration(days: (weekday - tomorrow.weekday + 7) % 7),
+        );
+        harness.controller.date = day.toIso8601String().split('T').first;
+        expect(day.weekday, weekday);
+        Get.addTranslations({
+          'en': {
+            for (var month = 1; month <= 12; month++)
+              'hijri_month_$month': 'Month $month',
+            'time_since_prayer': 'Time since @prayer',
+          },
+        });
+        await PrayerNotificationPreferences.save(
+          PrayerNotificationSetting.defaults(
+            prayer,
+            PrayerNotificationPhase.adhan,
+          ).copyWith(enabled: true),
+        );
+        await harness.refresh();
+        expect(harness.pending, hasLength(1));
+        final id = harness.pending.keys.single;
+        var payload = harness.payload(id);
+        final hijri = HijriCalendar.fromDate(day);
+        expect(payload['prayer'], prayer.name);
+        expect(payload['prayerName'], prayer.titleKey);
+        expect(payload['prayerTime'], '13:00');
+        expect(
+          payload['hijriDate'],
+          '${hijri.hDay} Month ${hijri.hMonth} ${hijri.hYear}',
+        );
+        expect(payload['elapsedLabel'], 'Time since ${payload['prayerName']}');
+        expect(payload['locale'], 'en');
+        expect(payload['prayerAt'], payload['at']);
+        expect(payload['nextPrayer']['prayerName'], 'asr');
+        expect(payload['nextPrayer']['prayerTime'], '16:00');
+        expect(
+          payload['nextPrayer']['prayerAt'] - payload['at'],
+          const Duration(hours: 3).inMilliseconds,
+        );
+        harness.controller.fresh = false;
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setInt(IslamicCalendarPreferences.storageKey, 1);
+        harness.controller.is24HourFormat.value = false;
+        harness.clearCalls();
+        await harness.refresh();
+        payload = harness.payload(id);
+        expect(payload['prayer'], prayer.name);
+        expect(payload['prayerTime'], '1:00\u202fPM');
+        expect(payload['nextPrayer']['prayerName'], 'asr');
+        expect(payload['nextPrayer']['prayerTime'], '4:00\u202fPM');
+        final adjusted = HijriCalendar.fromDate(
+          day.add(const Duration(days: 1)),
+        );
+        expect(
+          payload['hijriDate'],
+          '${adjusted.hDay} Month ${adjusted.hMonth} ${adjusted.hYear}',
+        );
+        expect(harness.scheduled, [id]);
+      },
+    );
+  }
 
   test(
     'next prayer ignores disabled sounds and sunrise and crosses midnight',
