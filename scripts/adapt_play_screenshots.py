@@ -68,7 +68,7 @@ def compose(source_path: Path, capture_path: Path, output: Path, family: str, po
     if family == 'iphone':
         x, y, outer_w, border = ((110 if position == 1 else 300), 1000, 860, 18) if position <= 2 else (125, 470, 1070, 18)
     else:
-        x, y, outer_w, border = ((170 if position == 1 else 570), 1110, 1180, 22) if position <= 2 else (310, 640, 1444, 22)
+        x, y, outer_w, border = ((175 if position == 1 else 515), 1110, 1220, 22) if position <= 2 else (310, 640, 1444, 22)
     inner_w = outer_w - border * 2
     inner_h = round(capture.height * inner_w / capture.width)
     outer_h = inner_h + border * 2
