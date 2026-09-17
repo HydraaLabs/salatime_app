@@ -1,8 +1,6 @@
 import 'package:salatime/view/screens/daily/daily_verse_card.dart';
 // ignore_for_file: deprecated_member_use
 
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
@@ -16,11 +14,9 @@ import 'package:salatime/helper/route_helper.dart';
 import 'package:salatime/helper/time_adjustment_helper.dart';
 import 'package:salatime/helper/translator_helper.dart';
 import 'package:salatime/shimmer/all_shimmer_loder.dart';
-import 'package:salatime/theme/light_theme.dart';
 import 'package:salatime/util/dimensions.dart';
 import 'package:salatime/util/images.dart';
 import 'package:salatime/util/styles.dart';
-import 'package:salatime/view/screens/ai_islamic_assistant/ai_islamic_assistant.dart';
 import 'package:salatime/view/screens/home/classic/widget/bannder_widget.dart';
 import 'package:salatime/view/screens/home/classic/widget/feature_item_widget.dart';
 import 'package:salatime/view/screens/home/classic/widget/today_prayer_list_item.dart';
@@ -54,80 +50,6 @@ class ClassicHomeScreen extends StatelessWidget {
                     ? const DashbordShimmerScreen()
                     : _buildBody(context, prayerTimeController),
               ),
-
-              floatingActionButton: GestureDetector(
-                onTap: () {
-                  Get.to(() => const AiIslamicAssistantScreen());
-                },
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(30),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 5,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
-                        gradient: LinearGradient(
-                          colors: [
-                            Theme.of(context).primaryColor.withOpacity(0.35),
-                            Theme.of(context).primaryColor.withOpacity(0.08),
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        border: Border.all(
-                          color: Theme.of(
-                            context,
-                          ).primaryColor.withOpacity(0.5),
-                          width: 1,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.15),
-                            blurRadius: 12,
-                            offset: const Offset(0, 6),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 5,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: AppColor.cardColor,
-                            ),
-                            child: Image.asset(
-                              Images.aiAssistant,
-                              width: 30,
-                              height: 30,
-                            ),
-                          ),
-                          const SizedBox(width: 2),
-                          Text(
-                            "${"ask_ai_key".tr} ",
-                            style: robotoRegular.copyWith(
-                              color: Get.isDarkMode
-                                  ? AppColor.cardColor
-                                  : AppColor.primaryColor,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              floatingActionButtonLocation:
-                  FloatingActionButtonLocation.endFloat,
             );
           },
         );

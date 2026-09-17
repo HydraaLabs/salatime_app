@@ -304,9 +304,7 @@
   "remove": "Eliminar",
   "generated_with": "Nombre Islámico — Generado con la app SalaTime",
   "ai_name_key": "Generador de Nombres AI",
-  "ask_ai_key": "Preguntar a AI",
   "synonyms_key": "Nombres similares",
-  "ai_islamic_assistant": "Asistente Islámico AI",
   "ai_assistant": "Asistente AI",
   "ask_islamic_question": "Haz una pregunta islámica...",
   "good_morning": "Buenos días",
@@ -801,12 +799,5 @@
   "widget_ios_steps": "1. Mantén pulsada una zona vacía de la pantalla de inicio.\n2. Toca Editar y Añadir widget (o +).\n3. Busca SalaTime.\n4. Desliza hasta el tamaño deseado y toca Añadir widget.",
   "play_store_review_question": "¿Te gusta SalaTime?",
   "play_store_review_yes": "Sí",
-  "play_store_review_no": "No",
-  "ai_data_consent_title": "Datos compartidos con la IA",
-  "ai_data_consent_body": "Las preguntas y las opciones de generación de nombres que envías se comparten con SalaTime y después con el servicio externo de IA 1min.ai para generar una respuesta. Evita incluir información personal o sensible. Las respuestas de la IA pueden ser inexactas.",
-  "ai_data_consent_remember": "Tu elección se guarda en este dispositivo para ambas funciones de IA. Puedes detener los envíos futuros con el icono de privacidad de esta pantalla.",
-  "ai_data_consent_privacy": "Privacidad de 1min.ai",
-  "ai_data_consent_cancel": "Cancelar",
-  "ai_data_consent_revoke": "Dejar de compartir",
-  "ai_data_consent_allow": "Permitir y continuar"
+  "play_store_review_no": "No"
 }

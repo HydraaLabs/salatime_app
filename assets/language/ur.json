@@ -304,9 +304,7 @@
   "remove": "ہٹائیں",
   "generated_with": "اسلامی نام — SalaTime ایپ کے ساتھ تخلیق شدہ",
   "ai_name_key": "اے آئی نام جنریٹر",
-  "ask_ai_key": "AI سے پوچھیں",
   "synonyms_key": "متشابہ نام",
-  "ai_islamic_assistant": "AI اسلامی معاون",
   "ai_assistant": "AI معاون",
   "ask_islamic_question": "اسلامی سوال پوچھیں...",
   "hadith_of_the_day_title": "آج کی حدیث",
@@ -796,12 +794,5 @@
   "widget_ios_steps": "1. ہوم اسکرین کی خالی جگہ کو دبا کر رکھیں۔\n2. Edit پھر Add Widget (یا +) منتخب کریں۔\n3. SalaTime تلاش کریں۔\n4. سائز منتخب کرکے Add Widget دبائیں۔",
   "play_store_review_question": "کیا آپ کو SalaTime پسند ہے؟",
   "play_store_review_yes": "ہاں",
-  "play_store_review_no": "نہیں",
-  "ai_data_consent_title": "مصنوعی ذہانت کے ساتھ ڈیٹا کا اشتراک",
-  "ai_data_consent_body": "آپ کے بھیجے گئے سوالات اور نام بنانے کے انتخاب، جواب تیار کرنے کے لیے پہلے SalaTime اور پھر بیرونی مصنوعی ذہانت کی سروس 1min.ai کے ساتھ شیئر کیے جاتے ہیں۔ ذاتی یا حساس معلومات شامل نہ کریں۔ مصنوعی ذہانت کے جوابات غلط ہو سکتے ہیں۔",
-  "ai_data_consent_remember": "آپ کا انتخاب دونوں مصنوعی ذہانت کی سہولتوں کے لیے اس آلے پر محفوظ ہوتا ہے۔ اس اسکرین کے رازداری آئیکن سے آئندہ اشتراک روک سکتے ہیں۔",
-  "ai_data_consent_privacy": "1min.ai کی رازداری پالیسی",
-  "ai_data_consent_cancel": "منسوخ کریں",
-  "ai_data_consent_revoke": "اشتراک روکیں",
-  "ai_data_consent_allow": "اجازت دیں اور جاری رکھیں"
+  "play_store_review_no": "نہیں"
 }

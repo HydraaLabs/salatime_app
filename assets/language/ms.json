@@ -304,9 +304,7 @@
   "remove": "Buang",
   "generated_with": "Nama Islam — Dihasilkan dengan aplikasi SalaTime",
   "ai_name_key": "Penjana Nama AI",
-  "ask_ai_key": "Tanya AI",
   "synonyms_key": "Nama Serupa",
-  "ai_islamic_assistant": "Pembantu Islam AI",
   "ai_assistant": "Pembantu AI",
   "ask_islamic_question": "Tanya soalan Islam...",
   "hadith_of_the_day_title": "Hadis Hari Ini",
@@ -796,12 +794,5 @@
   "widget_ios_steps": "1. Sentuh dan tahan ruang kosong pada Skrin Utama.\n2. Ketik Edit, kemudian Tambah Widget (atau +).\n3. Cari SalaTime.\n4. Pilih saiz dan ketik Tambah Widget.",
   "play_store_review_question": "Adakah anda menyukai SalaTime?",
   "play_store_review_yes": "Ya",
-  "play_store_review_no": "Tidak",
-  "ai_data_consent_title": "Perkongsian data dengan AI",
-  "ai_data_consent_body": "Soalan dan pilihan penjanaan nama yang anda hantar dikongsi dengan SalaTime, kemudian dengan perkhidmatan AI luar 1min.ai untuk menghasilkan jawapan. Elakkan maklumat peribadi atau sensitif. Jawapan AI mungkin tidak tepat.",
-  "ai_data_consent_remember": "Pilihan anda disimpan pada peranti ini untuk kedua-dua ciri AI. Anda boleh menghentikan perkongsian seterusnya melalui ikon privasi pada skrin ini.",
-  "ai_data_consent_privacy": "Dasar privasi 1min.ai",
-  "ai_data_consent_cancel": "Batal",
-  "ai_data_consent_revoke": "Hentikan perkongsian",
-  "ai_data_consent_allow": "Benarkan dan teruskan"
+  "play_store_review_no": "Tidak"
 }

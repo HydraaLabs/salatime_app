@@ -306,9 +306,7 @@
   "remove": "Supprimer",
   "generated_with": "Nom islamique — Généré avec l'application SalaTime",
   "ai_name_key": "Générateur de Noms IA",
-  "ask_ai_key": "Demander à l'IA",
   "synonyms_key": "Noms similaires",
-  "ai_islamic_assistant": "Assistant Islamique IA",
   "ai_assistant": "Assistant IA",
   "ask_islamic_question": "Posez une question islamique...",
   "hadith_of_the_day_title": "Hadith du jour",
@@ -850,12 +848,5 @@
   "calculation_method_auto_title": "Méthode automatique selon le pays",
   "calculation_method_auto_description": "Utilise le pays de votre position GPS ou de la ville choisie. Choisir une méthode ci-dessous désactive la sélection automatique.",
   "calculation_method_auto_resolved": "@country · @method",
-  "calculation_method_auto_unavailable": "Pays indisponible. La méthode @method est conservée en attendant votre localisation.",
-  "ai_data_consent_title": "Partage des données IA",
-  "ai_data_consent_body": "Les questions et les choix de génération de prénoms que vous envoyez sont transmis à SalaTime, puis au service IA externe 1min.ai pour produire une réponse. Évitez les informations personnelles ou sensibles. Les réponses de l’IA peuvent être inexactes.",
-  "ai_data_consent_remember": "Votre choix est enregistré sur cet appareil pour les deux fonctions IA. Vous pouvez arrêter les futurs partages avec l’icône de confidentialité de cet écran.",
-  "ai_data_consent_privacy": "Confidentialité de 1min.ai",
-  "ai_data_consent_cancel": "Annuler",
-  "ai_data_consent_revoke": "Arrêter le partage",
-  "ai_data_consent_allow": "Autoriser et continuer"
+  "calculation_method_auto_unavailable": "Pays indisponible. La méthode @method est conservée en attendant votre localisation."
 }

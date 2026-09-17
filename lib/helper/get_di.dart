@@ -5,7 +5,6 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:salatime/controller/ai_assistant_controller.dart';
 import 'package:salatime/controller/alphabet_controller.dart';
 import 'package:salatime/controller/audio_player_controller.dart';
 import 'package:salatime/controller/bookmark_controller.dart';
@@ -15,7 +14,6 @@ import 'package:salatime/controller/dua_controller.dart';
 import 'package:salatime/controller/hadith_controller.dart';
 import 'package:salatime/controller/home_layout_controller.dart';
 import 'package:salatime/controller/internet_check_controller.dart';
-import 'package:salatime/controller/islamic_name_controller.dart';
 import 'package:salatime/controller/localization_controller.dart';
 import 'package:salatime/controller/nearby_mosque_controller.dart';
 import 'package:salatime/controller/noti_sound_controller.dart';
@@ -29,10 +27,8 @@ import 'package:salatime/controller/wallpaper_controller.dart';
 import 'package:salatime/controller/zakat_calculator_controller.dart';
 import 'package:salatime/data/api/api_client.dart';
 import 'package:salatime/data/model/response/language_model.dart';
-import 'package:salatime/data/repository/ai_assistant_repo.dart';
 import 'package:salatime/data/repository/dikir_list_repo.dart';
 import 'package:salatime/data/repository/dua_list_repo.dart';
-import 'package:salatime/data/repository/islamic_name_repo.dart';
 import 'package:salatime/data/repository/quran_setting_repo.dart';
 import 'package:salatime/data/repository/sifatname_list_repo.dart';
 import 'package:salatime/data/repository/wallpaper_repo.dart';
@@ -68,8 +64,6 @@ Future<Map<String, Map<String, String>>> init() async {
   Get.lazyPut(
     () => WallpaperRepo(sharedPreferences: Get.find(), apiClient: Get.find()),
   );
-  Get.lazyPut(() => IslamicNameRepo());
-  Get.lazyPut(() => AiAssistantRepo(), fenix: true);
 
   //new controller
   Get.lazyPut(
@@ -89,11 +83,6 @@ Future<Map<String, Map<String, String>>> init() async {
   Get.lazyPut(() => AlphabetController());
   Get.lazyPut(() => PrayerTimeAdjustmentController(), fenix: true);
   Get.lazyPut(() => InternetController(), fenix: true);
-  Get.lazyPut(() => IslamicNameController());
-  Get.lazyPut(
-    () => AiAssistantController(assistantRepo: Get.find()),
-    fenix: true,
-  );
   Get.lazyPut(
     () => HomeLayoutController(sharedPreferences: Get.find()),
     fenix: true,

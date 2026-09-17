@@ -64,8 +64,6 @@ class Images {
       '${image_path}Dark_alphabet_frame.svg';
   static const String sehri = '${image_path}sehri.svg';
   static const String ifter = '${image_path}ifter.svg';
-  static const String bgFeaturedCard = '${image_path}islamic_name_01.svg';
-  static const String nameGenerator = '${image_path}aiNameGenerate.svg';
 
   // Png Image
   static const String Quran_Frame = '${image_path}Quran_Frame.png';
@@ -78,7 +76,6 @@ class Images {
   static const String Light_primary = '${image_path}light_primary.png';
   static const String Dark_primary = '${image_path}dark_primary.png';
   static const String Reciter_Person = '${image_path}Reciter_Person.png';
-  static const String aiAssistant = '${image_path}aiAssistant.png';
 
   //============== MODERN HOME LAYOUT ICONS ==============//
   static const modern_icon_path = 'assets/icon/modern-icons/svg/';

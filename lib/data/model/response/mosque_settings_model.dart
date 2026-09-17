@@ -35,7 +35,6 @@ class Data {
   String? currencySymbol;
   String? playStoreUrl;
   String? appStoreUrl;
-  String? islamicNameApiKey;
   String? homeLayout;
 
   Data({
@@ -51,7 +50,6 @@ class Data {
     this.currencySymbol,
     this.playStoreUrl,
     this.appStoreUrl,
-    this.islamicNameApiKey,
     this.homeLayout,
   });
 
@@ -68,7 +66,6 @@ class Data {
     currencySymbol = json['currency_symbol'];
     playStoreUrl = json['play_store_url'];
     appStoreUrl = json['app_store_url'];
-    islamicNameApiKey = json['islamic_name_api_key'];
     homeLayout = json['home_layout'];
   }
 
@@ -86,7 +83,6 @@ class Data {
     data['currency_symbol'] = currencySymbol;
     data['play_store_url'] = playStoreUrl;
     data['app_store_url'] = appStoreUrl;
-    data['islamic_name_api_key'] = islamicNameApiKey;
     data['home_layout'] = homeLayout;
     return data;
   }

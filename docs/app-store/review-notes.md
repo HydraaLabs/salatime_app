@@ -1,6 +1,6 @@
 # App Review preparation — 17 September 2026
 
-App Store Connect app `6812923710`, iOS version `1.0.22` (`fec07b01-c9f0-4325-9adc-b9245542fce6`). The version remains a draft. Saving its review information does not submit or publish it.
+App Store Connect app `6812923710`, iOS version `1.0.22` (`fec07b01-c9f0-4325-9adc-b9245542fce6`). This document records the earlier preparation snapshot, when the version was a draft. Build 28 was subsequently submitted and rejected with an information request on 17 September. See [the current release status](release-2026-09-17.md) and [the response in preparation](rejection-response-2026-09-17.md).
 
 ## Review information saved and verified
 

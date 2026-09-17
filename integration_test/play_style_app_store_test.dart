@@ -24,7 +24,6 @@ import 'package:salatime/view/base/bottom_navbar.dart';
 import 'package:salatime/view/screens/dhikr/dhikr_screen.dart';
 import 'package:salatime/view/screens/home/modern/modern_home_screen.dart';
 import 'package:salatime/view/screens/home/modern/widget/modern_quran_reading_card.dart';
-import 'package:salatime/view/screens/name_generator/islamic_name_generator_screen.dart';
 import 'package:salatime/view/screens/nearby_mosque/nearby_mosque_screen.dart';
 import 'package:salatime/view/screens/offline_quran/main_offline_quran_screen.dart';
 import 'package:salatime/view/screens/offline_quran/offline_surah_detail_screen.dart';
@@ -124,8 +123,7 @@ void main() {
       await tester.pump(const Duration(seconds: 5));
 
       // Preserve every locally available feature even if a remote map/CDN later
-      // fails. The name generator remains in its initial state: no AI request or
-      // consent is submitted, and reading progress remains the fresh local state.
+      // fails. Reading progress remains the fresh local state.
       for (final entry in _locales.entries) {
         await _language(tester, entry.value);
         await Get.find<ThemeController>().setMode(ThemeController.light);
@@ -193,16 +191,6 @@ void main() {
         await _capture(tester, '${entry.key}/04-quran-reading');
         await _back(tester);
         if (isTablet) settings.changeArabicFontSize(originalFontSize);
-
-        Get.to<void>(
-          () => const IslamicNameGeneratorScreen(appBackButton: true),
-        );
-        await _waitFor(
-          tester,
-          () => find.byType(IslamicNameGeneratorScreen).evaluate().isNotEmpty,
-        );
-        await _capture(tester, '${entry.key}/07-name-generator');
-        await _back(tester);
       }
 
       for (final entry in _locales.entries) {

@@ -305,9 +305,7 @@
   "remove": "حذف",
   "generated_with": "اسم إسلامي — تم إنشاؤه بواسطة تطبيق زابي",
   "ai_name_key": "مولد الأسماء بالذكاء الاصطناعي",
-  "ask_ai_key": "اسأل الذكاء الاصطناعي",
   "synonyms_key": "أسماء مشابهة",
-  "ai_islamic_assistant": "المساعد الإسلامي للذكاء الاصطناعي",
   "ai_assistant": "المساعد الذكي",
   "ask_islamic_question": "اسأل سؤالاً إسلامياً...",
   "good_morning": "صباح الخير",
@@ -854,12 +852,5 @@
   "calculation_method_auto_title": "طريقة الحساب تلقائيًا حسب البلد",
   "calculation_method_auto_description": "استخدام بلد موقعك أو المدينة المختارة. اختيار طريقة أدناه يوقف الاختيار التلقائي.",
   "calculation_method_auto_resolved": "@country · @method",
-  "calculation_method_auto_unavailable": "البلد غير متاح. تبقى طريقة @method حتى يتوفر موقعك.",
-  "ai_data_consent_title": "مشاركة البيانات مع الذكاء الاصطناعي",
-  "ai_data_consent_body": "تُرسل أسئلتك وخيارات توليد الأسماء إلى SalaTime ثم إلى خدمة الذكاء الاصطناعي الخارجية 1min.ai لإنشاء الرد. تجنّب إدراج معلومات شخصية أو حساسة. قد تكون إجابات الذكاء الاصطناعي غير دقيقة.",
-  "ai_data_consent_remember": "يُحفظ اختيارك على هذا الجهاز لميزتَي الذكاء الاصطناعي. يمكنك إيقاف المشاركة المستقبلية من أيقونة الخصوصية في هذه الشاشة.",
-  "ai_data_consent_privacy": "سياسة خصوصية 1min.ai",
-  "ai_data_consent_cancel": "إلغاء",
-  "ai_data_consent_revoke": "إيقاف المشاركة",
-  "ai_data_consent_allow": "السماح والمتابعة"
+  "calculation_method_auto_unavailable": "البلد غير متاح. تبقى طريقة @method حتى يتوفر موقعك."
 }

@@ -334,10 +334,8 @@
   "generated_with": "Islamic Name — Generated with SalaTime App",
   "ai_name_key": "AI Name Generator",
   "synonyms_key": "Similar Names",
-  "ai_islamic_assistant": "AI Islamic Assistant",
   "ai_assistant": "AI Assistant",
   "ask_islamic_question": "Ask an Islamic question...",
-  "ask_ai_key": "Ask AI",
   "may_allah_bless_you": "May Allah bless your \n day with peace and barakah.",
   "quran_milestone_subtitles": "Your are doing great! keep going",
   "activate": "Activate",
@@ -859,12 +857,5 @@
   "calculation_method_auto_title": "Automatic method by country",
   "calculation_method_auto_description": "Use the country of your GPS location or selected city. Choosing a method below switches to manual selection.",
   "calculation_method_auto_resolved": "@country · @method",
-  "calculation_method_auto_unavailable": "Country unavailable. Keeping @method until your location is known.",
-  "ai_data_consent_title": "AI data sharing",
-  "ai_data_consent_body": "The questions and name-generation choices you send are shared with SalaTime and then with the external AI service 1min.ai to generate a response. Avoid including personal or sensitive information. AI answers can be inaccurate.",
-  "ai_data_consent_remember": "Your choice is saved on this device for both AI features. You can stop future sharing using the privacy icon on this screen.",
-  "ai_data_consent_privacy": "1min.ai privacy policy",
-  "ai_data_consent_cancel": "Cancel",
-  "ai_data_consent_revoke": "Stop sharing",
-  "ai_data_consent_allow": "Allow and continue"
+  "calculation_method_auto_unavailable": "Country unavailable. Keeping @method until your location is known."
 }

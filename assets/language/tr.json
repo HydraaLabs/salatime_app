@@ -304,9 +304,7 @@
   "remove": "Kaldır",
   "generated_with": "İslami İsim — SalaTime Uygulaması ile Oluşturuldu",
   "ai_name_key": "AI İsim Oluşturucu",
-  "ask_ai_key": "AI'ya Sor",
   "synonyms_key": "Benzer İsimler",
-  "ai_islamic_assistant": "AI İslami Asistan",
   "ai_assistant": "AI Asistan",
   "ask_islamic_question": "İslami bir soru sor...",
   "hadith_of_the_day_title": "Günün Hadisi",
@@ -796,12 +794,5 @@
   "widget_ios_steps": "1. Ana Ekranın boş bir alanına basılı tutun.\n2. Düzenle ve Araç Takımı Ekle (veya +) seçeneğine dokunun.\n3. SalaTime’ı arayın.\n4. Boyutu seçip Araç Takımı Ekle’ye dokunun.",
   "play_store_review_question": "SalaTime uygulamasını beğeniyor musunuz?",
   "play_store_review_yes": "Evet",
-  "play_store_review_no": "Hayır",
-  "ai_data_consent_title": "Yapay zekâ ile veri paylaşımı",
-  "ai_data_consent_body": "Gönderdiğiniz sorular ve isim oluşturma tercihleri, yanıt üretmek için SalaTime ve ardından harici yapay zekâ hizmeti 1min.ai ile paylaşılır. Kişisel veya hassas bilgiler eklemeyin. Yapay zekâ yanıtları hatalı olabilir.",
-  "ai_data_consent_remember": "Seçiminiz her iki yapay zekâ özelliği için bu cihazda kaydedilir. Bu ekrandaki gizlilik simgesinden sonraki paylaşımları durdurabilirsiniz.",
-  "ai_data_consent_privacy": "1min.ai gizlilik politikası",
-  "ai_data_consent_cancel": "İptal",
-  "ai_data_consent_revoke": "Paylaşımı durdur",
-  "ai_data_consent_allow": "İzin ver ve devam et"
+  "play_store_review_no": "Hayır"
 }

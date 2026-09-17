@@ -96,11 +96,6 @@ class AppConstants {
   static const String LANGUAGE_CODE = 'language_code';
   static const String COUNTRY_CODE = 'country_code';
 
-  // Islamic Name / AI assistant (routed through our backend, 1min.ai key stays server-side)
-  static const String AI_CHAT_URI = '$BASE_URL/api/ai/chat';
-  static const String AI_GENERATE_NAMES_URI = '$BASE_URL/api/ai/generate-names';
-  static const String FAVORITE_KEY = 'islamic_name_favorites';
-
   // All Language model list section
   // 10 most used languages (a .json file exists in assets/language for each).
   static List<LanguageModel> languages = [
