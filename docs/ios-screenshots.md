@@ -6,6 +6,29 @@ simulators using Xcode 26.3 and Flutter 3.41.8. It requires no Apple credentials
 The `family` input selects both devices by default, or a targeted iPhone/iPad
 retry. Simulator startup has a five-minute deadline and one clean restart.
 
+The optional `collection=play-style` input captures seven features in `fr-FR`,
+`en-US` and `ar` during one application launch per device family. The default
+`basic` collection and its original three-screen harness remain available.
+The extended artifacts contain `<locale>/<feature>.png`:
+
+| Feature filename | Actual application state |
+| --- | --- |
+| `01-prayer-times` | Light home screen, real Fès prayer calculation |
+| `02-home-reading` | Dark home, scrolled to daily hadith and fresh local reading progress |
+| `03-quran-list` | Bundled 114-surah list, selected through its normal tab |
+| `04-quran-reading` | Bundled Al-Fatiha; iPad uses the ordinary reader setting of 40, within the existing slider range |
+| `05-nearby-mosques` | Real Overpass results and OSM tiles for the simulator location set to public Fès coordinates |
+| `06-hadith-chapters` | Real Bukhari CDN editions for the selected language |
+| `07-name-generator` | Initial preference form, with no AI request or consent submitted |
+
+The host grants the disposable simulator while-in-use location permission after
+installation and sets its native location service to Fès. No location plugin or
+network response is mocked. The map must contain actual results; loading or
+network failures fail collection. Local features and Bukhari are captured before
+the maps so their originals remain available if Overpass is unavailable. Every
+map still requires visual review to ensure its actual OSM tiles loaded.
+This extended run does not modify production source or existing App Store assets.
+
 The integration entrypoint saves a French/light-theme/manual-Fès setup in the
 fresh simulator. Prayer times are calculated by the production local calculator
 for the current date and actual Fès coordinates (34.0331, -5.0003). Quran

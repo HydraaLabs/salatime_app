@@ -7,6 +7,11 @@ on:
         type: choice
         options: [both, iphone, ipad]
         default: both
+      collection:
+        description: Original three screens or seven Play features in three languages
+        type: choice
+        options: [basic, play-style]
+        default: basic
 permissions:
   contents: read
 jobs:
@@ -59,7 +64,9 @@ jobs:
       - name: Resolve dependencies
         run: flutter pub get
       - name: Capture real application screens
-        run: python3 scripts/capture_ios.py --device "$SIMULATOR_ID" --output "build/app-store/${{ matrix.family }}"
+        env:
+          CAPTURE_COLLECTION: ${{ inputs.collection || 'basic' }}
+        run: python3 scripts/capture_ios.py --device "$SIMULATOR_ID" --output "build/app-store/${{ matrix.family }}" --collection "$CAPTURE_COLLECTION"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

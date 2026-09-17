@@ -11,11 +11,20 @@ import sys
 parser = argparse.ArgumentParser()
 parser.add_argument('--device', required=True)
 parser.add_argument('--output', required=True)
+parser.add_argument('--collection', choices=['basic', 'play-style'], default='basic')
 args = parser.parse_args()
 output = Path(args.output)
 output.mkdir(parents=True, exist_ok=True)
+features = ['01-prayer-times', '02-home-reading', '03-quran-list',
+            '04-quran-reading', '05-nearby-mosques', '06-hadith-chapters',
+            '07-name-generator']
+expected = ({f'{locale}/{feature}' for locale in ['fr-FR', 'en-US', 'ar'] for feature in features}
+            if args.collection == 'play-style' else
+            {'01-prayer-times', '02-quran-al-fatiha', '03-athkar'})
+target = ('play_style_app_store_test.dart' if args.collection == 'play-style'
+          else 'app_store_test.dart')
 command = ['flutter', 'drive', '--driver=test_driver/app_store.dart',
-           '--target=integration_test/app_store_test.dart', '-d', args.device,
+           '--target=integration_test/' + target, '-d', args.device,
            '--dart-define=SALATIME_SENTRY_DSN=']
 process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                            text=True, bufsize=1)
@@ -26,26 +35,43 @@ with (output / 'capture.log').open('w') as log:
         sys.stdout.flush()
         log.write(line)
         log.flush()
-        match = re.search(r'SALATIME_STORE_CAPTURE:([a-z0-9-]+)', line)
+        if 'SALATIME_STORE_PREPARE_LOCATION' in line and args.collection == 'play-style':
+            subprocess.run(['xcrun', 'simctl', 'privacy', args.device, 'grant', 'location',
+                            'net.salatime.app'], check=True, timeout=30)
+            subprocess.run(['xcrun', 'simctl', 'location', args.device, 'set',
+                            '34.0331,-5.0003'], check=True, timeout=30)
+        match = re.search(r'SALATIME_STORE_CAPTURE:([A-Za-z0-9/-]+)', line)
         if not match or match[1] in captures:
             continue
         name = match[1]
+        if name not in expected:
+            process.terminate()
+            raise RuntimeError('Unexpected capture name: ' + name)
         path = output / (name + '.png')
+        path.parent.mkdir(parents=True, exist_ok=True)
         subprocess.run(['xcrun', 'simctl', 'io', args.device, 'screenshot', str(path)], check=True)
         raw = path.read_bytes()
         width, height = struct.unpack('>II', raw[16:24])
         if (width, height) not in {(1320, 2868), (1290, 2796), (1242, 2688), (2064, 2752), (2048, 2732)}:
             process.terminate()
             raise RuntimeError(f'Unexpected App Store screenshot dimensions: {width}x{height}')
-        captures[name] = {'file': path.name, 'width': width, 'height': height,
+        captures[name] = {'file': str(path.relative_to(output)), 'width': width, 'height': height,
                           'sha256': hashlib.sha256(raw).hexdigest()}
 status = process.wait()
 (output / 'manifest.json').write_text(json.dumps({
     'capture': 'native iOS simulator pixels; no compositing or resizing',
-    'language': 'fr-FR', 'city': 'Fès', 'coordinates': [34.0331, -5.0003],
+    'collection': args.collection,
+    'languages': ['fr-FR', 'en-US', 'ar'] if args.collection == 'play-style' else ['fr-FR'],
+    'city': 'Fès', 'coordinates': [34.0331, -5.0003],
     'prayers': 'actual local calculation at capture time',
-    'quran_and_athkar': 'bundled application content', 'captures': captures,
+    'quran_and_athkar': 'bundled application content',
+    'other_sources': ('actual Hadith CDN, Overpass mosque responses and OpenStreetMap tiles; '
+                      'simulator location service at public Fès coordinates; '
+                      'name form before any AI request; fresh local reading progress; '
+                      'iPad reader font set to the existing user-selectable maximum 40'
+                      if args.collection == 'play-style' else None),
+    'captures': captures,
     'flutter_drive_exit_code': status,
 }, indent=2, ensure_ascii=False) + '\n')
-if status != 0 or set(captures) != {'01-prayer-times', '02-quran-al-fatiha', '03-athkar'}:
+if status != 0 or set(captures) != expected:
     raise SystemExit(status or 1)
