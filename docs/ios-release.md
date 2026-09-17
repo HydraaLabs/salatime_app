@@ -101,10 +101,10 @@ Sources: [Flutter iOS deployment](https://docs.flutter.dev/deployment/ios),
 [GitHub signing on macOS runners](https://docs.github.com/en/actions/how-tos/deploy/deploy-to-third-party-platforms/sign-xcode-applications),
 [Apple build uploads](https://developer.apple.com/help/app-store-connect/manage-builds/upload-builds).
 
-## Private iPhone installation for build 27
+## Private iPhone installation for build 28
 
 The manually dispatched `ios-adhoc-device.yml` workflow is deliberately limited
-to App Store build 27 from successful run `35165814554` and its reviewed source
+to App Store build 28 from successful run `35169632691` and its reviewed source
 commit. It reuses the same distribution certificate and two single-device ad hoc
 profiles (`IOS_ADHOC_APP_PROFILE_BASE64`, `IOS_ADHOC_WIDGET_PROFILE_BASE64`). It
 preserves executable code, resources, bundle IDs, versions, Google callback,
