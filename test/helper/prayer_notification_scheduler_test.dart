@@ -239,9 +239,7 @@ void main() {
       () async {
         // Keep the occurrence in the real scheduler's future, but fix the weekday
         // explicitly: Friday uses the independent Jumaa preference, not Dhuhr.
-        final tomorrow = DateTime.parse(
-          '${harness.controller.date}T00:00:00Z',
-        );
+        final tomorrow = DateTime.parse('${harness.controller.date}T00:00:00Z');
         final day = tomorrow.add(
           Duration(days: (weekday - tomorrow.weekday + 7) % 7),
         );
