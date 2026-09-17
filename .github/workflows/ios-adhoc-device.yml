@@ -17,16 +17,18 @@ jobs:
     runs-on: macos-15
     timeout-minutes: 20
     env:
-      PYTHONPATH: ${{ runner.temp }}/adhoc-python
       IOS_TEAM_ID: ${{ vars.IOS_TEAM_ID }}
       IOS_GOOGLE_REVERSED_CLIENT_ID: ${{ vars.IOS_GOOGLE_REVERSED_CLIENT_ID }}
-      SOURCE_RUN_METADATA: ${{ runner.temp }}/source-release-run.json
-      SOURCE_ARTIFACT_DIRECTORY: ${{ runner.temp }}/source-app-store
-      ENCRYPTED_ARTIFACT_DIRECTORY: ${{ runner.temp }}/encrypted-device-artifact
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+      - name: Prepare temporary paths
+        run: |
+          printf '%s\n' "PYTHONPATH=$RUNNER_TEMP/adhoc-python" >> "$GITHUB_ENV"
+          printf '%s\n' "SOURCE_RUN_METADATA=$RUNNER_TEMP/source-release-run.json" >> "$GITHUB_ENV"
+          printf '%s\n' "SOURCE_ARTIFACT_DIRECTORY=$RUNNER_TEMP/source-app-store" >> "$GITHUB_ENV"
+          printf '%s\n' "ENCRYPTED_ARTIFACT_DIRECTORY=$RUNNER_TEMP/encrypted-device-artifact" >> "$GITHUB_ENV"
       - name: Select Xcode and verify authorized source
         env:
           GH_TOKEN: ${{ github.token }}
