@@ -40,7 +40,7 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets(
-    'capture the seven Play features using real iOS screens',
+    'capture the six Play features using real app screens',
     (tester) async {
       final preferences = await SharedPreferences.getInstance();
       await preferences.clear();
@@ -220,6 +220,9 @@ void main() {
         await _back(tester);
       }
 
+      // Optional offline capture batch when the public map provider is unavailable.
+      if (const bool.fromEnvironment('SALATIME_CAPTURE_SKIP_MAP')) return;
+
       for (final entry in _locales.entries) {
         await _language(tester, entry.value);
         Get.to<void>(() => const NearbyMosque(appBackButton: true));
@@ -300,8 +303,8 @@ Future<void> _capture(WidgetTester tester, String name) async {
   final port = int.parse(const String.fromEnvironment('SALATIME_CAPTURE_PORT'));
   final client = HttpClient()..connectionTimeout = const Duration(seconds: 30);
   try {
-    // iOS simulators share the Mac's loopback network. The collector responds
-    // only after simctl has saved and verified the native PNG. Never navigate
+    // iOS uses the Mac loopback; Android uses adb reverse for this port.
+    // The collector responds only after saving the native PNG. Never navigate
     // away merely because a fixed capture delay elapsed on a busy Mac runner.
     final request = await client.postUrl(
       Uri.parse('http://127.0.0.1:$port/capture'),

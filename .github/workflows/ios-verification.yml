@@ -42,7 +42,7 @@ jobs:
           xcrun simctl boot "$SIMULATOR_ID" || true
           xcrun simctl bootstatus "$SIMULATOR_ID" -b
           xcodebuild -quiet -workspace ios/Runner.xcworkspace -scheme Runner -configuration Debug -destination "platform=iOS Simulator,id=$SIMULATOR_ID" -parallel-testing-enabled NO BUILD_DIR="$PWD/build/ios" ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO DART_DEFINES=U0FMQVRJTUVfU0VOVFJZX0RTTj0= -only-testing:RunnerTests test
-      - name: Capture iOS launch
+      - name: Capture iPhone and iPad launches
         run: |
           xcrun simctl boot "$SIMULATOR_ID" || true
           xcrun simctl bootstatus "$SIMULATOR_ID" -b
@@ -50,6 +50,14 @@ jobs:
           xcrun simctl launch "$SIMULATOR_ID" net.salatime.app
           sleep 8
           xcrun simctl io "$SIMULATOR_ID" screenshot build/ios-launch.png
+          xcrun simctl shutdown "$SIMULATOR_ID"
+          IPAD_SIMULATOR_ID=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; data=json.load(sys.stdin); print(next(d["udid"] for devices in data["devices"].values() for d in devices if d["name"].startswith("iPad")))')
+          xcrun simctl boot "$IPAD_SIMULATOR_ID"
+          xcrun simctl bootstatus "$IPAD_SIMULATOR_ID" -b
+          xcrun simctl install "$IPAD_SIMULATOR_ID" build/ios/iphonesimulator/Runner.app
+          xcrun simctl launch "$IPAD_SIMULATOR_ID" net.salatime.app
+          sleep 8
+          xcrun simctl io "$IPAD_SIMULATOR_ID" screenshot build/ipad-launch.png
       - name: Save simulator build
         if: always()
         uses: actions/upload-artifact@v4
@@ -58,4 +66,5 @@ jobs:
           path: |
             build/SalaTime-simulator.zip
             build/ios-launch.png
+            build/ipad-launch.png
           retention-days: 7

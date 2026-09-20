@@ -126,3 +126,6 @@ sentry.properties
 *.p8
 *.p12
 *.mobileprovision
+
+# Local builds, native captures and validation logs
+/release-artifacts/

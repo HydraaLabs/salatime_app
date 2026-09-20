@@ -97,10 +97,6 @@ class PrayerNotificationSetting {
         PrayerNotificationPhase.after => 'moatheni_short_sound',
       };
     }
-    if (prayer == PrayerNotificationPrayer.jumaa &&
-        phase == PrayerNotificationPhase.after) {
-      return 'moatheni_short_sound';
-    }
     return 'moatheni_${phase == PrayerNotificationPhase.adhan ? 'on' : phase.name}_prayer_${prayer.name}';
   }
 
@@ -148,6 +144,8 @@ class PrayerNotificationSetting {
 /// global controls must call the explicit setters below instead of writing old keys.
 class PrayerNotificationPreferences {
   static const storageKey = 'prayer_notifications_v2';
+  static const _jumaaSoundMigrationKey =
+      'prayer_notifications_jumaa_default_migrated_v1';
   static final _changes = StreamController<void>.broadcast();
   static Stream<void> get changes => _changes.stream;
   static Future<void>? _queue;
@@ -225,7 +223,24 @@ class PrayerNotificationPreferences {
 
   static Future<Map<String, dynamic>> _migrated(SharedPreferences prefs) async {
     if (prefs.containsKey(storageKey)) {
-      return _clean(_decode(prefs.getString(storageKey)));
+      final values = _clean(_decode(prefs.getString(storageKey)));
+      if (prefs.getBool(_jumaaSoundMigrationKey) != true) {
+        final after = values[PrayerNotificationPhase.after.name];
+        final jumaa = after is Map
+            ? after[PrayerNotificationPrayer.jumaa.name]
+            : null;
+        // Earlier versions persisted the generic beep as Friday's default.
+        // Upgrade that legacy value once; later explicit selections remain.
+        if (jumaa is Map && jumaa['sound'] == 'moatheni_short_sound') {
+          jumaa['sound'] = PrayerNotificationSetting.defaultSound(
+            PrayerNotificationPrayer.jumaa,
+            PrayerNotificationPhase.after,
+          );
+          await _write(prefs, values);
+        }
+        await _markJumaaSoundMigrated(prefs);
+      }
+      return values;
     }
     final legacyEnabled = <int, bool>{};
     try {
@@ -302,7 +317,14 @@ class PrayerNotificationPreferences {
       }
     }
     await _write(prefs, result);
+    await _markJumaaSoundMigrated(prefs);
     return result;
+  }
+
+  static Future<void> _markJumaaSoundMigrated(SharedPreferences prefs) async {
+    if (!await prefs.setBool(_jumaaSoundMigrationKey, true)) {
+      throw StateError('Could not save prayer sound migration');
+    }
   }
 
   static Future<Map<String, dynamic>> loadOverrides([
@@ -387,21 +409,22 @@ class PrayerNotificationPreferences {
     return setting;
   });
 
-  static Future<void> setPrayerAdhanEnabled(
+  static Future<void> setPrayerEnabled(
     PrayerNotificationPrayer prayer,
     bool enabled,
   ) => _serial(() async {
     final prefs = await SharedPreferences.getInstance();
     final values = await _migrated(prefs);
-    const phase = PrayerNotificationPhase.adhan;
-    final setting = PrayerNotificationSetting.fromJson(
-      prayer,
-      phase,
-      values[phase.name]?[prayer.name],
-    );
-    (values[phase.name] ??= <String, dynamic>{})[prayer.name] = setting
-        .copyWith(enabled: enabled)
-        .toJson();
+    for (final phase in PrayerNotificationPhase.values) {
+      final setting = PrayerNotificationSetting.fromJson(
+        prayer,
+        phase,
+        values[phase.name]?[prayer.name],
+      );
+      (values[phase.name] ??= <String, dynamic>{})[prayer.name] = setting
+          .copyWith(enabled: enabled)
+          .toJson();
+    }
     await _write(prefs, values);
   });
   static Future<void> setPhaseEnabled(

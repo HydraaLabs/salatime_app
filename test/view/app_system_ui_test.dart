@@ -67,6 +67,22 @@ void main() {
   );
 
   testWidgets(
+    'iPhone content clears the notch and home indicator once',
+    (tester) async {
+      await showScreen(
+        tester,
+        padding: const FakeViewPadding(top: 59, bottom: 34),
+      );
+      expect(
+        tester.getRect(find.byKey(contentKey)),
+        const Rect.fromLTRB(0, 59, 800, 566),
+      );
+      expect(tester.takeException(), isNull);
+    },
+    variant: TargetPlatformVariant.only(TargetPlatform.iOS),
+  );
+
+  testWidgets(
     'keyboard replaces the navigation inset without extra padding',
     (tester) async {
       await showScreen(
@@ -108,7 +124,11 @@ void main() {
         Brightness.light,
       );
       expect(currentStyle().statusBarIconBrightness, Brightness.light);
+      expect(currentStyle().statusBarBrightness, Brightness.dark);
     },
-    variant: TargetPlatformVariant.only(TargetPlatform.android),
+    variant: TargetPlatformVariant({
+      TargetPlatform.android,
+      TargetPlatform.iOS,
+    }),
   );
 }

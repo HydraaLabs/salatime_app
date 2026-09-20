@@ -1,7 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
-import 'dart:io';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
@@ -38,6 +37,7 @@ class BottomNavbarScreen extends StatefulWidget {
 
 class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
   final Map<int, Widget> _pages = {};
+  final GlobalKey _pagesKey = GlobalKey();
   static const int _pageCount = 5;
   int _selectedPageIndex = 0;
 
@@ -112,7 +112,7 @@ class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isIOS = Platform.isIOS;
+    final isIOS = defaultTargetPlatform == TargetPlatform.iOS;
     return PlayStoreReviewHost(
       isHome: _selectedPageIndex == 0,
       child: PopScope<Object?>(
@@ -120,24 +120,80 @@ class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
         onPopInvokedWithResult: (didPop, result) {
           if (!didPop) _returnHome();
         },
-        child: Scaffold(
-          body: IndexedStack(
-            index: _selectedPageIndex,
-            children: [
-              for (int i = 0; i < _pageCount; i++)
-                _visitedPages.contains(i)
-                    ? _page(context, i)
-                    : const SizedBox.shrink(),
-            ],
-          ),
-          bottomNavigationBar: Obx(() {
-            final isModern =
-                Get.find<HomeLayoutController>().currentLayout.value ==
-                HomeLayoutController.modern;
-            return isModern
-                ? _buildModernNavBar(context)
-                : _buildClassicNavBar(context, isIOS);
-          }),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final wide =
+                constraints.maxWidth >= 600 && constraints.maxHeight >= 480;
+            final pages = IndexedStack(
+              key: _pagesKey,
+              index: _selectedPageIndex,
+              children: [
+                for (int i = 0; i < _pageCount; i++)
+                  _visitedPages.contains(i)
+                      ? _page(context, i)
+                      : const SizedBox.shrink(),
+              ],
+            );
+            return Scaffold(
+              body: wide
+                  ? Row(
+                      children: [
+                        SafeArea(
+                          child: NavigationRail(
+                            selectedIndex: _selectedPageIndex,
+                            onDestinationSelected: _selectPage,
+                            labelType: NavigationRailLabelType.all,
+                            destinations: [
+                              NavigationRailDestination(
+                                icon: const Icon(Icons.home_outlined),
+                                label: Text('nav_today'.tr),
+                              ),
+                              NavigationRailDestination(
+                                icon: SvgPicture.asset(
+                                  Images.Icon_Qibla,
+                                  width: 26,
+                                  height: 26,
+                                  colorFilter: ColorFilter.mode(
+                                    Theme.of(context).colorScheme.onSurface,
+                                    BlendMode.srcIn,
+                                  ),
+                                ),
+                                label: Text('nav_qibla'.tr),
+                              ),
+                              NavigationRailDestination(
+                                icon: const Icon(Icons.auto_awesome_outlined),
+                                label: Text('nav_dhikr'.tr),
+                              ),
+                              NavigationRailDestination(
+                                icon: const Icon(Icons.location_on_outlined),
+                                label: Text('nav_mosques'.tr),
+                              ),
+                              NavigationRailDestination(
+                                icon: const Icon(Icons.menu),
+                                label: Text('nav_more'.tr),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const VerticalDivider(width: 1),
+                        Expanded(child: pages),
+                      ],
+                    )
+                  : pages,
+              bottomNavigationBar: wide
+                  ? null
+                  : Obx(() {
+                      final isModern =
+                          Get.find<HomeLayoutController>()
+                              .currentLayout
+                              .value ==
+                          HomeLayoutController.modern;
+                      return isModern
+                          ? _buildModernNavBar(context)
+                          : _buildClassicNavBar(context, isIOS);
+                    }),
+            );
+          },
         ),
       ),
     );

@@ -71,7 +71,7 @@ void main() {
   );
 
   test(
-    'first run has exact Moatheni sounds, timings and six enabled prayers per phase',
+    'first run uses prayer-specific sounds, timings and six enabled prayers per phase',
     () async {
       final values = await PrayerNotificationPreferences.load();
       expect(values, hasLength(21));
@@ -100,7 +100,7 @@ void main() {
       );
       expect(
         setting(values, Prayer.jumaa, Phase.after).sound,
-        'moatheni_short_sound',
+        'moatheni_after_prayer_jumaa',
       );
       expect(setting(values, Prayer.jumaa, Phase.before).minutes, 120);
       expect(setting(values, Prayer.maghrib, Phase.before).minutes, 10);
@@ -187,10 +187,7 @@ void main() {
     () async {
       await PrayerNotificationPreferences.load();
       await Future.wait([
-        PrayerNotificationPreferences.setPrayerAdhanEnabled(
-          Prayer.jumaa,
-          false,
-        ),
+        PrayerNotificationPreferences.setPrayerEnabled(Prayer.jumaa, false),
         PrayerNotificationPreferences.save(
           PrayerNotificationSetting.defaults(
             Prayer.asr,
@@ -199,12 +196,93 @@ void main() {
         ),
       ]);
       final values = await PrayerNotificationPreferences.load();
-      expect(setting(values, Prayer.jumaa, Phase.adhan).enabled, false);
+      for (final phase in Phase.values) {
+        expect(setting(values, Prayer.jumaa, phase).enabled, false);
+        expect(setting(values, Prayer.dhuhr, phase).enabled, true);
+      }
       expect(setting(values, Prayer.dhuhr, Phase.adhan).enabled, true);
       expect(setting(values, Prayer.asr, Phase.before).minutes, 0);
       expect(setting(values, Prayer.asr, Phase.before).sound, 'moatheni_bird');
     },
   );
+  test(
+    'prayer bell toggles all phases and preserves sounds and delays',
+    () async {
+      await PrayerNotificationPreferences.update(
+        Prayer.asr,
+        Phase.before,
+        sound: 'moatheni_bird',
+        minutes: 23,
+      );
+      final before = await PrayerNotificationPreferences.load();
+      for (final enabled in [false, true]) {
+        await PrayerNotificationPreferences.setPrayerEnabled(
+          Prayer.asr,
+          enabled,
+        );
+        final values = await PrayerNotificationPreferences.load();
+        for (final original in before) {
+          final current = setting(values, original.prayer, original.phase);
+          expect(
+            current.enabled,
+            original.prayer == Prayer.asr ? enabled : original.enabled,
+          );
+          expect(current.sound, original.sound);
+          expect(current.minutes, original.minutes);
+        }
+      }
+    },
+  );
+  test(
+    'existing Friday default beep migrates once without enabling a prayer',
+    () async {
+      SharedPreferences.setMockInitialValues({
+        PrayerNotificationPreferences.storageKey: jsonEncode({
+          'after': {
+            'jumaa': {
+              'enabled': false,
+              'sound': 'moatheni_short_sound',
+              'minutes': 17,
+            },
+            'asr': {'enabled': true, 'sound': 'moatheni_bird', 'minutes': 23},
+          },
+        }),
+      });
+      var values = await PrayerNotificationPreferences.load();
+      final friday = setting(values, Prayer.jumaa, Phase.after);
+      expect(friday.sound, 'moatheni_after_prayer_jumaa');
+      expect(friday.enabled, false);
+      expect(friday.minutes, 17);
+      expect(setting(values, Prayer.asr, Phase.after).sound, 'moatheni_bird');
+      expect(setting(values, Prayer.asr, Phase.after).minutes, 23);
+
+      // Choosing the beep explicitly after the migration must remain possible.
+      await PrayerNotificationPreferences.update(
+        Prayer.jumaa,
+        Phase.after,
+        sound: 'moatheni_short_sound',
+      );
+      values = await PrayerNotificationPreferences.load();
+      expect(
+        setting(values, Prayer.jumaa, Phase.after).sound,
+        'moatheni_short_sound',
+      );
+    },
+  );
+  test('Friday sound migration preserves custom sounds and silence', () async {
+    for (final sound in ['moatheni_bird', 'silent', 'custom_${'a' * 64}']) {
+      SharedPreferences.setMockInitialValues({
+        PrayerNotificationPreferences.storageKey: jsonEncode({
+          'after': {
+            'jumaa': {'enabled': true, 'sound': sound, 'minutes': 12},
+          },
+        }),
+      });
+      final values = await PrayerNotificationPreferences.load();
+      expect(setting(values, Prayer.jumaa, Phase.after).sound, sound);
+      expect(setting(values, Prayer.jumaa, Phase.after).minutes, 12);
+    }
+  });
   test(
     'atomic patches preserve cloud changes and simultaneous fields',
     () async {
@@ -430,6 +508,8 @@ void main() {
           () => SharedPreferencesStorePlatform.instance = previousStore,
         );
         final prefs = await SharedPreferences.getInstance();
+        // Complete first-read migrations before testing a rejected setting write.
+        await PrayerNotificationPreferences.loadOverrides(prefs);
         final originalNative = Map<String, Object>.from(await store.getAll());
         final readsBeforeWrite = store.reads;
         var changes = 0;
@@ -514,10 +594,7 @@ void main() {
       await PrayerNotificationPreferences.load();
       await Future<void>.delayed(Duration.zero);
       expect(changes, 1);
-      await PrayerNotificationPreferences.setPrayerAdhanEnabled(
-        Prayer.fajr,
-        false,
-      );
+      await PrayerNotificationPreferences.setPrayerEnabled(Prayer.fajr, false);
       await Future<void>.delayed(Duration.zero);
       expect(changes, 2);
     },

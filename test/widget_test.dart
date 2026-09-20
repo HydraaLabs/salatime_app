@@ -775,7 +775,7 @@ void main() {
     },
   );
 
-  testWidgets('a home bell toggles only its prayer notifications', (
+  testWidgets('a home bell toggles every phase of only its prayer', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(390, 1000);
@@ -879,7 +879,7 @@ void main() {
                 prayer.prayer == PrayerNotificationPrayer.fajr &&
                 prayer.phase != PrayerNotificationPhase.adhan,
           )
-          .every((prayer) => prayer.enabled),
+          .every((prayer) => !prayer.enabled),
       isTrue,
     );
     expect(
@@ -901,6 +901,18 @@ void main() {
       ),
       findsOneWidget,
     );
+
+    await tester.tap(fajrBell);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    final restored = await PrayerNotificationPreferences.load();
+    expect(
+      restored
+          .where((prayer) => prayer.prayer == PrayerNotificationPrayer.fajr)
+          .every((prayer) => prayer.enabled),
+      isTrue,
+    );
+    expect(rescheduleCount, 2);
 
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump();

@@ -87,9 +87,14 @@ class _ModernPrayerDashboardState extends State<ModernPrayerDashboard> {
         _notificationStates
           ..clear()
           ..addEntries(
-            prayers
-                .where((p) => p.phase == PrayerNotificationPhase.adhan)
-                .map((prayer) => MapEntry(prayer.prayer, prayer.enabled)),
+            PrayerNotificationPrayer.values.map(
+              (prayer) => MapEntry(
+                prayer,
+                prayers.any(
+                  (setting) => setting.prayer == prayer && setting.enabled,
+                ),
+              ),
+            ),
           );
         _notificationStatesLoaded = true;
       });
@@ -120,7 +125,7 @@ class _ModernPrayerDashboardState extends State<ModernPrayerDashboard> {
 
     var saved = false;
     try {
-      await PrayerNotificationPreferences.setPrayerAdhanEnabled(
+      await PrayerNotificationPreferences.setPrayerEnabled(
         selectedPrayer,
         nextValue,
       );

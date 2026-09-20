@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Adapt existing Play artwork using complete, authentic Apple device captures.
+"""Adapt existing Play artwork using complete, authentic device captures.
 
 No generated artwork or text: headers/footers are retained as raster originals.
-The old Android device area is cleared and a native iOS capture is placed intact
+The old Android device area is cleared and a native app capture is placed intact
 at its original aspect ratio. The caller must visually review every output.
 """
 from __future__ import annotations
@@ -15,7 +15,9 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
-SIZES = {'iphone': (1320, 2868), 'ipad': (2064, 2752)}
+SIZES = {'iphone': (1320, 2868), 'ipad': (2064, 2752),
+         'android7': (1080, 1920), 'android10': (1440, 2560)}
+NATIVE_SIZES = {**SIZES, 'android7': (1200, 1920), 'android10': (1600, 2560)}
 
 
 def digest(path: Path) -> str:
@@ -63,9 +65,15 @@ def compose(source_path: Path, capture_path: Path, output: Path, family: str, po
         source = im.convert('RGB')
     with Image.open(capture_path) as im:
         capture = im.convert('RGB')
-    assert capture.size == SIZES[family], f'Wrong native capture dimensions: {capture_path}: {capture.size}'
+    assert capture.size == NATIVE_SIZES[family], f'Wrong native capture dimensions: {capture_path}: {capture.size}'
     canvas = background(source, position, family)
-    if family == 'iphone':
+    if family.startswith('android'):
+        w, h = canvas.size
+        outer_w = round(w * (.59 if position <= 2 else .79))
+        x = (w - outer_w) // 2
+        y = round(h * (.448 if position <= 2 else .205))
+        border = round(w * .014)
+    elif family == 'iphone':
         x, y, outer_w, border = ((110 if position == 1 else 300), 1000, 860, 18) if position <= 2 else (125, 470, 1070, 18)
     else:
         x, y, outer_w, border = ((175 if position == 1 else 515), 1110, 1220, 22) if position <= 2 else (310, 640, 1444, 22)

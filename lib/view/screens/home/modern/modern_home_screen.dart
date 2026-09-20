@@ -38,30 +38,52 @@ class ModernHomeScreen extends StatelessWidget {
     BuildContext context,
     PrayerTimeController prayerTimeController,
   ) {
-    return SingleChildScrollView(
-      physics: const ClampingScrollPhysics(),
+    final dailyCards = Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: Dimensions.PADDING_SIZE_DEFAULT,
+      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ModernPrayerDashboard(prayerTimeController: prayerTimeController),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: Dimensions.PADDING_SIZE_DEFAULT,
-            ),
-            child: Column(
-              children: const [
-                SizedBox(height: Dimensions.PADDING_SIZE_DEFAULT),
-                ModernDailyHadithCard(),
-                SizedBox(height: Dimensions.PADDING_SIZE_DEFAULT),
-                DailyVerseCard(),
-                SizedBox(height: Dimensions.PADDING_SIZE_DEFAULT),
-                ModernQuranReadingCard(),
-                SizedBox(height: Dimensions.PADDING_SIZE_LARGE * 2),
-              ],
-            ),
-          ),
+        children: const [
+          SizedBox(height: Dimensions.PADDING_SIZE_DEFAULT),
+          ModernDailyHadithCard(),
+          SizedBox(height: Dimensions.PADDING_SIZE_DEFAULT),
+          DailyVerseCard(),
+          SizedBox(height: Dimensions.PADDING_SIZE_DEFAULT),
+          ModernQuranReadingCard(),
+          SizedBox(height: Dimensions.PADDING_SIZE_LARGE * 2),
         ],
       ),
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth.clamp(0.0, 1400.0);
+        final wide = width >= 840;
+        final prayerWidth = wide ? (width * 6 / 11).floorToDouble() : width;
+        // Keep the same widget ancestry across rotation so the dashboard's
+        // selected day and daily-card state survive the layout change.
+        return SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          child: Center(
+            child: SizedBox(
+              width: width,
+              child: Wrap(
+                children: [
+                  SizedBox(
+                    width: prayerWidth,
+                    child: ModernPrayerDashboard(
+                      prayerTimeController: prayerTimeController,
+                    ),
+                  ),
+                  SizedBox(
+                    width: wide ? width - prayerWidth : width,
+                    child: dailyCards,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

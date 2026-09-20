@@ -165,6 +165,38 @@ void main() {
     }
   }
 
+  for (final platform in [TargetPlatform.android, TargetPlatform.iOS]) {
+    testWidgets(
+      '$platform: tablet rail navigates and preserves state across window resizing',
+      (tester) async {
+        await tester.binding.setSurfaceSize(const Size(390, 844));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+        await tester.binding.setSurfaceSize(const Size(1280, 800));
+        await tester.pumpWidget(app());
+        await tester.pumpAndSettle();
+        expect(find.byType(NavigationRail), findsOneWidget);
+        await tester.tap(find.text('Zikr'));
+        await tester.pumpAndSettle();
+        expect(find.text('page-2:0'), findsOneWidget);
+        await tester.tap(find.byKey(const ValueKey('increment-2')));
+        await tester.pumpAndSettle();
+        await tester.binding.setSurfaceSize(const Size(390, 844));
+        await tester.pumpAndSettle();
+        expect(find.byType(NavigationRail), findsNothing);
+        expect(find.text('page-2:1'), findsOneWidget);
+        await tester.binding.setSurfaceSize(const Size(800, 350));
+        await tester.pumpAndSettle();
+        expect(find.byType(NavigationRail), findsNothing);
+        expect(tester.takeException(), isNull);
+        await tester.binding.setSurfaceSize(const Size(800, 1280));
+        await tester.pumpAndSettle();
+        expect(find.byType(NavigationRail), findsOneWidget);
+        expect(find.text('page-2:1'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      },
+      variant: TargetPlatformVariant.only(platform),
+    );
+  }
   for (final style in [
     HomeLayoutController.modern,
     HomeLayoutController.classic,
@@ -172,6 +204,8 @@ void main() {
     testWidgets(
       '$style: home is initial and absent from the four-item menu; every arrow returns home',
       (tester) async {
+        await tester.binding.setSurfaceSize(const Size(390, 844));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
         await layout.setUserLayout(style);
         await tester.pumpWidget(app());
         await tester.pumpAndSettle();
@@ -199,6 +233,8 @@ void main() {
   testWidgets(
     'returning home preserves visited page state and deactivates Qibla until reopened',
     (tester) async {
+      await tester.binding.setSurfaceSize(const Size(390, 844));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
       await tester.pumpWidget(app());
       await tester.pumpAndSettle();
       await select(tester, 1);
@@ -234,6 +270,8 @@ void main() {
   testWidgets(
     'Android back returns from each tab to home before permitting the shell route to close',
     (tester) async {
+      await tester.binding.setSurfaceSize(const Size(390, 844));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
       await tester.pumpWidget(app(launcher: true));
       await tester.tap(find.text('Launch shell'));
       await tester.pumpAndSettle();
@@ -254,6 +292,8 @@ void main() {
   testWidgets(
     'a nested route pops to its tab; the following back returns home',
     (tester) async {
+      await tester.binding.setSurfaceSize(const Size(390, 844));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
       await tester.pumpWidget(app());
       await tester.pumpAndSettle();
       await select(tester, 4);
@@ -272,6 +312,8 @@ void main() {
   testWidgets(
     'returning home and reopening offline Zikr do not depend on internet',
     (tester) async {
+      await tester.binding.setSurfaceSize(const Size(390, 844));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
       await tester.pumpWidget(app());
       await tester.pumpAndSettle();
       await select(tester, 3);
@@ -289,6 +331,8 @@ void main() {
     testWidgets(
       '$destination: actual page appbar invokes its home callback without popping the route',
       (tester) async {
+        await tester.binding.setSurfaceSize(const Size(390, 844));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
         var calls = 0;
         void returnHome() {
           calls++;
