@@ -2,7 +2,8 @@
 
 La version Android 1.0.23 signalait une obfuscation DEX de 1 %, deux
 recommandations sur l'affichage bord à bord et un décodage de fond d'écran
-sans sous-échantillonnage. Les corrections ci-dessous sont locales.
+sans sous-échantillonnage. Ce document décrit la validation des corrections
+avant leur [soumission avec la version 1.0.24](release-1.0.24.md).
 
 ## Corrections
 
@@ -87,5 +88,7 @@ il sert à la vérification et ne remplace pas la procédure de release Shorebir
 Son SHA-256 est
 `14efac73fdd57d52115620e3bb869d3bc46a9b049e271adcdf42e7820cbd6d99`.
 
-Cette intervention n'a effectué ni push, ni publication Shorebird, ni soumission
-Play. Les modifications locales présentes avant l'intervention sont conservées.
+La phase de validation décrite ici n'a pas effectué de publication. Le push,
+la release Shorebird et la soumission Play ultérieurs sont consignés dans le
+[compte rendu de la version 1.0.24](release-1.0.24.md). Les autres modifications
+locales présentes avant l'intervention sont conservées.

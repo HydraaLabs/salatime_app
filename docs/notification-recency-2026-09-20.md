@@ -46,4 +46,6 @@ un APK debug de la copie `.preview`, sans télémétrie. Les copies de test sont
 retirées après validation ; l'application Play du téléphone reste en 1.0.22+25.
 Les réglages de volume et les autres réglages du téléphone n'ont pas été modifiés.
 
-Correction locale uniquement : aucun push, patch Shorebird ou envoi aux stores.
+La correction a ensuite été poussée et intégrée à la release Android 1.0.24 (27).
+La création de la nouvelle base Shorebird et l'envoi à Google Play sont détaillés
+dans le [compte rendu de publication](release-1.0.24.md).
