@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'prayer_time_zones.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -187,7 +189,7 @@ class SalatWaqtService {
     if (!isCurrent()) return;
     final zoneName = controller.prayerTimeZone;
     if (zoneName == null) return;
-    final zone = tz.getLocation(zoneName);
+    final zone = PrayerTimeZones.location(zoneName);
     final now = tz.TZDateTime.now(zone);
     final adjustments = <String, int>{};
     if (Get.isRegistered<PrayerTimeAdjustmentController>()) {
@@ -510,6 +512,7 @@ class SalatWaqtService {
       }
       final payload = jsonEncode({
         ...alarm.toJson(),
+        'scheduleVersion': 2,
         'stopLabel': 'stop_adhan'.tr,
         if (alarm.kind == PrayerAlarmKind.adhan) ...{
           ...describePrayer(alarm.prayer),
@@ -545,6 +548,7 @@ class SalatWaqtService {
       if (saved) {
         retained[alarm.id] = {
           ...alarm.toJson(),
+          'scheduleVersion': 2,
           'title': title,
           'body': body,
           if (alarm.kind == PrayerAlarmKind.adhan && nextPrayer != null)
@@ -558,7 +562,11 @@ class SalatWaqtService {
       if (await superseded()) return;
       final title = alarm.setting.titleKey.tr;
       final body = '${alarm.setting.titleKey}_body'.tr;
-      final data = {...alarm.toJson(), 'sound': alarm.setting.sound};
+      final data = {
+        ...alarm.toJson(),
+        'scheduleVersion': 2,
+        'sound': alarm.setting.sound,
+      };
       final payload = jsonEncode(data);
       final registered = pendingById[alarm.id];
       if (retained.containsKey(alarm.id) &&

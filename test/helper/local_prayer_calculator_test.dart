@@ -235,7 +235,7 @@ void main() {
           25,
           12,
         ).timeZoneOffset,
-        const Duration(hours: 1),
+        Duration.zero,
       );
     },
   );

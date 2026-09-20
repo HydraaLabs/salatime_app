@@ -6,10 +6,10 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:salatime/helper/prayer_time_zones.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -895,7 +895,7 @@ class PrayerTimeController extends GetxController implements GetxService {
     if (!coordinates && (!manual || city == null || city.trim().isEmpty)) {
       return null;
     }
-    final zone = await FlutterTimezone.getLocalTimezone();
+    final zone = await PrayerTimeZones.refreshDeviceZone();
     isManualPrayerTime.value = manual;
     if (manual) {
       saveAddress.value = city ?? '';
@@ -919,6 +919,7 @@ class PrayerTimeController extends GetxController implements GetxService {
   Future<void> refreshConfiguredPrayerTime() async {
     await loadPrayerTimeSettings();
     final revision = _calculationRevision;
+    final zone = await PrayerTimeZones.refreshDeviceZone();
     final prefs = await SharedPreferences.getInstance();
     final template =
         _lastPrayerTimeRequestTemplate ??
@@ -927,11 +928,12 @@ class PrayerTimeController extends GetxController implements GetxService {
     // A city's published timetable is independent of calculation preferences.
     // Preserve its cache identity when saving a method for future local use.
     _lastPrayerTimeRequestTemplate = template['type'] == 'manual'
-        ? template
+        ? {...template, 'timezone': zone}
         : {
             ...template,
             'prayer_method': _selectedCalculationMethod,
             'school': _selectedPrayerMadhab,
+            'timezone': zone,
           };
     final model = await getPrayerTimeForDate(
       DateTime.now(),
@@ -1059,7 +1061,7 @@ class PrayerTimeController extends GetxController implements GetxService {
           : position?.longitude ?? fallbackLongitude ?? '';
       var prayerMethod = _selectedCalculationMethod;
       var school = _selectedPrayerMadhab;
-      var timezone = await FlutterTimezone.getLocalTimezone();
+      var timezone = await PrayerTimeZones.refreshDeviceZone();
 
       final requestBody = <String, dynamic>{
         "type": (isManualPrayerTme && !useManualCityCoords)
