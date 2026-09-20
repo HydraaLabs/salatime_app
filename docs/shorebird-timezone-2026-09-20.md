@@ -49,3 +49,26 @@ La lecture Shorebird du 20 septembre ne retourne aucune release iOS pour cette
 application. Le build App Store 30 a été produit avec Flutter standard ; un
 patch Shorebird ne peut donc pas lui être appliqué. La correction iOS passe par
 un nouveau build signé et une nouvelle soumission à App Review.
+
+Le build **1.0.22 (31)**, produit depuis `8ccc39d` par
+[le workflow iOS 35499380169](https://github.com/HydraaLabs/salatime_app/actions/runs/35499380169),
+a réussi l'analyse, **624 tests Flutter**, les tests natifs iOS, la compilation
+simulateur et la vérification de l'archive signée, de l'IPA et du widget.
+
+L'IPA contient `net.salatime.app` et `net.salatime.app.SalaTimeWidget`, tous deux
+en version 1.0.22, build 31. Sa taille est de **82 811 810 octets**, son SHA-256
+est `5e2ace30846c92446ff146c5a0445a6027a060f43b5d3e10b5a59d5191c51618`.
+Apple a terminé le traitement avec l'état **VALID** et sans déclaration de
+chiffrement manquante.
+
+Le build 31 remplace le build 30 dans la version App Store 1.0.22. La nouvelle
+soumission `527606f8-b881-4d02-9262-590c76a10c4b`, envoyée le
+**20 septembre 2026 à 08:58:48 UTC**, est **WAITING_FOR_REVIEW**.
+La vidéo de démonstration, les captures, le compte de démonstration et les
+coordonnées de contact sont conservés. Les notes d'examen précisent le correctif
+horaire et la date antérieure de la vidéo. La sortie reste automatique après
+approbation (`AFTER_APPROVAL`) ; cette soumission n'est pas une approbation Apple
+ni une disponibilité publique.
+
+Reçus et IPA locaux : `release-artifacts/timezones-2026-09-20/ios-build31/`.
+La validation de ce build n'inclut pas un essai sur iPhone physique.
