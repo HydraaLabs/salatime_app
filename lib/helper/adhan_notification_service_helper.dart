@@ -11,7 +11,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_local_notifications/src/platform_specifics/android/method_channel_mappers.dart';
 // ignore: implementation_imports
 import 'package:flutter_local_notifications/src/tz_datetime_mapper.dart';
-import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -44,7 +43,6 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
   bool _schedulingFailed = false;
   bool get schedulingFailed => _schedulingFailed;
   bool usedInexactAlarms = false;
-  tz.Location? _location;
   bool? _exactAllowed;
   final bool batchAndroidScheduling;
   bool _nativeBatchUnavailable = false;
@@ -289,10 +287,9 @@ class AdhanNotificationServiceImpl implements AdhanNotificationService {
     try {
       // Never turn a missed occurrence into tomorrow's prayer at today's time.
       if (!dateTime.isAfter(DateTime.now())) return false;
-      _location ??= tz.getLocation(await FlutterTimezone.getLocalTimezone());
-      final scheduledDate = dateTime is tz.TZDateTime
-          ? dateTime
-          : tz.TZDateTime.from(dateTime, _location!);
+      // These are one-off absolute events. A native plugin must not reinterpret
+      // their civil time with an older OS timezone database.
+      final scheduledDate = tz.TZDateTime.from(dateTime, tz.UTC);
       final android = _flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin

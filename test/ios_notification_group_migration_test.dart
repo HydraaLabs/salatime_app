@@ -17,6 +17,37 @@ void main() {
     await harness.initialize();
   });
   test(
+    'one-off reminders migrate to UTC once while retaining their IDs',
+    () async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      await PrayerNotificationPreferences.update(
+        PrayerNotificationPrayer.asr,
+        PrayerNotificationPhase.before,
+        enabled: true,
+      );
+      await AdditionalReminderPreferences.save([
+        AdditionalReminderSetting.defaults(
+          AdditionalReminderType.morning,
+        ).copyWith(enabled: true),
+      ]);
+      await harness.refresh();
+      final ids = harness.pending.keys.toSet();
+      expect(ids, isNotEmpty);
+      for (final id in ids) {
+        expect(harness.payload(id)['scheduleVersion'], 2);
+        final old = harness.payload(id)..remove('scheduleVersion');
+        harness.pending[id]!['payload'] = jsonEncode(old);
+      }
+      harness.clearCalls();
+      await harness.refresh();
+      expect(harness.scheduled.toSet(), ids);
+      expect(harness.pending.keys.toSet(), ids);
+      harness.clearCalls();
+      await harness.refresh();
+      expect(harness.scheduled, isEmpty);
+    },
+  );
+  test(
     'iOS grouping migrates existing schedules once without losing future IDs',
     () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.iOS;

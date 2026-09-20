@@ -9,6 +9,7 @@ import 'package:salatime/controller/prayer_time_adjustment.dart';
 import 'package:salatime/data/model/response/todays_prayer_time_model.dart';
 import 'package:salatime/helper/additional_reminder_plan.dart';
 import 'package:salatime/helper/prayer_alarm_plan.dart';
+import 'package:salatime/helper/prayer_time_zones.dart';
 import 'package:salatime/helper/route_helper.dart';
 import 'package:salatime/view/screens/reminders/additional_reminders_screen.dart';
 
@@ -90,7 +91,7 @@ class _DailyPrayerMarkersScreenState extends State<DailyPrayerMarkersScreen> {
     final controller = Get.find<PrayerTimeController>();
     final zoneName = controller.prayerTimeZone;
     if (zoneName == null) return null;
-    final zone = tz.getLocation(zoneName);
+    final zone = PrayerTimeZones.location(zoneName);
     final now = tz.TZDateTime.now(zone);
     final day = (await controller.getPrayerTimeForDate(
       now,

@@ -24,6 +24,45 @@ class OfflineApi extends ApiClient {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   test(
+    'a timezone change replaces the cached request without GPS or HTTP',
+    () async {
+      SharedPreferences.setMockInitialValues({
+        AppConstants.isPrayerTme: true,
+        AppConstants.IS_MANUAL_PRAYER_TIME: true,
+        AppConstants.saveCityName: 'Azrou',
+        AppConstants.manualCityLat: 33.4344,
+        AppConstants.manualCityLng: -5.2213,
+        'selectedCalculationMethod': '21',
+        'selectedPrayerMadhab': 'STANDARD',
+      });
+      var deviceZone = 'Europe/Paris';
+      const channel = MethodChannel('flutter_timezone');
+      final messenger =
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+      messenger.setMockMethodCallHandler(channel, (_) async => deviceZone);
+      addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+      final api = OfflineApi(await SharedPreferences.getInstance());
+      final controller = PrayerTimeController(apiClient: api);
+      await controller.fetchPrayerTime(
+        reload: false,
+        isManualPrayerTme: true,
+        manualCity: 'Azrou',
+      );
+      expect(controller.prayerTimeZone, 'Europe/Paris');
+      deviceZone = 'Africa/Casablanca';
+      await controller.refreshConfiguredPrayerTime();
+      expect(controller.prayerTimeZone, 'Africa/Casablanca');
+      expect(
+        (await controller.getPrayerTimeForDate(
+          DateTime(2026, 9, 20),
+          allowNetwork: false,
+        ))!.data!.zuhrStart,
+        '12:14',
+      );
+      expect(api.requests, 0);
+    },
+  );
+  test(
     'cloud calculation restore reuses configured city without GPS or HTTP',
     () async {
       SharedPreferences.setMockInitialValues({

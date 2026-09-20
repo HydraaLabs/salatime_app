@@ -1,4 +1,3 @@
-import 'package:salatime/helper/islamic_calendar.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -7,6 +6,8 @@ import 'package:salatime/controller/internet_check_controller.dart';
 import 'package:salatime/controller/package_prayer_time_controller.dart';
 import 'package:salatime/controller/prayer_time_adjustment.dart';
 import 'package:salatime/controller/quran_settings_controller.dart';
+import 'package:salatime/helper/device_clock_change.dart';
+import 'package:salatime/helper/islamic_calendar.dart';
 import 'package:salatime/helper/location_auto_update_service.dart';
 import 'package:salatime/helper/salat_waqt_service.dart';
 import 'package:salatime/view/screens/home/classic/classic_home_screen.dart';
@@ -21,11 +22,15 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Timer? _midnight;
+  Timer? _clockWatch;
+  final _elapsed = Stopwatch()..start();
+  DeviceClockChange _clockChange = DeviceClockChange();
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _armMidnightRefresh();
+    _armClockWatch();
     unawaited(IslamicCalendarPreferences.initialize());
     _loadInitialData();
   }
@@ -43,6 +48,18 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     );
   }
 
+  void _armClockWatch() {
+    _clockWatch?.cancel();
+    _clockChange = DeviceClockChange();
+    _clockChange.observe(DateTime.now(), _elapsed.elapsed);
+    _clockWatch = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (_clockChange.observe(DateTime.now(), _elapsed.elapsed)) {
+        _refreshAlarms();
+        _armMidnightRefresh();
+      }
+    });
+  }
+
   void _refreshAlarms() {
     unawaited(
       SalatWaqtService.initializeSalatWaqt().catchError((Object error) {
@@ -56,13 +73,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) {
       _refreshAlarms();
       _armMidnightRefresh();
+      _armClockWatch();
     } else if (state == AppLifecycleState.paused) {
+      _clockWatch?.cancel();
       _midnight?.cancel();
     }
   }
 
   @override
   void dispose() {
+    _clockWatch?.cancel();
+    _elapsed.stop();
     _midnight?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();

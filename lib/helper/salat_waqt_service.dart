@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'prayer_time_zones.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -187,7 +189,7 @@ class SalatWaqtService {
     if (!isCurrent()) return;
     final zoneName = controller.prayerTimeZone;
     if (zoneName == null) return;
-    final zone = tz.getLocation(zoneName);
+    final zone = PrayerTimeZones.location(zoneName);
     final now = tz.TZDateTime.now(zone);
     final adjustments = <String, int>{};
     if (Get.isRegistered<PrayerTimeAdjustmentController>()) {
@@ -510,6 +512,7 @@ class SalatWaqtService {
       }
       final payload = jsonEncode({
         ...alarm.toJson(),
+        'scheduleVersion': 2,
         if (defaultTargetPlatform == TargetPlatform.iOS)
           'iosThread': 'salatime.prayer-reminders',
         'stopLabel': 'stop_adhan'.tr,
@@ -547,6 +550,7 @@ class SalatWaqtService {
       if (saved) {
         retained[alarm.id] = {
           ...alarm.toJson(),
+          'scheduleVersion': 2,
           'title': title,
           'body': body,
           if (alarm.kind == PrayerAlarmKind.adhan && nextPrayer != null)
@@ -562,6 +566,7 @@ class SalatWaqtService {
       final body = '${alarm.setting.titleKey}_body'.tr;
       final data = {
         ...alarm.toJson(),
+        'scheduleVersion': 2,
         'sound': alarm.setting.sound,
         if (defaultTargetPlatform == TargetPlatform.iOS)
           'iosThread': 'salatime.prayer-reminders',

@@ -10,6 +10,7 @@ import 'package:salatime/helper/local_prayer_calculator.dart';
 import 'package:salatime/helper/prayer_alarm_health.dart';
 import 'package:salatime/helper/prayer_alarm_plan.dart';
 import 'package:salatime/helper/prayer_refresh_coordinator.dart';
+import 'package:salatime/helper/prayer_time_zones.dart';
 
 /// Sends display data independently of notification permissions, sound setup,
 /// alarm registration and cloud synchronization.
@@ -38,7 +39,7 @@ class PrayerWidgetSync {
       final zoneName = controller.prayerTimeZone;
       if (zoneName == null) return;
       LocalPrayerCalculator.initializeTimeZones();
-      final zone = tz.getLocation(zoneName);
+      final zone = PrayerTimeZones.location(zoneName);
       final now = tz.TZDateTime.now(zone);
       final adjustments = <String, int>{};
       if (Get.isRegistered<PrayerTimeAdjustmentController>()) {

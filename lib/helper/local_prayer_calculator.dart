@@ -1,13 +1,12 @@
 import 'package:adhan/adhan.dart';
-import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:salatime/data/model/response/todays_prayer_time_model.dart';
+import 'prayer_time_zones.dart';
 import 'ramadan_isha_settings.dart';
 
 /// Automatic prayer times. Shared methods use the named Adhan presets, including
 /// their minute adjustments; additional regional methods retain SalaTime's rules.
 class LocalPrayerCalculator {
-  static bool _initialized = false;
   static const _standardMethods = <String, CalculationMethod>{
     '3': CalculationMethod.muslim_world_league,
     '5': CalculationMethod.egyptian,
@@ -22,11 +21,7 @@ class LocalPrayerCalculator {
     '13': CalculationMethod.turkey,
   };
 
-  static void initializeTimeZones() {
-    if (_initialized) return;
-    tz_data.initializeTimeZones();
-    _initialized = true;
-  }
+  static void initializeTimeZones() => PrayerTimeZones.initialize();
 
   static CalculationParameters? parameters(
     String method,
@@ -100,7 +95,10 @@ class LocalPrayerCalculator {
     }
     try {
       initializeTimeZones();
-      final zone = tz.getLocation('${request['timezone']}');
+      final zone = PrayerTimeZones.location(
+        '${request['timezone']}',
+        date: date,
+      );
       final times = PrayerTimes(
         Coordinates(latitude, longitude),
         DateComponents(date.year, date.month, date.day),

@@ -1,0 +1,7 @@
+{
+  "version": "2026d",
+  "source": "https://data.iana.org/time-zones/releases/tzdata2026d.tar.gz",
+  "source_sha256": "0cb2aa8e333c3dc049badc42a0c61f21987b8cd44e107fa900bad764aacc7767",
+  "tzf_sha256": "b7a3ebdad0ad7f68d0a1fc2315741b281858efa85fd8ec527d3d7df686aba0ac",
+  "encoder": "Locked timezone tool/encode_tzf.dart; zic -b fat"
+}
