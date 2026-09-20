@@ -125,8 +125,15 @@ public class SalaTimeAdhanNotificationReceiver extends BroadcastReceiver {
                     clear(context);
                     return;
                 }
+                // Re-rank this existing card using its update time. Its custom
+                // chronometer remains anchored to the scheduled prayer, and a
+                // first late delivery still shows its original event time.
+                notification.when = now;
+                // One UI can retain the original position on an in-place update
+                // even after `when` changes. Repost only this active, silent card
+                // so its creation time is renewed too; never interrupt live audio.
+                manager.cancel(visibleId);
                 manager.notify(SalaTimeNotificationTray.PRAYER_ID, notification);
-                if (visibleId != SalaTimeNotificationTray.PRAYER_ID) manager.cancel(visibleId);
             }
             // An in-flight audio notification keeps its stop action. Its first transition is still an hour away.
             schedule(context, details, payload, now);

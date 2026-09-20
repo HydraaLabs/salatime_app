@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:salatime/service/preference_cloud_sync.dart';
 import 'package:salatime/service/reading/reading_progress_service.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -22,9 +21,11 @@ import 'helper/get_di.dart' as di;
 import 'helper/route_helper.dart';
 import 'util/messages.dart';
 import 'view/screens/location/background_location_screen.dart';
+import 'view/base/app_system_ui.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
   await SentryFlutter.init((options) {
     options.dsn = const String.fromEnvironment(
@@ -106,37 +107,7 @@ class MyApp extends StatelessWidget {
                   ),
                   transitionDuration: const Duration(milliseconds: 500),
                   builder: (context, child) {
-                    Theme.of(context);
-
-                    return AnnotatedRegion<SystemUiOverlayStyle>(
-                      value: SystemUiOverlayStyle(
-                        statusBarColor: Colors.transparent,
-                        statusBarIconBrightness: themeController.darkTheme
-                            ? Brightness.light
-                            : Brightness.dark,
-                        statusBarBrightness: themeController.darkTheme
-                            ? Brightness.dark
-                            : Brightness.light,
-                        systemNavigationBarColor: Theme.of(
-                          context,
-                        ).scaffoldBackgroundColor,
-                        systemNavigationBarIconBrightness:
-                            themeController.darkTheme
-                            ? Brightness.light
-                            : Brightness.dark,
-                      ),
-                      child: Overlay(
-                        initialEntries: [
-                          OverlayEntry(
-                            builder: (context) => SafeArea(
-                              top: false,
-                              bottom: Platform.isAndroid,
-                              child: child!,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
+                    return AppSystemUi(child: child!);
                   },
                 );
               },

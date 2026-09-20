@@ -91,8 +91,14 @@ android {
         }
         release {
             signingConfig signingConfigs.release
-            shrinkResources false
-            minifyEnabled false
+            // Exercise the same R8 pipeline on hardware beside the Play app.
+            if (project.hasProperty('salatimePreview')) {
+                applicationIdSuffix '.preview'
+                signingConfig signingConfigs.debug
+            }
+            shrinkResources true
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 

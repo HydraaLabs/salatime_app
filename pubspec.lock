@@ -1474,10 +1474,9 @@ packages:
   wallpaper_setter:
     dependency: "direct main"
     description:
-      name: wallpaper_setter
-      sha256: "01f476f9ac4f25b0fece53f624462e843dad068a6e47d43634969f436e878b04"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/wallpaper_setter"
+      relative: true
+    source: path
     version: "1.0.1"
   web:
     dependency: transitive

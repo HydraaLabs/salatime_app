@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Looper;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import androidx.core.app.NotificationCompat;
 import com.dexterous.flutterlocalnotifications.models.NotificationDetails;
 import com.dexterous.flutterlocalnotifications.models.NotificationStyle;
@@ -167,6 +168,35 @@ public class SalaTimeAdhanPlaybackPriorityTest {
         assertEquals(NotificationCompat.PRIORITY_MAX, current().priority);
         assertEquals(0, current().flags & Notification.FLAG_ONLY_ALERT_ONCE);
         assertTrue(players.isEmpty());
+    }
+
+    @Test public void successivePrayersReplayAdhanAndRenewTheExistingCardTimestamp() throws Exception {
+        start(details(12000001));
+        assertPlaying();
+        long firstAlertAt = current().when;
+        Shadows.shadowOf(players.get(0)).invokeCompletionListener();
+        assertEquals(1, notifications.getActiveNotifications().length);
+        assertTrue((current().flags & Notification.FLAG_ONLY_ALERT_ONCE) != 0);
+        controller.destroy();
+        controller = null;
+
+        SystemClock.sleep(60000);
+        NotificationDetails next = details(12000002);
+        next.payload = new JSONObject(next.payload).put("prayerId", 3)
+                .put("prayerName", "Dohr").put("prayerTime", "13:20").toString();
+        start(next);
+
+        assertEquals(2, players.size());
+        assertEquals(ShadowMediaPlayer.State.END, Shadows.shadowOf(players.get(0)).getState());
+        assertTrue(Shadows.shadowOf(players.get(1)).isReallyPlaying());
+        assertEquals(1, notifications.getActiveNotifications().length);
+        assertEquals(SalaTimeNotificationTray.PRAYER_ID, notifications.getActiveNotifications()[0].getId());
+        assertEquals("Dohr", current().extras.getString(Notification.EXTRA_TITLE));
+        assertTrue(current().when > firstAlertAt);
+        assertEquals(SalaTimeAdhanNotification.prayerAt(new JSONObject(next.payload)), current().when);
+        assertEquals(0, current().flags & Notification.FLAG_ONLY_ALERT_ONCE);
+        assertEquals(NotificationCompat.CATEGORY_ALARM, current().category);
+        assertEquals(NotificationCompat.PRIORITY_MAX, current().priority);
     }
 
     @Test @Config(sdk = 33) public void loweredSourceIsNotPromotedIntoPlaybackChannel() throws Exception {

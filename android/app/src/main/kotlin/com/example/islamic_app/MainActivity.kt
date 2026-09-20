@@ -4,6 +4,8 @@ import android.hardware.GeomagneticField
 import android.content.Intent
 import android.provider.Settings
 import android.view.KeyEvent
+import android.os.Bundle
+import androidx.activity.enableEdgeToEdge
 import com.dexterous.flutterlocalnotifications.SalaTimeAdhanService
 import com.dexterous.flutterlocalnotifications.SalaTimePrayerAlarms
 import com.ryanheise.audioservice.AudioServiceFragmentActivity
@@ -11,6 +13,11 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : AudioServiceFragmentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+    }
+
     private val adhanVolumeKeys = AdhanVolumeKeyDispatcher(SalaTimeAdhanService::stopFromVolumeKey)
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {

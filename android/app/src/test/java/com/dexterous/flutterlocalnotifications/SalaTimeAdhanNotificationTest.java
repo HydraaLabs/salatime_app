@@ -246,6 +246,11 @@ public class SalaTimeAdhanNotificationTest {
             Notification n = Shadows.shadowOf(notifications()).getNotification(SalaTimeNotificationTray.PRAYER_ID);
             Chronometer timer = inflate(n).findViewById(R.id.adhan_notification_elapsed);
             assertTrue(timer.isCountDown());
+            // Updating the existing card must also advance its ranking time,
+            // while the countdown stays anchored to the scheduled next prayer.
+            assertEquals(now, n.when);
+            assertEquals(at + 4 * hour - now, timer.getBase() - SystemClock.elapsedRealtime());
+            assertEquals(1, notifications().getActiveNotifications().length);
             assertEquals(app.getColor(now == at + hour ? R.color.adhan_elapsed_green
                     : R.color.adhan_countdown_red), timer.getCurrentTextColor());
             assertQuietPriority(n);
