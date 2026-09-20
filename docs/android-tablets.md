@@ -6,6 +6,7 @@ The application adapts to the available window, including split-screen:
 - Smaller windows: existing phone bottom navigation.
 - Home content at least 840 logical pixels wide: prayers and daily content in two columns, capped at 1400 pixels.
 - Visited page state survives transitions between the two navigation layouts.
+- Both tablet panes share a status-bar inset so tab headers cannot obscure the clock above the rail.
 - MainActivity explicitly allows resizing; no orientation lock is applied.
 
 ## Validation
@@ -50,7 +51,7 @@ and favor the app interface without additional marketing text on large screens.
 The raw captures are retained alongside the user-requested branded versions.
 
 The original capture session did not upload assets or publish a release. These
-assets are included in the authorized Android 1.0.25 (28) publication. Release
+assets are included in the authorized Android 1.0.25 (29) publication. Release
 receipts and API readback are retained in `release-artifacts/release-1.0.25/`.
 Shared iOS behavior is described in [Shared iOS and tablet changes](shared-ios-tablet-changes.md).
 

@@ -136,48 +136,53 @@ class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
             );
             return Scaffold(
               body: wide
-                  ? Row(
-                      children: [
-                        SafeArea(
-                          child: NavigationRail(
-                            selectedIndex: _selectedPageIndex,
-                            onDestinationSelected: _selectPage,
-                            labelType: NavigationRailLabelType.all,
-                            destinations: [
-                              NavigationRailDestination(
-                                icon: const Icon(Icons.home_outlined),
-                                label: Text('nav_today'.tr),
-                              ),
-                              NavigationRailDestination(
-                                icon: SvgPicture.asset(
-                                  Images.Icon_Qibla,
-                                  width: 26,
-                                  height: 26,
-                                  colorFilter: ColorFilter.mode(
-                                    Theme.of(context).colorScheme.onSurface,
-                                    BlendMode.srcIn,
-                                  ),
+                  // Keep a single status-bar surface above both panes. A page
+                  // app bar must not set white icons over the pale rail inset.
+                  ? SafeArea(
+                      bottom: false,
+                      child: Row(
+                        children: [
+                          SafeArea(
+                            child: NavigationRail(
+                              selectedIndex: _selectedPageIndex,
+                              onDestinationSelected: _selectPage,
+                              labelType: NavigationRailLabelType.all,
+                              destinations: [
+                                NavigationRailDestination(
+                                  icon: const Icon(Icons.home_outlined),
+                                  label: Text('nav_today'.tr),
                                 ),
-                                label: Text('nav_qibla'.tr),
-                              ),
-                              NavigationRailDestination(
-                                icon: const Icon(Icons.auto_awesome_outlined),
-                                label: Text('nav_dhikr'.tr),
-                              ),
-                              NavigationRailDestination(
-                                icon: const Icon(Icons.location_on_outlined),
-                                label: Text('nav_mosques'.tr),
-                              ),
-                              NavigationRailDestination(
-                                icon: const Icon(Icons.menu),
-                                label: Text('nav_more'.tr),
-                              ),
-                            ],
+                                NavigationRailDestination(
+                                  icon: SvgPicture.asset(
+                                    Images.Icon_Qibla,
+                                    width: 26,
+                                    height: 26,
+                                    colorFilter: ColorFilter.mode(
+                                      Theme.of(context).colorScheme.onSurface,
+                                      BlendMode.srcIn,
+                                    ),
+                                  ),
+                                  label: Text('nav_qibla'.tr),
+                                ),
+                                NavigationRailDestination(
+                                  icon: const Icon(Icons.auto_awesome_outlined),
+                                  label: Text('nav_dhikr'.tr),
+                                ),
+                                NavigationRailDestination(
+                                  icon: const Icon(Icons.location_on_outlined),
+                                  label: Text('nav_mosques'.tr),
+                                ),
+                                NavigationRailDestination(
+                                  icon: const Icon(Icons.menu),
+                                  label: Text('nav_more'.tr),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        const VerticalDivider(width: 1),
-                        Expanded(child: pages),
-                      ],
+                          const VerticalDivider(width: 1),
+                          Expanded(child: pages),
+                        ],
+                      ),
                     )
                   : pages,
               bottomNavigationBar: wide
