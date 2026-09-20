@@ -1,6 +1,6 @@
 # wallpaper_setter
 
-`wallpaper_setter` is a Flutter plugin that allows you to set wallpapers from a URL or asset on Android devices.  
+`wallpaper_setter` is a Flutter plugin that allows you to set wallpapers from a URL or asset on Android devices.
 It uses the **default Android system wallpaper picker UI** to set wallpapers for:
 
 ### ANDROID
@@ -20,7 +20,7 @@ It uses the **default Android system wallpaper picker UI** to set wallpapers for
 
 
 1) For using System Wallpaper you will need to add file_paths.xml in xml folder
-   android\app\src\main\res\xml\file_paths.xml where downloaded image will be stored. 
+   android\app\src\main\res\xml\file_paths.xml where downloaded image will be stored.
    and Code is Here...
 
 ``` dart
@@ -57,10 +57,10 @@ It uses the **default Android system wallpaper picker UI** to set wallpapers for
 ```
 
 3) Inside of Android
-   
+
        <application
        ...old code
-    
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
