@@ -88,12 +88,14 @@ Les ressources natives Android de notifications ne changent pas depuis 1.0.24.
   durée des 68 sons. Le lancement est capturé sur simulateurs iPhone et iPad.
   L'arbre Git `ios/` est identique sur les commits `558598d` et `035ac84` :
   `266ca56eeb5964f11580b95f1ac7a0e31bc6fc2a`.
-- La vérification du commit final est suivie dans
-  [35546091438](https://github.com/HydraaLabs/salatime_app/actions/runs/35546091438).
-  Sa première tentative compile les deux variantes iOS et passe les 636 tests
-  Flutter, puis le moteur XCTest dépasse son délai avant le démarrage des
-  tests natifs (`The test runner timed out while preparing to run tests`).
-  La vérification est relancée sur un nouveau serveur, avec le même commit.
+- La vérification du commit final
+  [35546091438, tentative 2](https://github.com/HydraaLabs/salatime_app/actions/runs/35546091438)
+  est entièrement réussie : les deux compilations iOS, l'analyse, les 636 tests
+  Flutter, les neuf tests natifs et les captures de lancement iPhone/iPad.
+  La première tentative avait dépassé le délai de préparation du moteur XCTest
+  avant le démarrage des tests natifs. La relance réussit sur un nouveau serveur,
+  avec exactement le même commit et sans modification de l'application. Les
+  journaux des deux tentatives sont conservés.
 
 Les modifications iOS sont intégrées au dépôt. Cette opération ne soumet pas de
 nouveau build à App Store Connect et ne constitue pas un essai sur iPhone
