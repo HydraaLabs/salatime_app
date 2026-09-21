@@ -11,6 +11,8 @@ struct PrayerWidgetPrayer: Codable {
 }
 
 struct PrayerWidgetSnapshot: Codable {
+    private static let elapsedWindow: TimeInterval = 60 * 60
+    private static let warningWindow: TimeInterval = 60 * 60
     let prayers: [PrayerWidgetPrayer]
     let city: String
     let nextLabel: String
@@ -30,13 +32,13 @@ struct PrayerWidgetSnapshot: Codable {
     func presentation(at date: Date, countdown: Bool = true) -> PrayerWidgetPresentation? {
         guard let next = prayers.first(where: { $0.instant > date }) else { return nil }
         if countdown, let previous = prayers.last(where: { $0.instant <= date }),
-           date.timeIntervalSince(previous.instant) < 90 * 60,
+           date.timeIntervalSince(previous.instant) < Self.elapsedWindow,
            next.instant.timeIntervalSince(date) > 60 * 60 {
             return PrayerWidgetPresentation(prayer: previous, since: true, urgent: false)
         }
         return PrayerWidgetPresentation(
             prayer: next, since: false,
-            urgent: countdown && next.instant.timeIntervalSince(date) < 45 * 60
+            urgent: countdown && next.instant.timeIntervalSince(date) < Self.warningWindow
         )
     }
 
@@ -57,9 +59,9 @@ struct PrayerWidgetSnapshot: Codable {
         let horizon = now.addingTimeInterval(seconds ? 48 * 3600 : 4 * 3600)
         var dates = Set<Date>([now, horizon])
         for prayer in prayers {
-            for date in [prayer.instant, prayer.instant.addingTimeInterval(90 * 60),
+            for date in [prayer.instant, prayer.instant.addingTimeInterval(Self.elapsedWindow),
                          prayer.instant.addingTimeInterval(-60 * 60),
-                         prayer.instant.addingTimeInterval(-45 * 60 + 1)] {
+                         prayer.instant.addingTimeInterval(-Self.warningWindow + 1)] {
                 if date > now && date < horizon { dates.insert(date) }
             }
         }

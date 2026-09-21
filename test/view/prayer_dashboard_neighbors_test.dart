@@ -50,6 +50,9 @@ class _Strings extends Translations {
       'countdown_prefix': 'in',
       'next_prayer': 'Next prayer',
       'fajr': 'Fajr',
+      'asr': 'Asr',
+      'magrib': 'Maghrib',
+      'time_since_prayer': 'Time since @prayer',
     },
   };
 }
@@ -83,18 +86,18 @@ void main() {
     testWidgets('countdown changes color on the timer tick in $brightness', (
       tester,
     ) async {
-      now = DateTime(2026, 9, 12, 12, 15);
+      now = DateTime(2026, 9, 12, 12);
       controller.prayerTimeModel = _day(now);
       await tester.pumpWidget(app(brightness: brightness));
       await tester.pump();
       expect(
-        tester.widget<Text>(find.text('in 00:45:00')).style!.color,
+        tester.widget<Text>(find.text('in 01:00:00')).style!.color,
         Colors.white,
       );
       now = now.add(const Duration(seconds: 1));
       await tester.pump(const Duration(seconds: 1));
       expect(
-        tester.widget<Text>(find.text('in 00:44:59')).style!.color,
+        tester.widget<Text>(find.text('in 00:59:59')).style!.color,
         BrandColors.countdownWarningOnPrimary,
       );
       now = DateTime(2026, 9, 12, 13);
@@ -107,6 +110,55 @@ void main() {
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox.shrink());
     });
+    testWidgets(
+      'home switches one hour after Asr without reopening in $brightness',
+      (tester) async {
+        now = DateTime(2026, 9, 21, 17, 39, 59);
+        controller.prayerTimeModel = PrayerTimeModel(
+          data: Data(
+            date: '2026-09-21',
+            asrStart: '16:40',
+            maghribStart: '19:18',
+            ishaStart: '20:37',
+          ),
+        );
+        await tester.pumpWidget(app(brightness: brightness));
+        await tester.pump();
+        expect(find.text('Time since Asr'), findsOneWidget);
+        expect(find.text('00:59:59'), findsOneWidget);
+
+        now = now.add(const Duration(seconds: 1));
+        await tester.pump(const Duration(seconds: 1));
+        expect(find.text('Time since Asr'), findsNothing);
+        expect(find.text('Next prayer'), findsOneWidget);
+        expect(
+          tester.widget<Text>(find.text('in 01:38:00')).style!.color,
+          Colors.white,
+        );
+
+        now = DateTime(2026, 9, 21, 18, 6, 37);
+        await tester.pump(const Duration(seconds: 1));
+        expect(find.text('in 01:11:23'), findsOneWidget);
+        now = DateTime(2026, 9, 21, 18, 18);
+        await tester.pump(const Duration(seconds: 1));
+        expect(
+          tester.widget<Text>(find.text('in 01:00:00')).style!.color,
+          Colors.white,
+        );
+        now = now.add(const Duration(seconds: 1));
+        await tester.pump(const Duration(seconds: 1));
+        expect(
+          tester.widget<Text>(find.text('in 00:59:59')).style!.color,
+          BrandColors.countdownWarningOnPrimary,
+        );
+        now = DateTime(2026, 9, 21, 19, 18);
+        await tester.pump(const Duration(seconds: 1));
+        expect(find.text('Time since Maghrib'), findsOneWidget);
+        expect(find.text('00:00:00'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox.shrink());
+      },
+    );
   }
   testWidgets(
     'neighbors reload after startup data arrives and today follows midnight',

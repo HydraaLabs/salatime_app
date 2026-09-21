@@ -661,7 +661,7 @@ void main() {
     );
   });
 
-  testWidgets('home switches from elapsed time to next prayer at 90 minutes', (
+  testWidgets('home switches from elapsed time to next prayer at one hour', (
     tester,
   ) async {
     SharedPreferences.setMockInitialValues({});
@@ -684,7 +684,7 @@ void main() {
               maghribStart: '19:39',
             ),
           );
-    var now = DateTime(2026, 9, 12, 17, 29, 59);
+    var now = DateTime(2026, 9, 12, 16, 59, 59);
     await tester.pumpWidget(
       GetMaterialApp(
         translations: _PrayerDashboardTestTranslations(),
@@ -701,19 +701,19 @@ void main() {
     );
     await tester.pump();
     expect(find.text('Time since Asr'), findsOneWidget);
-    expect(find.text('01:29:59'), findsOneWidget);
-    now = DateTime(2026, 9, 12, 17, 30);
+    expect(find.text('00:59:59'), findsOneWidget);
+    now = DateTime(2026, 9, 12, 17);
     await tester.pump(const Duration(seconds: 1));
     expect(find.text('Time since Asr'), findsNothing);
     expect(find.text('Next prayer'), findsOneWidget);
-    expect(find.text('in 02:09:00'), findsOneWidget);
+    expect(find.text('in 02:39:00'), findsOneWidget);
     expect(controller.currentWaqtName.value, 'Maghrib');
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
   testWidgets(
-    'home prioritizes the next prayer at one hour and warns below 45 minutes',
+    'home prioritizes the next prayer at one hour and warns strictly below it',
     (tester) async {
       SharedPreferences.setMockInitialValues({});
       final prefs = await SharedPreferences.getInstance();
@@ -756,14 +756,12 @@ void main() {
       expect(find.text('Next prayer'), findsOneWidget);
       expect(find.text('Isha'), findsWidgets);
       expect(find.text('in 01:00:00'), findsOneWidget);
-      now = DateTime(2026, 9, 16, 20, 6);
-      await tester.pump(const Duration(seconds: 1));
-      final normal = tester.widget<Text>(find.text('in 00:45:00')).style!.color;
+      final normal = tester.widget<Text>(find.text('in 01:00:00')).style!.color;
       expect(normal, Colors.white);
-      now = DateTime(2026, 9, 16, 20, 6, 1);
+      now = DateTime(2026, 9, 16, 19, 51, 1);
       await tester.pump(const Duration(seconds: 1));
       final warning = tester
-          .widget<Text>(find.text('in 00:44:59'))
+          .widget<Text>(find.text('in 00:59:59'))
           .style!
           .color;
       expect(warning, BrandColors.countdownWarningOnPrimary);

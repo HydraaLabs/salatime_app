@@ -42,7 +42,8 @@ open class PrayerWidgetProvider : AppWidgetProvider() {
         private const val REFRESH = "net.salatime.app.WIDGET_REFRESH"
         private const val GREEN = 0xFF2F5233.toInt()
         private const val COUNTDOWN_WARNING = 0xFFC62828.toInt()
-        private const val WARNING_WINDOW_MS = 45 * 60000L
+        private const val ELAPSED_WINDOW_MS = 60 * 60000L
+        private const val WARNING_WINDOW_MS = 60 * 60000L
         private const val MUTED = 0xFF4C7A50.toInt()
         private const val WHITE = 0xFFFAF5E9.toInt()
         private val slots = intArrayOf(R.id.widget_slot_0, R.id.widget_slot_1, R.id.widget_slot_2, R.id.widget_slot_3, R.id.widget_slot_4)
@@ -93,7 +94,7 @@ open class PrayerWidgetProvider : AppWidgetProvider() {
             val options = context.getSharedPreferences("salatime_widget_options", Context.MODE_PRIVATE)
             val showCountdown = options.getBoolean("countdown", true)
             val next = prayers.firstOrNull { it.optLong("at") > now }
-            val recent = prayers.lastOrNull { it.optLong("at") <= now && now - it.optLong("at") < 90 * 60000 }
+            val recent = prayers.lastOrNull { it.optLong("at") <= now && now - it.optLong("at") < ELAPSED_WINDOW_MS }
             val nextIsClose = next != null && next.optLong("at") - now <= 60 * 60000L
             val elapsed = showCountdown && recent != null && !nextIsClose
             val displayed = if (elapsed) recent else next
@@ -205,11 +206,13 @@ open class PrayerWidgetProvider : AppWidgetProvider() {
             }
             val all = readPrayers(context)
             val nextAt = all.firstOrNull { it.optLong("at") > now }?.optLong("at")
-            val recentAt = all.lastOrNull { it.optLong("at") <= now && now - it.optLong("at") < 90 * 60000 }?.optLong("at")
+            val recentAt = all.lastOrNull { it.optLong("at") <= now && now - it.optLong("at") < ELAPSED_WINDOW_MS }?.optLong("at")
             val options = context.getSharedPreferences("salatime_widget_options", Context.MODE_PRIVATE)
-            val expiry = if (options.getBoolean("countdown", true)) recentAt?.plus(90 * 60000) else null
+            val showsElapsed = options.getBoolean("countdown", true) &&
+                (nextAt == null || nextAt - now > 60 * 60000L)
+            val expiry = if (showsElapsed) recentAt?.plus(ELAPSED_WINDOW_MS) else null
             // Chronometer ticks do not reapply RemoteViews colors. Refresh once
-            // when the remaining time becomes strictly less than 45 minutes.
+            // when the remaining time becomes strictly less than one hour.
             val warningAt = if (options.getBoolean("countdown", true))
                 nextAt?.minus(WARNING_WINDOW_MS)?.plus(1)?.takeIf { it > now } else null
             val nextPriorityAt = if (options.getBoolean("countdown", true))

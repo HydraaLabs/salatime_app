@@ -7,12 +7,12 @@ void main() {
     'approaching excludes the exact threshold, elapsed and missing times',
     () {
       expect(
-        PrayerDisplayPhase.isApproaching(const Duration(minutes: 45)),
+        PrayerDisplayPhase.isApproaching(const Duration(hours: 1)),
         isFalse,
       );
       expect(
         PrayerDisplayPhase.isApproaching(
-          const Duration(minutes: 44, seconds: 59),
+          const Duration(minutes: 59, seconds: 59),
         ),
         isTrue,
       );
@@ -111,7 +111,7 @@ void main() {
     expect(phase!.elapsed, const Duration(minutes: 10));
     expect(phase.startedAt, DateTime(2026, 9, 13, 0, 10));
   });
-  test('elapsed starts at prayer time and ends exactly at 90 minutes', () {
+  test('elapsed starts at prayer time and ends exactly at one hour', () {
     expect(
       PrayerDisplayPhase.resolve(DateTime(2026, 9, 12, 12, 59, 59), day),
       isNull,
@@ -123,15 +123,18 @@ void main() {
     expect(
       PrayerDisplayPhase.format(
         PrayerDisplayPhase.resolve(
-          DateTime(2026, 9, 12, 14, 29, 59),
+          DateTime(2026, 9, 12, 13, 59, 59),
           day,
         )!.elapsed,
       ),
-      '01:29:59',
+      '00:59:59',
     );
+    expect(PrayerDisplayPhase.resolve(DateTime(2026, 9, 12, 14), day), isNull);
+    final next = PrayerDisplayPhase.next(DateTime(2026, 9, 12, 14), [day])!;
+    expect(next.prayerKey, 'asr');
     expect(
-      PrayerDisplayPhase.resolve(DateTime(2026, 9, 12, 14, 30), day),
-      isNull,
+      next.startedAt.difference(DateTime(2026, 9, 12, 14)),
+      const Duration(hours: 2),
     );
   });
   test('a new prayer takes precedence and sunrise is not a prayer', () {
@@ -140,11 +143,14 @@ void main() {
       'magrib',
     );
     expect(
-      PrayerDisplayPhase.resolve(DateTime(2026, 9, 12, 6, 15), day)!.prayerKey,
+      PrayerDisplayPhase.resolve(
+        DateTime(2026, 9, 12, 5, 59, 59),
+        day,
+      )!.prayerKey,
       'fajr',
     );
     expect(
-      PrayerDisplayPhase.resolve(DateTime(2026, 9, 12, 6, 31), day),
+      PrayerDisplayPhase.resolve(DateTime(2026, 9, 12, 6, 10), day),
       isNull,
     );
   });
@@ -152,15 +158,15 @@ void main() {
     final next = Data(date: '2026-09-13', ishaStart: '22:00');
     expect(
       PrayerDisplayPhase.resolve(
-        DateTime(2026, 9, 13, 0, 20),
+        DateTime(2026, 9, 13, 0, 39, 59),
         next,
         previousDay: day,
       )!.elapsed,
-      const Duration(minutes: 40),
+      const Duration(minutes: 59, seconds: 59),
     );
     expect(
       PrayerDisplayPhase.resolve(
-        DateTime(2026, 9, 13, 1, 10),
+        DateTime(2026, 9, 13, 0, 40),
         next,
         previousDay: day,
       ),

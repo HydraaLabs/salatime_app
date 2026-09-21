@@ -21,7 +21,7 @@ import org.json.JSONObject;
 /** SystemUI owns the elapsed timer, including after the audio service exits. */
 final class SalaTimeAdhanNotification {
     static final long HOUR = 60 * 60 * 1000L;
-    static final long WARNING_WINDOW = 45 * 60 * 1000L;
+    static final long WARNING_WINDOW = HOUR;
     static final String TRACKING_CHANNEL = "prayer_tracking_no_badge_v1";
     private SalaTimeAdhanNotification() {}
 

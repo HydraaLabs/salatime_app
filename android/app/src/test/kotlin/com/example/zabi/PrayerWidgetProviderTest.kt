@@ -19,7 +19,7 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33], manifest = Config.NONE, application = Application::class)
 class PrayerWidgetProviderTest {
-    @Test fun countdownTurnsRedStrictlyBelowFortyFiveMinutesAndResetsAfterPrayer() {
+    @Test fun countdownTurnsRedStrictlyBelowOneHourAndResetsAfterPrayer() {
         val app = RuntimeEnvironment.getApplication()
         val at = java.time.Instant.parse("2026-09-13T16:00:00Z").toEpochMilli()
         app.getSharedPreferences("salatime_prayer_widget", 0).edit().clear()
@@ -29,14 +29,14 @@ class PrayerWidgetProviderTest {
             for (seconds in listOf(false, true)) {
                 app.getSharedPreferences("salatime_widget_options", 0).edit()
                     .putBoolean("countdown", true).putBoolean("seconds", seconds).apply()
-                val views = PrayerWidgetProvider.createViews(app, expanded, at - 45 * 60000)
+                val views = PrayerWidgetProvider.createViews(app, expanded, at - 60 * 60000)
                 val view = views.apply(app, FrameLayout(app))
                 for ((now, expected) in listOf(
-                    at - 45 * 60000 to 0xFF2F5233.toInt(),
-                    at - 45 * 60000 + 1 to 0xFFC62828.toInt(),
+                    at - 60 * 60000 to 0xFF2F5233.toInt(),
+                    at - 60 * 60000 + 1 to 0xFFC62828.toInt(),
                     at - 1 to 0xFFC62828.toInt(),
                     at to 0xFF2F5233.toInt(),
-                    at + 90 * 60000 to 0xFF2F5233.toInt()
+                    at + 60 * 60000 to 0xFF2F5233.toInt()
                 )) {
                     PrayerWidgetProvider.createViews(app, expanded, now).reapply(app, view)
                     assertEquals(expected, view.findViewById<TextView>(R.id.widget_time).currentTextColor)
@@ -61,8 +61,8 @@ class PrayerWidgetProviderTest {
                 for ((remaining, expectedPrayer, expectedColor) in listOf(
                     Triple(60 * 60000L + 1, "Maghrib", 0xFF2F5233.toInt()),
                     Triple(60 * 60000L, "Isha", 0xFF2F5233.toInt()),
-                    Triple(45 * 60000L, "Isha", 0xFF2F5233.toInt()),
-                    Triple(45 * 60000L - 1, "Isha", 0xFFC62828.toInt()),
+                    Triple(60 * 60000L - 1, "Isha", 0xFFC62828.toInt()),
+                    Triple(59 * 60000L + 59000, "Isha", 0xFFC62828.toInt()),
                     Triple(44 * 60000L + 59000, "Isha", 0xFFC62828.toInt())
                 )) {
                     val view = PrayerWidgetProvider.createViews(app, expanded, next - remaining)
@@ -95,8 +95,8 @@ class PrayerWidgetProviderTest {
         assertEquals(next - 60 * 60000, alarms.peekNextScheduledAlarm()!!.triggerAtTime)
         PrayerWidgetProvider.refreshAll(app, next - 60 * 60000)
         assertEquals("Isha", manager.getViewFor(id).findViewById<TextView>(R.id.widget_prayer).text.toString())
-        assertEquals(next - 45 * 60000 + 1, alarms.peekNextScheduledAlarm()!!.triggerAtTime)
-        PrayerWidgetProvider.refreshAll(app, next - 45 * 60000 + 1)
+        assertEquals(next - 60 * 60000 + 1, alarms.peekNextScheduledAlarm()!!.triggerAtTime)
+        PrayerWidgetProvider.refreshAll(app, next - 60 * 60000 + 1)
         assertEquals(0xFFC62828.toInt(), manager.getViewFor(id)
             .findViewById<TextView>(R.id.widget_countdown).currentTextColor)
         assertEquals(next, alarms.peekNextScheduledAlarm()!!.triggerAtTime)
@@ -150,8 +150,8 @@ class PrayerWidgetProviderTest {
         val id = manager.createWidget(SmallPrayerWidgetProvider::class.java, R.layout.prayer_widget)
         PrayerWidgetProvider.refreshAll(app, now)
         val alarm = Shadows.shadowOf(app.getSystemService(android.app.AlarmManager::class.java))
-        assertEquals(at - 45 * 60000 + 1, alarm.peekNextScheduledAlarm()!!.triggerAtTime)
-        PrayerWidgetProvider.refreshAll(app, at - 45 * 60000 + 1)
+        assertEquals(at - 60 * 60000 + 1, alarm.peekNextScheduledAlarm()!!.triggerAtTime)
+        PrayerWidgetProvider.refreshAll(app, at - 60 * 60000 + 1)
         assertEquals(0xFFC62828.toInt(), manager.getViewFor(id)
             .findViewById<TextView>(R.id.widget_countdown).currentTextColor)
         assertEquals(at, alarm.peekNextScheduledAlarm()!!.triggerAtTime)
@@ -162,7 +162,7 @@ class PrayerWidgetProviderTest {
         RuntimeEnvironment.getApplication().getSharedPreferences("salatime_widget_options", 0).edit().clear()
             .putBoolean("countdown", false).apply()
     }
-    @Test fun elapsedPrayerWinsForNinetyMinutesThenNextPrayerTakesOver() {
+    @Test fun elapsedPrayerWinsForOneHourThenNextPrayerTakesOver() {
         val app = RuntimeEnvironment.getApplication()
         val at = java.time.Instant.parse("2026-09-12T16:00:00Z").toEpochMilli()
         app.getSharedPreferences("salatime_prayer_widget", 0).edit().clear()
@@ -175,9 +175,53 @@ class PrayerWidgetProviderTest {
         assertEquals("Temps écoulé depuis", elapsed.findViewById<TextView>(R.id.widget_title).text.toString())
         assertEquals("Asr", elapsed.findViewById<TextView>(R.id.widget_prayer).text.toString())
         assertEquals("00:34", elapsed.findViewById<TextView>(R.id.widget_time).text.toString())
-        val next = PrayerWidgetProvider.createViews(app, false, at + 90 * 60000).apply(app, FrameLayout(app))
+        for (expanded in listOf(false, true)) {
+            for (seconds in listOf(false, true)) {
+                app.getSharedPreferences("salatime_widget_options", 0).edit()
+                    .putBoolean("seconds", seconds).apply()
+                for ((offset, expectedPrayer) in listOf(
+                    60 * 60000L - 1 to "Asr", 60 * 60000L to "Maghrib"
+                )) {
+                    val view = PrayerWidgetProvider.createViews(app, expanded, at + offset)
+                        .apply(app, FrameLayout(app))
+                    assertEquals(expectedPrayer, view.findViewById<TextView>(R.id.widget_prayer).text.toString())
+                    assertEquals(expectedPrayer == "Maghrib",
+                        view.findViewById<android.widget.Chronometer>(R.id.widget_countdown).isCountDown)
+                    assertEquals(0xFF2F5233.toInt(), view.findViewById<TextView>(R.id.widget_countdown).currentTextColor)
+                }
+            }
+        }
+        app.getSharedPreferences("salatime_widget_options", 0).edit().putBoolean("seconds", false).apply()
+        val next = PrayerWidgetProvider.createViews(app, false, at + 60 * 60000).apply(app, FrameLayout(app))
         assertEquals("Maghrib", next.findViewById<TextView>(R.id.widget_prayer).text.toString())
-        assertEquals("01:30", next.findViewById<TextView>(R.id.widget_time).text.toString())
+        assertEquals("02:00", next.findViewById<TextView>(R.id.widget_time).text.toString())
+    }
+
+    @Test fun widgetSchedulesEndOfElapsedHourThenTheNextPrayerWarning() {
+        val app = RuntimeEnvironment.getApplication()
+        val previous = System.currentTimeMillis()
+        val hour = 60 * 60000L
+        val next = previous + 3 * hour
+        app.getSharedPreferences("salatime_prayer_widget", 0).edit().clear()
+            .putString("prayers", JSONArray()
+                .put(JSONObject().put("at", previous).put("name", "Asr"))
+                .put(JSONObject().put("at", next).put("name", "Maghrib")).toString()).apply()
+        app.getSharedPreferences("salatime_widget_options", 0).edit().clear()
+            .putBoolean("countdown", true).putBoolean("seconds", true).apply()
+        val manager = Shadows.shadowOf(AppWidgetManager.getInstance(app))
+        val id = manager.createWidget(SmallPrayerWidgetProvider::class.java, R.layout.prayer_widget)
+        val alarms = Shadows.shadowOf(app.getSystemService(android.app.AlarmManager::class.java))
+        PrayerWidgetProvider.refreshAll(app, previous)
+        assertEquals(previous + hour, alarms.peekNextScheduledAlarm()!!.triggerAtTime)
+        PrayerWidgetProvider.refreshAll(app, previous + hour)
+        assertEquals("Maghrib", manager.getViewFor(id).findViewById<TextView>(R.id.widget_prayer).text.toString())
+        assertEquals(next - hour, alarms.peekNextScheduledAlarm()!!.triggerAtTime)
+        PrayerWidgetProvider.refreshAll(app, next - hour)
+        assertEquals(0xFF2F5233.toInt(), manager.getViewFor(id).findViewById<TextView>(R.id.widget_countdown).currentTextColor)
+        assertEquals(next - hour + 1, alarms.peekNextScheduledAlarm()!!.triggerAtTime)
+        PrayerWidgetProvider.refreshAll(app, next - hour + 1)
+        assertEquals(0xFFC62828.toInt(), manager.getViewFor(id).findViewById<TextView>(R.id.widget_countdown).currentTextColor)
+        assertEquals(next, alarms.peekNextScheduledAlarm()!!.triggerAtTime)
     }
 
     @Test fun widgetSelectsFuturePrayerWithoutLaunchingFlutter() {

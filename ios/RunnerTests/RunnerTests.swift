@@ -12,36 +12,51 @@ class RunnerTests: XCTestCase {
     ], city: "Fès", nextLabel: "Prochaine prière", sinceLabel: "Depuis @prayer", emptyLabel: "Ouvrez SalaTime", locale: "fr", timeZone: timeZone, use24HourFormat: true)
   }
 
-  func testElapsedTimeStopsAtNinetyMinutes() {
+  func testElapsedTimeStopsAtOneHour() {
     let data = snapshot()
     XCTAssertEqual(data.presentation(at: base)?.prayer.prayerId, 3)
-    XCTAssertTrue(data.presentation(at: base.addingTimeInterval(5399))!.since)
-    let next = data.presentation(at: base.addingTimeInterval(5400))!
+    XCTAssertTrue(data.presentation(at: base.addingTimeInterval(3599.999))!.since)
+    let next = data.presentation(at: base.addingTimeInterval(3600))!
     XCTAssertFalse(next.since)
     XCTAssertEqual(next.prayer.prayerId, 4)
+    XCTAssertFalse(next.urgent)
+    XCTAssertEqual(next.minutes(at: base.addingTimeInterval(3600)), 120)
   }
 
-  func testRedCountdownIsStrictlyLessThanFortyFiveMinutes() {
+  func testRedCountdownIsStrictlyLessThanOneHour() {
     let data = snapshot(), next = base.addingTimeInterval(3 * 3600)
-    XCTAssertFalse(data.presentation(at: next.addingTimeInterval(-2700))!.urgent)
-    XCTAssertTrue(data.presentation(at: next.addingTimeInterval(-2699))!.urgent)
-    XCTAssertFalse(data.presentation(at: next.addingTimeInterval(-2699), countdown: false)!.urgent)
+    XCTAssertFalse(data.presentation(at: next.addingTimeInterval(-3600))!.urgent)
+    XCTAssertTrue(data.presentation(at: next.addingTimeInterval(-3599))!.urgent)
+    XCTAssertFalse(data.presentation(at: next.addingTimeInterval(-3599), countdown: false)!.urgent)
     XCTAssertNil(data.presentation(at: next.addingTimeInterval(86400)))
   }
 
-  func testNextPrayerOverridesRecentPrayerAtOneHourAndIsRedOnlyBelowFortyFiveMinutes() throws {
+  func testElapsedHourExpiresAcrossMidnight() throws {
+    let previous = try XCTUnwrap(ISO8601DateFormatter().date(from: "2026-09-21T23:40:00Z"))
+    let data = snapshot(previous: previous, gap: 6 * 3600, timeZone: "UTC")
+    let switchAt = previous.addingTimeInterval(3600)
+    XCTAssertTrue(try XCTUnwrap(data.presentation(at: switchAt.addingTimeInterval(-1))).since)
+    let next = try XCTUnwrap(data.presentation(at: switchAt))
+    XCTAssertFalse(next.since)
+    XCTAssertFalse(next.urgent)
+    XCTAssertEqual(next.prayer.prayerId, 4)
+    XCTAssertEqual(next.minutes(at: switchAt), 300)
+    XCTAssertTrue(data.transitions(after: previous, seconds: true).contains(switchAt))
+  }
+
+  func testNextPrayerOverridesRecentPrayerAtOneHourAndIsRedOnlyBelowOneHour() throws {
     let data = snapshot(gap: 90 * 60)
     let next = base.addingTimeInterval(90 * 60)
-    for remaining in [3600.001, 3600, 2700, 2699.999, 2699] {
+    for remaining in [3600.001, 3600, 3599.999, 3599, 2700] {
       let presentation = try XCTUnwrap(data.presentation(at: next.addingTimeInterval(-remaining)))
       let showsNext = remaining <= 3600
       XCTAssertEqual(presentation.prayer.prayerId, showsNext ? 4 : 3)
       XCTAssertEqual(presentation.since, !showsNext)
-      XCTAssertEqual(presentation.urgent, remaining < 2700)
+      XCTAssertEqual(presentation.urgent, remaining < 3600)
     }
     let dates = data.transitions(after: base, seconds: true)
     XCTAssertTrue(dates.contains(next.addingTimeInterval(-3600)))
-    XCTAssertTrue(dates.contains(next.addingTimeInterval(-2700 + 1)))
+    XCTAssertTrue(dates.contains(next.addingTimeInterval(-3600 + 1)))
     XCTAssertTrue(dates.contains(next))
   }
 
@@ -66,9 +81,9 @@ class RunnerTests: XCTestCase {
     let dates = data.transitions(after: now, seconds: true)
     XCTAssertEqual(dates.first, now)
     XCTAssertTrue(dates.contains(base))
-    XCTAssertTrue(dates.contains(base.addingTimeInterval(5400)))
+    XCTAssertTrue(dates.contains(base.addingTimeInterval(3600)))
     XCTAssertTrue(dates.contains(base.addingTimeInterval(3 * 3600 - 3600)))
-    XCTAssertTrue(dates.contains(base.addingTimeInterval(3 * 3600 - 2700 + 1)))
+    XCTAssertTrue(dates.contains(base.addingTimeInterval(3 * 3600 - 3600 + 1)))
     XCTAssertEqual(dates, dates.sorted())
     XCTAssertEqual(Set(dates).count, dates.count)
   }

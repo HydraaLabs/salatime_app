@@ -141,7 +141,7 @@ public class SalaTimeAdhanNotificationTest {
                 FlutterLocalNotificationsPlugin.createNotification(app, d), now).build();
     }
 
-    @Test public void switchesAtOneHourAndTurnsRedStrictlyBelowFortyFiveMinutesBeforeNext() throws Exception {
+    @Test public void switchesAtOneHourAndTurnsRedStrictlyBelowOneHourBeforeNext() throws Exception {
         NotificationDetails d = withNext();
         long at = SalaTimeAdhanNotification.prayerAt(new JSONObject(d.payload));
         long hour = SalaTimeAdhanNotification.HOUR;
@@ -154,7 +154,7 @@ public class SalaTimeAdhanNotificationTest {
         assertTrue(countdown.isCountDown());
         assertEquals(3 * hour, countdown.getBase() - SystemClock.elapsedRealtime());
         assertEquals(app.getColor(R.color.adhan_elapsed_green), countdown.getCurrentTextColor());
-        long redBoundary = at + 4 * hour - 45 * 60000;
+        long redBoundary = at + 4 * hour - 60 * 60000;
         for (long now : new long[] {at + 3 * hour, redBoundary, redBoundary + 1, redBoundary + 1000}) {
             Chronometer timer = inflate(atTime(d, now)).findViewById(R.id.adhan_notification_elapsed);
             assertTrue(timer.isCountDown());
@@ -163,26 +163,26 @@ public class SalaTimeAdhanNotificationTest {
         }
     }
 
-    @Test public void nearbyPrayerWinsAtOneHourAndOnlyTurnsRedBelowFortyFiveMinutes() throws Exception {
+    @Test public void nearbyPrayerWinsAtOneHourAndOnlyTurnsRedBelowOneHour() throws Exception {
         NotificationDetails d = withNext();
         JSONObject payload = new JSONObject(d.payload);
         long previous = SalaTimeAdhanNotification.prayerAt(payload);
         long next = previous + 90 * 60000;
         payload.getJSONObject("nextPrayer").put("prayerAt", next);
         d.payload = payload.toString();
-        for (long remaining : new long[] {60 * 60000 + 1, 60 * 60000, 45 * 60000, 45 * 60000 - 1, 44 * 60000 + 59000}) {
+        for (long remaining : new long[] {60 * 60000 + 1, 60 * 60000, 60 * 60000 - 1, 59 * 60000 + 59000, 45 * 60000}) {
             View root = inflate(atTime(d, next - remaining));
             boolean showsNext = remaining <= 60 * 60000;
             Chronometer timer = root.findViewById(R.id.adhan_notification_elapsed);
             assertEquals(showsNext, timer.isCountDown());
             assertEquals(showsNext ? "Assr · 17:20" : "Dohr · 13:20",
                     ((TextView)root.findViewById(R.id.adhan_notification_prayer)).getText().toString());
-            assertEquals(app.getColor(remaining < 45 * 60000
+            assertEquals(app.getColor(remaining < 60 * 60000
                     ? R.color.adhan_countdown_red : R.color.adhan_elapsed_green), timer.getCurrentTextColor());
             if (showsNext) assertEquals(remaining, timer.getBase() - SystemClock.elapsedRealtime());
         }
         long switchesAt = next - 60 * 60000;
-        long redAt = next - 45 * 60000 + 1;
+        long redAt = next - 60 * 60000 + 1;
         assertEquals(switchesAt, SalaTimeAdhanNotification.nextTransition(payload, previous));
         assertEquals(switchesAt, SalaTimeAdhanNotification.nextTransition(payload, switchesAt - 1));
         assertEquals(redAt, SalaTimeAdhanNotification.nextTransition(payload, switchesAt));
@@ -211,7 +211,7 @@ public class SalaTimeAdhanNotificationTest {
         long at = SalaTimeAdhanNotification.prayerAt(payload);
         long hour = SalaTimeAdhanNotification.HOUR;
         assertEquals(at + hour, SalaTimeAdhanNotification.nextTransition(payload, at));
-        long redBoundary = at + 4 * hour - 45 * 60000 + 1;
+        long redBoundary = at + 4 * hour - 60 * 60000 + 1;
         assertEquals(redBoundary, SalaTimeAdhanNotification.nextTransition(payload, at + hour));
         assertEquals(redBoundary, SalaTimeAdhanNotification.nextTransition(payload, redBoundary - 1));
         assertEquals(at + 4 * hour, SalaTimeAdhanNotification.nextTransition(payload, redBoundary));
@@ -240,7 +240,7 @@ public class SalaTimeAdhanNotificationTest {
         SalaTimePrayerAlarmReceiver.showSilent(app, d);
         assertEquals(1, alarms().getScheduledAlarms().size());
         assertEquals(at + hour, alarms().getScheduledAlarms().get(0).triggerAtTime);
-        long redBoundary = at + 4 * hour - 45 * 60000 + 1;
+        long redBoundary = at + 4 * hour - 60 * 60000 + 1;
         for (long now : new long[] {at + hour, redBoundary}) {
             SalaTimeAdhanNotificationReceiver.refresh(app, d.id, now);
             Notification n = Shadows.shadowOf(notifications()).getNotification(SalaTimeNotificationTray.PRAYER_ID);

@@ -73,3 +73,34 @@ sans changer l’heure ou les horaires du téléphone. Reçu :
 
 Ces changements sont inclus dans la release 1.0.20+23. Voir
 [le reçu de publication](release-1.0.20.md) pour les états des différents canaux.
+
+## Règle commune révisée le 21 septembre 2026
+
+Le temps écoulé s'affiche pendant une heure au maximum après la prière.
+À 60 minutes exactement, l'accueil classique/moderne et les widgets Android/iOS
+passent au décompte de la suivante. La priorité existante est conservée lorsque
+la prochaine prière est déjà à une heure ou moins, même si la précédente a eu
+lieu il y a moins d'une heure. Le compteur de notification Android suit la même
+règle.
+
+Le décompte garde sa couleur normale à `01:00:00` et devient rouge lorsque le
+temps restant est strictement inférieur à une heure. Les actualisations natives
+suivent ces nouveaux seuils ; le widget Android ne programme plus la fin du
+compteur écoulé lorsque la prochaine prière a déjà pris sa place.
+
+Exemple de la capture signalée : Assr à 16:40 et Maghrib à 19:18 donnent
+`00:59:59` écoulé à 17:39:59, puis `01:38:00` avant Maghrib à 17:40.
+À 18:06:37, le décompte est `01:11:23`. À 18:18:01, il devient rouge
+avec `00:59:59` restantes.
+
+Les régressions couvrent les seuils stricts, la transition automatique en thèmes
+clair/sombre, les widgets avec/sans secondes, les prières rapprochées et minuit.
+Changement local postérieur aux versions Android 1.0.25 (29) et iOS 1.0.25 (32).
+
+Validation : 638 tests Flutter réussis, analyse sans anomalie et 42 tests
+Android ciblés réussis (13 widgets, 29 notifications). Ces derniers utilisent
+Flutter stable 3.41.8 via `-Pflutter.sdk` et son dépôt officiel, le SDK Shorebird
+local ayant renvoyé des métadonnées Maven incompatibles en mode debug.
+La configuration locale Shorebird est conservée. Les tests XCTest des seuils
+et de minuit ont été mis à jour, mais n'ont pas été exécutés sur ce poste Linux.
+Aucune vérification physique ni nouvelle publication pour ce correctif.

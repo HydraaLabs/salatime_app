@@ -6,13 +6,14 @@ class PrayerDisplayPhase {
   final String prayerKey;
   final DateTime startedAt;
   final Duration elapsed;
-  static const window = Duration(minutes: 90);
+  // Show elapsed time for at most one hour, then count down to the next prayer.
+  static const window = Duration(hours: 1);
 
   static bool isApproaching(Duration? remaining, {bool elapsed = false}) =>
       !elapsed &&
       remaining != null &&
       remaining > Duration.zero &&
-      remaining < const Duration(minutes: 45);
+      remaining < const Duration(hours: 1);
 
   static PrayerDisplayPhase? resolve(
     DateTime now,
