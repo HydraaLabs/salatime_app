@@ -1,4 +1,4 @@
-# SalaTime 1.0.25 (29) — tablettes Android et intégration iOS
+# SalaTime 1.0.25 — Android (29) et iOS (32)
 
 Publication Android du 21 septembre 2026. La navigation s'adapte aux tablettes
 et aux fenêtres redimensionnées ; l'accueil utilise deux colonnes lorsque la
@@ -97,10 +97,16 @@ Les ressources natives Android de notifications ne changent pas depuis 1.0.24.
   avec exactement le même commit et sans modification de l'application. Les
   journaux des deux tentatives sont conservés.
 
-Les modifications iOS sont intégrées au dépôt. Cette opération ne soumet pas de
-nouveau build à App Store Connect et ne constitue pas un essai sur iPhone
-physique. Le comportement partagé et la migration du son sont détaillés dans
-[Shared iOS and tablet changes](shared-ios-tablet-changes.md).
+Les modifications iOS ont ensuite été compilées et signées depuis `310c682`
+dans le build **1.0.25 (32)**, envoyé à App Store Connect puis soumis à App Review
+le 21 septembre 2026 à 02:08 UTC. L'état confirmé est `WAITING_FOR_REVIEW`, avec
+publication automatique après approbation (`AFTER_APPROVAL`). Les 36 captures,
+la vidéo et les accès de revue sont conservés. Voir le
+[compte rendu iOS](app-store/release-1.0.25.md).
+
+Les contrôles de compilation et de simulateur ne constituent pas un nouvel
+essai sur iPhone physique. Le comportement partagé et la migration du son sont
+détaillés dans [Shared iOS and tablet changes](shared-ios-tablet-changes.md).
 
 ## Preuves locales
 

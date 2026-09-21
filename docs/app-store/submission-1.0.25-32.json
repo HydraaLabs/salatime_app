@@ -1,0 +1,33 @@
+{
+  "verified_at": "2026-09-21T02:09:32.882676+00:00",
+  "app_id": "6812923710",
+  "version_id": "fec07b01-c9f0-4325-9adc-b9245542fce6",
+  "version": "1.0.25",
+  "build": "32",
+  "source_commit": "310c6820f711e86d545e9a6059730fce061607af",
+  "run_id": "35549871377",
+  "build_id": "af7c3d4b-e4d2-4929-8ba2-1abf09b2965a",
+  "review_id": "c117bd7d-77d3-48c7-8542-ebc58693889e",
+  "review": {
+    "platform": "IOS",
+    "submittedDate": "2026-09-21T02:08:36.446Z",
+    "state": "WAITING_FOR_REVIEW"
+  },
+  "version_state": "WAITING_FOR_REVIEW",
+  "release_type": "AFTER_APPROVAL",
+  "screenshots_preserved": 36,
+  "localizations_preserved": 3,
+  "review_contact_and_credentials_preserved": true,
+  "review_video_preserved": true,
+  "build_processing_state": "VALID",
+  "upload_state": "COMPLETE",
+  "apple_processing_errors": 0,
+  "apple_processing_warnings": 0,
+  "flutter_tests_passed": 636,
+  "native_ios_suite_passed": true,
+  "native_ios_test_methods": 9,
+  "ci_successful_attempt": 2,
+  "ipa_sha256": "33a3fe4c9ad26b5b9f6daf691dd24f0c827c039ed860adc7b65173fc2cd8d3f5",
+  "ipa_bytes": 82841682,
+  "notification_sounds_verified": 68
+}
