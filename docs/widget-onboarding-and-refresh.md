@@ -95,12 +95,15 @@ avec `00:59:59` restantes.
 
 Les régressions couvrent les seuils stricts, la transition automatique en thèmes
 clair/sombre, les widgets avec/sans secondes, les prières rapprochées et minuit.
-Changement local postérieur aux versions Android 1.0.25 (29) et iOS 1.0.25 (32).
+Ce changement est inclus dans les versions Android 1.0.26 (30) et iOS 1.0.26 (33).
 
 Validation : 638 tests Flutter réussis, analyse sans anomalie et 42 tests
 Android ciblés réussis (13 widgets, 29 notifications). Ces derniers utilisent
 Flutter stable 3.41.8 via `-Pflutter.sdk` et son dépôt officiel, le SDK Shorebird
 local ayant renvoyé des métadonnées Maven incompatibles en mode debug.
-La configuration locale Shorebird est conservée. Les tests XCTest des seuils
-et de minuit ont été mis à jour, mais n'ont pas été exécutés sur ce poste Linux.
-Aucune vérification physique ni nouvelle publication pour ce correctif.
+La configuration locale Shorebird est conservée. La compilation de production
+Android repasse l'analyse et les 638 tests avec Shorebird Flutter 3.41.6. La
+compilation iOS sur macOS réussit l'analyse, les 638 tests Flutter et la suite
+XCTest comprenant les seuils et minuit. Pas de nouvel essai physique pour ce
+correctif. Les deux versions sont soumises aux stores ; voir les
+[preuves de publication et leurs limites](release-1.0.26.md).

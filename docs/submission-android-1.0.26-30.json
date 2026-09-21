@@ -1,0 +1,61 @@
+{
+  "package": "net.salatime.app",
+  "version": "1.0.26+30",
+  "source_commit": "e0fdc0e34db8b2377483d1fa4e00c4280b68473c",
+  "edit_id": "03731490725376612286",
+  "sha256": "482774abde179da421dc0969e143684aba0ec53093cc7f0be4f4f832f75997d2",
+  "bytes": 139816918,
+  "phase": "verified",
+  "production_readback": {
+    "track": "production",
+    "releases": [
+      {
+        "name": "1.0.26",
+        "versionCodes": [
+          "30"
+        ],
+        "releaseNotes": [
+          {
+            "language": "fr-FR",
+            "text": "Le décompte de la prochaine prière commence au plus tard une heure après la précédente. Il devient rouge lorsqu’il reste moins d’une heure. Affichage harmonisé entre l’accueil, les widgets et le compteur de notification."
+          },
+          {
+            "language": "en-US",
+            "text": "The next-prayer countdown starts no later than one hour after the previous prayer. It turns red when less than one hour remains. Consistent behavior across the home screen, widgets and notification timer."
+          },
+          {
+            "language": "ar",
+            "text": "يبدأ العد التنازلي للصلاة التالية بعد مرور ساعة على الصلاة السابقة كحد أقصى، ويتحول إلى اللون الأحمر عندما يتبقى أقل من ساعة. توحيد العرض بين الشاشة الرئيسية وعناصر الواجهة ومؤقت الإشعار."
+          }
+        ],
+        "status": "completed"
+      }
+    ]
+  },
+  "bundle_readback": {
+    "versionCode": 30,
+    "sha1": "6bff2214065f713a275d96d3112687fa34ca8949",
+    "sha256": "482774abde179da421dc0969e143684aba0ec53093cc7f0be4f4f832f75997d2"
+  },
+  "store_text_preserved": true,
+  "all_images_preserved": true,
+  "other_tracks_preserved": true,
+  "tablet_screenshots_preserved": 30,
+  "shorebird": {
+    "release": 845357,
+    "version": "1.0.26+30",
+    "android": "active",
+    "artifact": 3750942,
+    "sha256": "482774abde179da421dc0969e143684aba0ec53093cc7f0be4f4f832f75997d2",
+    "bytes": 139816918,
+    "source_commit": "e0fdc0e34db8b2377483d1fa4e00c4280b68473c"
+  },
+  "public_availability_verified": false,
+  "play_console": {
+    "verified_at": "2026-09-21T19:12:14.666527+00:00",
+    "review_status": "Modifications en cours d'examen",
+    "managed_publishing": false,
+    "automatic_release_after_approval": true,
+    "source": "read-only browser verification"
+  }
+}
