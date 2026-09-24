@@ -1,0 +1,43 @@
+{
+  "version": "1.0.27",
+  "sourceCommit": "e8b1df346eb33a4fc42c5a9db0bb37b9ef8f2008",
+  "android": {
+    "build": 31,
+    "aabSha256": "099f40150dd0e711f2da7b6491395fad1ae2552aecc4c824ebc3332b336b5300",
+    "shorebirdReleaseCreated": true,
+    "playState": "draft",
+    "playNewReviewSubmitted": false,
+    "apiPublicationBlocker": "HTTP 403: Foreground Service permissions declaration required",
+    "imagesPreserved": true,
+    "listingsPreserved": true,
+    "physicalDeviceTested": false,
+    "emulatorTravelTestPassed": true
+  },
+  "ios": {
+    "version": "1.0.27",
+    "build": "35",
+    "build_id": "791abfee-1fdf-4cd8-b0b9-a1ed31a7ce04",
+    "version_id": "fec07b01-c9f0-4325-9adc-b9245542fce6",
+    "processingState": "VALID",
+    "appStoreState": "PREPARE_FOR_SUBMISSION",
+    "releaseType": "AFTER_APPROVAL",
+    "reviewSubmitted": false,
+    "reviewRecordingRequired": true,
+    "reviewNotesUpdated": true,
+    "reviewCredentialsPreserved": true,
+    "screenshotsPreserved": true,
+    "screenshotCount": 36,
+    "localizationsPreserved": true,
+    "releaseNotesEditable": false,
+    "releaseNotesApiResponse": "409 STATE_ERROR: whatsNew cannot be edited at this time",
+    "firstAppStoreRelease": true
+  },
+  "device": {
+    "buildPrepared": 35,
+    "adHocRun": 36071218818,
+    "installed": false,
+    "reason": "iPhone disconnected from USB",
+    "physicalTravelTested": false,
+    "temporarySigningSecretRemoved": true
+  }
+}

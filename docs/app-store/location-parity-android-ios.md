@@ -1,7 +1,9 @@
 # Travel updates: Android and iOS parity
 
-Local follow-up to iOS build 34, 24 September 2026. These changes are not included
-in the installed iOS build 34 and have not been published to either store.
+Implementation follow-up to iOS build 34, 24 September 2026. These changes ship
+in Android 1.0.27+31 and iOS 1.0.27 (35). Build 34 on the physical iPhone does
+not include this follow-up. Store submission and device-test status are recorded
+in [the release report](../release-1.0.27.md); neither store release is yet public.
 
 Both platforms use the shared travel setting, 3 km recalculation threshold,
 prayer/widget/adhan refresh pipeline, authorization reconciliation on resume,
