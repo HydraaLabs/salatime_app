@@ -1,0 +1,25 @@
+{
+  "verified_at": "2026-09-24T21:51:43.423054+00:00",
+  "source_commit": "787dd2f4df59e836c3ff14a7da8db2ef321ac1cd",
+  "branch": "fix/ios-location-review-20260924",
+  "version": "1.0.26",
+  "build": "34",
+  "signed_build_run": 36061014807,
+  "device_package_run": 36063500568,
+  "flutter_tests_passed": 652,
+  "native_ios_regression_step": "success",
+  "device_installation": {
+    "previous_version": "1.0.22",
+    "previous_build": "28",
+    "installed_version": "1.0.26",
+    "installed_build": "34",
+    "ios_version": "26.6.1",
+    "operation": "upgrade",
+    "readback_verified": true
+  },
+  "app_store_uploaded": false,
+  "app_review_submitted": false,
+  "physical_background_travel_verified": false,
+  "device_ipa_sha256": "aadf59a94327918e18b39f7ce74741f304f633e29048b321ae78ca81c4985a7a",
+  "app_store_ipa_sha256": "d36720cb25ee57eee531a6a895ac07034a42be0685de1d66400fc463d3432ac2"
+}

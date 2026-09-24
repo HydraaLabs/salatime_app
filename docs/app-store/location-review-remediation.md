@@ -1,6 +1,7 @@
 # Location review remediation — 24 September 2026
 
-Status: corrections prepared for an isolated iOS test build, not submitted. The rejected build is 1.0.26 (33),
+Status: corrected iOS 1.0.26 (34) compiled, signed and installed on the registered
+iPhone on 24 September 2026. Not uploaded or submitted to App Store Connect. The rejected build is 1.0.26 (33),
 submission `9310cc24-6213-4e64-91fb-a3970a56930b`. Apple reviewed it on an
 11-inch iPad Air (M3). Do not label the 2.5.4 objection resolved until the physical
 background-travel test is recorded and Apple accepts the justification.
@@ -81,15 +82,31 @@ background-update timestamps here. Do not send with placeholders.]
   threshold/failure retry, permission UI, settings navigation/status, onboarding,
   narrow-screen/large-text settings layout, prayer adjustment scheduling, native
   schedule batching and notification scheduler.
-- All 58 distinct targeted tests passed across the final targeted run and the
-  corrected UI-test rerun. The UI rerun has 7/7 passing tests; native EventChannel
-  cancellation is awaited outside Flutter's fake-timer zone.
-- `flutter analyze` on the changed Dart implementation and tests: no issues.
+- Full GitHub Actions verification: **652 Flutter tests passed**, Flutter analysis
+  reported no issues, and the native iOS simulator regression step succeeded.
+- The signed archive and IPA both validate Runner and SalaTimeWidget as 1.0.26
+  (34), including the app group, signing profiles and Google URL scheme.
 - `git diff --check`: clean.
-- GitHub CLI access was restored on 24 September. A signed test build is being
-  prepared on a dedicated branch, without an App Store Connect upload. Physical
-  background-travel evidence remains outstanding. The review response above is
-  still an unsent draft.
+
+## Verified build and device installation
+
+- Source commit: `787dd2f4df59e836c3ff14a7da8db2ef321ac1cd`.
+- Signed build: https://github.com/HydraaLabs/salatime_app/actions/runs/36061014807
+- Private device package: https://github.com/HydraaLabs/salatime_app/actions/runs/36063500568
+- Re-signing verified unchanged code and resources and authorization for exactly
+  one registered device. The connected iPhone matched the private profile.
+- USB upgrade completed successfully from 1.0.22 (28) to **1.0.26 (34)** on
+  **iOS 26.6.1**. A separate installed-app query confirmed the new version/build.
+  The existing app was upgraded without uninstalling it.
+- Local device IPA: `release-artifacts/ios-location-review-34/SalaTime-AdHoc-34.ipa`.
+- Device IPA SHA-256: `aadf59a94327918e18b39f7ce74741f304f633e29048b321ae78ca81c4985a7a`.
+- App Store IPA SHA-256: `d36720cb25ee57eee531a6a895ac07034a42be0685de1d66400fc463d3432ac2`.
+- The temporary repository secret used to encrypt the private artifact was removed
+  after download and authenticated local decryption. IPA files are git-ignored.
+- **Not yet verified:** physical background travel, the destination widget before
+  reopening the app, and audible adhan at the recalculated time. Installation and
+  simulator tests are not evidence of those behaviors. The required recording and
+  review reply remain outstanding; nothing was sent to App Review.
 
 ## References
 
