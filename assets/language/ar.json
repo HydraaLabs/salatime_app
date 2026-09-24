@@ -336,8 +336,8 @@
   "activate": "تفعيل",
   "no_thanks": "لا شكراً",
   "open_settings": "فتح الإعدادات",
-  "background_location_title": "الموقع في الخلفية",
-  "background_location_description": "للحفاظ على دقة أوقات الصلاة عند تنقلك وإشعارك بالمساجد القريبة، يحتاج التطبيق إلى الوصول إلى موقعك في جميع الأوقات. لا يغادر موقعك جهازك أبداً.",
+  "background_location_title": "مواقيت الصلاة أثناء التنقل",
+  "background_location_description": "يستخدم SalaTime موقعك لتحديث مواقيت الصلاة وتنبيهات الأذان والويدجت بعد تنقلك نحو 3 كم. يتيح الوصول في الخلفية التحديث أثناء استخدام تطبيق آخر أو قفل الشاشة. تختار الإذن في نافذة النظام. عند السماح أثناء الاستخدام فقط، يتم التحديث عندما يكون SalaTime مفتوحاً. قد يُرسل موقعك إلى خدمات حساب المواقيت والبحث عن المدينة.",
   "background_location_dialog_title": "السماح بالموقع دائماً",
   "background_location_dialog_message": "افتح الإعدادات، اختر الموقع، ثم حدد \"السماح طوال الوقت\" حتى يتم تحديث أوقات الصلاة تلقائياً.",
   "about": "حول التطبيق",
@@ -852,5 +852,12 @@
   "calculation_method_auto_title": "طريقة الحساب تلقائيًا حسب البلد",
   "calculation_method_auto_description": "استخدام بلد موقعك أو المدينة المختارة. اختيار طريقة أدناه يوقف الاختيار التلقائي.",
   "calculation_method_auto_resolved": "@country · @method",
-  "calculation_method_auto_unavailable": "البلد غير متاح. تبقى طريقة @method حتى يتوفر موقعك."
+  "calculation_method_auto_unavailable": "البلد غير متاح. تبقى طريقة @method حتى يتوفر موقعك.",
+  "travel_location_title": "التحديث أثناء التنقل",
+  "travel_location_summary": "تحديث المواقيت والأذان والويدجت بعد التنقل نحو 3 كم.",
+  "travel_location_off": "معطّل: لا يتتبع الموقع تنقلاتك.",
+  "travel_location_background": "الوصول في الخلفية مسموح. يعتمد التتبع على خدمات الموقع في الهاتف.",
+  "travel_location_foreground": "وصول محدود: التحديث عند فتح SalaTime. إذن «دائماً» يتيح التحديث في الخلفية.",
+  "travel_location_denied": "الوصول إلى الموقع غير مسموح: تبقى آخر المواقيت محفوظة.",
+  "travel_location_error": "الموقع غير متاح مؤقتاً. يمكنك المحاولة مجدداً من إعدادات الصلاة."
 }

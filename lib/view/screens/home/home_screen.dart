@@ -71,6 +71,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
+      // Reconcile Always/While Using changes made in iOS/Android Settings.
+      _startLocationUpdates();
       _refreshAlarms();
       _armMidnightRefresh();
       _armClockWatch();
@@ -108,8 +110,16 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       _refreshAlarms();
 
       // 4. Adapt adhan times when the user moves (if opted in)
-      LocationAutoUpdateService.start();
+      _startLocationUpdates();
     });
+  }
+
+  void _startLocationUpdates() {
+    unawaited(
+      LocationAutoUpdateService.start().catchError((Object error) {
+        Get.log('Unable to start automatic location updates: $error');
+      }),
+    );
   }
 
   @override

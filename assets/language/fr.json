@@ -331,8 +331,8 @@
   "activate": "Activer",
   "no_thanks": "Non merci",
   "open_settings": "Ouvrir les paramètres",
-  "background_location_title": "Localisation en arrière-plan",
-  "background_location_description": "Pour garder des horaires de prière exacts lors de vos déplacements et vous informer des mosquées proches, l'application a besoin d'accéder à votre position en permanence. Votre position ne quitte jamais votre appareil.",
+  "background_location_title": "Horaires pendant vos déplacements",
+  "background_location_description": "SalaTime utilise votre position pour actualiser les horaires de prière, les rappels d’adhan et le widget après un déplacement d’environ 3 km. L’accès en arrière-plan permet cette actualisation pendant que vous utilisez une autre app ou verrouillez l’écran. Vous choisissez l’autorisation dans la fenêtre du système. Avec un accès limité à l’utilisation, les mises à jour ont lieu lorsque SalaTime est ouverte. Votre position peut être transmise aux services de calcul des horaires et de recherche de ville.",
   "background_location_dialog_title": "Autoriser la localisation tout le temps",
   "background_location_dialog_message": "Ouvrez les paramètres, sélectionnez Localisation, puis choisissez « Toujours autoriser » pour que les horaires de prière se mettent à jour automatiquement.",
   "about": "À propos",
@@ -848,5 +848,12 @@
   "calculation_method_auto_title": "Méthode automatique selon le pays",
   "calculation_method_auto_description": "Utilise le pays de votre position GPS ou de la ville choisie. Choisir une méthode ci-dessous désactive la sélection automatique.",
   "calculation_method_auto_resolved": "@country · @method",
-  "calculation_method_auto_unavailable": "Pays indisponible. La méthode @method est conservée en attendant votre localisation."
+  "calculation_method_auto_unavailable": "Pays indisponible. La méthode @method est conservée en attendant votre localisation.",
+  "travel_location_title": "Actualiser lors des déplacements",
+  "travel_location_summary": "Actualise les horaires, les adhans et le widget après environ 3 km.",
+  "travel_location_off": "Désactivé : la position ne suit pas vos déplacements.",
+  "travel_location_background": "Accès en arrière-plan autorisé. Le suivi dépend des services de localisation du téléphone.",
+  "travel_location_foreground": "Accès limité : actualisation lorsque SalaTime est ouverte. L’accès « Toujours » permet le suivi en arrière-plan.",
+  "travel_location_denied": "Localisation non autorisée : les derniers horaires sont conservés.",
+  "travel_location_error": "La localisation est momentanément indisponible. Vous pouvez réessayer depuis les réglages de prière."
 }

@@ -1,192 +1,138 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:salatime/helper/location_auto_update_service.dart';
 import 'package:salatime/helper/route_helper.dart';
-import 'package:salatime/util/dimensions.dart';
-import 'package:salatime/util/styles.dart';
 
-class BackgroundLocationScreen extends StatelessWidget {
-  const BackgroundLocationScreen({super.key});
+/// A neutral explanation immediately followed by the system permission dialog.
+/// On iOS this is opened only by opting into travel updates in prayer settings.
+class BackgroundLocationScreen extends StatefulWidget {
+  const BackgroundLocationScreen({super.key, this.fromSettings = false});
 
-  static bool get _isPermissionHandlerSupported =>
-      !kIsWeb && (Platform.isAndroid || Platform.isIOS);
+  final bool fromSettings;
 
-  /// Whether the one-time background location prompt should be shown.
   static Future<bool> shouldShow() async {
-    if (!_isPermissionHandlerSupported) return false;
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool shown = prefs.getBool('bg_location_prompt_shown') ?? false;
-    if (shown) return false;
-    PermissionStatus status = await Permission.locationAlways.status;
-    return !status.isGranted;
+    // Background tracking is optional, not a condition for first launch.
+    if (!LocationAutoUpdateService.isSupported ||
+        defaultTargetPlatform == TargetPlatform.iOS) {
+      return false;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool('bg_location_prompt_shown') ?? false) return false;
+    return !await Permission.locationAlways.isGranted;
   }
 
-  Future<void> _continueToHome() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+  @override
+  State<BackgroundLocationScreen> createState() =>
+      _BackgroundLocationScreenState();
+}
+
+class _BackgroundLocationScreenState extends State<BackgroundLocationScreen> {
+  bool _busy = false;
+  String? _error;
+
+  Future<void> _finish() async {
+    final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('bg_location_prompt_shown', true);
-    Get.offAllNamed(RouteHelper.bottomNavbar);
-  }
-
-  Future<void> _onActivate() async {
-    // Foreground location must be granted before asking for "always".
-    PermissionStatus foreground = await Permission.location.status;
-    if (!foreground.isGranted) {
-      foreground = await Permission.location.request();
-    }
-
-    PermissionStatus always = PermissionStatus.denied;
-    if (foreground.isGranted) {
-      always = await Permission.locationAlways.request();
-    }
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    if (always.isGranted) {
-      await prefs.setBool('auto_location_update', true);
-      await _continueToHome();
-    } else if (always.isPermanentlyDenied || always.isDenied) {
-      // Android 11+ cannot prompt for background location directly:
-      // the user must pick "Allow all the time" in system settings.
-      _showSettingsDialog();
+    if (!mounted) return;
+    if (widget.fromSettings) {
+      Navigator.of(context).pop();
     } else {
-      await _continueToHome();
+      Get.offAllNamed(RouteHelper.bottomNavbar);
     }
   }
 
-  void _showSettingsDialog() {
-    Get.dialog(
-      AlertDialog(
-        backgroundColor: Get.theme.cardColor,
-        title: Text(
-          'background_location_dialog_title'.tr,
-          style: robotoMedium.copyWith(
-            fontSize: Dimensions.FONT_SIZE_LARGE,
-            color: Get.theme.primaryColor,
-          ),
-        ),
-        content: Text(
-          'background_location_dialog_message'.tr,
-          style: robotoRegular.copyWith(
-            fontSize: Dimensions.FONT_SIZE_DEFAULT,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Get.back();
-              _continueToHome();
-            },
-            child: Text('no_thanks'.tr),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Get.theme.primaryColor,
-            ),
-            onPressed: () async {
-              Get.back();
-              await openAppSettings();
-              await _continueToHome();
-            },
-            child: Text('open_settings'.tr),
-          ),
-        ],
-      ),
-    );
+  Future<void> _requestPermission() async {
+    if (_busy) return;
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      var foreground = await Permission.location.status;
+      if (foreground.isDenied) foreground = await Permission.location.request();
+      if (foreground.isGranted) {
+        final always = await Permission.locationAlways.status;
+        if (always.isDenied) await Permission.locationAlways.request();
+        // The system may grant only While Using or defer the Always prompt.
+        // Keep the user's opt-in, without pretending background access exists.
+        if (await Permission.location.isGranted ||
+            await Permission.locationAlways.isGranted) {
+          await LocationAutoUpdateService.enable();
+        }
+      }
+      // Respect refusals. No automatic Settings prompt or permission loop.
+      await _finish();
+    } catch (_) {
+      if (mounted) setState(() => _error = 'travel_location_error'.tr);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(Dimensions.PADDING_SIZE_LARGE),
-          child: Column(
-            children: [
-              const Spacer(),
-
-              // location icon
-              Container(
-                height: 110,
-                width: 110,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Theme.of(context).primaryColor.withValues(alpha: 0.15),
-                ),
-                child: Icon(
-                  Icons.location_on,
-                  size: 60,
-                  color: Theme.of(context).primaryColor,
-                ),
-              ),
-              const SizedBox(height: Dimensions.PADDING_SIZE_LARGE),
-
-              // title
-              Text(
-                'background_location_title'.tr,
-                textAlign: TextAlign.center,
-                style: robotoMedium.copyWith(
-                  fontSize: Dimensions.FONT_SIZE_OVER_LARGE,
-                  color: Theme.of(context).primaryColor,
-                ),
-              ),
-              const SizedBox(height: Dimensions.PADDING_SIZE_DEFAULT),
-
-              // description
-              Text(
-                'background_location_description'.tr,
-                textAlign: TextAlign.center,
-                style: robotoRegular.copyWith(
-                  fontSize: Dimensions.FONT_SIZE_DEFAULT,
-                ),
-              ),
-              const Spacer(),
-
-              // activate button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: Dimensions.PADDING_SIZE_DEFAULT,
+    final ios = defaultTargetPlatform == TargetPlatform.iOS;
+    return PopScope(
+      canPop: !ios && !_busy,
+      child: Scaffold(
+        body: SafeArea(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.location_on,
+                      size: 72,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        Dimensions.RADIUS_SMALL,
+                    const SizedBox(height: 24),
+                    Text(
+                      'background_location_title'.tr,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'background_location_description'.tr,
+                      textAlign: TextAlign.center,
+                    ),
+                    if (_error != null) ...[
+                      const SizedBox(height: 16),
+                      Text(
+                        _error!,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 32),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _busy ? null : _requestPermission,
+                        child: Text('onboarding_next'.tr),
                       ),
                     ),
-                  ),
-                  onPressed: _onActivate,
-                  child: Text(
-                    'activate'.tr,
-                    style: robotoMedium.copyWith(
-                      fontSize: Dimensions.FONT_SIZE_LARGE,
-                      color: Colors.white,
-                    ),
-                  ),
+                    if (!ios)
+                      TextButton(
+                        onPressed: _busy ? null : _finish,
+                        child: Text('no_thanks'.tr),
+                      ),
+                    // Recovery after a platform error is not a pre-permission
+                    // alternative; never trap someone on an unavailable API.
+                    if (_error != null && ios)
+                      TextButton(onPressed: _finish, child: Text('close'.tr)),
+                  ],
                 ),
               ),
-              const SizedBox(height: Dimensions.PADDING_SIZE_SMALL),
-
-              // no thanks button
-              SizedBox(
-                width: double.infinity,
-                child: TextButton(
-                  onPressed: _continueToHome,
-                  child: Text(
-                    'no_thanks'.tr,
-                    style: robotoMedium.copyWith(
-                      fontSize: Dimensions.FONT_SIZE_LARGE,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),

@@ -97,6 +97,7 @@ void main() {
                           sharedPreferences: prefs,
                         ),
                       )
+                      ..isManualPrayerTime.value = true
                       ..saveAddress.value =
                           'Saint-Étienne-du-Rouvray, Normandie',
                   )
@@ -140,14 +141,21 @@ void main() {
           final formatLabel = find.text(
             french['show_prayer_time_formation_as_a_24_hr_clock']!,
           );
+          final formatSwitch = find.descendant(
+            of: find.ancestor(
+              of: formatLabel,
+              matching: find.byType(SwitchListTile),
+            ),
+            matching: find.byType(Switch),
+          );
           final paragraph = tester.renderObject<RenderParagraph>(formatLabel);
           expect(paragraph.didExceedMaxLines, isFalse);
-          expect(tester.getRect(find.byType(Switch)).right, lessThan(width));
-          await tester.scrollUntilVisible(find.byType(Switch), 100);
-          await tester.tap(find.byType(Switch));
+          expect(tester.getRect(formatSwitch).right, lessThan(width));
+          await tester.scrollUntilVisible(formatSwitch, 100);
+          await tester.tap(formatSwitch);
           await tester.pumpAndSettle();
           expect(prefs.getBool('is24HrFormat'), isFalse);
-          expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
+          expect(tester.widget<Switch>(formatSwitch).value, isFalse);
           expect(tester.takeException(), isNull);
 
           final directory = Platform.environment['SALATIME_QA_DIR'];

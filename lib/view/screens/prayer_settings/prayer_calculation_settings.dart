@@ -15,6 +15,7 @@ import 'package:salatime/util/styles.dart';
 import 'package:salatime/view/screens/prayer_settings/widget/custom_prayer_dropdown.dart';
 
 import 'widget/custom_city_widget.dart';
+import 'widget/automatic_location_tile.dart';
 
 class PrayerTimeCalculationSettings extends StatefulWidget {
   const PrayerTimeCalculationSettings({super.key});
@@ -140,6 +141,7 @@ class _PrayerTimeCalculationSettingsState
                         ),
                       ),
                       const SizedBox(height: Dimensions.PADDING_SIZE_SMALL),
+                      const AutomaticLocationTile(),
                       Text(
                         'city_settings'.tr,
                         style: robotoMedium.copyWith(
@@ -194,9 +196,12 @@ class _PrayerTimeCalculationSettingsState
                                   child: Obx(
                                     () => Text(
                                       prayerTimeController
-                                              .saveAddress
-                                              .value
-                                              .isNotEmpty
+                                                  .isManualPrayerTime
+                                                  .value &&
+                                              prayerTimeController
+                                                  .saveAddress
+                                                  .value
+                                                  .isNotEmpty
                                           ? prayerTimeController
                                                 .saveAddress
                                                 .value
