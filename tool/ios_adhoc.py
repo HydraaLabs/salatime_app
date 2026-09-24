@@ -25,10 +25,10 @@ from ios_release import (APP_ID, APP_GROUP, WIDGET_ID, check_google_url_scheme,
                          check_profile, cleanup, require, required_env, run,
                          secret_file, state_directory, write_state)
 
-SOURCE_RUN = 35203619716
-SOURCE_SHA = "ecf0eacb59c7c46c42969abce999f72b497375a1"
-BUILD = "29"
-VERSION = "1.0.22"
+SOURCE_RUN = 36061014807
+SOURCE_SHA = "787dd2f4df59e836c3ff14a7da8db2ef321ac1cd"
+BUILD = "34"
+VERSION = "1.0.26"
 
 
 def check_adhoc_profile(profile: dict, bundle: str, team: str) -> dict:
@@ -189,7 +189,7 @@ def resign() -> None:
         run("codesign", "--verify", "--deep", "--strict", str(bundle))
     require(content_manifest(app, {target[2] for target in targets}) == before,
             "An application resource or embedded framework changed during re-signing")
-    result = directory / "SalaTime-AdHoc-29.ipa"
+    result = directory / "SalaTime-AdHoc-34.ipa"
     run("ditto", "-c", "-k", "--keepParent", str(unpacked / "Payload"), str(result))
     output = Path(required_env("ENCRYPTED_ARTIFACT_DIRECTORY"))
     output.mkdir(mode=0o700, parents=True, exist_ok=True)
@@ -203,7 +203,7 @@ def resign() -> None:
     sealed = seal(payload, required_env("IOS_ADHOC_ARTIFACT_PASSWORD").encode(), report_bytes)
     require(unseal(sealed, required_env("IOS_ADHOC_ARTIFACT_PASSWORD").encode(), report_bytes) == payload,
             "Private artifact encryption roundtrip failed")
-    secret_file(output / "SalaTime-AdHoc-29.ipa.enc", sealed)
+    secret_file(output / "SalaTime-AdHoc-34.ipa.enc", sealed)
     (output / "validation.json").write_bytes(report_bytes)
     print("Ad hoc app and widget verified for one registered device; only the encrypted IPA and sanitized report will be uploaded.")
 
@@ -229,7 +229,7 @@ def decrypt() -> None:
     directory = Path(required_env("ENCRYPTED_ARTIFACT_DIRECTORY"))
     report_bytes = (directory / "validation.json").read_bytes()
     password = Path(required_env("ADHOC_PASSWORD_FILE")).read_bytes().strip()
-    payload = unseal((directory / "SalaTime-AdHoc-29.ipa.enc").read_bytes(), password, report_bytes)
+    payload = unseal((directory / "SalaTime-AdHoc-34.ipa.enc").read_bytes(), password, report_bytes)
     report = json.loads(report_bytes)
     require(report.get("source_run") == SOURCE_RUN and report.get("source_sha") == SOURCE_SHA and
             report.get("build") == BUILD and report.get("ipa_sha256") == hashlib.sha256(payload).hexdigest(),
