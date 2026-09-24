@@ -7,21 +7,15 @@ import 'package:salatime/helper/location_auto_update_service.dart';
 import 'package:salatime/helper/route_helper.dart';
 
 /// A neutral explanation immediately followed by the system permission dialog.
-/// On iOS this is opened only by opting into travel updates in prayer settings.
+/// Opened only by opting into travel updates in prayer settings on either OS.
 class BackgroundLocationScreen extends StatefulWidget {
   const BackgroundLocationScreen({super.key, this.fromSettings = false});
 
   final bool fromSettings;
 
   static Future<bool> shouldShow() async {
-    // Background tracking is optional, not a condition for first launch.
-    if (!LocationAutoUpdateService.isSupported ||
-        defaultTargetPlatform == TargetPlatform.iOS) {
-      return false;
-    }
-    final prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool('bg_location_prompt_shown') ?? false) return false;
-    return !await Permission.locationAlways.isGranted;
+    // Background tracking is optional on both OSes, not part of onboarding.
+    return false;
   }
 
   @override
@@ -103,6 +97,13 @@ class _BackgroundLocationScreenState extends State<BackgroundLocationScreen> {
                       'background_location_description'.tr,
                       textAlign: TextAlign.center,
                     ),
+                    if (!ios) ...[
+                      const SizedBox(height: 16),
+                      Text(
+                        'travel_location_android_permission'.tr,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                     if (_error != null) ...[
                       const SizedBox(height: 16),
                       Text(

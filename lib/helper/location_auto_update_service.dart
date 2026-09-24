@@ -10,7 +10,7 @@ import 'package:salatime/util/app_constants.dart';
 import 'package:salatime/helper/salat_waqt_service.dart';
 
 /// Watches the device position while the app is alive and, when the user has
-/// enabled automatic location update (background location permission), re-
+/// enabled automatic location update, re-
 /// fetches the prayer times and reschedules the adhan notifications as soon
 /// as the user has moved far enough for the times to change.
 class LocationAutoUpdateService {
@@ -163,6 +163,30 @@ class LocationAutoUpdateService {
         distanceFilter: _distanceFilterMeters ~/ 2,
         allowBackgroundLocationUpdates: backgroundPermissionGranted,
         showBackgroundLocationIndicator: backgroundPermissionGranted,
+      );
+    }
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+      return AndroidSettings(
+        accuracy: LocationAccuracy.low,
+        distanceFilter: _distanceFilterMeters ~/ 2,
+        intervalDuration: const Duration(minutes: 1),
+        // Keep While Using limited to foreground use. The foreground service
+        // is reserved for users who opted in and allowed background access.
+        // Geolocator owns notification 75415, separate from prayer/adhan IDs;
+        // cancelling the subscription removes it and releases the wake lock.
+        foregroundNotificationConfig: backgroundPermissionGranted
+            ? ForegroundNotificationConfig(
+                notificationTitle: 'SalaTime',
+                notificationText: 'travel_location_notification'.tr,
+                notificationChannelName: 'travel_location_title'.tr,
+                notificationIcon: const AndroidResource(
+                  name: 'launcher_icon',
+                  defType: 'mipmap',
+                ),
+                enableWakeLock: true,
+                setOngoing: true,
+              )
+            : null,
       );
     }
     return const LocationSettings(

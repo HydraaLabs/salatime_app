@@ -855,5 +855,7 @@
   "travel_location_background": "Accès en arrière-plan autorisé. Le suivi dépend des services de localisation du téléphone.",
   "travel_location_foreground": "Accès limité : actualisation lorsque SalaTime est ouverte. L’accès « Toujours » permet le suivi en arrière-plan.",
   "travel_location_denied": "Localisation non autorisée : les derniers horaires sont conservés.",
-  "travel_location_error": "La localisation est momentanément indisponible. Vous pouvez réessayer depuis les réglages de prière."
+  "travel_location_error": "La localisation est momentanément indisponible. Vous pouvez réessayer depuis les réglages de prière.",
+  "travel_location_android_permission": "Sur Android, choisissez « Toujours autoriser » dans les autorisations de localisation pour le suivi en arrière-plan. Une notification SalaTime restera visible pendant ce suivi. Vous pouvez le désactiver dans les réglages de prière.",
+  "travel_location_notification": "Actualisation des horaires pendant vos déplacements. Arrêt dans les réglages de prière."
 }

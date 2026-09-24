@@ -864,5 +864,7 @@
   "travel_location_background": "Background access granted. Tracking depends on the phone’s location services.",
   "travel_location_foreground": "Limited access: updates while SalaTime is open. Always access allows background updates.",
   "travel_location_denied": "Location access denied: the last prayer times are kept.",
-  "travel_location_error": "Location is temporarily unavailable. You can try again in prayer settings."
+  "travel_location_error": "Location is temporarily unavailable. You can try again in prayer settings.",
+  "travel_location_android_permission": "On Android, choose “Allow all the time” in location permissions for background updates. A SalaTime notification stays visible while tracking. You can turn it off in prayer settings.",
+  "travel_location_notification": "Updating prayer times as you travel. Turn off in prayer settings."
 }
