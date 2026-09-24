@@ -25,10 +25,10 @@ from ios_release import (APP_ID, APP_GROUP, WIDGET_ID, check_google_url_scheme,
                          check_profile, cleanup, require, required_env, run,
                          secret_file, state_directory, write_state)
 
-SOURCE_RUN = 36061014807
-SOURCE_SHA = "787dd2f4df59e836c3ff14a7da8db2ef321ac1cd"
-BUILD = "34"
-VERSION = "1.0.26"
+SOURCE_RUN = 36065913929
+SOURCE_SHA = "e8b1df346eb33a4fc42c5a9db0bb37b9ef8f2008"
+BUILD = "35"
+VERSION = "1.0.27"
 
 
 def check_adhoc_profile(profile: dict, bundle: str, team: str) -> dict:
