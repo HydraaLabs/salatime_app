@@ -189,7 +189,7 @@ def resign() -> None:
         run("codesign", "--verify", "--deep", "--strict", str(bundle))
     require(content_manifest(app, {target[2] for target in targets}) == before,
             "An application resource or embedded framework changed during re-signing")
-    result = directory / "SalaTime-AdHoc-34.ipa"
+    result = directory / f"SalaTime-AdHoc-{BUILD}.ipa"
     run("ditto", "-c", "-k", "--keepParent", str(unpacked / "Payload"), str(result))
     output = Path(required_env("ENCRYPTED_ARTIFACT_DIRECTORY"))
     output.mkdir(mode=0o700, parents=True, exist_ok=True)
@@ -203,7 +203,7 @@ def resign() -> None:
     sealed = seal(payload, required_env("IOS_ADHOC_ARTIFACT_PASSWORD").encode(), report_bytes)
     require(unseal(sealed, required_env("IOS_ADHOC_ARTIFACT_PASSWORD").encode(), report_bytes) == payload,
             "Private artifact encryption roundtrip failed")
-    secret_file(output / "SalaTime-AdHoc-34.ipa.enc", sealed)
+    secret_file(output / f"SalaTime-AdHoc-{BUILD}.ipa.enc", sealed)
     (output / "validation.json").write_bytes(report_bytes)
     print("Ad hoc app and widget verified for one registered device; only the encrypted IPA and sanitized report will be uploaded.")
 
@@ -229,7 +229,7 @@ def decrypt() -> None:
     directory = Path(required_env("ENCRYPTED_ARTIFACT_DIRECTORY"))
     report_bytes = (directory / "validation.json").read_bytes()
     password = Path(required_env("ADHOC_PASSWORD_FILE")).read_bytes().strip()
-    payload = unseal((directory / "SalaTime-AdHoc-34.ipa.enc").read_bytes(), password, report_bytes)
+    payload = unseal((directory / f"SalaTime-AdHoc-{BUILD}.ipa.enc").read_bytes(), password, report_bytes)
     report = json.loads(report_bytes)
     require(report.get("source_run") == SOURCE_RUN and report.get("source_sha") == SOURCE_SHA and
             report.get("build") == BUILD and report.get("ipa_sha256") == hashlib.sha256(payload).hexdigest(),
