@@ -1,5 +1,9 @@
 # SalaTime 1.0.27 — suivi des déplacements
 
+Cette note conserve l'état initial des builds Android 31 et iOS 35. Pour
+les builds suivants et leur publication, consulter le
+[correctif des horaires au démarrage](release-1.0.27-startup.md).
+
 Source applicative : `e8b1df346eb33a4fc42c5a9db0bb37b9ef8f2008`.
 Android : `1.0.27+31`. iOS : `1.0.27 (35)`.
 

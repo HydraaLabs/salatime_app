@@ -1,43 +1,80 @@
 {
+  "verifiedAt": "2026-09-27T15:42:17.051360+00:00",
   "version": "1.0.27",
-  "sourceCommit": "e8b1df346eb33a4fc42c5a9db0bb37b9ef8f2008",
+  "sourceCommit": "134899afc5da4befb41b6643dc11dbc1dd1b2ade",
+  "fixCommit": "1245f0fa1a6d317b2869620b9780c2f580d88896",
+  "validation": {
+    "flutterAnalyze": "passed",
+    "flutterTestsPassed": 676,
+    "newStartupTests": 8,
+    "iosNativeChecksPassed": true,
+    "startupFixTestedOnPhysicalDevice": false
+  },
   "android": {
-    "build": 31,
-    "aabSha256": "099f40150dd0e711f2da7b6491395fad1ae2552aecc4c824ebc3332b336b5300",
+    "build": 32,
+    "aabSha256": "66162295d8b707f4f137dc3b0ad402670a4bd490e6ed282cdc0afd402eb226ad",
     "shorebirdReleaseCreated": true,
-    "playState": "draft",
-    "playNewReviewSubmitted": false,
-    "apiPublicationBlocker": "HTTP 403: Foreground Service permissions declaration required",
+    "shorebirdReleaseId": 858036,
+    "playState": "in_review",
+    "playApiTrackStatus": "completed",
+    "playNewReviewSubmitted": true,
+    "quickChecksComplete": true,
+    "managedPublishingEnabled": false,
+    "publicAvailabilityConfirmed": false,
     "imagesPreserved": true,
     "listingsPreserved": true,
-    "physicalDeviceTested": false,
-    "emulatorTravelTestPassed": true
+    "otherTracksPreserved": true,
+    "foregroundServiceDeclarationPreserved": true,
+    "listingLanguages": 10,
+    "preservedImages": {
+      "phoneScreenshots": 70,
+      "sevenInchScreenshots": 15,
+      "tenInchScreenshots": 15
+    },
+    "shorebirdPatch": {
+      "target": "1.0.27+31",
+      "patch": 1,
+      "id": 678748,
+      "track": "stable",
+      "architectures": [
+        "arm",
+        "aarch64",
+        "x86_64"
+      ]
+    },
+    "physicalDeviceTested": false
   },
   "ios": {
     "version": "1.0.27",
-    "build": "35",
-    "build_id": "791abfee-1fdf-4cd8-b0b9-a1ed31a7ce04",
+    "build": "36",
+    "build_id": "88d09e12-79ef-4564-a5a9-e2bc6300d459",
     "version_id": "fec07b01-c9f0-4325-9adc-b9245542fce6",
     "processingState": "VALID",
-    "appStoreState": "PREPARE_FOR_SUBMISSION",
+    "appStoreState": "WAITING_FOR_REVIEW",
+    "reviewSubmissionId": "4e47d694-cb0a-4542-b398-95c7417a32b5",
+    "reviewSubmissionState": "WAITING_FOR_REVIEW",
+    "reviewSubmitted": true,
+    "submittedDate": "2026-09-27T15:40:09.895Z",
     "releaseType": "AFTER_APPROVAL",
-    "reviewSubmitted": false,
-    "reviewRecordingRequired": true,
+    "publicAvailabilityConfirmed": false,
+    "ipaSha256": "477a561960764eb5f0c9a90dcc058bfe42afed63beebcf403cb6212eb0d6e9a3",
     "reviewNotesUpdated": true,
     "reviewCredentialsPreserved": true,
     "screenshotsPreserved": true,
     "screenshotCount": 36,
     "localizationsPreserved": true,
-    "releaseNotesEditable": false,
-    "releaseNotesApiResponse": "409 STATE_ERROR: whatsNew cannot be edited at this time",
-    "firstAppStoreRelease": true
+    "localizationCount": 3,
+    "attachmentCount": 1,
+    "ciRun": 36327000308,
+    "ciAttempt": 2,
+    "ciConclusion": "success",
+    "physicalDeviceTested": false
   },
-  "device": {
-    "buildPrepared": 35,
-    "adHocRun": 36071218818,
-    "installed": false,
-    "reason": "iPhone disconnected from USB",
+  "reviewVideoEvidence": {
+    "androidRecordedBuild": 31,
+    "iosRecordedBuild": 35,
+    "physicalDevicesRecorded": true,
     "physicalTravelTested": false,
-    "temporarySigningSecretRemoved": true
+    "startupFixShown": false
   }
 }
