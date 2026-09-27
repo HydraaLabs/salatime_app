@@ -231,8 +231,6 @@ class PrayerTimeController extends GetxController implements GetxService {
         latitude = position.latitude;
         longitude = position.longitude;
 
-        await _cacheAutomaticLocation(prefs, position);
-
         final isPrayerTme = prefs.getBool(AppConstants.isPrayerTme);
         bool isTimeTrue = prefs.getBool(AppConstants.isPrayerTme) ?? false;
 

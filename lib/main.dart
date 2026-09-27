@@ -18,6 +18,7 @@ import 'controller/localization_controller.dart';
 import 'controller/theme_controller.dart';
 import 'helper/audio_service_helper.dart';
 import 'helper/get_di.dart' as di;
+import 'helper/prayer_time_startup.dart';
 import 'helper/route_helper.dart';
 import 'util/messages.dart';
 import 'view/screens/location/background_location_screen.dart';
@@ -56,6 +57,9 @@ Future<void> _bootstrapApp() async {
       : await BackgroundLocationScreen.shouldShow()
       ? RouteHelper.backgroundLocation
       : RouteHelper.bottomNavbar;
+  if (initialRoute == RouteHelper.bottomNavbar) {
+    await PrayerTimeStartup.restore();
+  }
   runApp(
     SentryWidget(
       child: MyApp(languages: languages, initialRoute: initialRoute),

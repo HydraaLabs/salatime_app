@@ -4,11 +4,11 @@ import 'package:get/get.dart';
 import 'package:salatime/controller/home_layout_controller.dart';
 import 'package:salatime/controller/internet_check_controller.dart';
 import 'package:salatime/controller/package_prayer_time_controller.dart';
-import 'package:salatime/controller/prayer_time_adjustment.dart';
 import 'package:salatime/controller/quran_settings_controller.dart';
 import 'package:salatime/helper/device_clock_change.dart';
 import 'package:salatime/helper/islamic_calendar.dart';
 import 'package:salatime/helper/location_auto_update_service.dart';
+import 'package:salatime/helper/prayer_time_startup.dart';
 import 'package:salatime/helper/salat_waqt_service.dart';
 import 'package:salatime/view/screens/home/classic/classic_home_screen.dart';
 import 'package:salatime/view/screens/home/modern/modern_home_screen.dart';
@@ -96,20 +96,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     Get.find<SettingsController>().fetchMosqueSettingsData();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Also covers entering home after onboarding or recreating its route.
+      await PrayerTimeStartup.restore();
+      if (!mounted) return;
       final prayerTimeController = Get.find<PrayerTimeController>();
 
-      // 1. Get location first
+      // Refresh the saved location after local times are already displayed.
       await prayerTimeController.getLocation();
-
-      // 2. Load settings. getLocation() already refreshes prayer times.
-      prayerTimeController.loadSwitchValue();
-      prayerTimeController.loadPrayerTimeSettings();
-
-      // 3. Init adjustment
-      await Get.find<PrayerTimeAdjustmentController>().init();
+      if (!mounted) return;
       _refreshAlarms();
 
-      // 4. Adapt adhan times when the user moves (if opted in)
+      // Adapt adhan times when the user moves (if opted in).
       _startLocationUpdates();
     });
   }
