@@ -794,5 +794,14 @@
   "widget_ios_steps": "1. Sentuh dan tahan area kosong di Layar Utama.\n2. Ketuk Edit, lalu Tambah Widget (atau +).\n3. Cari SalaTime.\n4. Pilih ukuran lalu ketuk Tambah Widget.",
   "play_store_review_question": "Apakah Anda menyukai SalaTime?",
   "play_store_review_yes": "Ya",
-  "play_store_review_no": "Tidak"
+  "play_store_review_no": "Tidak",
+  "reading_progress_cloud_title": "Simpan statistik Anda di cloud",
+  "reading_progress_cloud_hint": "Masuk untuk menyimpan kemajuan bacaan dan melihat statistik Anda di perangkat lain.",
+  "surah_search_hint": "Cari surah",
+  "surah_search_empty": "Surah tidak ditemukan.",
+  "reciter_search_hint": "Cari qari",
+  "reciter_search_empty": "Qari tidak ditemukan.",
+  "reciter_load_error": "Daftar qari tidak dapat dimuat.",
+  "reciter_arabic_names_unavailable": "Nama dalam bahasa Arab sementara tidak tersedia.",
+  "catalog_search_clear": "Hapus pencarian"
 }

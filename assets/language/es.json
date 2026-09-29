@@ -799,5 +799,14 @@
   "widget_ios_steps": "1. Mantén pulsada una zona vacía de la pantalla de inicio.\n2. Toca Editar y Añadir widget (o +).\n3. Busca SalaTime.\n4. Desliza hasta el tamaño deseado y toca Añadir widget.",
   "play_store_review_question": "¿Te gusta SalaTime?",
   "play_store_review_yes": "Sí",
-  "play_store_review_no": "No"
+  "play_store_review_no": "No",
+  "reading_progress_cloud_title": "Guarda tus estadísticas en la nube",
+  "reading_progress_cloud_hint": "Inicia sesión para guardar tu progreso de lectura y consultar tus estadísticas en otros dispositivos.",
+  "surah_search_hint": "Buscar una sura",
+  "surah_search_empty": "No se ha encontrado ninguna sura.",
+  "reciter_search_hint": "Buscar un recitador",
+  "reciter_search_empty": "No se ha encontrado ningún recitador.",
+  "reciter_load_error": "No se pudieron cargar los recitadores.",
+  "reciter_arabic_names_unavailable": "Los nombres en árabe no están disponibles temporalmente.",
+  "catalog_search_clear": "Borrar búsqueda"
 }

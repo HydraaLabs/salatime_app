@@ -41,7 +41,7 @@
 
     <application
         android:name="${applicationName}"
-        android:label="SalaTime"
+        android:label="${salatimeAppLabel}"
         android:supportsRtl="true"
         android:fullBackupContent="@xml/auth_backup_rules"
         android:dataExtractionRules="@xml/auth_data_extraction_rules"

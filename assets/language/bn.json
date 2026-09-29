@@ -799,5 +799,14 @@
   "widget_ios_steps": "1. হোম স্ক্রিনের একটি খালি জায়গা চেপে ধরুন।\n2. Edit, তারপর Add Widget (বা +) চাপুন।\n3. SalaTime খুঁজুন।\n4. আকার বেছে নিয়ে Add Widget চাপুন।",
   "play_store_review_question": "আপনার কি SalaTime ভালো লাগে?",
   "play_store_review_yes": "হ্যাঁ",
-  "play_store_review_no": "না"
+  "play_store_review_no": "না",
+  "reading_progress_cloud_title": "আপনার পরিসংখ্যান ক্লাউডে সংরক্ষণ করুন",
+  "reading_progress_cloud_hint": "আপনার পাঠের অগ্রগতি সংরক্ষণ করতে এবং অন্য ডিভাইসে পরিসংখ্যান দেখতে সাইন ইন করুন।",
+  "surah_search_hint": "সূরা খুঁজুন",
+  "surah_search_empty": "কোনো সূরা পাওয়া যায়নি।",
+  "reciter_search_hint": "ক্বারী খুঁজুন",
+  "reciter_search_empty": "কোনো ক্বারী পাওয়া যায়নি।",
+  "reciter_load_error": "ক্বারীদের তালিকা লোড করা যায়নি।",
+  "reciter_arabic_names_unavailable": "আরবি নামগুলো সাময়িকভাবে পাওয়া যাচ্ছে না।",
+  "catalog_search_clear": "অনুসন্ধান মুছুন"
 }

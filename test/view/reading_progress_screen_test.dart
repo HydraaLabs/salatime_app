@@ -10,9 +10,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:salatime/controller/home_layout_controller.dart';
+import 'package:salatime/helper/athkar_catalog.dart';
+import 'package:salatime/service/mobile_auth_service.dart';
 import 'package:salatime/service/reading/reading_progress_service.dart';
 import 'package:salatime/theme/modern_dark_theme.dart';
 import 'package:salatime/theme/modern_light_theme.dart';
+import 'package:salatime/view/screens/account/account_screen.dart';
 import 'package:salatime/view/screens/reading/reading_progress_screen.dart';
 
 import '../support/fake_reading_progress.dart';
@@ -23,10 +26,67 @@ class _Strings extends Translations {
   final Map<String, Map<String, String>> keys;
 }
 
+class _Auth extends MobileAuthService {
+  _Auth() : super(apiBaseUrl: 'https://example.test');
+
+  @override
+  Future<void> initialize() async {}
+
+  @override
+  Future<void> loadConfiguration() async {
+    configuration.value = const MobileAuthConfiguration(
+      available: true,
+      email: true,
+    );
+  }
+
+  @override
+  Future<String?> accessToken() async =>
+      user.value == null ? null : 'test-token';
+
+  @override
+  Future<void> login({required String email, required String password}) async {
+    user.value = MobileUser(
+      id: 'reader',
+      name: 'Reader',
+      email: email,
+      emailVerified: true,
+      hasPassword: true,
+    );
+  }
+}
+
+class _ReadingStore implements ReadingProgressStore {
+  final documents = <String, Map<String, dynamic>>{};
+
+  @override
+  Future<Map<String, dynamic>?> read(String key) async => documents[key];
+
+  @override
+  Future<void> write(String key, Map<String, dynamic> document) async {
+    documents[key] = Map<String, dynamic>.from(
+      jsonDecode(jsonEncode(document)),
+    );
+  }
+}
+
+class _NoReadingNetwork implements ReadingProgressRemote {
+  @override
+  Future<ReadingProgressPage> pull(String token, int after) =>
+      throw StateError('This test must not access the network');
+
+  @override
+  Future<ReadingProgressAcknowledgement> push(
+    String token,
+    List<ReadingProgressOperation> operations,
+  ) => throw StateError('This test must not access the network');
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   final strings = <String, Map<String, String>>{};
   late FakeReadingProgress reading;
+  late _Auth auth;
 
   setUpAll(() async {
     for (final locale in ['en', 'fr', 'ar']) {
@@ -51,6 +111,7 @@ void main() {
       ),
     );
     reading = FakeReadingProgress();
+    auth = _Auth();
     reading.targets.addAll({'morning:1': 3, 'evening:1': 3});
     await reading.setCount(
       ReadingProgressKind.athkar,
@@ -79,6 +140,7 @@ void main() {
     bool dark = false,
     double scale = 1,
     GlobalKey? capture,
+    ReadingProgressService? progress,
   }) => GetMaterialApp(
     locale: Locale(locale),
     translations: _Strings(strings),
@@ -95,7 +157,10 @@ void main() {
       ).copyWith(textScaler: TextScaler.linear(scale)),
       child: RepaintBoundary(key: capture, child: child!),
     ),
-    home: ReadingProgressScreen(service: reading),
+    home: ReadingProgressScreen(
+      service: progress ?? reading,
+      authService: auth,
+    ),
   );
 
   Finder key(String name) => find.byKey(ValueKey(name));
@@ -168,6 +233,7 @@ void main() {
   testWidgets('statistics stay available while synchronization runs silently', (
     tester,
   ) async {
+    await auth.login(email: 'reader@example.test', password: 'test-password');
     await tester.pumpWidget(app());
     await tester.pumpAndSettle();
     for (final status in [
@@ -182,6 +248,7 @@ void main() {
       await tester.pump();
       expect(key('reading-progress-cloud'), findsNothing);
       expect(key('reading-progress-sync'), findsNothing);
+      expect(key('reading-progress-sign-in-prompt'), findsNothing);
       expect(key('reading-progress-today'), findsOneWidget);
       expect(metric(tester, 'selected-quran'), '5');
     }
@@ -189,6 +256,63 @@ void main() {
     expect(reading.syncCalls, 0);
     expect(reading.writes, 0);
   });
+
+  testWidgets('guest invitation opens the existing account sign-in form', (
+    tester,
+  ) async {
+    await tester.pumpWidget(app());
+    await tester.pumpAndSettle();
+    expect(key('reading-progress-sign-in-prompt'), findsOneWidget);
+    await tester.tap(key('reading-progress-sign-in'));
+    await tester.pumpAndSettle();
+    expect(find.byType(AccountScreen), findsOneWidget);
+    expect(key('auth_email'), findsOneWidget);
+    expect(key('auth_password'), findsOneWidget);
+    expect(reading.writes, 0);
+  });
+
+  testWidgets(
+    'sign-in removes the invitation and adopts existing guest history offline',
+    (tester) async {
+      final progress = ReadingProgressService(
+        auth: auth,
+        store: _ReadingStore(),
+        remote: _NoReadingNetwork(),
+        catalog: AthkarCatalog(categories: []),
+        now: () => DateTime(2026, 9, 13, 14),
+        observeLifecycle: false,
+        automaticSync: false,
+      );
+      addTearDown(progress.dispose);
+      await progress.initialize();
+      await progress.setCount(ReadingProgressKind.quran, '1:1', 1);
+      await progress.setCount(
+        ReadingProgressKind.quran,
+        '1:2',
+        1,
+        day: '2026-09-12',
+      );
+      await tester.pumpWidget(app(progress: progress));
+      await tester.pumpAndSettle();
+      await tester.tap(key('reading-progress-sign-in'));
+      await tester.pumpAndSettle();
+      await tester.enterText(key('auth_email'), 'reader@example.test');
+      await tester.enterText(key('auth_password'), 'test-password');
+      await tester.ensureVisible(find.byType(FilledButton));
+      await tester.tap(find.byType(FilledButton));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(BackButton));
+      await tester.pumpAndSettle();
+      expect(key('reading-progress-sign-in-prompt'), findsNothing);
+      expect(progress.todayCount(ReadingProgressKind.quran, '1:1'), 1);
+      expect(progress.statsForDay('2026-09-12').quranVerses, 1);
+      expect(progress.pendingOperationCount, 2);
+      expect(progress.status, 'cloud_pending');
+      await reach(tester, 'reading-progress-selected-quran');
+      expect(metric(tester, 'selected-quran'), '1');
+      expect(find.text('cloud_synced'.tr), findsNothing);
+    },
+  );
 
   for (final locale in ['fr', 'ar']) {
     for (final dark in [false, true]) {
@@ -205,8 +329,7 @@ void main() {
           );
           await tester.pumpAndSettle();
           expect(tester.takeException(), isNull);
-          await reach(tester, 'reading-week-2026-09-12');
-          expect(tester.takeException(), isNull);
+          expect(key('reading-progress-sign-in-prompt'), findsOneWidget);
           final outputDirectory =
               Platform.environment['SALATIME_READING_PREVIEW_DIR'];
           if (outputDirectory != null) {
@@ -225,6 +348,8 @@ void main() {
               image.dispose();
             });
           }
+          await reach(tester, 'reading-week-2026-09-12');
+          expect(tester.takeException(), isNull);
           await reach(tester, 'reading-history-2026-09-12');
           expect(tester.takeException(), isNull);
           tester.view.physicalSize = const Size(800, 320);

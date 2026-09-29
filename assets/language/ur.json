@@ -794,5 +794,14 @@
   "widget_ios_steps": "1. ہوم اسکرین کی خالی جگہ کو دبا کر رکھیں۔\n2. Edit پھر Add Widget (یا +) منتخب کریں۔\n3. SalaTime تلاش کریں۔\n4. سائز منتخب کرکے Add Widget دبائیں۔",
   "play_store_review_question": "کیا آپ کو SalaTime پسند ہے؟",
   "play_store_review_yes": "ہاں",
-  "play_store_review_no": "نہیں"
+  "play_store_review_no": "نہیں",
+  "reading_progress_cloud_title": "اپنے اعداد و شمار کلاؤڈ میں محفوظ رکھیں",
+  "reading_progress_cloud_hint": "اپنی تلاوت کی پیش رفت محفوظ کرنے اور دوسرے آلات پر اپنے اعداد و شمار دیکھنے کے لیے لاگ اِن کریں۔",
+  "surah_search_hint": "سورت تلاش کریں",
+  "surah_search_empty": "کوئی سورت نہیں ملی۔",
+  "reciter_search_hint": "قاری تلاش کریں",
+  "reciter_search_empty": "کوئی قاری نہیں ملا۔",
+  "reciter_load_error": "قاریوں کی فہرست لوڈ نہیں ہو سکی۔",
+  "reciter_arabic_names_unavailable": "عربی نام عارضی طور پر دستیاب نہیں ہیں۔",
+  "catalog_search_clear": "تلاش صاف کریں"
 }

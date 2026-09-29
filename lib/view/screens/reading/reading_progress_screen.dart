@@ -3,13 +3,16 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:salatime/service/mobile_auth_service.dart';
 import 'package:salatime/service/reading/reading_progress_service.dart';
 import 'package:salatime/view/base/custom_app_bar.dart';
+import 'package:salatime/view/screens/account/account_screen.dart';
 
 class ReadingProgressScreen extends StatefulWidget {
-  const ReadingProgressScreen({super.key, this.service});
+  const ReadingProgressScreen({super.key, this.service, this.authService});
 
   final ReadingProgressService? service;
+  final MobileAuthService? authService;
 
   @override
   State<ReadingProgressScreen> createState() => _ReadingProgressScreenState();
@@ -18,6 +21,8 @@ class ReadingProgressScreen extends StatefulWidget {
 class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
   late final ReadingProgressService _progress =
       widget.service ?? ReadingProgressService.instance;
+  late final MobileAuthService _auth =
+      widget.authService ?? MobileAuthService.instance;
   String? _selectedDay;
   int _historyLimit = 31;
   bool _initializationFailed = false;
@@ -101,6 +106,11 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
                 key: const PageStorageKey('reading-progress-list'),
                 padding: const EdgeInsets.all(16),
                 children: [
+                  Obx(
+                    () => _auth.user.value == null
+                        ? _cloudInvitation()
+                        : const SizedBox.shrink(),
+                  ),
                   Wrap(
                     alignment: WrapAlignment.spaceBetween,
                     crossAxisAlignment: WrapCrossAlignment.center,
@@ -245,6 +255,57 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
       ),
     ),
   );
+
+  Widget _cloudInvitation() {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Card(
+        key: const ValueKey('reading-progress-sign-in-prompt'),
+        elevation: 0,
+        color: theme.colorScheme.primary.withValues(alpha: 0.08),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.cloud_outlined, color: theme.colorScheme.primary),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'reading_progress_cloud_title'.tr,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text('reading_progress_cloud_hint'.tr),
+              const SizedBox(height: 12),
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: OutlinedButton.icon(
+                  key: const ValueKey('reading-progress-sign-in'),
+                  onPressed: () => Get.to<void>(
+                    () => AccountScreen(service: widget.authService),
+                  ),
+                  icon: const Icon(Icons.login),
+                  label: Text('auth_login'.tr),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget _heading(String key) => Padding(
     padding: const EdgeInsets.only(top: 24, bottom: 12),

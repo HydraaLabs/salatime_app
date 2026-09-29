@@ -861,5 +861,14 @@
   "travel_location_denied": "الوصول إلى الموقع غير مسموح: تبقى آخر المواقيت محفوظة.",
   "travel_location_error": "الموقع غير متاح مؤقتاً. يمكنك المحاولة مجدداً من إعدادات الصلاة.",
   "travel_location_android_permission": "على Android، اختر «السماح طوال الوقت» في أذونات الموقع للتحديث في الخلفية. يبقى إشعار SalaTime ظاهراً أثناء التتبع. يمكنك إيقافه من إعدادات الصلاة.",
-  "travel_location_notification": "تحديث المواقيت أثناء تنقلك. يمكنك إيقافه من إعدادات الصلاة."
+  "travel_location_notification": "تحديث المواقيت أثناء تنقلك. يمكنك إيقافه من إعدادات الصلاة.",
+  "reading_progress_cloud_title": "احتفظ بإحصاءاتك في السحابة",
+  "reading_progress_cloud_hint": "سجّل الدخول لحفظ تقدّمك في القراءة والاطّلاع على إحصاءاتك على أجهزتك الأخرى.",
+  "surah_search_hint": "ابحث عن سورة",
+  "surah_search_empty": "لم يتم العثور على سورة.",
+  "reciter_search_hint": "ابحث عن قارئ",
+  "reciter_search_empty": "لم يتم العثور على قارئ.",
+  "reciter_load_error": "تعذّر تحميل قائمة القرّاء.",
+  "reciter_arabic_names_unavailable": "الأسماء العربية غير متاحة مؤقتًا.",
+  "catalog_search_clear": "مسح البحث"
 }

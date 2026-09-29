@@ -1,16 +1,17 @@
 // ignore_for_file: deprecated_member_use, unnecessary_underscores
 
 import 'package:audio_service/audio_service.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:salatime/controller/audio_player_controller.dart';
-import 'package:salatime/helper/audio_service_helper.dart';
+import 'package:salatime/helper/catalog_search.dart';
+import 'package:salatime/helper/quran_chapter_catalog.dart';
 import 'package:salatime/shimmer/all_shimmer_loder.dart';
 import 'package:salatime/util/images.dart';
 import 'package:salatime/util/styles.dart';
 import 'package:salatime/view/base/custom_app_bar.dart';
+import 'package:salatime/view/base/catalog_search_field.dart';
 import 'package:salatime/view/screens/audio/audio_player_sheet.dart';
 
 import '../../../util/dimensions.dart';
@@ -27,27 +28,39 @@ class AudioPlayerView extends StatefulWidget {
 
 class _AudioPlayerViewState extends State<AudioPlayerView> {
   final AudioPlayerController _controller =
-      Get.put(AudioPlayerController(apiClient: Get.find()));
+      Get.isRegistered<AudioPlayerController>()
+      ? Get.find<AudioPlayerController>()
+      : Get.put(AudioPlayerController(apiClient: Get.find()));
+  final _searchController = TextEditingController();
+  final _scrollController = ScrollController();
+  QuranChapterCatalog? _chapterCatalog;
 
   @override
   void initState() {
     super.initState();
-    initializeAudioService();
+    // AudioPlayerController already owns the initialized shared handler.
+    _controller.isLoading.value = true;
+    _controller.audioList.clear();
+    _loadChapterCatalog();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _controller.loadAudioList(widget.reciterId.toString());
     });
   }
 
-  Future<void> initializeAudioService() async {
+  Future<void> _loadChapterCatalog() async {
     try {
-      _controller.isLoading.value = true;
-      _controller.audioList.clear();
-      await AudioServiceHelper.init();
-    } catch (error) {
-      if (kDebugMode) {
-        print('Error initializing AudioService: $error');
-      }
+      final catalog = await QuranChapterCatalog.load();
+      if (mounted) setState(() => _chapterCatalog = catalog);
+    } catch (_) {
+      // Existing media titles remain searchable if the bundled asset fails.
     }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -57,11 +70,13 @@ class _AudioPlayerViewState extends State<AudioPlayerView> {
         title: "audio_list_key".tr,
         isBackButtonExist: widget.appBackButton ?? false,
       ),
-      body: Obx(() => _controller.isLoading.value
-          ? const Center(child: DhuaShimmer())
-          : _controller.audioData.isEmpty
-              ? _buildEmptyAudioList()
-              : _buildAudioListWithPlayer()),
+      body: Obx(
+        () => _controller.isLoading.value
+            ? const Center(child: DhuaShimmer())
+            : _controller.audioData.isEmpty
+            ? _buildEmptyAudioList()
+            : _buildAudioListWithPlayer(),
+      ),
     );
   }
 
@@ -77,6 +92,18 @@ class _AudioPlayerViewState extends State<AudioPlayerView> {
   Widget _buildAudioListWithPlayer() {
     return Column(
       children: [
+        Padding(
+          padding: const EdgeInsets.all(Dimensions.PADDING_SIZE_SMALL),
+          child: CatalogSearchField(
+            controller: _searchController,
+            fieldKey: const ValueKey('audio_surah_search'),
+            hintText: 'surah_search_hint'.tr,
+            onChanged: (_) {
+              if (_scrollController.hasClients) _scrollController.jumpTo(0);
+              setState(() {});
+            },
+          ),
+        ),
         Expanded(child: _buildAudioList()),
         _buildBottomPlayerSection(),
       ],
@@ -84,19 +111,35 @@ class _AudioPlayerViewState extends State<AudioPlayerView> {
   }
 
   Widget _buildAudioList() {
+    final language = Localizations.localeOf(context).languageCode;
+    // Keep the original MediaItems: selection/playback still uses the full
+    // source queue, including when a search result is not its first item.
+    final visible = _controller.audioList.where((item) {
+      final chapter = item.extras?['chapterId'] as int?;
+      return matchesCatalogSearch(_searchController.text, [
+        item.title,
+        if (chapter != null) ...[
+          chapter.toString(),
+          ...?_chapterCatalog?.searchNames(chapter, language),
+        ],
+      ]);
+    }).toList();
+    if (visible.isEmpty) {
+      return Center(child: Text('surah_search_empty'.tr));
+    }
     return ListView.builder(
-      itemCount: _controller.audioList.length,
-      itemBuilder: (context, index) {
-        final mediaItem = _controller.audioList[index];
-        return _buildAudioListItem(mediaItem);
-      },
+      controller: _scrollController,
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      itemCount: visible.length,
+      itemBuilder: (context, index) => _buildAudioListItem(visible[index]),
     );
   }
 
   Widget _buildAudioListItem(MediaItem mediaItem) {
     return Padding(
-      padding:
-          const EdgeInsets.symmetric(horizontal: Dimensions.PADDING_SIZE_SMALL),
+      padding: const EdgeInsets.symmetric(
+        horizontal: Dimensions.PADDING_SIZE_SMALL,
+      ),
       child: Card(
         clipBehavior: Clip.antiAlias,
         color: Theme.of(context).cardColor,
@@ -107,13 +150,18 @@ class _AudioPlayerViewState extends State<AudioPlayerView> {
                 : null,
           ),
           title: Text(
-            mediaItem.title,
+            _chapterCatalog?.localizedName(
+                  mediaItem.extras?['chapterId'] as int? ?? 0,
+                  Localizations.localeOf(context).languageCode,
+                ) ??
+                mediaItem.title,
             style: robotoMedium.copyWith(color: Theme.of(context).primaryColor),
           ),
           subtitle: Text(
             mediaItem.artist ?? 'unknown_artist_key'.tr,
-            style:
-                robotoMedium.copyWith(color: Theme.of(context).disabledColor),
+            style: robotoMedium.copyWith(
+              color: Theme.of(context).disabledColor,
+            ),
           ),
           onTap: () => _controller.playMediaItem(mediaItem),
         ),
@@ -157,8 +205,9 @@ class _AudioPlayerViewState extends State<AudioPlayerView> {
           color: Get.isDarkMode
               ? Theme.of(context).cardColor.withOpacity(0.95)
               : Colors.white.withOpacity(0.97),
-          borderRadius:
-              BorderRadius.circular(Dimensions.RADIUS_EXTRA_LARGE + 10),
+          borderRadius: BorderRadius.circular(
+            Dimensions.RADIUS_EXTRA_LARGE + 10,
+          ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
@@ -232,8 +281,9 @@ class _AudioPlayerViewState extends State<AudioPlayerView> {
                     overflow: TextOverflow.ellipsis,
                     style: robotoMedium.copyWith(
                       fontSize: Dimensions.FONT_SIZE_SMALL,
-                      color:
-                          Get.isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                      color: Get.isDarkMode
+                          ? Colors.grey[400]
+                          : Colors.grey[600],
                     ),
                   ),
                 ],
