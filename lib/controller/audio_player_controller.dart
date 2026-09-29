@@ -5,7 +5,8 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart' show LoopMode;
-import 'package:salatime/controller/quran_controller.dart';
+import 'package:http/http.dart' as http;
+import 'package:salatime/helper/quran_chapter_catalog.dart';
 import 'package:salatime/data/api/api_client.dart';
 import 'package:salatime/data/model/response/mp3quran_model.dart';
 import 'package:salatime/data/model/response/reciters_model.dart';
@@ -17,8 +18,14 @@ import 'package:salatime/util/app_constants.dart';
 class AudioPlayerController extends GetxController {
   final ApiClient apiClient;
 
-  AudioPlayerController({required this.apiClient, AudioHandler? audioHandler})
-    : _audioHandler = audioHandler ?? AudioServiceHelper.audioHandler;
+  AudioPlayerController({
+    required this.apiClient,
+    AudioHandler? audioHandler,
+    http.Client? recitersHttpClient,
+  }) : _audioHandler = audioHandler ?? AudioServiceHelper.audioHandler,
+       _recitersHttpClient = recitersHttpClient ?? appHttpClient;
+
+  final http.Client _recitersHttpClient;
 
   // Reciter API call
   RxBool isRecitersLoading = false.obs;
@@ -29,43 +36,111 @@ class AudioPlayerController extends GetxController {
   // Récitation choisie dans le sélecteur (null = première disponible)
   Moshaf? selectedMoshaf;
 
-  // Get reciters list from mp3quran.net
-  Future<void> fetchReciterData() async {
-    try {
-      isRecitersLoading(true);
-      final lang = Get.locale?.languageCode ?? 'en';
-      final response = await appHttpClient.get(
-        Uri.parse('${AppConstants.MP3QURAN_API_URL}/reciters?language=$lang'),
-      );
+  bool hasReciterLoadError = false;
+  bool arabicReciterNamesUnavailable = false;
+  final Map<String, List<Mp3QuranReciter>> _reciterCatalogs = {};
+  final Map<String, Future<List<Mp3QuranReciter>?>> _reciterRequests = {};
+  String? _displayedRecitersLanguage;
+  int _recitersRequestGeneration = 0;
 
-      if (response.statusCode == 200) {
-        final parsed = Mp3QuranResponse.fromJson(jsonDecode(response.body));
-        recitersMp3 = parsed.reciters ?? [];
+  // MP3Quran uses eng/cn rather than Flutter's en/zh locale codes.
+  // https://www.mp3quran.net/ar/api
+  String _reciterApiLanguage(String locale) => switch (locale) {
+    // Malay is not offered by MP3Quran: retain a Latin transliteration
+    // instead of the provider's silent Arabic-only fallback.
+    'en' || 'ms' => 'eng',
+    'zh' => 'cn',
+    _ => locale,
+  };
 
-        // Map into the legacy RecitersModel shape so the UI stays unchanged
-        recitersListApiData = RecitersModel.fromJson({
-          'result': true,
-          'message': 'Data fetched successfully',
-          'data': recitersMp3
-              .map((r) => {'id': r.id, 'name': r.name, 'profile_picture': null})
-              .toList(),
-        });
-        if (kDebugMode) {
-          print("Reciters List: ${recitersMp3.length}");
-        }
-      } else {
-        if (kDebugMode) {
-          print("Error fetching data 2222: ${response.statusCode}");
-        }
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print("Error fetching data 111: $e");
-      }
-    } finally {
-      isRecitersLoading(false);
-      update();
+  Future<List<Mp3QuranReciter>?> _loadReciterCatalog(
+    String language, {
+    required bool forceRefresh,
+  }) {
+    final pending = _reciterRequests[language];
+    if (pending != null) return pending;
+    if (!forceRefresh && _reciterCatalogs.containsKey(language)) {
+      return Future.value(_reciterCatalogs[language]);
     }
+    final request = _requestReciterCatalog(language);
+    _reciterRequests[language] = request;
+    return request.whenComplete(() => _reciterRequests.remove(language));
+  }
+
+  Future<List<Mp3QuranReciter>?> _requestReciterCatalog(String language) async {
+    try {
+      final response = await _recitersHttpClient
+          .get(
+            Uri.parse(
+              '${AppConstants.MP3QURAN_API_URL}/reciters',
+            ).replace(queryParameters: {'language': language}),
+          )
+          .timeout(const Duration(seconds: 15));
+      if (response.statusCode != 200) {
+        throw StateError('Reciter catalog HTTP ${response.statusCode}');
+      }
+      final json = jsonDecode(response.body);
+      if (json is! Map<String, dynamic> || json['reciters'] is! List) {
+        throw const FormatException('Invalid reciter catalog');
+      }
+      final reciters = Mp3QuranResponse.fromJson(json).reciters!;
+      _reciterCatalogs[language] = reciters;
+      return reciters;
+    } catch (error) {
+      if (kDebugMode) debugPrint('Reciter catalog unavailable: $error');
+      return null;
+    }
+  }
+
+  // Search never fetches data: localized names and their Arabic aliases are
+  // loaded together, joined by the provider's stable reciter ID and cached.
+  Future<void> fetchReciterData({bool forceRefresh = false}) async {
+    final language = _reciterApiLanguage(Get.locale?.languageCode ?? 'en');
+    final generation = ++_recitersRequestGeneration;
+    if (_displayedRecitersLanguage != language) {
+      recitersListApiData = null;
+      recitersMp3 = [];
+    }
+    isRecitersLoading(true);
+    hasReciterLoadError = false;
+    arabicReciterNamesUnavailable = false;
+    update();
+
+    final catalogs = await Future.wait([
+      _loadReciterCatalog(language, forceRefresh: forceRefresh),
+      if (language != 'ar')
+        _loadReciterCatalog('ar', forceRefresh: forceRefresh),
+    ]);
+    // A slow request for a previous language must not replace the current list.
+    if (generation != _recitersRequestGeneration || isClosed) return;
+    final localized = catalogs.first ?? _reciterCatalogs[language];
+    final arabic = language == 'ar'
+        ? localized
+        : catalogs.last ?? _reciterCatalogs['ar'];
+    hasReciterLoadError = catalogs.first == null;
+    arabicReciterNamesUnavailable = language != 'ar' && arabic == null;
+    if (localized != null) {
+      recitersMp3 = localized;
+      final arabicNames = {
+        for (final reciter in arabic ?? <Mp3QuranReciter>[])
+          if (reciter.id != null) reciter.id!: reciter.name,
+      };
+      recitersListApiData = RecitersModel(
+        result: true,
+        data: [
+          for (final reciter in localized)
+            if (reciter.id != null)
+              Data(
+                id: reciter.id,
+                name: reciter.name,
+                arabicName: arabicNames[reciter.id],
+              ),
+        ],
+      );
+      _displayedRecitersLanguage = language;
+    }
+    isRecitersLoading(false);
+    update();
   }
 
   // Récitations (moshaf) disponibles pour un récitateur
@@ -96,7 +171,7 @@ class AudioPlayerController extends GetxController {
         return;
       }
 
-      // Sura names from our own API (already localized), fallback "Sura N"
+      // Localized sura names from the bundled catalogue, fallback "Sura N"
       final suraNames = await _loadSuraNames();
 
       audioData = moshaf.surahList
@@ -104,6 +179,7 @@ class AudioPlayerController extends GetxController {
             (suraNumber) => {
               'path': moshaf.suraUrl(suraNumber),
               'sura_name': suraNames[suraNumber] ?? 'Sura $suraNumber',
+              'chapter_id': suraNumber,
               'reciter_name': reciter.name,
               'duration': null,
               'reciter_avatar': '',
@@ -124,24 +200,19 @@ class AudioPlayerController extends GetxController {
     }
   }
 
-  // Sura number -> display name (from our API, fallback "Sura N")
+  // The bundled chapter catalogue keeps names localized without waiting for
+  // another network request before showing a reciter's available recordings.
   Future<Map<int, String>> _loadSuraNames() async {
     try {
-      final quranController = Get.find<QuranController>();
-      if (quranController.suraListApiData?.data == null) {
-        await quranController.fetchSuraListData();
-      }
-      final data = quranController.suraListApiData?.data;
-      if (data == null) return {};
+      final catalog = await QuranChapterCatalog.load();
+      final language = Get.locale?.languageCode ?? 'en';
       return {
-        for (var sura in data)
-          if (sura.id != null)
-            sura.id!: (sura.translateName ?? sura.arabicName ?? ''),
+        for (var id = 1; id <= 114; id++)
+          if (catalog.localizedName(id, language) case final String name)
+            id: name,
       };
-    } catch (e) {
-      if (kDebugMode) {
-        print("Sura names unavailable: $e");
-      }
+    } catch (error) {
+      if (kDebugMode) debugPrint('Sura names unavailable: $error');
       return {};
     }
   }
@@ -281,6 +352,7 @@ class AudioPlayerController extends GetxController {
             milliseconds: audioDuration ?? 0,
           ), // Ensure this is a Duration
           artUri: Uri.tryParse(audio['reciter_avatar'] ?? ''),
+          extras: {'chapterId': audio['chapter_id']},
         );
         audioList.add(mediaItem);
       }

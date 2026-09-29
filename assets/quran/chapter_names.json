@@ -1,0 +1,2116 @@
+{
+  "schema_version": 1,
+  "retrieved_at": "2026-09-29T10:21:27.300905+00:00",
+  "sources": [
+    {
+      "language": "en",
+      "publisher": "Quran.com / Quran Foundation",
+      "url": "https://api.quran.com/api/v4/chapters?language=en",
+      "sha256": "ff6ef5aadcc7710271179c0f9c1519c89ae613b11c8ba3265873c6c4fc6aed0b",
+      "note": "Arabic names are preserved from name_arabic, avoiding partial Arabic translated_name fallback to English."
+    },
+    {
+      "language": "fr",
+      "publisher": "Quran.com / Quran Foundation",
+      "url": "https://api.quran.com/api/v4/chapters?language=fr",
+      "sha256": "a1e3ed7b46d05717abcc99a865d4aa0c372d39e46debd9fe95a5bf5a86b6b5c3"
+    },
+    {
+      "language": "tr",
+      "publisher": "Quran.com / Quran Foundation",
+      "url": "https://api.quran.com/api/v4/chapters?language=tr",
+      "sha256": "a64bb04c05e99387072a0716e788ab7e9f55e40d4e82be51558f1810fb419d34"
+    },
+    {
+      "language": "ur",
+      "publisher": "Quran.com / Quran Foundation",
+      "url": "https://api.quran.com/api/v4/chapters?language=ur",
+      "sha256": "fb5c2eab35a0b210bb67fa1feff8412cecede76b9548c93d0891eb1ee3c7b295"
+    },
+    {
+      "language": "id",
+      "publisher": "Quran.com / Quran Foundation",
+      "url": "https://api.quran.com/api/v4/chapters?language=id",
+      "sha256": "8cc261d89da02768c0fb539f07d0d82bf2e2cf52aea1e8190129b5b72f5aaf12"
+    },
+    {
+      "language": "ms",
+      "publisher": "Quran.com / Quran Foundation",
+      "url": "https://api.quran.com/api/v4/chapters?language=ms",
+      "sha256": "827d517b6f43d04e0bb2a1bd810d37b74d00dae3c7e23f28926cc98fd02ca357"
+    },
+    {
+      "language": "es",
+      "publisher": "Quran.com / Quran Foundation",
+      "url": "https://api.quran.com/api/v4/chapters?language=es",
+      "sha256": "9cda1b30fb73d01c769089957a848cad960ea4954128a59af9af220c5490d6af"
+    },
+    {
+      "language": "bn",
+      "publisher": "Quran.com / Quran Foundation",
+      "url": "https://api.quran.com/api/v4/chapters?language=bn",
+      "sha256": "81ff511daf40f4616f828040a1e2c48208fa06129bee77d70482b722babd68a5"
+    },
+    {
+      "language": "fa",
+      "publisher": "MP3Quran",
+      "url": "https://www.mp3quran.net/api/v3/suwar?language=fa",
+      "sha256": "9d049f322816fb58f6f40a983edaff8979789d104e7949ee0dd39cc145c20298",
+      "note": "Quran.com has no Persian chapter titles; use MP3Quran Persian names instead of its English fallback."
+    }
+  ],
+  "chapters": [
+    {
+      "id": 1,
+      "arabic": "الفاتحة",
+      "transliteration": "Al-Fatihah",
+      "transliteration_diacritics": "Al-Fātiĥah",
+      "names": {
+        "ar": "الفاتحة",
+        "en": "The Opener",
+        "fr": "L'ouverture",
+        "tr": "Fâtiha",
+        "ur": "کھولنے والی",
+        "id": "Pembukaan",
+        "ms": "Pembukaan",
+        "es": "La Apertura",
+        "bn": "সূচনা",
+        "fa": "فاتحه"
+      }
+    },
+    {
+      "id": 2,
+      "arabic": "البقرة",
+      "transliteration": "Al-Baqarah",
+      "transliteration_diacritics": "Al-Baqarah",
+      "names": {
+        "ar": "البقرة",
+        "en": "The Cow",
+        "fr": "La vache",
+        "tr": "Bakara",
+        "ur": "گائے",
+        "id": "Sapi Betina",
+        "ms": "Lembu Betina",
+        "es": "La Vaca",
+        "bn": "বকনা-বাছুর",
+        "fa": "بقره"
+      }
+    },
+    {
+      "id": 3,
+      "arabic": "آل عمران",
+      "transliteration": "Ali 'Imran",
+      "transliteration_diacritics": "Āli `Imrān",
+      "names": {
+        "ar": "آل عمران",
+        "en": "Family of Imran",
+        "fr": "La famille de 'imran",
+        "tr": "Âl-i İmrân",
+        "ur": "عمران کا خاندان",
+        "id": "Keluarga Imran",
+        "ms": "Keluarga Imran",
+        "es": "La Familia de Imran",
+        "bn": "ইমরানের পরিবার",
+        "fa": "آل عمران"
+      }
+    },
+    {
+      "id": 4,
+      "arabic": "النساء",
+      "transliteration": "An-Nisa",
+      "transliteration_diacritics": "An-Nisā",
+      "names": {
+        "ar": "النساء",
+        "en": "The Women",
+        "fr": "Les femmes",
+        "tr": "Nisâ",
+        "ur": "عورت",
+        "id": "Wanita",
+        "ms": "Wanita",
+        "es": "Las Mujeres",
+        "bn": "নারী",
+        "fa": "نساء"
+      }
+    },
+    {
+      "id": 5,
+      "arabic": "المائدة",
+      "transliteration": "Al-Ma'idah",
+      "transliteration_diacritics": "Al-Mā'idah",
+      "names": {
+        "ar": "المائدة",
+        "en": "The Table Spread",
+        "fr": "La table servie",
+        "tr": "Mâide",
+        "ur": "دسترخوان",
+        "id": "Jamuan (Hidangan Makanan)",
+        "ms": "Hidangan",
+        "es": "La Mesa Servida",
+        "bn": "খাদ্য পরিবেশিত টেবিল",
+        "fa": "مائده"
+      }
+    },
+    {
+      "id": 6,
+      "arabic": "الأنعام",
+      "transliteration": "Al-An'am",
+      "transliteration_diacritics": "Al-'An`ām",
+      "names": {
+        "ar": "الأنعام",
+        "en": "The Cattle",
+        "fr": "Les bestiaux",
+        "tr": "En'âm",
+        "ur": "مویشی",
+        "id": "Binatang Ternak",
+        "ms": "Binatang Ternakan",
+        "es": "Los Rebaños",
+        "bn": "গৃহপালিত পশু",
+        "fa": "أنعام"
+      }
+    },
+    {
+      "id": 7,
+      "arabic": "الأعراف",
+      "transliteration": "Al-A'raf",
+      "transliteration_diacritics": "Al-'A`rāf",
+      "names": {
+        "ar": "الأعراف",
+        "en": "The Heights",
+        "fr": "Al-A'raf",
+        "tr": "A'râf",
+        "ur": "اونچی جگہ",
+        "id": "Tempat-tempat Tinggi",
+        "ms": "Tempat Tertinggi",
+        "es": "Los Lugares Elevados",
+        "bn": "উচু স্থান",
+        "fa": "الأعراف"
+      }
+    },
+    {
+      "id": 8,
+      "arabic": "الأنفال",
+      "transliteration": "Al-Anfal",
+      "transliteration_diacritics": "Al-'Anfāl",
+      "names": {
+        "ar": "الأنفال",
+        "en": "The Spoils of War",
+        "fr": "Le butin",
+        "tr": "Enfâl",
+        "ur": "مال غنیمت",
+        "id": "Rampasan Perang",
+        "ms": "Rampasan Perang",
+        "es": "Los Botines de Guerra",
+        "bn": "যুদ্ধ-লব্ধ ধনসম্পদ",
+        "fa": "أنفال"
+      }
+    },
+    {
+      "id": 9,
+      "arabic": "التوبة",
+      "transliteration": "At-Tawbah",
+      "transliteration_diacritics": "At-Tawbah",
+      "names": {
+        "ar": "التوبة",
+        "en": "The Repentance",
+        "fr": "Le repentir",
+        "tr": "Tevbe",
+        "ur": "توبہ",
+        "id": "Pengampunan",
+        "ms": "Pengampunan",
+        "es": "El Arrepentimiento",
+        "bn": "অনুশোচনা",
+        "fa": "توبه"
+      }
+    },
+    {
+      "id": 10,
+      "arabic": "يونس",
+      "transliteration": "Yunus",
+      "transliteration_diacritics": "Yūnus",
+      "names": {
+        "ar": "يونس",
+        "en": "Jonah",
+        "fr": "Jonas",
+        "tr": "Yûnus",
+        "ur": "یونس",
+        "id": "Yunus",
+        "ms": "Nabi Yunus a.s.",
+        "es": "Jonás",
+        "bn": "নবী ইউনুস",
+        "fa": "یونس"
+      }
+    },
+    {
+      "id": 11,
+      "arabic": "هود",
+      "transliteration": "Hud",
+      "transliteration_diacritics": "Hūd",
+      "names": {
+        "ar": "هود",
+        "en": "Hud",
+        "fr": "Houd",
+        "tr": "Hûd",
+        "ur": "حود",
+        "id": "Hud",
+        "ms": "Nabi Hud a.s.",
+        "es": "Hud",
+        "bn": "নবী হুদ",
+        "fa": "هود"
+      }
+    },
+    {
+      "id": 12,
+      "arabic": "يوسف",
+      "transliteration": "Yusuf",
+      "transliteration_diacritics": "Yūsuf",
+      "names": {
+        "ar": "يوسف",
+        "en": "Joseph",
+        "fr": "Joseph",
+        "tr": "Yûsuf",
+        "ur": "یوسف",
+        "id": "Yusuf",
+        "ms": "Nabi Yusuf a.s.",
+        "es": "José",
+        "bn": "নবী ইউসুফ",
+        "fa": "یوسف"
+      }
+    },
+    {
+      "id": 13,
+      "arabic": "الرعد",
+      "transliteration": "Ar-Ra'd",
+      "transliteration_diacritics": "Ar-Ra`d",
+      "names": {
+        "ar": "الرعد",
+        "en": "The Thunder",
+        "fr": "Le tonnerre",
+        "tr": "Ra'd",
+        "ur": "گرج",
+        "id": "Guruh (Petir)",
+        "ms": "Guruh \n",
+        "es": "El Trueno",
+        "bn": "বজ্রপাত",
+        "fa": "رعد"
+      }
+    },
+    {
+      "id": 14,
+      "arabic": "ابراهيم",
+      "transliteration": "Ibrahim",
+      "transliteration_diacritics": "Ibrāhīm",
+      "names": {
+        "ar": "ابراهيم",
+        "en": "Abraham",
+        "fr": "Abraham",
+        "tr": "İbrâhîm",
+        "ur": "ابراہیم",
+        "id": "Ibrahim",
+        "ms": "Nabi Ibrahim a.s.\n",
+        "es": "Abraham",
+        "bn": "নবী ইবরাহীম",
+        "fa": "إبراهیم"
+      }
+    },
+    {
+      "id": 15,
+      "arabic": "الحجر",
+      "transliteration": "Al-Hijr",
+      "transliteration_diacritics": "Al-Ĥijr",
+      "names": {
+        "ar": "الحجر",
+        "en": "The Rocky Tract",
+        "fr": "Al-Hijr",
+        "tr": "Hicr",
+        "ur": "پتھر",
+        "id": "Bukit",
+        "ms": "Kawasan Berbatu\n",
+        "es": "Al-Hiyr",
+        "bn": "পাথুরে পাহাড়",
+        "fa": "حجر"
+      }
+    },
+    {
+      "id": 16,
+      "arabic": "النحل",
+      "transliteration": "An-Nahl",
+      "transliteration_diacritics": "An-Naĥl",
+      "names": {
+        "ar": "النحل",
+        "en": "The Bee",
+        "fr": "Les abeilles",
+        "tr": "Nahl",
+        "ur": "شہد کی مکھی",
+        "id": "Lebah Madu",
+        "ms": "Lebah\n",
+        "es": "Las Abejas",
+        "bn": "মৌমাছি",
+        "fa": "نحل"
+      }
+    },
+    {
+      "id": 17,
+      "arabic": "الإسراء",
+      "transliteration": "Al-Isra",
+      "transliteration_diacritics": "Al-'Isrā",
+      "names": {
+        "ar": "الإسراء",
+        "en": "The Night Journey",
+        "fr": "Le voyage nocturne",
+        "tr": "İsrâ",
+        "ur": "رات کا صفر",
+        "id": "Perjalanan Malam",
+        "ms": "Perjalanan Malam\n",
+        "es": "El Viaje Nocturno",
+        "bn": "ইহুদি জাতি",
+        "fa": "إسراء"
+      }
+    },
+    {
+      "id": 18,
+      "arabic": "الكهف",
+      "transliteration": "Al-Kahf",
+      "transliteration_diacritics": "Al-Kahf",
+      "names": {
+        "ar": "الكهف",
+        "en": "The Cave",
+        "fr": "La caverne",
+        "tr": "Kehf",
+        "ur": "غار",
+        "id": "Para Penghuni Gua",
+        "ms": "Gua\n",
+        "es": "La Caverna",
+        "bn": "গুহা",
+        "fa": "كهف"
+      }
+    },
+    {
+      "id": 19,
+      "arabic": "مريم",
+      "transliteration": "Maryam",
+      "transliteration_diacritics": "Maryam",
+      "names": {
+        "ar": "مريم",
+        "en": "Mary",
+        "fr": "Marie",
+        "tr": "Meryem",
+        "ur": "مریم",
+        "id": "Maryam",
+        "ms": "Siti Maryam\n",
+        "es": "María",
+        "bn": "মারইয়াম (ঈসা নবীর মা)",
+        "fa": "مریم"
+      }
+    },
+    {
+      "id": 20,
+      "arabic": "طه",
+      "transliteration": "Taha",
+      "transliteration_diacritics": "Ţāhā",
+      "names": {
+        "ar": "طه",
+        "en": "Ta-Ha",
+        "fr": "Ta-Ha",
+        "tr": "Tâhâ",
+        "ur": "طٰہٰ",
+        "id": "Tha-Ha",
+        "ms": "Taahaa",
+        "es": "Ta-Ha",
+        "bn": "ত়া হা",
+        "fa": "طه"
+      }
+    },
+    {
+      "id": 21,
+      "arabic": "الأنبياء",
+      "transliteration": "Al-Anbya",
+      "transliteration_diacritics": "Al-'Anbyā",
+      "names": {
+        "ar": "الأنبياء",
+        "en": "The Prophets",
+        "fr": "Les prophètes",
+        "tr": "Enbiyâ",
+        "ur": "پیغمبر",
+        "id": "Para Nabi",
+        "ms": "Para Nabi \n",
+        "es": "Los Profetas",
+        "bn": "নবীগণ",
+        "fa": "أنبیاء"
+      }
+    },
+    {
+      "id": 22,
+      "arabic": "الحج",
+      "transliteration": "Al-Hajj",
+      "transliteration_diacritics": "Al-Ĥajj",
+      "names": {
+        "ar": "الحج",
+        "en": "The Pilgrimage",
+        "fr": "Le pèlerinage",
+        "tr": "Hac",
+        "ur": "حج",
+        "id": "Haji",
+        "ms": "Haji\n",
+        "es": "La Peregrinación",
+        "bn": "হ়াজ্জ",
+        "fa": "حج"
+      }
+    },
+    {
+      "id": 23,
+      "arabic": "المؤمنون",
+      "transliteration": "Al-Mu'minun",
+      "transliteration_diacritics": "Al-Mu'minūn",
+      "names": {
+        "ar": "المؤمنون",
+        "en": "The Believers",
+        "fr": "Les croyants",
+        "tr": "Mü'minûn",
+        "ur": "مومنین",
+        "id": "Orang-orang Mukmin",
+        "ms": "Golongan yang Beriman\n",
+        "es": "Los Creyentes",
+        "bn": "বিশ্বাসী",
+        "fa": "مؤمنون"
+      }
+    },
+    {
+      "id": 24,
+      "arabic": "النور",
+      "transliteration": "An-Nur",
+      "transliteration_diacritics": "An-Nūr",
+      "names": {
+        "ar": "النور",
+        "en": "The Light",
+        "fr": "La lumière",
+        "tr": "Nûr",
+        "ur": "نور",
+        "id": "Cahaya",
+        "ms": "Cahaya \n",
+        "es": "La Luz",
+        "bn": "আলো",
+        "fa": "نور"
+      }
+    },
+    {
+      "id": 25,
+      "arabic": "الفرقان",
+      "transliteration": "Al-Furqan",
+      "transliteration_diacritics": "Al-Furqān",
+      "names": {
+        "ar": "الفرقان",
+        "en": "The Criterion",
+        "fr": "Le discernement",
+        "tr": "Furkân",
+        "ur": "صحیح اور غلط میں فرق کرنے والی کتاب",
+        "id": "Pembeda",
+        "ms": "Pembeza Kebenaran dan Kebatilan\n",
+        "es": "El Discernimiento",
+        "bn": "মানদণ্ড",
+        "fa": "فرقان"
+      }
+    },
+    {
+      "id": 26,
+      "arabic": "الشعراء",
+      "transliteration": "Ash-Shu'ara",
+      "transliteration_diacritics": "Ash-Shu`arā",
+      "names": {
+        "ar": "الشعراء",
+        "en": "The Poets",
+        "fr": "Les poètes",
+        "tr": "Şuarâ",
+        "ur": "شعراٗ",
+        "id": "Penyair",
+        "ms": "Para Penyair\n",
+        "es": "Los Poetas",
+        "bn": "কবি",
+        "fa": "شعراء"
+      }
+    },
+    {
+      "id": 27,
+      "arabic": "النمل",
+      "transliteration": "An-Naml",
+      "transliteration_diacritics": "An-Naml",
+      "names": {
+        "ar": "النمل",
+        "en": "The Ant",
+        "fr": "Les fourmis",
+        "tr": "Neml",
+        "ur": "چیونٹی",
+        "id": "Semut",
+        "ms": "Semut\n",
+        "es": "Las Hormigas",
+        "bn": "পিঁপড়া",
+        "fa": "نمل"
+      }
+    },
+    {
+      "id": 28,
+      "arabic": "القصص",
+      "transliteration": "Al-Qasas",
+      "transliteration_diacritics": "Al-Qaşaş",
+      "names": {
+        "ar": "القصص",
+        "en": "The Stories",
+        "fr": "Le récit",
+        "tr": "Kasas",
+        "ur": "قصے",
+        "id": "Kisah-kisah",
+        "ms": "Cerita-cerita\n",
+        "es": "Los Relatos",
+        "bn": "কাহিনি",
+        "fa": "قصص"
+      }
+    },
+    {
+      "id": 29,
+      "arabic": "العنكبوت",
+      "transliteration": "Al-'Ankabut",
+      "transliteration_diacritics": "Al-`Ankabūt",
+      "names": {
+        "ar": "العنكبوت",
+        "en": "The Spider",
+        "fr": "L'araignée",
+        "tr": "Ankebût",
+        "ur": "مکڑی",
+        "id": "Laba-laba",
+        "ms": "Labah-labah\n",
+        "es": "La Araña",
+        "bn": "মাকড়শা",
+        "fa": "عنكبوت"
+      }
+    },
+    {
+      "id": 30,
+      "arabic": "الروم",
+      "transliteration": "Ar-Rum",
+      "transliteration_diacritics": "Ar-Rūm",
+      "names": {
+        "ar": "الروم",
+        "en": "The Romans",
+        "fr": "Les romains",
+        "tr": "Rûm",
+        "ur": "روم",
+        "id": "Bangsa Romawi",
+        "ms": "Bangsa Rom\n",
+        "es": "Los Romanos",
+        "bn": "রোমান জাতি",
+        "fa": "روم"
+      }
+    },
+    {
+      "id": 31,
+      "arabic": "لقمان",
+      "transliteration": "Luqman",
+      "transliteration_diacritics": "Luqmān",
+      "names": {
+        "ar": "لقمان",
+        "en": "Luqman",
+        "fr": "Louqman",
+        "tr": "Lokmân",
+        "ur": "لقمان",
+        "id": "Luqman",
+        "ms": "Luqman \n",
+        "es": "Luqmán",
+        "bn": "এক জ্ঞানী ব্যাক্তি",
+        "fa": "لقمان"
+      }
+    },
+    {
+      "id": 32,
+      "arabic": "السجدة",
+      "transliteration": "As-Sajdah",
+      "transliteration_diacritics": "As-Sajdah",
+      "names": {
+        "ar": "السجدة",
+        "en": "The Prostration",
+        "fr": "La prosternation",
+        "tr": "Secde",
+        "ur": "سجدہ",
+        "id": "Sujud",
+        "ms": "Sujud \n",
+        "es": "La Postración",
+        "bn": "সিজদা",
+        "fa": "سجده"
+      }
+    },
+    {
+      "id": 33,
+      "arabic": "الأحزاب",
+      "transliteration": "Al-Ahzab",
+      "transliteration_diacritics": "Al-'Aĥzāb",
+      "names": {
+        "ar": "الأحزاب",
+        "en": "The Combined Forces",
+        "fr": "Les coalisés",
+        "tr": "Ahzâb",
+        "ur": "متحد گروہ",
+        "id": "Golongan yang Bersekutu",
+        "ms": "Golongan yang Bersekutu\n",
+        "es": "Los Coligados",
+        "bn": "জোট",
+        "fa": "الأحزاب"
+      }
+    },
+    {
+      "id": 34,
+      "arabic": "سبإ",
+      "transliteration": "Saba",
+      "transliteration_diacritics": "Saba",
+      "names": {
+        "ar": "سبإ",
+        "en": "Sheba",
+        "fr": "Saba'",
+        "tr": "Sebe'",
+        "ur": "سبا",
+        "id": "Saba\\'",
+        "ms": "Kaum Saba’\n",
+        "es": "Saba",
+        "bn": "রানী সাবা/শেবা",
+        "fa": "سبأ"
+      }
+    },
+    {
+      "id": 35,
+      "arabic": "فاطر",
+      "transliteration": "Fatir",
+      "transliteration_diacritics": "Fāţir",
+      "names": {
+        "ar": "فاطر",
+        "en": "Originator",
+        "fr": "Le Créateur",
+        "tr": "Fâtır",
+        "ur": "پیدا کرنے والا",
+        "id": "Pencipta",
+        "ms": "Pencipta\n",
+        "es": "El Originador",
+        "bn": "আদি স্রষ্টা",
+        "fa": "فاطر"
+      }
+    },
+    {
+      "id": 36,
+      "arabic": "يس",
+      "transliteration": "Ya-Sin",
+      "transliteration_diacritics": "Yā-Sīn",
+      "names": {
+        "ar": "يس",
+        "en": "Ya Sin",
+        "fr": "Ya-Sin",
+        "tr": "Yâsîn",
+        "ur": "یٰسٓ",
+        "id": "Yas Sin",
+        "ms": "Yaasin",
+        "es": "Ya Sin",
+        "bn": "ইয়াসীন",
+        "fa": "یس"
+      }
+    },
+    {
+      "id": 37,
+      "arabic": "الصافات",
+      "transliteration": "As-Saffat",
+      "transliteration_diacritics": "Aş-Şāffāt",
+      "names": {
+        "ar": "الصافات",
+        "en": "Those who set the Ranks",
+        "fr": "Les rangés",
+        "tr": "Sâffât",
+        "ur": "صف باندھنے والے",
+        "id": "Barisan-barisan",
+        "ms": "Yang Teratur Berbaris \n",
+        "es": "Los Que se Ponen en Filas",
+        "bn": "সারিবদ্ধভাবে দাঁড়ানো",
+        "fa": "صافات"
+      }
+    },
+    {
+      "id": 38,
+      "arabic": "ص",
+      "transliteration": "Sad",
+      "transliteration_diacritics": "Şād",
+      "names": {
+        "ar": "ص",
+        "en": "The Letter \"Saad\"",
+        "fr": "Sad",
+        "tr": "Sâd",
+        "ur": "صٓ",
+        "id": "Shad",
+        "ms": "Saad",
+        "es": "Sad",
+        "bn": "আরবি বর্ণ সাদ",
+        "fa": "ص"
+      }
+    },
+    {
+      "id": 39,
+      "arabic": "الزمر",
+      "transliteration": "Az-Zumar",
+      "transliteration_diacritics": "Az-Zumar",
+      "names": {
+        "ar": "الزمر",
+        "en": "The Troops",
+        "fr": "Les groupes",
+        "tr": "Zümer",
+        "ur": "گروہ",
+        "id": "Para Rombongan",
+        "ms": "Rombongan\n",
+        "es": "Los Grupos",
+        "bn": "দলবদ্ধ জনতা",
+        "fa": "زمر"
+      }
+    },
+    {
+      "id": 40,
+      "arabic": "غافر",
+      "transliteration": "Ghafir",
+      "transliteration_diacritics": "Ghāfir",
+      "names": {
+        "ar": "غافر",
+        "en": "The Forgiver",
+        "fr": "Le Pardonneur",
+        "tr": "Mü'min",
+        "ur": "بخشنے والا",
+        "id": "Sang Maha Pengampun",
+        "ms": "Orang yang Beriman",
+        "es": "El Perdonador",
+        "bn": "ক্ষমাকারী",
+        "fa": "غافر"
+      }
+    },
+    {
+      "id": 41,
+      "arabic": "فصلت",
+      "transliteration": "Fussilat",
+      "transliteration_diacritics": "Fuşşilat",
+      "names": {
+        "ar": "فصلت",
+        "en": "Explained in Detail",
+        "fr": "Les versets explicites",
+        "tr": "Fussilet",
+        "ur": "مفصل",
+        "id": "Yang Dijelaskan",
+        "ms": "Dijelaskan\n",
+        "es": "Se Han Expresado Con Claridad",
+        "bn": "সুস্পষ্ট বিবরণ",
+        "fa": "فصلت"
+      }
+    },
+    {
+      "id": 42,
+      "arabic": "الشورى",
+      "transliteration": "Ash-Shuraa",
+      "transliteration_diacritics": "Ash-Shūraá",
+      "names": {
+        "ar": "الشورى",
+        "en": "The Consultation",
+        "fr": "La concertation",
+        "tr": "Şûrâ",
+        "ur": "شورٰی",
+        "id": "Musyawarah",
+        "ms": "Permesyuaratan \n",
+        "es": "La Consulta",
+        "bn": "পরামর্শ",
+        "fa": "شورى"
+      }
+    },
+    {
+      "id": 43,
+      "arabic": "الزخرف",
+      "transliteration": "Az-Zukhruf",
+      "transliteration_diacritics": "Az-Zukhruf",
+      "names": {
+        "ar": "الزخرف",
+        "en": "The Ornaments of Gold",
+        "fr": "L'ornement",
+        "tr": "Zuhruf",
+        "ur": "سونے کی چمک",
+        "id": "Perhiasan",
+        "ms": "Perhiasan Emas\n",
+        "es": "Los Dorados",
+        "bn": "সোনাদানা",
+        "fa": "زخرف"
+      }
+    },
+    {
+      "id": 44,
+      "arabic": "الدخان",
+      "transliteration": "Ad-Dukhan",
+      "transliteration_diacritics": "Ad-Dukhān",
+      "names": {
+        "ar": "الدخان",
+        "en": "The Smoke",
+        "fr": "La fumée",
+        "tr": "Duhân",
+        "ur": "دھواں",
+        "id": "Kabut",
+        "ms": "Kabut / Asap\n",
+        "es": "El Humo",
+        "bn": "ধোঁয়া",
+        "fa": "دخان"
+      }
+    },
+    {
+      "id": 45,
+      "arabic": "الجاثية",
+      "transliteration": "Al-Jathiyah",
+      "transliteration_diacritics": "Al-Jāthiyah",
+      "names": {
+        "ar": "الجاثية",
+        "en": "The Crouching",
+        "fr": "L'agenouillée",
+        "tr": "Câsiye",
+        "ur": "زانوٗوں کے بل گری ہوئی",
+        "id": "Yang Bertekuk Lutut",
+        "ms": "Yang Berlutut \n",
+        "es": "La Arrodillada",
+        "bn": "নতজানু",
+        "fa": "جاثیه"
+      }
+    },
+    {
+      "id": 46,
+      "arabic": "الأحقاف",
+      "transliteration": "Al-Ahqaf",
+      "transliteration_diacritics": "Al-'Aĥqāf",
+      "names": {
+        "ar": "الأحقاف",
+        "en": "The Wind-Curved Sandhills",
+        "fr": "Al-Ahqaf",
+        "tr": "Ahkâf",
+        "ur": "ریگستان",
+        "id": "Bukit-bukir Pasir",
+        "ms": "Bukit-bukit Pasir\n",
+        "es": "Las Dunas",
+        "bn": "বালুর পাহাড়",
+        "fa": "الأحقاف"
+      }
+    },
+    {
+      "id": 47,
+      "arabic": "محمد",
+      "transliteration": "Muhammad",
+      "transliteration_diacritics": "Muĥammad",
+      "names": {
+        "ar": "محمد",
+        "en": "Muhammad",
+        "fr": "Mouhammad",
+        "tr": "Muhammed",
+        "ur": "محمدﷺ",
+        "id": "Muhammad",
+        "ms": "Nabi Muhammad SAW\n",
+        "es": "Muhammad",
+        "bn": "নবী মুহাম্মদ",
+        "fa": "محمد"
+      }
+    },
+    {
+      "id": 48,
+      "arabic": "الفتح",
+      "transliteration": "Al-Fath",
+      "transliteration_diacritics": "Al-Fatĥ",
+      "names": {
+        "ar": "الفتح",
+        "en": "The Victory",
+        "fr": "La victoire éclatante",
+        "tr": "Fetih",
+        "ur": "فتح",
+        "id": "Kemenangan",
+        "ms": "Kemenangan \n",
+        "es": "La Victoria",
+        "bn": "বিজয়",
+        "fa": "فتح"
+      }
+    },
+    {
+      "id": 49,
+      "arabic": "الحجرات",
+      "transliteration": "Al-Hujurat",
+      "transliteration_diacritics": "Al-Ĥujurāt",
+      "names": {
+        "ar": "الحجرات",
+        "en": "The Rooms",
+        "fr": "Les appartements",
+        "tr": "Hucurât",
+        "ur": "حجرے",
+        "id": "Kamar-kamar",
+        "ms": "Bilik-bilik\n",
+        "es": "Los Aposentos Privados",
+        "bn": "আবাস",
+        "fa": "حجرات"
+      }
+    },
+    {
+      "id": 50,
+      "arabic": "ق",
+      "transliteration": "Qaf",
+      "transliteration_diacritics": "Qāf",
+      "names": {
+        "ar": "ق",
+        "en": "The Letter \"Qaf\"",
+        "fr": "Qaf",
+        "tr": "Kâf",
+        "ur": "قٓ",
+        "id": "Qaf",
+        "ms": "Qaaf",
+        "es": "Qaf",
+        "bn": "কাফ",
+        "fa": "ق"
+      }
+    },
+    {
+      "id": 51,
+      "arabic": "الذاريات",
+      "transliteration": "Adh-Dhariyat",
+      "transliteration_diacritics": "Adh-Dhāriyāt",
+      "names": {
+        "ar": "الذاريات",
+        "en": "The Winnowing Winds",
+        "fr": "Qui éparpillent",
+        "tr": "Zâriyât",
+        "ur": "بکھیرنے والیاں",
+        "id": "Angin yang Menerbangkan",
+        "ms": "Angin yang Menerbangkan\n",
+        "es": "Los Que Levantan un Torbellino",
+        "bn": "বিক্ষেপকারী বাতাস",
+        "fa": "ذاریات"
+      }
+    },
+    {
+      "id": 52,
+      "arabic": "الطور",
+      "transliteration": "At-Tur",
+      "transliteration_diacritics": "Aţ-Ţūr",
+      "names": {
+        "ar": "الطور",
+        "en": "The Mount",
+        "fr": "Le mont At-Tour",
+        "tr": "Tûr",
+        "ur": "طور پہاڑ",
+        "id": "Bukit",
+        "ms": "Bukit\n",
+        "es": "El Monte",
+        "bn": "পাহাড়",
+        "fa": "طور"
+      }
+    },
+    {
+      "id": 53,
+      "arabic": "النجم",
+      "transliteration": "An-Najm",
+      "transliteration_diacritics": "An-Najm",
+      "names": {
+        "ar": "النجم",
+        "en": "The Star",
+        "fr": "L'étoile",
+        "tr": "Necm",
+        "ur": "ستارہ",
+        "id": "Bintang",
+        "ms": "Bintang\n",
+        "es": "El Astro",
+        "bn": "তারা",
+        "fa": "نجم"
+      }
+    },
+    {
+      "id": 54,
+      "arabic": "القمر",
+      "transliteration": "Al-Qamar",
+      "transliteration_diacritics": "Al-Qamar",
+      "names": {
+        "ar": "القمر",
+        "en": "The Moon",
+        "fr": "La lune",
+        "tr": "Kamer",
+        "ur": "چاند",
+        "id": "Bulan",
+        "ms": "Bulan\n",
+        "es": "La Luna",
+        "bn": "চাঁদ",
+        "fa": "قمر"
+      }
+    },
+    {
+      "id": 55,
+      "arabic": "الرحمن",
+      "transliteration": "Ar-Rahman",
+      "transliteration_diacritics": "Ar-Raĥmān",
+      "names": {
+        "ar": "الرحمن",
+        "en": "The Beneficent",
+        "fr": "Le Tout Miséricordieux",
+        "tr": "Rahmân",
+        "ur": "مہربان",
+        "id": "Yang Maha Pemurah",
+        "ms": "Yang Maha Pemurah \n",
+        "es": "El Misericordioso",
+        "bn": "পরম করুণাময়",
+        "fa": "رحمن"
+      }
+    },
+    {
+      "id": 56,
+      "arabic": "الواقعة",
+      "transliteration": "Al-Waqi'ah",
+      "transliteration_diacritics": "Al-Wāqi`ah",
+      "names": {
+        "ar": "الواقعة",
+        "en": "The Inevitable",
+        "fr": "L'inévitable",
+        "tr": "Vâkıa",
+        "ur": "واقعہ ہونے والی قیامت",
+        "id": "Hari Kiamat",
+        "ms": "Peristiwa yang Tidak Dapat Dielakkan\n",
+        "es": "Lo Que ha de Ocurrir",
+        "bn": "নিশ্চিত ঘটনা",
+        "fa": "واقعه"
+      }
+    },
+    {
+      "id": 57,
+      "arabic": "الحديد",
+      "transliteration": "Al-Hadid",
+      "transliteration_diacritics": "Al-Ĥadīd",
+      "names": {
+        "ar": "الحديد",
+        "en": "The Iron",
+        "fr": "Le fer",
+        "tr": "Hadîd",
+        "ur": "فولاد",
+        "id": "Besi",
+        "ms": "Besi\n",
+        "es": "El Hierro",
+        "bn": "লোহা",
+        "fa": "حدید"
+      }
+    },
+    {
+      "id": 58,
+      "arabic": "المجادلة",
+      "transliteration": "Al-Mujadila",
+      "transliteration_diacritics": "Al-Mujādila",
+      "names": {
+        "ar": "المجادلة",
+        "en": "The Pleading Woman",
+        "fr": "La discussion",
+        "tr": "Mücâdele",
+        "ur": "جھگڑنے والی",
+        "id": "Wanita yang Menggugat",
+        "ms": "Perempuan yang Merayu\n",
+        "es": "La Discusión",
+        "bn": "অনুযোগকারিণী",
+        "fa": "مجادله"
+      }
+    },
+    {
+      "id": 59,
+      "arabic": "الحشر",
+      "transliteration": "Al-Hashr",
+      "transliteration_diacritics": "Al-Ĥashr",
+      "names": {
+        "ar": "الحشر",
+        "en": "The Exile",
+        "fr": "L'exode",
+        "tr": "Haşr",
+        "ur": "حشر",
+        "id": "Pengusiran",
+        "ms": "Pengusiran\n",
+        "es": "La Concentración",
+        "bn": "সমাবেশ",
+        "fa": "حشر"
+      }
+    },
+    {
+      "id": 60,
+      "arabic": "الممتحنة",
+      "transliteration": "Al-Mumtahanah",
+      "transliteration_diacritics": "Al-Mumtaĥanah",
+      "names": {
+        "ar": "الممتحنة",
+        "en": "She that is to be examined",
+        "fr": "L'éprouvée",
+        "tr": "Mümtehine",
+        "ur": "امتحان لی جانے والی",
+        "id": "Wanita yang Diuji",
+        "ms": "Perempuan yang Diuji\n",
+        "es": "La Examinada",
+        "bn": "নারী, যাকে পরীক্ষা করা হবে",
+        "fa": "ممتحنه"
+      }
+    },
+    {
+      "id": 61,
+      "arabic": "الصف",
+      "transliteration": "As-Saf",
+      "transliteration_diacritics": "Aş-Şaf",
+      "names": {
+        "ar": "الصف",
+        "en": "The Ranks",
+        "fr": "Le rang",
+        "tr": "Saf",
+        "ur": "صف",
+        "id": "Barisan",
+        "ms": "Barisan\n",
+        "es": "La Fila",
+        "bn": "সারিবদ্ধ সৈন্যদল",
+        "fa": "صف"
+      }
+    },
+    {
+      "id": 62,
+      "arabic": "الجمعة",
+      "transliteration": "Al-Jumu'ah",
+      "transliteration_diacritics": "Al-Jumu`ah",
+      "names": {
+        "ar": "الجمعة",
+        "en": "The Congregation, Friday",
+        "fr": "Le vendredi",
+        "tr": "Cuma",
+        "ur": "جمعہ",
+        "id": "Hari Jum\\'at",
+        "ms": "Hari Jumaat \n",
+        "es": "El Viernes",
+        "bn": "সম্মেলন/শুক্রবার",
+        "fa": "جمعه"
+      }
+    },
+    {
+      "id": 63,
+      "arabic": "المنافقون",
+      "transliteration": "Al-Munafiqun",
+      "transliteration_diacritics": "Al-Munāfiqūn",
+      "names": {
+        "ar": "المنافقون",
+        "en": "The Hypocrites",
+        "fr": "Les hypocrites",
+        "tr": "Münâfikûn",
+        "ur": "منافقین",
+        "id": "Kaum Munafik",
+        "ms": "Golongan Munafik\n",
+        "es": "Los Hipócritas",
+        "bn": "ভণ্ড বিশ্বাসী",
+        "fa": "منافقون"
+      }
+    },
+    {
+      "id": 64,
+      "arabic": "التغابن",
+      "transliteration": "At-Taghabun",
+      "transliteration_diacritics": "At-Taghābun",
+      "names": {
+        "ar": "التغابن",
+        "en": "The Mutual Disillusion",
+        "fr": "La grande perte",
+        "tr": "Tegâbün",
+        "ur": "ہار جیت",
+        "id": "Hari Dinampakkan Kesalahan",
+        "ms": "Dinampakkan Kesalahan \n",
+        "es": "El Desengaño",
+        "bn": "মোহ অপসারণ",
+        "fa": "تغابن"
+      }
+    },
+    {
+      "id": 65,
+      "arabic": "الطلاق",
+      "transliteration": "At-Talaq",
+      "transliteration_diacritics": "Aţ-Ţalāq",
+      "names": {
+        "ar": "الطلاق",
+        "en": "The Divorce",
+        "fr": "Le divorce",
+        "tr": "Talâk",
+        "ur": "طلاق",
+        "id": "Perceraian",
+        "ms": "Cerai / Talak\n",
+        "es": "El Divorcio",
+        "bn": "তালাক",
+        "fa": "طلاق"
+      }
+    },
+    {
+      "id": 66,
+      "arabic": "التحريم",
+      "transliteration": "At-Tahrim",
+      "transliteration_diacritics": "At-Taĥrīm",
+      "names": {
+        "ar": "التحريم",
+        "en": "The Prohibition",
+        "fr": "L'interdiction",
+        "tr": "Tahrîm",
+        "ur": "حرمت",
+        "id": "Mengharamkan",
+        "ms": "Mengharamkan \n",
+        "es": "La Prohibición",
+        "bn": "নিষিদ্ধকরণ",
+        "fa": "تحریم"
+      }
+    },
+    {
+      "id": 67,
+      "arabic": "الملك",
+      "transliteration": "Al-Mulk",
+      "transliteration_diacritics": "Al-Mulk",
+      "names": {
+        "ar": "الملك",
+        "en": "The Sovereignty",
+        "fr": "La royauté",
+        "tr": "Mülk",
+        "ur": "بادشاہ",
+        "id": "Kerajaan",
+        "ms": "Kerajaan\n",
+        "es": "La Soberanía",
+        "bn": "সার্বভৌম কর্তৃত্ব",
+        "fa": "ملك"
+      }
+    },
+    {
+      "id": 68,
+      "arabic": "القلم",
+      "transliteration": "Al-Qalam",
+      "transliteration_diacritics": "Al-Qalam",
+      "names": {
+        "ar": "القلم",
+        "en": "The Pen",
+        "fr": "La plume",
+        "tr": "Kalem",
+        "ur": "قلم",
+        "id": "Pena",
+        "ms": "Pena / Kalam\n",
+        "es": "El Cálamo",
+        "bn": "কলম",
+        "fa": "قلم"
+      }
+    },
+    {
+      "id": 69,
+      "arabic": "الحاقة",
+      "transliteration": "Al-Haqqah",
+      "transliteration_diacritics": "Al-Ĥāqqah",
+      "names": {
+        "ar": "الحاقة",
+        "en": "The Reality",
+        "fr": "L'inéluctable",
+        "tr": "Hâkka",
+        "ur": "حق ہونے والی",
+        "id": "Kenyataan (Hari Kiamat)",
+        "ms": "Keadaan Sebenar / Hari Kiamat\n",
+        "es": "La Verdad Indefectible",
+        "bn": "নিশ্চিত সত্য",
+        "fa": "حاقه"
+      }
+    },
+    {
+      "id": 70,
+      "arabic": "المعارج",
+      "transliteration": "Al-Ma'arij",
+      "transliteration_diacritics": "Al-Ma`ārij",
+      "names": {
+        "ar": "المعارج",
+        "en": "The Ascending Stairways",
+        "fr": "Les voies d'ascension",
+        "tr": "Meâric",
+        "ur": "عروج",
+        "id": "Tempat yang Naik",
+        "ms": "Tempat-tempat Naik \n",
+        "es": "Los Grados de Elevación",
+        "bn": "উন্নয়নের সোপান",
+        "fa": "معارج"
+      }
+    },
+    {
+      "id": 71,
+      "arabic": "نوح",
+      "transliteration": "Nuh",
+      "transliteration_diacritics": "Nūĥ",
+      "names": {
+        "ar": "نوح",
+        "en": "Noah",
+        "fr": "Noé",
+        "tr": "Nûh",
+        "ur": "نوح",
+        "id": "Nuh",
+        "ms": "Nabi Nuh a.s. \n",
+        "es": "Noé",
+        "bn": "নবী নূহ",
+        "fa": "نوح"
+      }
+    },
+    {
+      "id": 72,
+      "arabic": "الجن",
+      "transliteration": "Al-Jinn",
+      "transliteration_diacritics": "Al-Jinn",
+      "names": {
+        "ar": "الجن",
+        "en": "The Jinn",
+        "fr": "Les djinns",
+        "tr": "Cin",
+        "ur": "جن",
+        "id": "Jin",
+        "ms": "Jin",
+        "es": "Los Genios",
+        "bn": "জিন সম্প্রদায়",
+        "fa": "جن"
+      }
+    },
+    {
+      "id": 73,
+      "arabic": "المزمل",
+      "transliteration": "Al-Muzzammil",
+      "transliteration_diacritics": "Al-Muzzammil",
+      "names": {
+        "ar": "المزمل",
+        "en": "The Enshrouded One",
+        "fr": "L'enveloppé",
+        "tr": "Müzzemmil",
+        "ur": "کپڑا لپیٹنے والا",
+        "id": "Orang yang Berselimut",
+        "ms": "Yang Berselimut \n",
+        "es": "El Envuelto en El Manto",
+        "bn": "বস্ত্রাচ্ছাদনকারী",
+        "fa": "مزمل"
+      }
+    },
+    {
+      "id": 74,
+      "arabic": "المدثر",
+      "transliteration": "Al-Muddaththir",
+      "transliteration_diacritics": "Al-Muddaththir",
+      "names": {
+        "ar": "المدثر",
+        "en": "The Cloaked One",
+        "fr": "Celui qui se couvre",
+        "tr": "Müddessir",
+        "ur": "کپڑا اوڑھنے والا",
+        "id": "Orang yang Berkemul",
+        "ms": "Yang Berselubung \n",
+        "es": "El Arropado",
+        "bn": "পোশাক পরিহিত",
+        "fa": "مدثر"
+      }
+    },
+    {
+      "id": 75,
+      "arabic": "القيامة",
+      "transliteration": "Al-Qiyamah",
+      "transliteration_diacritics": "Al-Qiyāmah",
+      "names": {
+        "ar": "القيامة",
+        "en": "The Resurrection",
+        "fr": "La résurrection",
+        "tr": "Kıyâmet",
+        "ur": "قیامۃ",
+        "id": "Hari Berbangkit",
+        "ms": "Hari Kebangkitan / Kiamat \n",
+        "es": "El Levantamiento",
+        "bn": "পুনরুত্থান",
+        "fa": "قیامه"
+      }
+    },
+    {
+      "id": 76,
+      "arabic": "الانسان",
+      "transliteration": "Al-Insan",
+      "transliteration_diacritics": "Al-'Insān",
+      "names": {
+        "ar": "الانسان",
+        "en": "The Man",
+        "fr": "L'homme",
+        "tr": "İnsân",
+        "ur": "انسان",
+        "id": "Manusia",
+        "ms": "Manusia\n",
+        "es": "El Hombre",
+        "bn": "মানবজাতি",
+        "fa": "إنسان"
+      }
+    },
+    {
+      "id": 77,
+      "arabic": "المرسلات",
+      "transliteration": "Al-Mursalat",
+      "transliteration_diacritics": "Al-Mursalāt",
+      "names": {
+        "ar": "المرسلات",
+        "en": "The Emissaries",
+        "fr": "Les envoyés",
+        "tr": "Mürselât",
+        "ur": "بھیجی جانے والی ہوائیں",
+        "id": "Malaikat-malaikan yang Diutus",
+        "ms": "Malaikat Yang Diutus\n",
+        "es": "Los Que Son Enviados",
+        "bn": "প্রেরিত পুরুষ",
+        "fa": "مرسلات"
+      }
+    },
+    {
+      "id": 78,
+      "arabic": "النبإ",
+      "transliteration": "An-Naba",
+      "transliteration_diacritics": "An-Naba",
+      "names": {
+        "ar": "النبإ",
+        "en": "The Tidings",
+        "fr": "La nouvelle",
+        "tr": "Nebe",
+        "ur": "خبر",
+        "id": "Berita Besar",
+        "ms": "Berita Besar\n",
+        "es": "La Noticia",
+        "bn": "মহাসংবাদ",
+        "fa": "نبأ"
+      }
+    },
+    {
+      "id": 79,
+      "arabic": "النازعات",
+      "transliteration": "An-Nazi'at",
+      "transliteration_diacritics": "An-Nāzi`āt",
+      "names": {
+        "ar": "النازعات",
+        "en": "Those who drag forth",
+        "fr": "Ceux qui arrachent",
+        "tr": "Naziât",
+        "ur": "زور سے کھینچنے والے",
+        "id": "Malaikat yang Mencabut",
+        "ms": "Malaikat Yang Mencabut\n",
+        "es": "Los Que Arrancan",
+        "bn": "প্রচেষ্টাকারী",
+        "fa": "نازعات"
+      }
+    },
+    {
+      "id": 80,
+      "arabic": "عبس",
+      "transliteration": "'Abasa",
+      "transliteration_diacritics": "`Abasa",
+      "names": {
+        "ar": "عبس",
+        "en": "He Frowned",
+        "fr": "Il s'est renfrogné",
+        "tr": "Abese",
+        "ur": "تیوری چڑہائی",
+        "id": "Ia Bermuka Masam",
+        "ms": "Dia Bermasam Muka\n",
+        "es": "Frunció El Ceño",
+        "bn": "সে ভ্রু কুঁচকালো",
+        "fa": "عبس"
+      }
+    },
+    {
+      "id": 81,
+      "arabic": "التكوير",
+      "transliteration": "At-Takwir",
+      "transliteration_diacritics": "At-Takwīr",
+      "names": {
+        "ar": "التكوير",
+        "en": "The Overthrowing",
+        "fr": "L'obscurcissement",
+        "tr": "Tekvîr",
+        "ur": "لپیٹنا",
+        "id": "Menggulung",
+        "ms": "Menggulung\n",
+        "es": "El Arrollamiento",
+        "bn": "অন্ধকারাচ্ছন্ন",
+        "fa": "تكویر"
+      }
+    },
+    {
+      "id": 82,
+      "arabic": "الإنفطار",
+      "transliteration": "Al-Infitar",
+      "transliteration_diacritics": "Al-'Infiţār",
+      "names": {
+        "ar": "الإنفطار",
+        "en": "The Cleaving",
+        "fr": "La rupture",
+        "tr": "İnfitâr",
+        "ur": "ٹکڑے ہونا",
+        "id": "Terbelah",
+        "ms": "Terpecah & Terbelah \n",
+        "es": "La Hendidura",
+        "bn": "বিদীর্ণ করা",
+        "fa": "انفطار"
+      }
+    },
+    {
+      "id": 83,
+      "arabic": "المطففين",
+      "transliteration": "Al-Mutaffifin",
+      "transliteration_diacritics": "Al-Muţaffifīn",
+      "names": {
+        "ar": "المطففين",
+        "en": "The Defrauding",
+        "fr": "Les fraudeurs",
+        "tr": "Mutaffifîn",
+        "ur": "ناپ تول میں کمی کرنے والے",
+        "id": "Orang-orang Curang",
+        "ms": "Golongan yang Curang\n",
+        "es": "Los Defraudadores",
+        "bn": "প্রতারণা করা",
+        "fa": "مطففین"
+      }
+    },
+    {
+      "id": 84,
+      "arabic": "الإنشقاق",
+      "transliteration": "Al-Inshiqaq",
+      "transliteration_diacritics": "Al-'Inshiqāq",
+      "names": {
+        "ar": "الإنشقاق",
+        "en": "The Sundering",
+        "fr": "La déchirure",
+        "tr": "İnşikâk",
+        "ur": "پھٹنا",
+        "id": "Terbelah",
+        "ms": "Terbelah\n",
+        "es": "El Resquebrajamiento",
+        "bn": "খণ্ড-বিখণ্ডকরণ",
+        "fa": "انشقاق"
+      }
+    },
+    {
+      "id": 85,
+      "arabic": "البروج",
+      "transliteration": "Al-Buruj",
+      "transliteration_diacritics": "Al-Burūj",
+      "names": {
+        "ar": "البروج",
+        "en": "The Mansions of the Stars",
+        "fr": "Les constellations",
+        "tr": "Burûc",
+        "ur": "برج",
+        "id": "Gugusan Bintang",
+        "ms": "Gugusan Bintang \n",
+        "es": "Las Constelaciones",
+        "bn": "নক্ষত্রপুঞ্জ",
+        "fa": "بروج"
+      }
+    },
+    {
+      "id": 86,
+      "arabic": "الطارق",
+      "transliteration": "At-Tariq",
+      "transliteration_diacritics": "Aţ-Ţāriq",
+      "names": {
+        "ar": "الطارق",
+        "en": "The Nightcommer",
+        "fr": "L'astre nocturne",
+        "tr": "Târık",
+        "ur": "رات کو آنے والا",
+        "id": "Yang Datang di Malam Hari",
+        "ms": "Pengunjung Malam \n",
+        "es": "El Que Viene de Noche",
+        "bn": "রাতের আগন্তুক",
+        "fa": "طارق"
+      }
+    },
+    {
+      "id": 87,
+      "arabic": "الأعلى",
+      "transliteration": "Al-A'la",
+      "transliteration_diacritics": "Al-'A`lá",
+      "names": {
+        "ar": "الأعلى",
+        "en": "The Most High",
+        "fr": "Le Très-Haut",
+        "tr": "A'lâ",
+        "ur": "اعلی",
+        "id": "Yang Paling Tinggi",
+        "ms": "Yang Tertinggi \n",
+        "es": "El Altísimo",
+        "bn": "সর্বোন্নত",
+        "fa": "أعلى "
+      }
+    },
+    {
+      "id": 88,
+      "arabic": "الغاشية",
+      "transliteration": "Al-Ghashiyah",
+      "transliteration_diacritics": "Al-Ghāshiyah",
+      "names": {
+        "ar": "الغاشية",
+        "en": "The Overwhelming",
+        "fr": "L'enveloppante",
+        "tr": "Gâşiye",
+        "ur": "چھا جانے والی",
+        "id": "Hari Pembalasan",
+        "ms": "Peristiwa Menggelisahkan/Hari Pembalasan \n",
+        "es": "El Envolvente",
+        "bn": "বিহ্বলকর ঘটনা",
+        "fa": "غاشیه"
+      }
+    },
+    {
+      "id": 89,
+      "arabic": "الفجر",
+      "transliteration": "Al-Fajr",
+      "transliteration_diacritics": "Al-Fajr",
+      "names": {
+        "ar": "الفجر",
+        "en": "The Dawn",
+        "fr": "L'aube",
+        "tr": "Fecr",
+        "ur": "فجر",
+        "id": "Fajar",
+        "ms": "Fajar / Sinar Mentari\n",
+        "es": "La Aurora",
+        "bn": "ভোরবেলা",
+        "fa": "فجر"
+      }
+    },
+    {
+      "id": 90,
+      "arabic": "البلد",
+      "transliteration": "Al-Balad",
+      "transliteration_diacritics": "Al-Balad",
+      "names": {
+        "ar": "البلد",
+        "en": "The City",
+        "fr": "La cité",
+        "tr": "Beled",
+        "ur": "شہر",
+        "id": "Negeri",
+        "ms": "Negeri\n",
+        "es": "El Territorio",
+        "bn": "নগর",
+        "fa": "بلد"
+      }
+    },
+    {
+      "id": 91,
+      "arabic": "الشمس",
+      "transliteration": "Ash-Shams",
+      "transliteration_diacritics": "Ash-Shams",
+      "names": {
+        "ar": "الشمس",
+        "en": "The Sun",
+        "fr": "Le soleil",
+        "tr": "Şems",
+        "ur": "آفتاب",
+        "id": "Matahari",
+        "ms": "Matahari\n",
+        "es": "El Sol",
+        "bn": "সূর্য",
+        "fa": "شمس"
+      }
+    },
+    {
+      "id": 92,
+      "arabic": "الليل",
+      "transliteration": "Al-Layl",
+      "transliteration_diacritics": "Al-Layl",
+      "names": {
+        "ar": "الليل",
+        "en": "The Night",
+        "fr": "La nuit",
+        "tr": "Leyl",
+        "ur": "رات",
+        "id": "Malam",
+        "ms": "Malam\n",
+        "es": "La Noche",
+        "bn": "রাত",
+        "fa": "لیل"
+      }
+    },
+    {
+      "id": 93,
+      "arabic": "الضحى",
+      "transliteration": "Ad-Duhaa",
+      "transliteration_diacritics": "Ađ-Đuĥaá",
+      "names": {
+        "ar": "الضحى",
+        "en": "The Morning Hours",
+        "fr": "Le jour montant",
+        "tr": "Duhâ",
+        "ur": "دن کا چڑھنا",
+        "id": "Waktu Dhuha",
+        "ms": "Pagi yang Cemerlang / Matahari Meninggi\n",
+        "es": "La Claridad de La Mañana",
+        "bn": "পূর্বাহ্নের সুর্যকিরণ",
+        "fa": "ضحى"
+      }
+    },
+    {
+      "id": 94,
+      "arabic": "الشرح",
+      "transliteration": "Ash-Sharh",
+      "transliteration_diacritics": "Ash-Sharĥ",
+      "names": {
+        "ar": "الشرح",
+        "en": "The Relief",
+        "fr": "L'ouverture",
+        "tr": "İnşirâh",
+        "ur": "تسکین",
+        "id": "Melapangkan",
+        "ms": "Melapangkan",
+        "es": "No Te Hemos Abierto",
+        "bn": "বক্ষ প্রশস্তকরণ",
+        "fa": "شرح"
+      }
+    },
+    {
+      "id": 95,
+      "arabic": "التين",
+      "transliteration": "At-Tin",
+      "transliteration_diacritics": "At-Tīn",
+      "names": {
+        "ar": "التين",
+        "en": "The Fig",
+        "fr": "Les figues",
+        "tr": "Tîn",
+        "ur": "انجیر",
+        "id": "Buah Tin",
+        "ms": "Buah Tin / Buah Ara \n",
+        "es": "Los Higos",
+        "bn": "ডুমুর",
+        "fa": "تین"
+      }
+    },
+    {
+      "id": 96,
+      "arabic": "العلق",
+      "transliteration": "Al-'Alaq",
+      "transliteration_diacritics": "Al-`Alaq",
+      "names": {
+        "ar": "العلق",
+        "en": "The Clot",
+        "fr": "L'adhérence",
+        "tr": "Alak",
+        "ur": "جما ہوا خون",
+        "id": "Segumpal Darah",
+        "ms": "Segumpal Darah\n",
+        "es": "El Coágulo",
+        "bn": "রক্তপিণ্ড",
+        "fa": "علق"
+      }
+    },
+    {
+      "id": 97,
+      "arabic": "القدر",
+      "transliteration": "Al-Qadr",
+      "transliteration_diacritics": "Al-Qadr",
+      "names": {
+        "ar": "القدر",
+        "en": "The Power",
+        "fr": "La destinée",
+        "tr": "Kadir",
+        "ur": "شب قدر",
+        "id": "Kemuliaan",
+        "ms": "Kemuliaan \n",
+        "es": "El Decreto",
+        "bn": "মহিমান্বিত",
+        "fa": "قدر"
+      }
+    },
+    {
+      "id": 98,
+      "arabic": "البينة",
+      "transliteration": "Al-Bayyinah",
+      "transliteration_diacritics": "Al-Bayyinah",
+      "names": {
+        "ar": "البينة",
+        "en": "The Clear Proof",
+        "fr": "La preuve",
+        "tr": "Beyyine",
+        "ur": "ثبوت",
+        "id": "Pembuktian",
+        "ms": "Bukti yang Nyata\n",
+        "es": "La Evidencia",
+        "bn": "প্রমাণ",
+        "fa": "بینه"
+      }
+    },
+    {
+      "id": 99,
+      "arabic": "الزلزلة",
+      "transliteration": "Az-Zalzalah",
+      "transliteration_diacritics": "Az-Zalzalah",
+      "names": {
+        "ar": "الزلزلة",
+        "en": "The Earthquake",
+        "fr": "Le séisme",
+        "tr": "Zilzâl",
+        "ur": "زلزلہ",
+        "id": "Kegoncangan",
+        "ms": "Kegoncangan \n",
+        "es": "El Temblor",
+        "bn": "ভূমিকম্প",
+        "fa": "زلزله"
+      }
+    },
+    {
+      "id": 100,
+      "arabic": "العاديات",
+      "transliteration": "Al-'Adiyat",
+      "transliteration_diacritics": "Al-`Ādiyāt",
+      "names": {
+        "ar": "العاديات",
+        "en": "The Courser",
+        "fr": "Les coursiers",
+        "tr": "Âdiyât",
+        "ur": "دوڑنے والے گھوڑے",
+        "id": "Berlari Kencang",
+        "ms": "Yang Berlari Kencang\n",
+        "es": "Los Que Galopan",
+        "bn": "অভিযানকারী",
+        "fa": "عادیات"
+      }
+    },
+    {
+      "id": 101,
+      "arabic": "القارعة",
+      "transliteration": "Al-Qari'ah",
+      "transliteration_diacritics": "Al-Qāri`ah",
+      "names": {
+        "ar": "القارعة",
+        "en": "The Calamity",
+        "fr": "Le fracas",
+        "tr": "Kâria",
+        "ur": "کھڑکھڑاہٹ",
+        "id": "Hari Kiamat",
+        "ms": "Hari Yang Hingar Bingar / Kiamat\n",
+        "es": "La Conmoción",
+        "bn": "মহাসংকট",
+        "fa": "قارعه"
+      }
+    },
+    {
+      "id": 102,
+      "arabic": "التكاثر",
+      "transliteration": "At-Takathur",
+      "transliteration_diacritics": "At-Takāthur",
+      "names": {
+        "ar": "التكاثر",
+        "en": "The Rivalry in world increase",
+        "fr": "La course aux richesses",
+        "tr": "Tekâsür",
+        "ur": "کثرت",
+        "id": "Bermegah-megahan",
+        "ms": "Bermegah-megah\n",
+        "es": "La Rivalidad",
+        "bn": "প্রাচুর্যের প্রতিযোগিতা",
+        "fa": "تكاثر"
+      }
+    },
+    {
+      "id": 103,
+      "arabic": "العصر",
+      "transliteration": "Al-'Asr",
+      "transliteration_diacritics": "Al-`Aşr",
+      "names": {
+        "ar": "العصر",
+        "en": "The Declining Day",
+        "fr": "Le temps",
+        "tr": "Asr",
+        "ur": "زمانہ",
+        "id": "Waktu Sore",
+        "ms": "Masa\n",
+        "es": "El Tiempo",
+        "bn": "সময়",
+        "fa": "عصر"
+      }
+    },
+    {
+      "id": 104,
+      "arabic": "الهمزة",
+      "transliteration": "Al-Humazah",
+      "transliteration_diacritics": "Al-Humazah",
+      "names": {
+        "ar": "الهمزة",
+        "en": "The Traducer",
+        "fr": "Les calomniateurs",
+        "tr": "Hümeze",
+        "ur": "عیب لگانے والا",
+        "id": "Pengumpat",
+        "ms": "Pengumpat\n",
+        "es": "El Murmurador",
+        "bn": "পরনিন্দাকারী",
+        "fa": "همزه"
+      }
+    },
+    {
+      "id": 105,
+      "arabic": "الفيل",
+      "transliteration": "Al-Fil",
+      "transliteration_diacritics": "Al-Fīl",
+      "names": {
+        "ar": "الفيل",
+        "en": "The Elephant",
+        "fr": "L'éléphant",
+        "tr": "Fîl",
+        "ur": "ہاتھی",
+        "id": "Gajah",
+        "ms": "Gajah\n",
+        "es": "El Elefante",
+        "bn": "হাতি",
+        "fa": "فیل"
+      }
+    },
+    {
+      "id": 106,
+      "arabic": "قريش",
+      "transliteration": "Quraysh",
+      "transliteration_diacritics": "Quraysh",
+      "names": {
+        "ar": "قريش",
+        "en": "Quraysh",
+        "fr": "Les Quraysh",
+        "tr": "Kureyş",
+        "ur": "قریش",
+        "id": "Suku Quraisy",
+        "ms": "Kaum Quraisy\n",
+        "es": "Los Quraysh",
+        "bn": "কুরাইশ গোত্র",
+        "fa": "قریش"
+      }
+    },
+    {
+      "id": 107,
+      "arabic": "الماعون",
+      "transliteration": "Al-Ma'un",
+      "transliteration_diacritics": "Al-Mā`ūn",
+      "names": {
+        "ar": "الماعون",
+        "en": "The Small kindnesses",
+        "fr": "L'entraide",
+        "tr": "Maûn",
+        "ur": "تھوڑی سی چیز",
+        "id": "Barang yang Berguna",
+        "ms": "Barangan Berguna \n",
+        "es": "La Ayuda Imprescindible",
+        "bn": "সাহায্য সহায়তা",
+        "fa": "ماعون"
+      }
+    },
+    {
+      "id": 108,
+      "arabic": "الكوثر",
+      "transliteration": "Al-Kawthar",
+      "transliteration_diacritics": "Al-Kawthar",
+      "names": {
+        "ar": "الكوثر",
+        "en": "The Abundance",
+        "fr": "L'abondance",
+        "tr": "Kevser",
+        "ur": "جنت کی نہر",
+        "id": "Nikmat Berlimpah",
+        "ms": "Sungai Di Syurga\n",
+        "es": "La Abundancia",
+        "bn": "কাউসার/প্রাচুর্য",
+        "fa": "كوثر"
+      }
+    },
+    {
+      "id": 109,
+      "arabic": "الكافرون",
+      "transliteration": "Al-Kafirun",
+      "transliteration_diacritics": "Al-Kāfirūn",
+      "names": {
+        "ar": "الكافرون",
+        "en": "The Disbelievers",
+        "fr": "Les mécréants",
+        "tr": "Kâfirûn",
+        "ur": "کافرین",
+        "id": "Orang-orang Kafir",
+        "ms": "Golongan Kafir \n",
+        "es": "Los Incrédulos",
+        "bn": "অবিশ্বাসী",
+        "fa": "كافرون"
+      }
+    },
+    {
+      "id": 110,
+      "arabic": "النصر",
+      "transliteration": "An-Nasr",
+      "transliteration_diacritics": "An-Naşr",
+      "names": {
+        "ar": "النصر",
+        "en": "The Divine Support",
+        "fr": "Le secours",
+        "tr": "Nasr",
+        "ur": "نصرت",
+        "id": "Pertolongan",
+        "ms": "Pertolongan\n",
+        "es": "La Victoria",
+        "bn": "সাহায্য",
+        "fa": "نصر"
+      }
+    },
+    {
+      "id": 111,
+      "arabic": "المسد",
+      "transliteration": "Al-Masad",
+      "transliteration_diacritics": "Al-Masad",
+      "names": {
+        "ar": "المسد",
+        "en": "The Palm Fiber",
+        "fr": "Les fibres",
+        "tr": "Tebbet",
+        "ur": "خوب بٹی ہوئی",
+        "id": "Gejolak Api (Sabut)",
+        "ms": "Nyalaan Api\n",
+        "es": "La Fibra",
+        "bn": "খেজুরের পাকানো (রশি)",
+        "fa": "مسد"
+      }
+    },
+    {
+      "id": 112,
+      "arabic": "الإخلاص",
+      "transliteration": "Al-Ikhlas",
+      "transliteration_diacritics": "Al-'Ikhlāş",
+      "names": {
+        "ar": "الإخلاص",
+        "en": "The Sincerity",
+        "fr": "La sincérité",
+        "tr": "İhlâs",
+        "ur": "اخلاص",
+        "id": "Ikhlash",
+        "ms": "Tulus Ikhlas / Memurnikan Keesaan Allah \n",
+        "es": "La Adoración Pura",
+        "bn": "আন্তরিকতা",
+        "fa": "إخلاص"
+      }
+    },
+    {
+      "id": 113,
+      "arabic": "الفلق",
+      "transliteration": "Al-Falaq",
+      "transliteration_diacritics": "Al-Falaq",
+      "names": {
+        "ar": "الفلق",
+        "en": "The Daybreak",
+        "fr": "L'aube naissante",
+        "tr": "Felak",
+        "ur": "صبح",
+        "id": "Waktu Shubuh",
+        "ms": "Waktu Subuh / Dinihari\n",
+        "es": "El Rayar del Alba",
+        "bn": "নিশিভোর",
+        "fa": "فلق"
+      }
+    },
+    {
+      "id": 114,
+      "arabic": "الناس",
+      "transliteration": "An-Nas",
+      "transliteration_diacritics": "An-Nās",
+      "names": {
+        "ar": "الناس",
+        "en": "Mankind",
+        "fr": "Les humains",
+        "tr": "Nâs",
+        "ur": "انسان",
+        "id": "Umat Manusia",
+        "ms": "Manusia",
+        "es": "Los Hombres",
+        "bn": "মানুষ জাতি",
+        "fa": "ناس"
+      }
+    }
+  ]
+}

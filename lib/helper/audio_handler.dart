@@ -45,6 +45,7 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
         artist: audio['reciter_name'] ?? 'Unknown Artist',
         duration: Duration(milliseconds: audio['duration'] ?? 0),
         artUri: Uri.tryParse(audio['reciter_avatar'] ?? ''),
+        extras: {'chapterId': audio['chapter_id']},
       );
       _mediaItems.add(mediaItem);
     }
