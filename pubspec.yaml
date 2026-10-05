@@ -1,7 +1,7 @@
 name: salatime
 description: SalaTime — prayer times, Adhan reminders, Qibla, Quran and Athkar with optional self-hosted account sync.
 publish_to: "none"
-version: 1.0.27+32
+version: 1.0.28+33
 
 environment:
   sdk: ">=3.9.0 <4.0.0"
@@ -26,6 +26,7 @@ dependencies:
   hijri: ^3.0.0
   vibration: ^3.1.3
   url_launcher: ^6.1.10
+  in_app_review: 2.0.12
   flutter_launcher_icons: ^0.14.4
   flutter_svg: ^2.0.9
   #  google_fonts: ^8.0.1

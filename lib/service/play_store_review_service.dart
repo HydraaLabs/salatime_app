@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+import 'package:in_app_review/in_app_review.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -11,9 +13,15 @@ class PlayStoreReviewService {
     Future<SharedPreferences> Function()? preferences,
     DateTime Function()? now,
     Future<bool> Function(Uri)? openUrl,
+    Future<bool> Function()? reviewAvailable,
+    Future<void> Function()? requestReview,
+    TargetPlatform Function()? platform,
   }) : _preferences = preferences ?? SharedPreferences.getInstance,
        _now = now ?? DateTime.now,
-       _openUrl = openUrl ?? _launchExternal;
+       _openUrl = openUrl ?? _launchExternal,
+       _reviewAvailable = reviewAvailable ?? InAppReview.instance.isAvailable,
+       _requestReview = requestReview ?? InAppReview.instance.requestReview,
+       _platform = platform ?? (() => defaultTargetPlatform);
 
   static final instance = PlayStoreReviewService();
   static const storageKey = 'play_store_review_invitation_v1';
@@ -24,10 +32,16 @@ class PlayStoreReviewService {
   static final storeUri = Uri.https('play.google.com', '/store/apps/details', {
     'id': 'net.salatime.app',
   });
+  static final appStoreUri = Uri.https('apps.apple.com', '/app/id6812923710', {
+    'action': 'write-review',
+  });
 
   final Future<SharedPreferences> Function() _preferences;
   final DateTime Function() _now;
   final Future<bool> Function(Uri) _openUrl;
+  final Future<bool> Function() _reviewAvailable;
+  final Future<void> Function() _requestReview;
+  final TargetPlatform Function() _platform;
   Future<void> _pending = Future.value();
 
   static Future<bool> _launchExternal(Uri uri) =>
@@ -63,23 +77,57 @@ class PlayStoreReviewService {
     await _save(prefs, state);
   });
 
-  /// Reserve the invitation durably BEFORE displaying it. Dismissing the
-  /// dialog (including Back) thus has the same cooldown as "Later".
-  Future<bool> claimInvitation() => _withState((prefs, state) async {
-    final now = _now();
-    if (state.stopped ||
-        state.days < minimumDays ||
-        now.difference(state.firstUse) < minimumAge ||
-        state.invitations >= maximumInvitations ||
-        (state.lastInvitation != null &&
-            now.difference(state.lastInvitation!) < reminderDelay)) {
-      return false;
-    }
-    state.lastInvitation = now;
-    state.invitations++;
-    await _save(prefs, state);
-    return true;
-  });
+  bool _eligible(_ReviewHistory state, DateTime now) =>
+      !state.stopped &&
+      state.days >= minimumDays &&
+      now.difference(state.firstUse) >= minimumAge &&
+      state.invitations < maximumInvitations &&
+      (state.lastInvitation == null ||
+          now.difference(state.lastInvitation!) >= reminderDelay);
+
+  /// Requests the system sheet directly, without filtering by satisfaction.
+  /// A successful API call means only an attempt: the stores may suppress it.
+  /// Visibility is checked again after every asynchronous preparation step.
+  Future<bool> requestReviewIfEligible({required bool Function() canRequest}) =>
+      _withState((prefs, state) async {
+        if (kIsWeb ||
+            (_platform() != TargetPlatform.android &&
+                _platform() != TargetPlatform.iOS) ||
+            !_eligible(state, _now()) ||
+            !canRequest()) {
+          return false;
+        }
+        try {
+          if (!await _reviewAvailable() ||
+              !canRequest() ||
+              !_eligible(state, _now())) {
+            return false;
+          }
+        } catch (_) {
+          return false;
+        }
+
+        final previousInvitation = state.lastInvitation;
+        final previousCount = state.invitations;
+        state.lastInvitation = _now();
+        state.invitations++;
+        await _save(prefs, state);
+        if (canRequest()) {
+          try {
+            await _requestReview();
+            // No permanent opt-out or submitted-review flag can be inferred.
+            return true;
+          } catch (_) {
+            // A missing plugin or native error must remain retryable.
+          }
+        }
+        // Navigation during the durable reservation must not consume a
+        // 30-day cooldown when the native API was never called.
+        state.lastInvitation = previousInvitation;
+        state.invitations = previousCount;
+        await _save(prefs, state);
+        return false;
+      });
 
   Future<void> decline() => _withState((prefs, state) async {
     state.stopped = true;
@@ -87,11 +135,18 @@ class PlayStoreReviewService {
   });
 
   /// Also used by the settings button. Opening the listing stops invitations;
-  /// it does not mean a review was submitted (Google provides no such result).
+  /// it does not mean a review was submitted (neither store provides a result).
   Future<bool> openStore() async {
+    if (kIsWeb) return false;
+    final uri = switch (_platform()) {
+      TargetPlatform.android => storeUri,
+      TargetPlatform.iOS => appStoreUri,
+      _ => null,
+    };
+    if (uri == null) return false;
     bool opened;
     try {
-      opened = await _openUrl(storeUri);
+      opened = await _openUrl(uri);
     } catch (_) {
       return false;
     }

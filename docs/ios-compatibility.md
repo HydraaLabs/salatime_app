@@ -30,7 +30,7 @@ widget and Flutter framework target iOS
 | Downloads / sharing | App Documents writes no longer request Android storage permission on iOS. Share sheets have a popover origin for iPad. |
 | Wallpaper | Download/share flow is shared. Directly applying a wallpaper remains Android-only; iPhone users select the saved image through iOS. |
 | Automatic phone silence / restoring DND | Android feature; an ordinary iOS application cannot toggle the device's global silent/Focus mode. |
-| Store review / sharing | The automatic Google Play invitation remains Android-only. The deployed iOS settings URL is `https://apps.apple.com/app/id6812923710`. The listing may return 404 until Apple makes it available. |
+| Store review / sharing | Native automatic review requests on Android and iOS through `in_app_review`, after three usage days and 72 hours; the platform controls whether the sheet appears. No custom review prompt. The iOS settings action always opens `https://apps.apple.com/app/id6812923710?action=write-review`, independently of backend settings. TestFlight does not display native review requests. The plugin requires complete new Android/iOS builds; local automated tests do not establish display on a physical iPhone. See [review behavior and verification](play-store-review-invitation.md). |
 
 ## Verification record — 14 September 2026
 

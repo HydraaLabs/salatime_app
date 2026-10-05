@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:salatime/controller/quran_settings_controller.dart';
 import 'package:salatime/util/dimensions.dart';
 import 'package:salatime/util/images.dart';
@@ -154,22 +153,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   }
                                 },
                               ),
-                            SettingsItem(
-                              imagePath: Images.Icon_rate_app,
-                              leadingIcon: Icons.rate_review,
-                              title: 'rate_us'.tr,
-                              onTap: () async {
-                                final opened = await PlayStoreReviewService
-                                    .instance
-                                    .openStore();
-                                if (!opened && mounted) {
-                                  showCustomSnackBar(
-                                    'review_store_unavailable'.tr,
-                                    isError: true,
-                                  );
-                                }
-                              },
-                            ),
                           ],
                         )
                       : const SizedBox(),
@@ -217,44 +200,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   }
                                 },
                               ),
-                            if (settingsController.mosqueSettingsApiData !=
-                                    null &&
-                                settingsController
-                                        .mosqueSettingsApiData!
-                                        .data !=
-                                    null &&
-                                settingsController
-                                        .mosqueSettingsApiData!
-                                        .data!
-                                        .appStoreUrl !=
-                                    null)
-                              SettingsItem(
-                                imagePath: Images.Icon_rate_app,
-                                leadingIcon: Icons.rate_review,
-                                title: 'rate_us'.tr,
-                                onTap: () async {
-                                  final appStoreUrl = settingsController
-                                      .mosqueSettingsApiData!
-                                      .data!
-                                      .appStoreUrl
-                                      .toString();
-                                  if (Uri.tryParse(appStoreUrl) != null) {
-                                    final url = Uri.parse(appStoreUrl);
-                                    launchUrl(
-                                      url,
-                                      mode: LaunchMode.externalApplication,
-                                    );
-                                  } else {
-                                    showCustomSnackBar(
-                                      "invalid_URL".tr,
-                                      isError: true,
-                                    );
-                                  }
-                                },
-                              ),
                           ],
                         )
                       : const SizedBox(),
+
+                  if (Platform.isAndroid || Platform.isIOS)
+                    SettingsItem(
+                      imagePath: Images.Icon_rate_app,
+                      leadingIcon: Icons.rate_review,
+                      title: 'rate_us'.tr,
+                      onTap: () async {
+                        final opened = await PlayStoreReviewService.instance
+                            .openStore();
+                        if (!opened && mounted) {
+                          showCustomSnackBar(
+                            'review_store_unavailable'.tr,
+                            isError: true,
+                          );
+                        }
+                      },
+                    ),
 
                   FutureBuilder<PackageInfo>(
                     future: _packageInfo,

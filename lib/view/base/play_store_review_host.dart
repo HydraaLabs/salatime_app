@@ -4,8 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:salatime/service/play_store_review_service.dart';
-import 'package:salatime/view/base/custom_snackbar.dart';
-import 'package:salatime/view/base/play_store_review_prompt.dart';
 
 /// Lives in the navigation shell: retained/offstage tabs must not prompt.
 class PlayStoreReviewHost extends StatefulWidget {
@@ -15,15 +13,13 @@ class PlayStoreReviewHost extends StatefulWidget {
     required this.child,
     this.service,
     this.enabled,
-    this.showPrompt = showPlayStoreReviewPrompt,
   });
 
   final bool isHome;
   final Widget child;
   final PlayStoreReviewService? service;
   final bool? enabled;
-  final Future<PlayStoreReviewChoice?> Function(BuildContext) showPrompt;
-  static const quietTime = Duration(seconds: 30);
+  static const quietTime = Duration(seconds: 10);
 
   @override
   State<PlayStoreReviewHost> createState() => _PlayStoreReviewHostState();
@@ -41,7 +37,8 @@ class _PlayStoreReviewHostState extends State<PlayStoreReviewHost>
   bool get _enabled =>
       widget.enabled ??
       (!kIsWeb &&
-          defaultTargetPlatform == TargetPlatform.android &&
+          (defaultTargetPlatform == TargetPlatform.android ||
+              defaultTargetPlatform == TargetPlatform.iOS) &&
           const String.fromEnvironment(
                 'SALATIME_APPLICATION_ID',
                 defaultValue: 'net.salatime.app',
@@ -89,8 +86,21 @@ class _PlayStoreReviewHostState extends State<PlayStoreReviewHost>
   void _schedule() {
     _generation++;
     _timer?.cancel();
+    if (_enabled && _foreground) {
+      // Brief prayer checks and Quran visits are real usage too. The quiet
+      // home timer controls presentation, never whether a day is counted.
+      unawaited(_recordVisit());
+    }
     if (_visible && !_busy) {
       _timer = Timer(PlayStoreReviewHost.quietTime, _tryPrompt);
+    }
+  }
+
+  Future<void> _recordVisit() async {
+    try {
+      await _service.recordVisit();
+    } catch (_) {
+      // An optional local counter must not interrupt the app.
     }
   }
 
@@ -104,33 +114,23 @@ class _PlayStoreReviewHostState extends State<PlayStoreReviewHost>
     }
     final generation = _generation;
     _busy = true;
-    var promptShown = false;
+    var requested = false;
     try {
-      // Count an actual quiet visit, not notification wakes or setup launches.
-      await _service.recordVisit();
-      if (!_visible || generation != _generation) return;
-      final claimed = await _service.claimInvitation();
-      if (!claimed || !mounted || !_visible || generation != _generation) {
-        return;
-      }
-      promptShown = true;
-      final choice = await widget.showPrompt(context);
-      if (!mounted) return;
-      if (choice == PlayStoreReviewChoice.never) {
-        await _service.decline();
-      } else if (choice == PlayStoreReviewChoice.rate) {
-        final opened = await _service.openStore();
-        if (!opened && mounted && _foreground) {
-          showCustomSnackBar('review_store_unavailable'.tr, isError: true);
-        }
-      }
+      requested = await _service.requestReviewIfEligible(
+        canRequest: () =>
+            _visible &&
+            generation == _generation &&
+            Get.isDialogOpen != true &&
+            Get.isBottomSheetOpen != true &&
+            !Get.isSnackbarOpen,
+      );
     } catch (_) {
       // This optional feature must never prevent using the app offline.
     } finally {
       _busy = false;
       // No periodic polling: a future home visit/resume can try again.
       // A return while a previous claim was pending could not arm its timer.
-      if (!promptShown && generation != _generation && _visible) _schedule();
+      if (!requested && generation != _generation && _visible) _schedule();
     }
   }
 

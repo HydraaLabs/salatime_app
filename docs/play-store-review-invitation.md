@@ -1,62 +1,100 @@
-# Invitation à donner un avis sur Google Play
+# Demande native de notation sur Android et iOS
 
-L'invitation utilise le thème et les dix langues de SalaTime. Elle propose
-« Donner mon avis », « Plus tard » et « Non merci ». Elle n'évalue pas la
-satisfaction et ne sélectionne pas les utilisateurs selon leur opinion.
+SalaTime utilise `in_app_review` pour demander une note avec l'interface native
+de Google Play ou de l'App Store. Aucune invitation personnalisée automatique,
+question de satisfaction ou sélection selon l'opinion ne précède cette demande.
+Le système décide de l'affichage : un appel réussi ne prouve ni que la fenêtre
+est apparue, ni qu'une note ou un avis a été envoyé.
 
-Google Play demande de ne pas poser de question d'opinion avant le bouton ou
-la carte de notation. Un bouton explicite doit ouvrir la fiche Play plutôt que
-l'API native, dont le quota peut empêcher l'affichage :
-https://developer.android.com/guide/playcore/in-app-review#when-to-request
+Apple demande d'utiliser l'API fournie et interdit les fenêtres personnalisées
+de demande d'avis. Google interdit les questions d'opinion avant la carte de
+notation. Les deux plateformes recommandent une fiche de boutique pour un
+bouton explicite, car leurs quotas peuvent rendre une demande native silencieuse :
 
-## Déclenchement
+- [Apple, règle 5.6.1](https://developer.apple.com/app-store/review/guidelines/#app-store-reviews)
+- [Apple, demande native et lien permanent](https://developer.apple.com/documentation/storekit/appstore/requestreview%28in%3A%29-1q8qs)
+- [Google, moment de la demande et quotas](https://developer.android.com/guide/playcore/in-app-review#when-to-request)
 
-- Android, application principale `net.salatime.app` uniquement ; invitation
-  automatique désactivée dans SalaTime Test (`.preview`) et sur iOS.
-- Au moins 7 jours écoulés depuis la première visite admissible après cette
-  mise à jour, et au moins 3 jours calendaires distincts d'utilisation.
-- Une visite admissible correspond à 30 secondes continues sur l'accueil,
-  application au premier plan et route visible. Pas de demande sur les onglets
-  Athkar, Qibla, Mosquées, Plus, pendant une lecture ou pendant l'onboarding.
-- Changer d'onglet, ouvrir une autre page, afficher un dialogue ou quitter
-  l'application annule le délai. Le retour à l'accueil lance un nouveau délai.
-- Une tentative est enregistrée avant l'affichage. « Plus tard », Retour et
-  fermeture extérieure repoussent la prochaine possibilité de 30 jours.
-  Maximum trois invitations par installation.
-- « Non merci » arrête définitivement les invitations automatiques.
-- « Donner mon avis » ouvre, sur action explicite, la fiche de production
-  `https://play.google.com/store/apps/details?id=net.salatime.app`.
-  Une ouverture réussie arrête aussi les invitations. Elle ne prouve pas qu'un
-  avis a été soumis ; aucun avis ni aucune étoile ne sont attribués par SalaTime.
-- Une ouverture impossible affiche un message localisé et reste réessayable
-  depuis les paramètres. Leur bouton d'avis ne dépend plus de l'API du site.
+## Déclenchement automatique
 
-L'historique est un petit objet local SharedPreferences
-`play_store_review_invitation_v1`, exclu de la synchronisation cloud. Le nombre
-de jours est plafonné à trois ; aucun historique détaillé de navigation ou
-contenu de lecture n'est enregistré. Les lectures et alarmes restent indépendantes.
+- Android et iOS, application principale `net.salatime.app` uniquement par défaut.
+  La variante SalaTime Test (`.preview`) et les autres plateformes restent
+  désactivées.
+- Au moins trois jours calendaires distincts d'utilisation et 72 heures
+  écoulées depuis la première utilisation enregistrée par ce mécanisme.
+- L'utilisation est enregistrée à l'entrée ou à la reprise de la navigation
+  principale au premier plan. Elle ne dépend pas de 30 secondes ininterrompues
+  sur l'accueil : changer d'onglet ne fait plus perdre la journée d'utilisation.
+- La présentation attend dix secondes sur l'accueil, application au premier
+  plan et route visible. Pas de demande sur les autres onglets, pendant une
+  lecture, pendant l'onboarding ou sous un dialogue ou une autre page.
+- Changer d'onglet, ouvrir une autre page ou quitter l'application annule le
+  délai de présentation. Le retour à l'accueil lance un nouveau délai.
+- Une tentative admissible est réservée avant l'appel natif pour éviter les
+  demandes simultanées. Délai de 30 jours entre tentatives ; maximum trois
+  tentatives par installation. L'indisponibilité de l'API ne constitue pas une
+  demande présentée.
+- La fin de l'appel natif n'arrête jamais définitivement les demandes : le
+  système ne communique ni l'affichage effectif, ni la note, ni l'envoi d'un avis.
+  Les quotas de la boutique s'ajoutent aux délais locaux.
 
-## Vérifications
+L'historique reste dans SharedPreferences sur l'appareil, exclu de la
+synchronisation cloud. Le nombre de jours est plafonné à trois. Aucun historique
+détaillé de navigation, contenu de lecture, avis ou nombre d'étoiles n'est stocké
+par SalaTime.
+L'historique existant, y compris un refus explicite enregistré par l'ancienne
+invitation, est conservé. Une réservation annulée avant l'appel natif ou un
+appel natif en erreur ne consomme pas de tentative ni de délai de 30 jours.
 
-Tests de service : seuils, jours distincts, reprise, changements d'horloge,
-concurrence, refus, délais, plafond, destination exacte, lancement échoué et
-stockage corrompu. Tests de navigation : visibilité, délai, arrière-plan,
-routes superposées et résultats asynchrones périmés. Tests du dialogue :
-trois actions, Retour/fermeture, français/arabe, clair/sombre, écran 320 px
-et texte agrandi à 200 %.
+## Bouton dans les paramètres
 
-Cette modification n'ajoute aucun SDK natif et ne publie aucune version sur
-Google Play ou Shorebird. Les tests utilisent un lanceur simulé et ne soumettent
-pas d'avis réels.
+« Noter SalaTime » ouvre directement la boutique sur action explicite, sans
+dépendre des réglages reçus du serveur :
 
-## État vérifié le 13 septembre 2026
+- Android : `https://play.google.com/store/apps/details?id=net.salatime.app`
+- iOS : `https://apps.apple.com/app/id6812923710?action=write-review`
 
-- Suite Flutter complète : 490 tests réussis. Analyse globale : aucune anomalie.
-- APK de prévisualisation : `/home/hemiad/Downloads/SalaTime-test-avis-playstore-1.0.16-19.apk`.
-- SHA-256 : `70107edc7ec5bbbf929794fa5b7b055e334c21e1af454e31263a994b26fc0b34` (201644542 octets).
-- Mise à jour de `net.salatime.app.preview` sur Samsung SM-S901U réussie,
-  empreinte du fichier installé relue et identique. L'application Play reste
-  intacte. Le téléphone étant verrouillé, aucune validation visuelle physique
-  du dialogue n'est revendiquée ; les scénarios d'affichage utilisent les tests
-  de widgets. L'invitation automatique est désactivée dans la prévisualisation.
-- Aucun push Git, déploiement web, envoi d'avis, publication Play ou Shorebird.
+Une ouverture réussie arrête les demandes automatiques sur cet appareil. Cela
+ne signifie pas qu'une note ou un avis a été envoyé. Une ouverture impossible
+affiche un message localisé et laisse le bouton réessayable.
+
+## Compilation et vérification
+
+L'ajout du plugin natif nécessite de nouveaux builds complets Android et iOS.
+Une mise à jour Dart seule, notamment un patch Shorebird d'un ancien build sans
+ce plugin, ne suffit pas. Ces changements locaux ne publient aucune version.
+
+Les tests de service et de widgets simulent les appels natifs et le lancement
+de la boutique pour vérifier les seuils, jours distincts, délais, concurrence,
+annulations, changements de visibilité, destinations et erreurs. Leur réussite
+ne garantit pas qu'une fenêtre native apparaît sur un appareil physique.
+
+- Android : Google Play doit être installé, l'application doit être accessible
+  dans une piste Play et le compte doit pouvoir la noter. Une installation
+  locale seule ne suffit pas à valider la fenêtre. Les pistes de test internes
+  permettent la vérification sans publication en production ; le partage
+  interne affiche une interface dont l'envoi d'avis est désactivé.
+- iOS : la fenêtre peut être vérifiée dans un build de développement ou un
+  simulateur, avec l'envoi désactivé. L'API ne présente aucune fenêtre dans
+  TestFlight. Dans une version App Store, Apple décide si elle est affichée et
+  limite les demandes à trois par période de 365 jours. Le bouton ouvrant la
+  fiche App Store doit être vérifié sur un appareil physique.
+
+Les preuves de compilation, tests automatisés, installation, affichage physique
+et publication restent distinctes. Aucun avis réel n'est envoyé par les tests.
+
+- [Google, tester les demandes natives](https://developer.android.com/guide/playcore/in-app-review/test)
+- [Plugin Flutter, usage et restrictions de test](https://pub.dev/packages/in_app_review)
+
+## Vérifications locales du 5 octobre 2026
+
+- Analyse Flutter globale : aucune anomalie.
+- 46 tests ciblés réussis : service, déclenchement dans la navigation,
+  navigation existante Android/iOS et pont vers le plugin natif.
+- APK de validation Android compilé en debug pour `arm64-v8a` :
+  `net.salatime.app.preview`, version `1.0.27`, build `32`. Le plugin natif
+  de notation est présent dans le DEX. Cette variante conserve la demande
+  automatique désactivée ; elle valide la compilation et l'intégration.
+- Aucune installation ou validation visuelle sur téléphone effectuée pour
+  ce correctif. Compilation iOS non vérifiée sur cet hôte Linux.
+- Aucun push, patch Shorebird ou envoi aux boutiques effectué.
