@@ -6,7 +6,9 @@ La demande de notation utilise désormais l'interface native de Google Play
 et de l'App Store, sans question préalable. La demande iOS était désactivée.
 Les visites courtes comptent maintenant dans les jours d'utilisation, et
 une préparation annulée avant l'appel natif ne bloque plus les demandes
-pendant 30 jours. Les refus déjà enregistrés sont conservés.
+pendant 30 jours. La migration conserve l'ancienneté, les jours d'utilisation
+et les refus explicites. Pour les autres utilisateurs, les réservations de
+l'ancien dialogue sont remises à zéro avant la première demande native.
 
 Le bouton de notation des paramètres ouvre la boutique correspondant au
 téléphone, même lorsque les réglages du serveur ne fournissent aucun lien.
@@ -23,8 +25,9 @@ ne sont pas incluses. Le nouveau plugin nécessite des builds natifs complets.
 
 ## Vérification et distribution
 
-Avant préparation de la livraison : analyse Flutter sans erreur, 46 tests
-ciblés réussis et APK Android de prévisualisation compilé avec le plugin.
+Avant préparation de la livraison : analyse Flutter sans erreur, 42 tests
+du service et du déclenchement réussis après migration, 12 tests de navigation
+précédemment réussis et APK Android de prévisualisation compilé avec le plugin.
 Les preuves finales des builds de production, des envois aux boutiques et
 de leur disponibilité seront enregistrées après lecture des services.
 Les preuves de compilation ne constituent pas une validation visuelle

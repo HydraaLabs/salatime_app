@@ -427,4 +427,118 @@ void main() {
       );
     },
   );
+
+  Future<void> legacyHistory({
+    int invitations = 3,
+    bool stopped = false,
+    int days = 3,
+    Duration age = const Duration(days: 10),
+    int version = 1,
+  }) => prefs.setString(
+    PlayStoreReviewService.storageKey,
+    jsonEncode({
+      'version': version,
+      'firstUse': now.subtract(age).toIso8601String(),
+      'lastDay': '2026-09-13',
+      'days': days,
+      'invitations': invitations,
+      'lastInvitation': now.toIso8601String(),
+      'stopped': stopped,
+    }),
+  );
+
+  for (final target in [TargetPlatform.android, TargetPlatform.iOS]) {
+    for (final attempts in [1, 3]) {
+      test(
+        'legacy $attempts reservations do not block first native $target request',
+        () async {
+          platform = target;
+          await legacyHistory(invitations: attempts);
+          expect(
+            await service.requestReviewIfEligible(canRequest: () => true),
+            true,
+          );
+          expect(requests, 1);
+          final history =
+              jsonDecode(prefs.getString(PlayStoreReviewService.storageKey)!)
+                  as Map<String, dynamic>;
+          expect(history['version'], 2);
+          expect(history['invitations'], 1);
+          expect(history['days'], 3);
+          expect(
+            history['firstUse'],
+            now.subtract(const Duration(days: 10)).toIso8601String(),
+          );
+          expect(history['lastDay'], '2026-09-13');
+          service = create();
+          expect(
+            await service.requestReviewIfEligible(canRequest: () => true),
+            false,
+          );
+          expect(requests, 1);
+        },
+      );
+    }
+  }
+
+  test('legacy explicit refusal survives native migration', () async {
+    await legacyHistory(stopped: true);
+    await service.recordVisit();
+    expect(
+      await service.requestReviewIfEligible(canRequest: () => true),
+      false,
+    );
+    final history = jsonDecode(
+      prefs.getString(PlayStoreReviewService.storageKey)!,
+    );
+    expect(history['version'], 2);
+    expect(history['stopped'], true);
+    expect(requests, 0);
+    expect(await service.openStore(), true);
+  });
+
+  test(
+    'legacy migration persists when usage days are already capped',
+    () async {
+      await legacyHistory();
+      await service.recordVisit();
+      final history = jsonDecode(
+        prefs.getString(PlayStoreReviewService.storageKey)!,
+      );
+      expect(history['version'], 2);
+      expect(history['days'], 3);
+      expect(history['lastDay'], '2026-09-13');
+      expect(history['invitations'], 0);
+      expect(history['lastInvitation'], isNull);
+    },
+  );
+
+  test('legacy migration never bypasses age or usage-day thresholds', () async {
+    await legacyHistory(days: 2);
+    expect(
+      await service.requestReviewIfEligible(canRequest: () => true),
+      false,
+    );
+    await legacyHistory(age: const Duration(days: 2));
+    expect(
+      await service.requestReviewIfEligible(canRequest: () => true),
+      false,
+    );
+    expect(requests, 0);
+  });
+
+  test(
+    'existing v2 native attempts are never reset during migration',
+    () async {
+      await legacyHistory(version: 2);
+      final previous = prefs.getString(PlayStoreReviewService.storageKey);
+      await service.recordVisit();
+      expect(
+        await service.requestReviewIfEligible(canRequest: () => true),
+        false,
+      );
+      expect(prefs.getString(PlayStoreReviewService.storageKey), previous);
+      expect(requests, 0);
+    },
+  );
 }

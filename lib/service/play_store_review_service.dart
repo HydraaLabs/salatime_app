@@ -57,6 +57,7 @@ class PlayStoreReviewService {
       try {
         final prefs = await _preferences();
         final state = _ReviewHistory.read(prefs.getString(storageKey), _now());
+        if (state.needsMigration) await _save(prefs, state);
         result.complete(await action(prefs, state));
       } catch (error, stack) {
         result.completeError(error, stack);
@@ -183,11 +184,14 @@ class _ReviewHistory {
   int invitations = 0;
   DateTime? lastInvitation;
   bool stopped = false;
+  bool needsMigration = false;
 
   static _ReviewHistory read(String? raw, DateTime now) {
     try {
       final json = jsonDecode(raw ?? '') as Map<String, dynamic>;
-      if (json['version'] != 1) return _ReviewHistory(now);
+      if (json['version'] != 1 && json['version'] != 2) {
+        return _ReviewHistory(now);
+      }
       final state = _ReviewHistory(DateTime.parse(json['firstUse'] as String));
       state.lastDay = json['lastDay'] as String;
       state.days = (json['days'] as int).clamp(0, 3);
@@ -196,6 +200,16 @@ class _ReviewHistory {
       state.lastInvitation = json['lastInvitation'] == null
           ? null
           : DateTime.parse(json['lastInvitation'] as String);
+      if (json['version'] == 1) {
+        state.needsMigration = true;
+        if (!state.stopped) {
+          // Custom-dialog reservations are not native review attempts. Some
+          // were consumed without showing a dialog; they must not block the
+          // first native request. Preserve actual use and explicit opt-outs.
+          state.invitations = 0;
+          state.lastInvitation = null;
+        }
+      }
       return state;
     } catch (_) {
       // Missing/corrupt state starts a fresh waiting period, never a prompt.
@@ -204,7 +218,7 @@ class _ReviewHistory {
   }
 
   Map<String, Object?> toJson() => {
-    'version': 1,
+    'version': 2,
     'firstUse': firstUse.toUtc().toIso8601String(),
     'lastDay': lastDay,
     'days': days,

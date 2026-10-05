@@ -42,8 +42,13 @@ L'historique reste dans SharedPreferences sur l'appareil, exclu de la
 synchronisation cloud. Le nombre de jours est plafonné à trois. Aucun historique
 détaillé de navigation, contenu de lecture, avis ou nombre d'étoiles n'est stocké
 par SalaTime.
-L'historique existant, y compris un refus explicite enregistré par l'ancienne
-invitation, est conservé. Une réservation annulée avant l'appel natif ou un
+La migration du JSON vers la version 2 conserve les jours d'utilisation,
+l'ancienneté et les refus explicites enregistrés par l'ancienne invitation.
+Pour les utilisateurs qui n'ont pas refusé, les compteurs et délais de l'ancien
+dialogue sont remis à zéro : ils ne représentent pas des demandes natives,
+et certaines réservations avaient été consommées sans affichage.
+Les nouvelles tentatives natives conservent ensuite leurs délais et plafonds.
+Une réservation annulée avant l'appel natif ou un
 appel natif en erreur ne consomme pas de tentative ni de délai de 30 jours.
 
 ## Bouton dans les paramètres
@@ -89,8 +94,9 @@ et publication restent distinctes. Aucun avis réel n'est envoyé par les tests.
 ## Vérifications locales du 5 octobre 2026
 
 - Analyse Flutter globale : aucune anomalie.
-- 46 tests ciblés réussis : service, déclenchement dans la navigation,
-  navigation existante Android/iOS et pont vers le plugin natif.
+- 42 tests du service et du déclenchement réussis, dont huit tests de migration
+  des installations existantes et le pont vers le plugin natif.
+- 12 tests de navigation Android/iOS précédemment réussis.
 - APK de validation Android compilé en debug pour `arm64-v8a` :
   `net.salatime.app.preview`, version `1.0.27`, build `32`. Le plugin natif
   de notation est présent dans le DEX. Cette variante conserve la demande
