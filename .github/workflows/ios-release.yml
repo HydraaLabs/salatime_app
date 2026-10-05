@@ -13,6 +13,16 @@ on:
         required: true
         default: false
         type: boolean
+      submit_to_app_store:
+        description: Submit the rating update to App Review after the exact uploaded build is valid
+        required: true
+        default: false
+        type: boolean
+      resume_submission:
+        description: Resume App Review submission of the existing build without building or uploading again
+        required: true
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -23,7 +33,7 @@ concurrency:
 
 jobs:
   release:
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' && !inputs.resume_submission
     runs-on: macos-15
     timeout-minutes: 75
     env:
@@ -31,6 +41,7 @@ jobs:
       IOS_GOOGLE_REVERSED_CLIENT_ID: ${{ vars.IOS_GOOGLE_REVERSED_CLIENT_ID }}
       RELEASE_BUILD_NUMBER: ${{ inputs.build_number }}
       UPLOAD_TO_TESTFLIGHT: ${{ inputs.upload_to_testflight }}
+      SUBMIT_TO_APP_STORE: ${{ inputs.submit_to_app_store }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -40,13 +51,28 @@ jobs:
           test -d /Applications/Xcode_26.3.app
           sudo xcode-select --switch /Applications/Xcode_26.3.app/Contents/Developer
           xcodebuild -version
+          if [ "$SUBMIT_TO_APP_STORE" = "true" ] && [ "$UPLOAD_TO_TESTFLIGHT" != "true" ]; then
+            printf '%s\n' 'App Store submission requires upload_to_testflight=true.' >&2
+            exit 1
+          fi
           if [ "$UPLOAD_TO_TESTFLIGHT" = "true" ]; then
             python3 tool/ios_release.py preflight --require-apple
           else
             python3 tool/ios_release.py preflight
           fi
           python3 tool/ios_release.py self-test
+          python3 tool/ios_store_submission.py --self-test
           ruby -e 'require "xcodeproj"; puts "xcodeproj #{Xcodeproj::VERSION}"'
+      - name: Check App Store version and unused build number
+        if: inputs.upload_to_testflight
+        env:
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          python3 tool/ios_store_submission.py --preflight --for-upload \
+            --version=1.0.28 --build-number="$RELEASE_BUILD_NUMBER" \
+            --receipt=build/ios/app-store-preflight.json
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.41.8'
@@ -116,6 +142,72 @@ jobs:
           xcrun altool --upload-app --type ios --file "${packages[0]}" \
             --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
           printf '%s\n' 'Upload accepted. Apple processing and TestFlight availability must be checked in App Store Connect.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Submit exact processed rating update to App Review
+        if: inputs.submit_to_app_store
+        timeout-minutes: 25
+        env:
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          python3 tool/ios_store_submission.py --submit \
+            --version=1.0.28 --build-number="$RELEASE_BUILD_NUMBER" \
+            --receipt=build/ios/app-store-submission.json
+      - name: Save sanitized App Store state and submission receipt
+        if: always() && inputs.upload_to_testflight
+        uses: actions/upload-artifact@v4
+        with:
+          name: SalaTime-App-Store-receipt-${{ inputs.build_number }}
+          path: |
+            build/ios/app-store-preflight.json
+            build/ios/app-store-submission.json
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Remove signing material
         if: always()
         run: python3 tool/ios_release.py cleanup
+  submit-existing:
+    if: github.event_name == 'workflow_dispatch' && inputs.resume_submission
+    runs-on: macos-15
+    timeout-minutes: 30
+    env:
+      RELEASE_BUILD_NUMBER: ${{ inputs.build_number }}
+      SUBMIT_TO_APP_STORE: ${{ inputs.submit_to_app_store }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Require explicit App Store submission for resume mode
+        run: |
+          if [ "$SUBMIT_TO_APP_STORE" != "true" ]; then
+            printf '%s\n' 'resume_submission requires submit_to_app_store=true.' >&2
+            exit 1
+          fi
+      - name: Read existing App Store version and exact build
+        env:
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          python3 tool/ios_store_submission.py --preflight \
+            --version=1.0.28 --build-number="$RELEASE_BUILD_NUMBER" \
+            --receipt=build/ios/app-store-preflight.json
+      - name: Resume exact processed rating update submission
+        env:
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          python3 tool/ios_store_submission.py --submit \
+            --version=1.0.28 --build-number="$RELEASE_BUILD_NUMBER" \
+            --receipt=build/ios/app-store-submission.json
+      - name: Save sanitized resumed submission receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SalaTime-App-Store-receipt-${{ inputs.build_number }}
+          path: |
+            build/ios/app-store-preflight.json
+            build/ios/app-store-submission.json
+          if-no-files-found: ignore
+          retention-days: 7

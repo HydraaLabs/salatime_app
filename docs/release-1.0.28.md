@@ -32,3 +32,16 @@ Les preuves finales des builds de production, des envois aux boutiques et
 de leur disponibilité seront enregistrées après lecture des services.
 Les preuves de compilation ne constituent pas une validation visuelle
 de la fenêtre native sur Samsung ou iPhone.
+
+## Soumission iOS
+
+Le workflow `ios-release.yml` vérifie le numéro de build auprès d'Apple,
+compile et signe l'application, envoie le build exact, attend son traitement
+et soumet la version `1.0.28` avec publication automatique après approbation.
+Il vérifie la conservation des descriptions, captures et informations privées
+de revue. Les reçus ne contiennent aucune clé ou information de connexion.
+
+Si le build est déjà envoyé mais que le traitement ou la soumission reste
+en attente, utiliser `resume_submission=true`, `submit_to_app_store=true`,
+`upload_to_testflight=false` et le même numéro de build. Ce mode reprend
+uniquement la soumission du build existant, sans nouvelle compilation ou upload.
