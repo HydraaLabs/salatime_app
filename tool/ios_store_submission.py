@@ -39,11 +39,77 @@ WHATS_NEW = {
     'en-US': 'Native rating requests after several days of use and direct access to the store review page from Settings.',
     'ar-SA': 'طلب التقييم عبر واجهة المتجر الأصلية بعد عدة أيام من الاستخدام، والوصول مباشرةً إلى صفحة التقييم من الإعدادات.',
 }
-REVIEW_NOTE = ('Rating update: the automatic request uses Apple StoreKit after three distinct '
-               'calendar usage days and 72 hours, following ten quiet seconds on Home. '
-               'There is no custom prompt or satisfaction question. StoreKit controls display '
-               'and does not display review requests in TestFlight. Settings > Rate SalaTime '
-               'opens the App Store write-review page immediately.')
+REVIEW_NOTE = ('Rating fix: StoreKit requests a review after 3 distinct usage days and 72 hours, '
+               'following 10 quiet seconds on Home (30-day interval, maximum 3 attempts). '
+               'No custom prompt or satisfaction question. Apple controls display; TestFlight '
+               'shows no prompt. Settings > Rate SalaTime opens App Store reviews immediately.')
+
+
+def review_notes(source_notes, previous_version, attachments_inherited):
+    """Keep review access and demo evidence without appending an unbounded history.
+
+    The previous version remains the complete, untouched historical record. This
+    release's notes retain its account instructions, demonstration paragraphs and
+    every original URL. Unknown source layouts are preserved verbatim and fail
+    safely if they cannot fit; no arbitrary truncation or private field is used.
+    Apple's Notes limit is 4,000 UTF-8 bytes, rather than 4,000 characters.
+    """
+    source_notes = source_notes.rstrip()
+    history = f'Historical demonstration context from version {previous_version}. '
+    if not attachments_inherited:
+        history += ('Any demonstration attachment mentioned below remains attached to that previous version. '
+                    'This rating fix adds no physical-device recording. ')
+    history += 'Existing demo links and limitations remain applicable.'
+    paragraphs = [paragraph.strip() for paragraph in re.split(r'\n\s*\n', source_notes) if paragraph.strip()]
+    known_layout = (any(paragraph.startswith('LOCATION (') for paragraph in paragraphs)
+                    and any(paragraph.startswith(('ACCESS AND ACCOUNTS', 'PURPOSE, ACCESS AND ACCOUNTS'))
+                            for paragraph in paragraphs))
+    if known_layout:
+        # Retain actual evidence and limitations exactly; only qualify stale
+        # "new/attached" labels so they cannot imply a new build-38 recording.
+        demonstrations = []
+        for paragraph in paragraphs:
+            if paragraph.startswith(('NEW PHYSICAL IPHONE DEMO', 'EXISTING ACCOUNT/FEATURE DEMO',
+                                     'EXISTING PHYSICAL-DEVICE DEMO')):
+                paragraph = re.sub(r'^NEW PHYSICAL IPHONE DEMO', 'HISTORICAL PHYSICAL IPHONE DEMO', paragraph)
+                paragraph = paragraph.replace('The attached SalaTime-AppReview-demo.mp4',
+                                              'The historical SalaTime-AppReview-demo.mp4')
+                demonstrations.append(paragraph)
+        require(bool(demonstrations), 'Previous demonstration notes need review before submission')
+        account = [line.strip() for line in source_notes.splitlines()
+                   if line.strip().startswith(('Settings > Account:', 'Create account:'))]
+        require(any(line.startswith('Settings > Account:') for line in account),
+                'Previous account instructions need review before submission')
+        sections = [REVIEW_NOTE,
+            ('ACCESS: Free public prayer/Quran tools; no membership, purchase or subscription. '
+             'Core features need no account. Streaming, maps and sync need internet. '
+             'Location/notifications are optional; a manual city is available.'),
+            *account,
+            ('LOCATION: More > Settings > Prayer time settings > Update as you travel '
+             '(French: Actualiser lors des déplacements). Optional; not requested at onboarding. '
+             'One neutral Next button precedes system authorization; no Activate/No thanks choice or dismissal. '
+             'Refusal returns to settings without another prompt or automatic Settings redirect. '
+             'While Using access refreshes location in foreground; Always permits background updates '
+             'with the iOS location indicator. About 3 km triggers prayer-time, widget and adhan refresh. '
+             'Switching off travel updates or choosing a manual city stops the stream. No GPS route history. '
+             'Real-travel validation is not claimed complete.'),
+            history, *demonstrations,
+            ('CONTENT: No public posts, messaging, UGC, AI, paid features, subscriptions or IAP. '
+             'MP3Quran audio and QuranEnc translations retain source attribution; permission terms '
+             'are the basis for use, without exclusivity or endorsement. Same features in configured '
+             'territories; mainland China excluded. Language/location affect content/times. '
+             'No regional paywalls; network/map coverage may affect online features.')]
+    else:
+        sections = [REVIEW_NOTE, history, source_notes]
+    notes = '\n\n'.join(section for section in sections if section)
+    # Existing public evidence/permission/support links are retained byte-for-byte.
+    urls = list(dict.fromkeys(re.findall(r'https?://[^\s<>]+', source_notes)))
+    missing_urls = [url for url in urls if url not in notes]
+    if missing_urls:
+        notes += '\n\nExisting reference links:\n' + '\n'.join(missing_urls)
+    require(len(notes.encode('utf-8')) <= 4000, 'Essential review notes exceed Apple UTF-8 byte limit')
+    require(all(url in notes for url in urls), 'Historical reference link preservation failed')
+    return notes
 
 
 class ReleaseError(RuntimeError):
@@ -390,14 +456,8 @@ class Submission:
         inherited_attachments = destination['attachments']
         require(all(item in source['attachments'] for item in inherited_attachments),
                 'Inherited review attachment does not match the previous version')
-        history_note = ''
-        if inherited_attachments != source['attachments']:
-            history_note = (f'Historical review information from version {self.previous_version}: '
-                            'any demonstration attachment mentioned below remains attached to that previous '
-                            'version. This rating-only update does not add or replace a physical-device '
-                            'demonstration. The previous demonstration links and limitations remain applicable.\n\n')
-        expected_notes = history_note + notes + ('\n\n' if notes else '') + REVIEW_NOTE
-        require(len(expected_notes) <= 4000, 'Preserved review notes exceed Apple limit; edit before submission')
+        expected_notes = review_notes(notes, self.previous_version,
+                                      inherited_attachments == source['attachments'])
         current_notes = review['attributes'].get('notes') or ''
         require(current_notes in (notes, expected_review.get('notes') or '', expected_notes, ''),
                 'Target review notes differ; review before submission')
@@ -427,7 +487,8 @@ class Submission:
                   historical_review_attachment_count=len(source['attachments']),
                   historical_attachments_inherited=inherited_attachments == source['attachments'],
                   previous_review_attachments_unchanged=True, review_contact_preserved=True,
-                  demo_account_preserved=True, privacy_unchanged=True)
+                  demo_account_preserved=True, privacy_unchanged=True,
+                  review_note_utf8_bytes=len(expected_notes.encode('utf-8')))
 
     def review_submission(self, target_id):
         submissions = self.api.rows(f'/v1/apps/{APP_ID}/reviewSubmissions?filter[platform]=IOS&limit=200')
@@ -593,6 +654,66 @@ def self_test():
             raise AssertionError(f'Unexpected fake operation {method} {base}')
 
     class Checks(unittest.TestCase):
+        def historical_notes(self):
+            return ('SalaTime 1.0.27: previous release history. ' + 'Historical release summary. ' * 85 +
+                    '\n\nNEW PHYSICAL IPHONE DEMO (51 seconds, build 35)\n'
+                    'https://salatime.net/review/existing-demo.mp4\n'
+                    'Recorded on a physical iPhone with pauses cut and no audio. '
+                    'The system permission dialog and an actual journey were not captured; '
+                    'this video does not prove recalculation during real travel. '
+                    'No simulated GPS or fabricated app UI.\n\n'
+                    'LOCATION (5.1.1 AND 2.5.4)\nReal-travel validation is not claimed complete.\n\n'
+                    'EXISTING ACCOUNT/FEATURE DEMO\n'
+                    'The attached SalaTime-AppReview-demo.mp4 predates build 30 and does not '
+                    'demonstrate later travel/countdown/timezone fixes.\n\n'
+                    'ACCESS AND ACCOUNTS\nCore features need no account.\n'
+                    'Settings > Account: use the verified demo account in dedicated App Review '
+                    'sign-in fields; no email code required. Apple/Google login is optional.\n'
+                    'Create account: verify emailed code. Sign out/sign in on account page. '
+                    'Delete account: Settings > Account > Delete account, enter password if requested. '
+                    'Social accounts may require recent login. Deletion removes account/cloud data.\n\n'
+                    'CONTENT AND SERVICES\nPermission: https://www.mp3quran.net/eng/privacy\n'
+                    'Terms: https://quranenc.com/en/home/api\nSupport: https://salatime.net/support')
+
+        def test_compact_notes_preserve_auth_demo_links_and_limitations(self):
+            source = self.historical_notes()
+            notes = review_notes(source, '1.0.27', False)
+            self.assertLessEqual(len(notes.encode('utf-8')), 4000)
+            self.assertIn('51 seconds, build 35', notes)
+            self.assertIn('does not prove recalculation during real travel', notes)
+            self.assertIn('predates build 30', notes)
+            self.assertIn('remains attached to that previous version', notes)
+            for url in re.findall(r'https?://[^\s<>]+', source):
+                self.assertIn(url, notes)
+            for line in source.splitlines():
+                if line.startswith(('Settings > Account:', 'Create account:')):
+                    self.assertIn(line, notes)
+            self.assertIn('30-day interval, maximum 3 attempts', notes)
+            self.assertNotIn('Historical release summary.', notes)
+
+        def test_utf8_byte_limit_rejects_without_silent_truncation(self):
+            source = '\u00e9' * 1900
+            self.assertLess(len(source), 4000)
+            with self.assertRaisesRegex(ReleaseError, 'UTF-8 byte limit'):
+                review_notes(source, '1.0.27', False)
+            self.assertEqual(source, '\u00e9' * 1900)
+
+        def test_created_version_resumes_from_long_inherited_notes(self):
+            api = FakeClient(inherit_attachments=False)
+            original = self.historical_notes()
+            api.reviews['old']['attributes']['notes'] = original
+            api.reviews['new']['attributes']['notes'] = original
+            api.target = {'id': 'new', 'attributes': {'versionString': '1.0.28', 'platform': 'IOS',
+                'appStoreState': 'PREPARE_FOR_SUBMISSION', 'releaseType': 'AFTER_APPROVAL',
+                'copyright': 'SalaTime', 'usesIdfa': False}}
+            flow = Submission(api, '1.0.28', '38'); flow.submit()
+            self.assertEqual(flow.report['status'], 'submitted')
+            self.assertEqual(api.reviews['old']['attributes']['notes'], original)
+            self.assertEqual(api.reviews['new']['attributes']['notes'], review_notes(original, '1.0.27', False))
+            self.assertNotIn(('POST', '/v1/appStoreVersions'), api.calls)
+            self.assertTrue(all(api.reviews['new']['attributes'][field] == api.reviews['old']['attributes'][field]
+                                for field in REVIEW_FIELDS))
+
         def test_es256_signature_is_verified_by_openssl(self):
             with tempfile.TemporaryDirectory() as directory:
                 key = subprocess.run(['openssl', 'genpkey', '-algorithm', 'EC', '-pkeyopt', 'ec_paramgen_curve:P-256'],
