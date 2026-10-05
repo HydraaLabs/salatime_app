@@ -497,7 +497,7 @@ class Submission:
             state = submission['attributes'].get('state')
             if state not in ('READY_FOR_REVIEW', 'WAITING_FOR_REVIEW', 'IN_REVIEW'):
                 continue
-            items = self.api.rows(f'/v1/reviewSubmissions/{submission["id"]}/items?limit=200')
+            items = self.api.rows(f'/v1/reviewSubmissions/{submission["id"]}/items?include=appStoreVersion&limit=200')
             ids = [related_id(item, 'appStoreVersion') for item in items]
             if target_id in ids:
                 require(len(items) == 1, 'Review submission contains other items; review before submitting')
@@ -518,7 +518,7 @@ class Submission:
         self.api.request('POST', '/v1/reviewSubmissionItems', resource('reviewSubmissionItems', relationships={
             'reviewSubmission': relation('reviewSubmissions', submission['id']),
             'appStoreVersion': relation('appStoreVersions', target_id)}))
-        items = self.api.rows(f'/v1/reviewSubmissions/{submission["id"]}/items?limit=200')
+        items = self.api.rows(f'/v1/reviewSubmissions/{submission["id"]}/items?include=appStoreVersion&limit=200')
         require(len(items) == 1 and related_id(items[0], 'appStoreVersion') == target_id,
                 'Exact version review item readback failed')
         return submission
@@ -621,7 +621,13 @@ def self_test():
                 if base.endswith('/build'):
                     return {'data': {**self.build, 'id': self.attached} if self.attached else None}
                 if base.endswith('/reviewSubmissions'): return {'data': [self.submission] if self.submission else []}
-                if base.endswith('/items'): return {'data': self.items}
+                if base.endswith('/items'):
+                    items = copy.deepcopy(self.items)
+                    if 'appStoreVersion' not in urllib.parse.parse_qs(
+                            urllib.parse.urlsplit(path).query).get('include', []):
+                        # Apple's default item response omits relationship data.
+                        for item in items: item['relationships'] = {}
+                    return {'data': items}
                 if base == '/v1/reviewSubmissions/submission': return {'data': self.submission}
                 if base == '/v1/appStoreVersions/new': return {'data': self.target}
             elif method == 'POST':
@@ -828,6 +834,22 @@ def self_test():
             self.assertEqual(rerun.report['status'], 'submitted')
             self.assertFalse(any(method == 'POST' or path.endswith('/relationships/build')
                                  for method, path in api.calls[before:]))
+
+        def test_existing_draft_items_require_include_and_resume_without_post(self):
+            api = FakeClient()
+            api.target = {'id': 'new', 'attributes': {'versionString': '1.0.28', 'platform': 'IOS',
+                'appStoreState': 'READY_FOR_REVIEW', 'releaseType': 'AFTER_APPROVAL',
+                'copyright': 'SalaTime', 'usesIdfa': False}}
+            api.submission = {'id': 'submission', 'attributes': {'state': 'READY_FOR_REVIEW'}}
+            api.items = [resource('reviewSubmissionItems', 'existing-item', relationships={
+                'appStoreVersion': relation('appStoreVersions', 'new')})['data']]
+            omitted = api.get('/v1/reviewSubmissions/submission/items?limit=200')['data']
+            self.assertIsNone(related_id(omitted[0], 'appStoreVersion'))
+            before = len(api.calls)
+            result = Submission(api, '1.0.28', '38').review_submission('new')
+            self.assertEqual(result['id'], 'submission')
+            self.assertTrue(all(method == 'GET' for method, _ in api.calls[before:]))
+            self.assertTrue(any('include=appStoreVersion' in path for _, path in api.calls[before:]))
 
         def test_api_error_never_logs_private_details_and_http_host_guard(self):
             error = APIError(422, json.dumps({'errors': [{'code': 'ENTITY_ERROR',
