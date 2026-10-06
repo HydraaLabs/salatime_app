@@ -9,6 +9,12 @@ import 'quran_controller.dart';
 import 'offline_quran_controller.dart';
 
 class LocalizationController extends GetxController implements GetxService {
+  static final _languageChanges = StreamController<Locale>.broadcast(
+    sync: true,
+  );
+
+  /// Only deliberate selections emit; restoring cloud settings never does.
+  static Stream<Locale> get languageChanges => _languageChanges.stream;
   final SharedPreferences sharedPreferences;
   final ApiClient apiClient;
 
@@ -30,6 +36,7 @@ class LocalizationController extends GetxController implements GetxService {
   List<LanguageModel> get languages => _languages;
 
   int _selectedIndex = 0;
+  Future<void> _languageSaveQueue = Future.value();
   int get selectedIndex => _selectedIndex;
 
   void loadCurrentLanguage() {
@@ -59,9 +66,15 @@ class LocalizationController extends GetxController implements GetxService {
     String? savedLanguageCode,
     String? savedCountryCode,
   }) {
-    final preferredLanguageCode =
-        savedLanguageCode ?? systemLocale.languageCode;
-
+    String code(String value) =>
+        value.trim().toLowerCase().split(RegExp('[-_]')).first;
+    final saved = savedLanguageCode == null ? null : code(savedLanguageCode);
+    final manual = AppConstants.languages.any(
+      (item) => item.languageCode == saved,
+    );
+    final preferredLanguageCode = manual
+        ? saved
+        : code(systemLocale.languageCode);
     final language = AppConstants.languages.firstWhere(
       (candidate) => candidate.languageCode == preferredLanguageCode,
       orElse: () => AppConstants.languages.first,
@@ -69,20 +82,37 @@ class LocalizationController extends GetxController implements GetxService {
 
     return Locale(
       language.languageCode!,
-      savedLanguageCode != null
-          ? (savedCountryCode ?? language.countryCode)
+      manual
+          ? (savedCountryCode != null &&
+                    RegExp(r'^[A-Z]{2}$').hasMatch(savedCountryCode)
+                ? savedCountryCode
+                : language.countryCode)
           : language.countryCode,
     );
   }
 
   // Set user new selected language
   Future<void> setLanguage(Locale locale, int index) async {
-    Get.updateLocale(locale);
+    locale = resolveLocale(
+      systemLocale: WidgetsBinding.instance.platformDispatcher.locale,
+      savedLanguageCode: locale.languageCode,
+      savedCountryCode: locale.countryCode,
+    );
+    final updatedLocale = Get.updateLocale(locale);
     _locale = locale;
-
-    _selectedIndex = index;
+    _selectedIndex =
+        index >= 0 &&
+            index < AppConstants.languages.length &&
+            AppConstants.languages[index].languageCode == locale.languageCode
+        ? index
+        : AppConstants.languages.indexWhere(
+            (item) => item.languageCode == locale.languageCode,
+          );
+    // Invalidate an in-flight cloud restoration before preference writes yield.
+    _languageChanges.add(locale);
     _refreshQuranTranslations();
     await saveLanguage(_locale);
+    await updatedLocale;
     update();
   }
 
@@ -103,15 +133,19 @@ class LocalizationController extends GetxController implements GetxService {
   }
 
   // Save language in local database
-  Future<void> saveLanguage(Locale locale) async {
-    await sharedPreferences.setString(
-      AppConstants.LANGUAGE_CODE,
-      locale.languageCode,
-    );
-    await sharedPreferences.setString(
-      AppConstants.COUNTRY_CODE,
-      locale.countryCode!,
-    );
+  Future<void> saveLanguage(Locale locale) {
+    final write = _languageSaveQueue.then((_) async {
+      await sharedPreferences.setString(
+        AppConstants.LANGUAGE_CODE,
+        locale.languageCode,
+      );
+      await sharedPreferences.setString(
+        AppConstants.COUNTRY_CODE,
+        locale.countryCode!,
+      );
+    });
+    _languageSaveQueue = write.catchError((Object _) {});
+    return write;
   }
 
   //  User select language index set

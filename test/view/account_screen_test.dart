@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:salatime/service/mobile_auth_service.dart';
 import 'package:salatime/theme/modern_dark_theme.dart';
 import 'package:salatime/theme/modern_light_theme.dart';
@@ -41,6 +42,7 @@ class _Translations extends Translations {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  setUp(() => SharedPreferences.setMockInitialValues({}));
   setUpAll(() async {
     await (FontLoader(
       'Roboto',

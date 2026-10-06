@@ -3,11 +3,14 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:salatime/service/mobile_auth_service.dart';
+import 'package:salatime/util/app_constants.dart';
 
 class MemoryAuthStore implements AuthSessionStore {
   final values = <String, String>{};
@@ -87,18 +90,29 @@ void main() {
   late MemoryAuthStore store;
   late List<http.Request> requests;
   setUp(() {
+    Get.reset();
+    Get.locale = null;
+    TestWidgetsFlutterBinding.instance.platformDispatcher.localeTestValue =
+        const Locale('en', 'US');
     SharedPreferences.setMockInitialValues({});
     debugDefaultTargetPlatformOverride = TargetPlatform.android;
     store = MemoryAuthStore();
     requests = [];
   });
-  tearDown(() => debugDefaultTargetPlatformOverride = null);
+  tearDown(() {
+    debugDefaultTargetPlatformOverride = null;
+    TestWidgetsFlutterBinding.instance.platformDispatcher
+        .clearLocaleTestValue();
+    Get.reset();
+  });
   MobileAuthService service(
     FutureOr<http.Response> Function(http.Request) respond, {
     MobileIdentityProvider? identity,
+    FutureOr<Locale> Function()? localeProvider,
   }) => MobileAuthService(
     storage: store,
     identityProvider: identity,
+    localeProvider: localeProvider,
     apiBaseUrl: 'https://accounts.example.test',
     client: MockClient((request) async {
       requests.add(request);
@@ -654,4 +668,140 @@ void main() {
       expect(error.toString(), isNot(contains('Password123')));
     }
   });
+
+  for (final provider in ['register', 'login', 'google', 'apple']) {
+    test(
+      '$provider sends every supported saved language before Get.locale initializes',
+      () async {
+        for (final language in AppConstants.languages) {
+          SharedPreferences.setMockInitialValues({
+            AppConstants.LANGUAGE_CODE: language.languageCode!,
+            AppConstants.COUNTRY_CODE: language.countryCode!,
+          });
+          Get.locale = null;
+          requests.clear();
+          final auth = service(
+            (request) => data(
+              request.url.path.endsWith('/challenge')
+                  ? {
+                      'nonce': 'mock-nonce',
+                      'state': 'mock-state',
+                      'challenge_id': 'mock-challenge',
+                    }
+                  : session(),
+            ),
+            identity: FakeIdentityProvider(),
+          );
+          auth.configuration.value = const MobileAuthConfiguration(
+            google: true,
+            apple: true,
+          );
+          switch (provider) {
+            case 'register':
+              await auth.register(
+                name: 'Test',
+                email: 'test@example.test',
+                password: 'Alphabet2026!',
+              );
+            case 'login':
+              await auth.login(
+                email: 'test@example.test',
+                password: 'Alphabet2026!',
+              );
+            case 'google':
+              await auth.signInWithGoogle();
+            case 'apple':
+              await auth.signInWithApple();
+          }
+          final request = requests.last;
+          expect(request.url.path, endsWith('/$provider'));
+          expect(jsonDecode(request.body)['locale'], language.languageCode);
+          expect(request.headers['accept-language'], language.languageCode);
+        }
+      },
+    );
+  }
+  for (final scenario in [
+    ('tr', null, 'tr'),
+    ('ja', null, 'en'),
+    ('ar', 'fr-FR', 'fr'),
+    ('tr', 'unknown', 'tr'),
+  ]) {
+    test(
+      'authentication locale priority system=${scenario.$1} saved=${scenario.$2}',
+      () async {
+        TestWidgetsFlutterBinding.instance.platformDispatcher.localeTestValue =
+            Locale(scenario.$1);
+        SharedPreferences.setMockInitialValues({
+          if (scenario.$2 != null) AppConstants.LANGUAGE_CODE: scenario.$2!,
+        });
+        Get.locale = const Locale(
+          'es',
+        ); // An unrelated/stale Get locale is not the persisted selection.
+        final auth = service((_) => data(session()));
+        await auth.login(email: 'test@example.test', password: 'Alphabet2026!');
+        expect(requests.single.headers['accept-language'], scenario.$3);
+        expect(jsonDecode(requests.single.body)['locale'], scenario.$3);
+      },
+    );
+  }
+  test('one canonical locale snapshot supplies both body and header', () async {
+    var reads = 0;
+    final auth = service(
+      (_) => data(session()),
+      localeProvider: () async {
+        reads++;
+        return const Locale('FR_fr');
+      },
+    );
+    await auth.register(
+      name: 'Test',
+      email: 'test@example.test',
+      password: 'Alphabet2026!',
+    );
+    expect(reads, 1);
+    expect(jsonDecode(requests.single.body)['locale'], 'fr');
+    expect(requests.single.headers['accept-language'], 'fr');
+  });
+  test(
+    'provider proof uses the language selected while native sign-in was open',
+    () async {
+      SharedPreferences.setMockInitialValues({
+        AppConstants.LANGUAGE_CODE: 'fr',
+      });
+      final identity = FakeIdentityProvider()..gate = Completer<void>();
+      final auth = service((_) => data(session()), identity: identity);
+      auth.configuration.value = const MobileAuthConfiguration(google: true);
+      final signingIn = auth.signInWithGoogle();
+      await identity.started.future;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(AppConstants.LANGUAGE_CODE, 'ar');
+      identity.gate!.complete();
+      await signingIn;
+      expect(jsonDecode(requests.single.body)['locale'], 'ar');
+      expect(requests.single.headers['accept-language'], 'ar');
+    },
+  );
+  test(
+    'stored profile retains the account language for another-device restoration',
+    () async {
+      final auth = service(
+        (_) => data({
+          'user': {...profile, 'locale': 'ar'},
+          'token': '7|test-session-token',
+        }),
+      );
+      await auth.login(email: 'test@example.test', password: 'Alphabet2026!');
+      expect(auth.user.value!.locale, 'ar');
+      expect(
+        jsonDecode(store.values[auth.storageKey]!)['user']['locale'],
+        'ar',
+      );
+      expect(
+        MobileUser.fromJson({...profile, 'locale': 'unsupported'}).locale,
+        isNull,
+      );
+      expect(MobileUser.fromJson(profile).locale, isNull);
+    },
+  );
 }

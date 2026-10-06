@@ -57,6 +57,19 @@ class GuardedFakeDevice extends FakeDevice implements GuardedPreferenceDevice {
   }
 }
 
+class DelayedOwnerDevice extends FakeDevice {
+  final ownerReadStarted = Completer<void>();
+  final ownerGate = Completer<void>();
+  @override
+  Future<Document?> readCache(String key) async {
+    if (key == 'deviceOwner' && !ownerReadStarted.isCompleted) {
+      ownerReadStarted.complete();
+      await ownerGate.future;
+    }
+    return super.readCache(key);
+  }
+}
+
 class CloudTestSessionStore implements AuthSessionStore {
   final values = <String, String>{};
   @override
@@ -120,6 +133,379 @@ void main() {
       expect(another.local['themeMode'], 'light');
       expect(another.local['language'], 'fr');
       expect(remote.writes.length, 1);
+    },
+  );
+  test(
+    'guest language updates only language and country on an existing account',
+    () async {
+      remote.values['a'] = const CloudDocument(4, {
+        'schemaVersion': 1,
+        'language': 'en',
+        'country': 'US',
+        'themeMode': 'dark',
+        'calculationMethod': '21',
+        'reader': {'goal': 9},
+      });
+      device.local.addAll({
+        'language': 'ar',
+        'country': 'SA',
+        'calculationMethod': '1',
+      });
+      sync.noteLanguageChoice({'language': 'ar', 'country': 'SA'});
+      await sync.selectAccount('a');
+      expect(remote.values['a']!.version, 5);
+      expect(remote.values['a']!.preferences, {
+        'schemaVersion': 1,
+        'language': 'ar',
+        'country': 'SA',
+        'themeMode': 'dark',
+        'calculationMethod': '21',
+        'reader': {'goal': 9},
+      });
+      expect(device.local, remote.values['a']!.preferences);
+    },
+  );
+  test(
+    'saved guest manual choice survives process restart before login',
+    () async {
+      remote.values['a'] = const CloudDocument(2, {
+        'schemaVersion': 1,
+        'language': 'fr',
+        'themeMode': 'dark',
+      });
+      device.local.addAll({'language': 'ar', 'country': 'SA'});
+      final restored = PreferenceSyncEngine(
+        remote,
+        device,
+        initialLanguageChoice: {'language': 'ar', 'country': 'SA'},
+      );
+      await restored.selectAccount('a');
+      expect(device.local['language'], 'ar');
+      expect(device.local['themeMode'], 'dark');
+      expect(remote.values['a']!.preferences['language'], 'ar');
+    },
+  );
+  test(
+    'previous account language is not treated as an initial guest choice',
+    () async {
+      device.caches['deviceOwner'] = {'id': 'old'};
+      device.local['language'] = 'ar';
+      remote.values['a'] = const CloudDocument(2, {
+        'schemaVersion': 1,
+        'language': 'fr',
+        'themeMode': 'dark',
+      });
+      final restored = PreferenceSyncEngine(
+        remote,
+        device,
+        initialLanguageChoice: {'language': 'ar', 'country': 'SA'},
+      );
+      await restored.selectAccount('a');
+      expect(device.local['language'], 'fr');
+      expect(remote.writes, isEmpty);
+    },
+  );
+  test(
+    'offline first-login language outbox survives restart and preserves server settings',
+    () async {
+      remote.values['a'] = const CloudDocument(2, {
+        'schemaVersion': 1,
+        'language': 'en',
+        'country': 'US',
+        'themeMode': 'dark',
+      });
+      device.local.addAll({'language': 'ar', 'country': 'SA'});
+      sync.noteLanguageChoice({'language': 'ar', 'country': 'SA'});
+      remote.offline = true;
+      await sync.selectAccount('a');
+      expect(sync.status, 'cloud_offline');
+      expect(device.caches['account:a']!['languageChoice']['language'], 'ar');
+      remote.offline = false;
+      await PreferenceSyncEngine(remote, device).selectAccount('a');
+      expect(device.local['language'], 'ar');
+      expect(device.local['themeMode'], 'dark');
+      expect(remote.values['a']!.preferences['language'], 'ar');
+      expect(device.caches['account:a']!.containsKey('languageChoice'), false);
+    },
+  );
+  test(
+    'offline account language remains in its own outbox when logging into another account',
+    () async {
+      remote.values['a'] = const CloudDocument(1, {
+        'schemaVersion': 1,
+        'language': 'en',
+        'country': 'US',
+        'themeMode': 'light',
+      });
+      remote.values['b'] = const CloudDocument(3, {
+        'schemaVersion': 1,
+        'language': 'ar',
+        'country': 'SA',
+        'themeMode': 'dark',
+      });
+      await sync.selectAccount('a');
+      device.local.addAll({'language': 'fr', 'country': 'FR'});
+      sync.noteLanguageChoice({'language': 'fr', 'country': 'FR'});
+      remote.offline = true;
+      await sync.sync();
+      await sync.selectAccount(null, synchronize: false);
+      remote.offline = false;
+      await sync.selectAccount('b');
+      expect(device.local['language'], 'ar');
+      expect(remote.values['b']!.version, 3);
+      expect(device.caches['account:a']!['local']['language'], 'fr');
+      expect(device.caches['account:a']!['languageChoice']['language'], 'fr');
+      await sync.selectAccount('a');
+      expect(device.local['language'], 'fr');
+      expect(remote.values['a']!.preferences['language'], 'fr');
+    },
+  );
+  test(
+    'account profile language restores a new device when cloud preferences are empty',
+    () async {
+      device.local = {
+        'schemaVersion': 1,
+        'language': 'en',
+        'country': 'US',
+        'themeMode': 'light',
+      };
+      await sync.selectAccount(
+        'a',
+        languageFallback: {'language': 'ar', 'country': 'SA'},
+      );
+      expect(device.local['language'], 'ar');
+      expect(remote.values['a']!.preferences['language'], 'ar');
+      expect(remote.values['a']!.preferences['country'], 'SA');
+    },
+  );
+  test(
+    'profile language fills a missing field without replacing an existing cloud language',
+    () async {
+      remote.values['a'] = const CloudDocument(2, {
+        'schemaVersion': 1,
+        'themeMode': 'dark',
+        'reader': {'goal': 9},
+      });
+      await sync.selectAccount(
+        'a',
+        languageFallback: {'language': 'ar', 'country': 'SA'},
+      );
+      expect(device.local['language'], 'ar');
+      expect(device.local['themeMode'], 'dark');
+      expect(device.local['reader'], {'goal': 9});
+      remote.values['b'] = const CloudDocument(2, {
+        'schemaVersion': 1,
+        'language': 'fr',
+        'country': 'FR',
+        'themeMode': 'dark',
+      });
+      await sync.selectAccount(
+        'b',
+        languageFallback: {'language': 'ar', 'country': 'SA'},
+      );
+      expect(device.local['language'], 'fr');
+      expect(remote.values['b']!.version, 2);
+    },
+  );
+  test(
+    'manual guest language wins over account-profile fallback when preferences are empty',
+    () async {
+      device.local.addAll({'language': 'fr', 'country': 'FR'});
+      sync.noteLanguageChoice({'language': 'fr', 'country': 'FR'});
+      await sync.selectAccount(
+        'a',
+        languageFallback: {'language': 'ar', 'country': 'SA'},
+      );
+      expect(device.local['language'], 'fr');
+      expect(remote.values['a']!.preferences['language'], 'fr');
+    },
+  );
+  test(
+    'profile language wins over an older cache when the remote document omits language',
+    () async {
+      device.local.addAll({'language': 'en', 'country': 'US'});
+      device.caches['deviceOwner'] = {'id': 'a'};
+      device.caches['account:a'] = {
+        'version': 2,
+        'base': copy(device.local),
+        'local': copy(device.local),
+      };
+      remote.values['a'] = const CloudDocument(8, {
+        'schemaVersion': 1,
+        'themeMode': 'dark',
+      });
+      await sync.selectAccount(
+        'a',
+        languageFallback: {'language': 'ar', 'country': 'SA'},
+      );
+      await sync.sync();
+      expect(device.local['language'], 'ar');
+      expect(remote.values['a']!.preferences['language'], 'ar');
+      expect(remote.values['a']!.preferences['themeMode'], 'dark');
+      expect(sync.status, 'cloud_synced');
+    },
+  );
+  test(
+    'a recognized manual language replaces a stale profile fallback',
+    () async {
+      await sync.selectAccount(
+        'a',
+        languageFallback: {'language': 'ar', 'country': 'SA'},
+      );
+      device.local.addAll({'language': 'fr', 'country': 'FR'});
+      sync.noteLanguageChoice({'language': 'fr', 'country': 'FR'});
+      await sync.sync();
+      expect(remote.values['a']!.preferences['language'], 'fr');
+      remote.values['a'] = CloudDocument(remote.values['a']!.version + 1, {
+        'schemaVersion': 1,
+        'themeMode': 'dark',
+      });
+      await sync.sync();
+      await sync.sync();
+      expect(device.local['language'], 'fr');
+      expect(remote.values['a']!.preferences['language'], 'fr');
+      expect(remote.values['a']!.preferences['themeMode'], 'dark');
+    },
+  );
+  test(
+    'language selection during the local account restoration is preserved',
+    () async {
+      final guarded = GuardedFakeDevice();
+      final engine = PreferenceSyncEngine(remote, guarded);
+      remote.values['a'] = const CloudDocument(3, {
+        'schemaVersion': 1,
+        'language': 'en',
+        'themeMode': 'dark',
+      });
+      guarded.duringApply = () async {
+        guarded.duringApply = null;
+        guarded.local.addAll({'language': 'ar', 'country': 'SA'});
+        engine.noteLanguageChoice({'language': 'ar', 'country': 'SA'});
+      };
+      await engine.selectAccount('a');
+      expect(guarded.local['language'], 'ar');
+      expect(guarded.local['themeMode'], 'dark');
+      expect(remote.values['a']!.preferences['language'], 'ar');
+    },
+  );
+  test(
+    'language selected during a cloud request survives and enters the next upload',
+    () async {
+      await sync.selectAccount('a');
+      final gate = Completer<CloudDocument>();
+      remote.read = (_) => gate.future;
+      final running = sync.sync();
+      await Future<void>.delayed(Duration.zero);
+      device.local.addAll({'language': 'ar', 'country': 'SA'});
+      sync.noteLanguageChoice({'language': 'ar', 'country': 'SA'});
+      gate.complete(remote.values['a']!);
+      await running;
+      expect(device.local['language'], 'ar');
+      expect(sync.status, 'cloud_pending');
+      expect(device.caches['account:a']!['languageChoice']['language'], 'ar');
+      remote.read = null;
+      await sync.sync();
+      expect(remote.values['a']!.preferences['language'], 'ar');
+    },
+  );
+  test(
+    'manual language during partial cloud apply preserves unrelated remote fields',
+    () async {
+      final guarded = GuardedFakeDevice();
+      final engine = PreferenceSyncEngine(remote, guarded);
+      await engine.selectAccount('a');
+      remote.values['a'] = const CloudDocument(2, {
+        'schemaVersion': 1,
+        'language': 'fr',
+        'country': 'FR',
+        'themeMode': 'dark',
+      });
+      guarded.duringApply = () async {
+        guarded.duringApply = null;
+        guarded.local.addAll({'language': 'ar', 'country': 'SA'});
+        engine.noteLanguageChoice({'language': 'ar', 'country': 'SA'});
+      };
+      await engine.sync();
+      expect(guarded.local['language'], 'ar');
+      expect(guarded.local['themeMode'], 'dark');
+      await engine.sync();
+      expect(remote.values['a']!.preferences['language'], 'ar');
+      expect(remote.values['a']!.preferences['themeMode'], 'dark');
+    },
+  );
+  test(
+    'concurrent different account languages still require conflict resolution',
+    () async {
+      device.local['country'] = 'FR';
+      await sync.selectAccount('a');
+      remote.values['a'] = const CloudDocument(2, {
+        'schemaVersion': 1,
+        'language': 'tr',
+        'country': 'TR',
+        'themeMode': 'light',
+      });
+      device.local.addAll({'language': 'ar', 'country': 'SA'});
+      sync.noteLanguageChoice({'language': 'ar', 'country': 'SA'});
+      await sync.sync();
+      expect(sync.status, 'cloud_conflict');
+      expect(remote.values['a']!.preferences['language'], 'tr');
+      await sync.resolveConflict(keepLocal: false);
+      expect(device.local['language'], 'tr');
+      expect(device.caches['account:a']!.containsKey('languageChoice'), false);
+    },
+  );
+  for (final synchronized in [false, true]) {
+    test(
+      'selection while switching accounts never changes the previous owner cache (synchronized=$synchronized)',
+      () async {
+        device.local['country'] = 'FR';
+        await sync.selectAccount('a', synchronize: synchronized);
+        remote.values['b'] = const CloudDocument(2, {
+          'schemaVersion': 1,
+          'language': 'en',
+          'country': 'US',
+          'themeMode': 'dark',
+        });
+        final switching = sync.selectAccount('b');
+        device.local.addAll({'language': 'ar', 'country': 'SA'});
+        sync.noteLanguageChoice({'language': 'ar', 'country': 'SA'});
+        await switching;
+        expect(device.caches['account:a']!['local']['language'], 'fr');
+        expect(device.caches['account:a']!['local']['country'], 'FR');
+        expect(remote.values['b']!.preferences['language'], 'ar');
+        expect(remote.values['b']!.preferences['themeMode'], 'dark');
+      },
+    );
+  }
+  test(
+    'an obsolete initial owner lookup cannot reassign the next account choice',
+    () async {
+      final delayed = DelayedOwnerDevice();
+      final engine = PreferenceSyncEngine(remote, delayed);
+      remote.values['a'] = const CloudDocument(2, {
+        'schemaVersion': 1,
+        'language': 'en',
+        'themeMode': 'light',
+      });
+      remote.values['b'] = const CloudDocument(2, {
+        'schemaVersion': 1,
+        'language': 'fr',
+        'themeMode': 'dark',
+      });
+      final first = engine.selectAccount('a');
+      await delayed.ownerReadStarted.future;
+      final second = engine.selectAccount('b');
+      delayed.local.addAll({'language': 'ar', 'country': 'SA'});
+      engine.noteLanguageChoice({'language': 'ar', 'country': 'SA'});
+      delayed.ownerGate.complete();
+      await first;
+      await second;
+      expect(delayed.local['language'], 'ar');
+      expect(remote.values['b']!.preferences['language'], 'ar');
+      expect(remote.values['b']!.preferences['themeMode'], 'dark');
+      await engine.selectAccount('a');
+      expect(delayed.local['language'], 'en');
+      expect(remote.values['a']!.preferences['language'], 'en');
     },
   );
   test(

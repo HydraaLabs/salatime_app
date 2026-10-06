@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:salatime/service/mobile_auth_service.dart';
+import 'package:salatime/controller/localization_controller.dart';
+import 'package:salatime/util/app_constants.dart';
 import 'package:salatime/helper/additional_reminder_plan.dart';
 import 'package:salatime/helper/prayer_notification_preferences.dart';
 import 'cloud/preference_sync_scheduler.dart';
@@ -17,6 +19,7 @@ class PreferenceCloudSync with WidgetsBindingObserver {
   PreferenceSyncEngine? _engine;
   PreferenceSyncScheduler? _scheduler;
   final _changes = <StreamSubscription<void>>[];
+  StreamSubscription<Locale>? _languageChanges;
   String? _selectedAccount;
   bool _accountSelected = false;
   int _accountGeneration = 0;
@@ -27,6 +30,15 @@ class PreferenceCloudSync with WidgetsBindingObserver {
   Future<void> initialize() => _initializing ??= _initialize();
   Future<void> _initialize() async {
     final auth = MobileAuthService.instance;
+    Document? earlyLanguageChoice;
+    _languageChanges = LocalizationController.languageChanges.listen((locale) {
+      final choice = <String, dynamic>{
+        'language': locale.languageCode,
+        if (locale.countryCode != null) 'country': locale.countryCode,
+      };
+      earlyLanguageChoice = choice;
+      noteLocalChange(languageChoice: choice);
+    });
     final prefs = await SharedPreferences.getInstance();
     _engine = PreferenceSyncEngine(
       HttpPreferenceRemote(
@@ -39,10 +51,19 @@ class PreferenceCloudSync with WidgetsBindingObserver {
         },
       ),
       AppPreferenceDevice(prefs, scope: auth.baseUrl),
+      initialLanguageChoice: prefs.containsKey(AppConstants.LANGUAGE_CODE)
+          ? {
+              'language': prefs.getString(AppConstants.LANGUAGE_CODE),
+              'country': prefs.getString(AppConstants.COUNTRY_CODE),
+            }
+          : null,
       onStatus: (value) {
         if (!_disposed) status.value = value;
       },
     );
+    if (earlyLanguageChoice != null) {
+      _engine!.noteLanguageChoice(earlyLanguageChoice!);
+    }
     _scheduler = PreferenceSyncScheduler(
       synchronize: () => _engine!.sync(),
       checkpoint: () => _engine!.checkpoint(),
@@ -81,9 +102,13 @@ class PreferenceCloudSync with WidgetsBindingObserver {
 
   /// Explicit UI edits must also be recorded while a cloud reload is running.
   /// The model streams above suppress only the cloud's own restoration signals.
-  void noteLocalChange() {
+  void noteLocalChange({Document? languageChoice}) {
     if (_disposed) return;
-    _engine?.noteLocalChange();
+    if (languageChoice == null) {
+      _engine?.noteLocalChange();
+    } else {
+      _engine?.noteLanguageChoice(languageChoice);
+    }
     _scheduler?.noteChange();
     if (_engine?.account != null && status.value != 'cloud_conflict') {
       status.value = 'cloud_pending';
@@ -92,7 +117,17 @@ class PreferenceCloudSync with WidgetsBindingObserver {
 
   Future<void> _accountChanged() async {
     if (_disposed) return;
-    final next = MobileAuthService.instance.user.value?.id;
+    final profile = MobileAuthService.instance.user.value;
+    final next = profile?.id;
+    final language = profile?.locale;
+    final languageFallback = language == null
+        ? null
+        : <String, dynamic>{
+            'language': language,
+            'country': AppConstants.languages
+                .firstWhere((item) => item.languageCode == language)
+                .countryCode,
+          };
     if (_accountSelected && _selectedAccount == next) return;
     _accountSelected = true;
     _selectedAccount = next;
@@ -101,7 +136,11 @@ class PreferenceCloudSync with WidgetsBindingObserver {
     try {
       // Save the previous owner and restore the new local account copy first.
       // HTTP work starts separately; authentication callbacks never await it.
-      await _engine?.selectAccount(next, synchronize: false);
+      await _engine?.selectAccount(
+        next,
+        synchronize: false,
+        languageFallback: languageFallback,
+      );
     } catch (_) {
       if (!_disposed && generation == _accountGeneration) {
         status.value = 'cloud_offline';
@@ -148,6 +187,7 @@ class PreferenceCloudSync with WidgetsBindingObserver {
       unawaited(subscription.cancel());
     }
     _changes.clear();
+    unawaited(_languageChanges?.cancel());
     WidgetsBinding.instance.removeObserver(this);
   }
 }

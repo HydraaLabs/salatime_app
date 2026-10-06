@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:salatime/controller/home_layout_controller.dart';
@@ -92,8 +93,14 @@ class AppPreferenceDevice implements GuardedPreferenceDevice {
 
   @override
   Future<Document> capture() async {
-    final language =
-        prefs.getString('language_code') ?? (Get.locale?.languageCode ?? 'en');
+    final locale = Get.isRegistered<LocalizationController>()
+        ? Get.find<LocalizationController>().locale
+        : LocalizationController.resolveLocale(
+            systemLocale: WidgetsBinding.instance.platformDispatcher.locale,
+            savedLanguageCode: prefs.getString('language_code'),
+            savedCountryCode: prefs.getString('country_code'),
+          );
+    final language = locale.languageCode;
     final widgets = await _native(widgetChannel);
     final silence = await _native(silenceChannel);
     final savedSilence =
@@ -119,20 +126,7 @@ class AppPreferenceDevice implements GuardedPreferenceDevice {
       'schemaVersion': 1,
       'themeMode': 'daylight',
       'language': language,
-      'country':
-          const {
-            'en': 'US',
-            'fr': 'FR',
-            'ar': 'SA',
-            'tr': 'TR',
-            'ur': 'PK',
-            'id': 'ID',
-            'ms': 'MY',
-            'es': 'ES',
-            'bn': 'BD',
-            'fa': 'AF',
-          }[language] ??
-          'US',
+      'country': locale.countryCode,
       'homeLayout': 'modern',
       'use24HourFormat': true,
       'calculationMethod': '1',
@@ -140,6 +134,7 @@ class AppPreferenceDevice implements GuardedPreferenceDevice {
       'hijriOffset': 0,
     };
     for (final e in fields.entries) {
+      if (e.key == 'language' || e.key == 'country') continue;
       final v = prefs.get(e.value);
       if (v != null) defaults[e.key] = v;
     }
@@ -270,7 +265,9 @@ class AppPreferenceDevice implements GuardedPreferenceDevice {
     Future<bool> stopRestoration() async {
       // Earlier groups may already be durable. Refresh controllers from current
       // storage, which includes the user's newer choice, before deferring the rest.
-      if (reloadControllers) await _reload(changed);
+      if (reloadControllers) {
+        await _reload(changed.difference({'language', 'country'}));
+      }
       return false;
     }
 
@@ -415,15 +412,22 @@ class AppPreferenceDevice implements GuardedPreferenceDevice {
         }
       }
     }
-    if (reloadControllers) await _reload(changed);
-    return true;
+    if (!isCurrent()) return stopRestoration();
+    if (reloadControllers) {
+      await _reload(changed, canRestoreLanguage: isCurrent);
+    }
+    return isCurrent();
   }
 
-  Future<void> _reload(Set<String> changed) async {
+  Future<void> _reload(
+    Set<String> changed, {
+    bool Function()? canRestoreLanguage,
+  }) async {
     if (changed.contains('themeMode') && Get.isRegistered<ThemeController>()) {
       await Get.find<ThemeController>().setMode(prefs.getString('theme_mode')!);
     }
     if ((changed.contains('language') || changed.contains('country')) &&
+        (canRestoreLanguage?.call() ?? true) &&
         Get.isRegistered<LocalizationController>()) {
       final c = Get.find<LocalizationController>();
       c.loadCurrentLanguage();

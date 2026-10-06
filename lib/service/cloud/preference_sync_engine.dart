@@ -35,19 +35,53 @@ abstract class GuardedPreferenceDevice implements PreferenceDevice {
 /// Serializes local mutations and checks the account generation after every
 /// network wait. A late response from account A can never touch account B.
 class PreferenceSyncEngine {
-  PreferenceSyncEngine(this.remote, this.device, {this.onStatus});
+  PreferenceSyncEngine(
+    this.remote,
+    this.device, {
+    this.onStatus,
+    Document? initialLanguageChoice,
+  }) : _initialLanguageChoice = _languageChoice(initialLanguageChoice);
   final PreferenceRemote remote;
   final PreferenceDevice device;
   final void Function(String)? onStatus;
   String? account;
   int _generation = 0;
   String? _deviceOwner;
+  Document? _deviceLanguage;
   bool _ownerLoaded = false;
   Future<void> _queue = Future.value();
   bool _applyingPreferences = false;
   bool get isApplyingPreferences => _applyingPreferences;
   int _localRevision = 0;
   void noteLocalChange() => _localRevision++;
+  final Document? _initialLanguageChoice;
+  Document? _pendingLanguageChoice;
+  String? _pendingLanguageOwner;
+  Document? _accountLanguageFallback;
+  static Document? _languageChoice(Document? value) {
+    if (value == null) return null;
+    final clean = PreferenceSchema.clean({
+      'language': value['language'],
+      'country': value['country'],
+    });
+    return clean.containsKey('language') ? clean : null;
+  }
+
+  /// A guest's deliberate language selection is the only first-login override.
+  /// Other settings still restore from the existing account document.
+  void noteLanguageChoice(Document choice) {
+    final clean = _languageChoice(choice);
+    if (clean == null) return;
+    _pendingLanguageChoice = clean;
+    _pendingLanguageOwner = account;
+    if (_deviceOwner == account) _deviceLanguage = clean;
+    noteLocalChange();
+  }
+
+  Document? _choiceFor(String? owner) =>
+      _pendingLanguageOwner == owner ? _pendingLanguageChoice : null;
+  static Document? _cachedChoice(Object? value) =>
+      value is Map ? _languageChoice(Map<String, dynamic>.from(value)) : null;
   String status = 'cloud_signed_out';
   Document? _conflictLocal;
   CloudDocument? _conflictRemote;
@@ -116,12 +150,33 @@ class PreferenceSyncEngine {
       if (!_current(id, generation)) return;
       final saved = await device.readCache(_key(id)) ?? {};
       if (!_current(id, generation)) return;
-      await device.writeCache(_key(id), {...saved, 'local': local});
+      final choice = _choiceFor(id);
+      if (choice != null) local.addAll(choice);
+      _deviceLanguage = _languageChoice(local);
+      await device.writeCache(_key(id), {
+        ...saved,
+        'local': local,
+        'languageChoice': ?choice,
+      });
     });
   }
 
-  Future<void> selectAccount(String? next, {bool synchronize = true}) {
+  Future<void> selectAccount(
+    String? next, {
+    bool synchronize = true,
+    Document? languageFallback,
+  }) {
     if (account == next) return Future.value();
+    final previousChoice = _pendingLanguageChoice;
+    final previousChoiceOwner = _pendingLanguageOwner;
+    if (_pendingLanguageOwner != null && _pendingLanguageOwner != next) {
+      _pendingLanguageChoice = null;
+      _pendingLanguageOwner = null;
+    }
+    if (_pendingLanguageChoice != null && next != null) {
+      _pendingLanguageOwner = next;
+    }
+    _accountLanguageFallback = _languageChoice(languageFallback);
     final generation = ++_generation;
     account = next;
     _conflictLocal = null;
@@ -130,16 +185,39 @@ class PreferenceSyncEngine {
     return _serial(() async {
       if (generation != _generation) return;
       if (!_ownerLoaded) {
-        _deviceOwner =
-            (await device.readCache('deviceOwner'))?['id'] as String?;
+        final savedOwner = await device.readCache('deviceOwner');
+        if (generation != _generation) return;
+        _deviceOwner = savedOwner?['id'] as String?;
         _ownerLoaded = true;
+        if (_deviceOwner == null) {
+          _pendingLanguageChoice ??= _initialLanguageChoice;
+          if (_pendingLanguageChoice != null) _pendingLanguageOwner = next;
+        }
       }
+      final selectionRevision = _localRevision;
       final local = PreferenceSchema.clean(await device.capture());
       if (_deviceOwner != null) {
         final saved = await device.readCache(_key(_deviceOwner!)) ?? {};
+        final ownedChoice = previousChoiceOwner == _deviceOwner
+            ? previousChoice
+            : null;
+        if (ownedChoice != null) {
+          local.addAll(ownedChoice);
+        } else if (_choiceFor(next) != null && next != _deviceOwner) {
+          // A selection for the next account can occur before this capture.
+          // Preserve the actual previous owner's locale in its own outbox.
+          final ownedLanguage =
+              _cachedChoice(saved['local']) ??
+              _deviceLanguage ??
+              _initialLanguageChoice;
+          local.remove('language');
+          local.remove('country');
+          local.addAll(ownedLanguage ?? {});
+        }
         await device.writeCache(_key(_deviceOwner!), {
           ...saved,
           'local': local,
+          'languageChoice': ?ownedChoice,
         });
       } else {
         await device.writeCache('guest', {'local': local});
@@ -152,8 +230,19 @@ class PreferenceSyncEngine {
       final target = PreferenceSchema.clean(
         saved?['local'] ?? guest?['local'] ?? local,
       );
-      await _apply(target);
+      if (generation != _generation) return;
+      if (next != null) {
+        if (saved == null) target.addAll(_accountLanguageFallback ?? {});
+        target.addAll(
+          _choiceFor(next) ?? _cachedChoice(saved?['languageChoice']) ?? {},
+        );
+      }
+      await _apply(target, localRevision: selectionRevision);
+      if (generation != _generation) return;
+      final selectedLocal = PreferenceSchema.clean(await device.capture());
+      if (generation != _generation) return;
       _deviceOwner = next;
+      _deviceLanguage = _languageChoice(selectedLocal);
       await device.writeCache('deviceOwner', {'id': next});
       if (synchronize && next != null && _current(next, generation)) {
         await _sync(next, generation);
@@ -172,11 +261,14 @@ class PreferenceSyncEngine {
 
   Future<void> _sync(String id, int generation, {bool? keepLocal}) async {
     final saved = await device.readCache(_key(id)) ?? {};
+    final languageChoice =
+        _choiceFor(id) ?? _cachedChoice(saved['languageChoice']);
     final local = PreferenceSchema.clean(await device.capture());
     final base = PreferenceSchema.clean(saved['base']);
     await device.writeCache(_key(id), {
       ...saved,
       'local': local,
+      'languageChoice': ?languageChoice,
     }); // Outbox survives process death before the network starts.
     if (keepLocal == null && _conflictRemote != null) {
       _state('cloud_conflict');
@@ -191,7 +283,11 @@ class PreferenceSyncEngine {
         final localFlat = PreferenceSchema.flatten(local),
             baseFlat = PreferenceSchema.flatten(base),
             remoteFlat = PreferenceSchema.flatten(remotePrefs);
-        final merged = <String, dynamic>{...remoteFlat};
+        final effectiveRemote = <String, dynamic>{
+          ...remoteFlat,
+          if (!remoteFlat.containsKey('language')) ...?_accountLanguageFallback,
+        };
+        final merged = <String, dynamic>{...effectiveRemote};
         final conflicts = <String>[];
         if (keepLocal == false) {
           // Explicitly choosing the account copy discards this device's conflicting edits.
@@ -199,13 +295,24 @@ class PreferenceSyncEngine {
           if (remoteDoc.version == 0 || remotePrefs.isEmpty) {
             merged.addAll(localFlat);
           }
+          if (!remoteFlat.containsKey('language')) {
+            merged.addAll(_accountLanguageFallback ?? {});
+          }
           // First login on another device restores the existing account before uploading anything.
+          // Preserve just an explicit guest language, never a full local snapshot.
+          if (languageChoice != null) merged.addAll(languageChoice);
         } else {
           for (final key in {...baseFlat.keys, ...localFlat.keys}) {
             if (same(localFlat[key], baseFlat[key])) continue;
+            final selectedCountry =
+                key == 'country' &&
+                languageChoice != null &&
+                (same(effectiveRemote['language'], baseFlat['language']) ||
+                    same(effectiveRemote['language'], localFlat['language']));
             if (keepLocal != true &&
-                !same(remoteFlat[key], baseFlat[key]) &&
-                !same(remoteFlat[key], localFlat[key])) {
+                !selectedCountry &&
+                !same(effectiveRemote[key], baseFlat[key]) &&
+                !same(effectiveRemote[key], localFlat[key])) {
               conflicts.add(key);
             }
             if (localFlat.containsKey(key)) {
@@ -238,6 +345,8 @@ class PreferenceSyncEngine {
           continue;
         }
         if (!_current(id, generation)) return;
+        _accountLanguageFallback =
+            _languageChoice(result.preferences) ?? _accountLanguageFallback;
         // Edits made while an HTTP request was pending win locally and become the next outbox.
         final applyRevision = _localRevision;
         final latest = PreferenceSchema.flatten(
@@ -261,6 +370,20 @@ class PreferenceSyncEngine {
         );
         if (!_current(id, generation)) return;
         final after = PreferenceSchema.clean(await device.capture());
+        if (!_current(id, generation)) return;
+        _deviceLanguage = _languageChoice(after);
+        final acknowledgedLanguage =
+            languageChoice != null &&
+            (keepLocal == false ||
+                languageChoice.entries.every(
+                  (entry) => same(result.preferences[entry.key], entry.value),
+                ));
+        if (identical(_choiceFor(id), languageChoice) && acknowledgedLanguage) {
+          _pendingLanguageChoice = null;
+          _pendingLanguageOwner = null;
+        }
+        final pendingLanguage =
+            _choiceFor(id) ?? (acknowledgedLanguage ? null : languageChoice);
         await device.writeCache(_key(id), {
           'version': result.version,
           // A superseded apply may have written only part of the remote copy.
@@ -270,6 +393,7 @@ class PreferenceSyncEngine {
               ? PreferenceSchema.clean(result.preferences)
               : (base.isEmpty ? local : base),
           'local': after,
+          'languageChoice': ?pendingLanguage,
         });
         _conflictLocal = null;
         _conflictRemote = null;
