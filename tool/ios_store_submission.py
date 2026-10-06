@@ -35,9 +35,9 @@ SUBMITTED = {'WAITING_FOR_REVIEW', 'IN_REVIEW', 'PENDING_DEVELOPER_RELEASE',
              'PENDING_APPLE_RELEASE', 'PROCESSING_FOR_APP_STORE', 'READY_FOR_SALE',
              'READY_FOR_DISTRIBUTION'}
 WHATS_NEW = {
-    'fr-FR': 'Votre choix de langue est conservé avec votre compte et synchronisé entre vos appareils. Le message de bienvenue utilise la langue choisie à la création du compte. La demande de notation native et l’accès aux avis depuis les paramètres sont aussi améliorés.',
-    'en-US': 'Your language choice is saved with your account and synced across devices. The welcome email uses the language chosen when creating your account. Native rating requests and access to store reviews from Settings are also improved.',
-    'ar-SA': 'يُحفظ اختيار لغتك مع حسابك ويتزامن بين أجهزتك. تستخدم رسالة الترحيب اللغة المختارة عند إنشاء الحساب. كما تم تحسين طلب التقييم الأصلي والوصول إلى تقييمات المتجر من الإعدادات.',
+    'fr-FR': 'Votre choix de langue est conservé avec votre compte et synchronisé entre vos appareils. Le message de bienvenue utilise la langue choisie à la création du compte. Demande de notation native après plusieurs jours d’utilisation et accès aux avis depuis les paramètres.',
+    'en-US': 'Your language choice is saved with your account and synced across devices. The welcome email uses the language chosen when creating your account. Native rating requests after several days of use and access to store reviews from Settings.',
+    'ar-SA': 'يُحفظ اختيار لغتك مع حسابك ويتزامن بين أجهزتك. تستخدم رسالة الترحيب اللغة المختارة عند إنشاء الحساب. طلب التقييم عبر واجهة المتجر الأصلية بعد عدة أيام من الاستخدام، والوصول إلى تقييمات المتجر من الإعدادات.',
 }
 RATING_REVIEW_NOTE = ('Rating fix: StoreKit requests a review after 3 distinct usage days and 72 hours, '
                'following 10 quiet seconds on Home (30-day interval, maximum 3 attempts). '
