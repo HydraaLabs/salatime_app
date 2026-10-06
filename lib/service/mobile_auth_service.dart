@@ -3,11 +3,14 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:salatime/controller/localization_controller.dart';
 import 'package:salatime/util/app_constants.dart';
 
 class MobileUser {
@@ -18,6 +21,7 @@ class MobileUser {
     required this.emailVerified,
     required this.hasPassword,
     this.providers = const [],
+    this.locale,
   });
   final String id;
   final String name;
@@ -25,6 +29,7 @@ class MobileUser {
   final bool emailVerified;
   final bool hasPassword;
   final List<String> providers;
+  final String? locale;
   factory MobileUser.fromJson(Map<String, dynamic> json) {
     final id = json['id']?.toString() ?? '';
     if (id.isEmpty || json['email'] is! String || json['name'] is! String) {
@@ -36,6 +41,12 @@ class MobileUser {
       email: json['email'],
       emailVerified: json['email_verified'] == true,
       hasPassword: json['has_password'] == true,
+      locale:
+          AppConstants.languages.any(
+            (item) => item.languageCode == json['locale'],
+          )
+          ? json['locale'] as String
+          : null,
       providers: json['providers'] is List
           ? (json['providers'] as List)
                 .whereType<String>()
@@ -51,6 +62,7 @@ class MobileUser {
     'email_verified': emailVerified,
     'has_password': hasPassword,
     'providers': providers,
+    'locale': ?locale,
   };
 }
 
@@ -259,9 +271,11 @@ class MobileAuthService {
     AuthSessionStore? storage,
     MobileIdentityProvider? identityProvider,
     String? apiBaseUrl,
+    FutureOr<Locale> Function()? localeProvider,
   }) : _client = client ?? http.Client(),
        _storage = storage ?? const SecureAuthSessionStore(),
        _identity = identityProvider ?? NativeMobileIdentityProvider(),
+       _localeProvider = localeProvider,
        baseUrl =
            (apiBaseUrl ??
                    const String.fromEnvironment(
@@ -282,6 +296,7 @@ class MobileAuthService {
   final http.Client _client;
   final AuthSessionStore _storage;
   final MobileIdentityProvider _identity;
+  final FutureOr<Locale> Function()? _localeProvider;
   final String baseUrl;
   final user = Rxn<MobileUser>();
   final configuration = const MobileAuthConfiguration().obs;
@@ -293,6 +308,27 @@ class MobileAuthService {
   String get storageKey =>
       'session_v1_${sha256.convert(utf8.encode(baseUrl)).toString()}';
   Future<String?> accessToken() async => _token;
+
+  Future<String> _effectiveLanguage() async {
+    final system = WidgetsBinding.instance.platformDispatcher.locale;
+    if (_localeProvider != null) {
+      final provided = await _localeProvider();
+      return LocalizationController.resolveLocale(
+        systemLocale: system,
+        savedLanguageCode: provided.languageCode,
+        savedCountryCode: provided.countryCode,
+      ).languageCode;
+    }
+    if (Get.isRegistered<LocalizationController>()) {
+      return Get.find<LocalizationController>().locale.languageCode;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    return LocalizationController.resolveLocale(
+      systemLocale: system,
+      savedLanguageCode: prefs.getString(AppConstants.LANGUAGE_CODE),
+      savedCountryCode: prefs.getString(AppConstants.COUNTRY_CODE),
+    ).languageCode;
+  }
 
   Future<void> initialize() => _initialization ??= _initialize().whenComplete(
     () {
@@ -668,6 +704,7 @@ class MobileAuthService {
       throw const MobileAuthException('auth_session_expired');
     }
     try {
+      final language = await _effectiveLanguage();
       final request = http.Request(
         method,
         Uri.parse('$baseUrl/api/mobile/auth$path'),
@@ -676,10 +713,23 @@ class MobileAuthService {
       request.headers.addAll({
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        'Accept-Language': Get.locale?.languageCode ?? 'en',
+        'Accept-Language': language,
         if (authenticated) 'Authorization': 'Bearer $token',
       });
-      if (body != null) request.body = jsonEncode(body);
+      if (body != null) {
+        request.body = jsonEncode({
+          ...body,
+          if (const {
+            '/register',
+            '/login',
+            '/google',
+            '/apple',
+            '/link/google',
+            '/link/apple',
+          }.contains(path))
+            'locale': language,
+        });
+      }
       final response = await http.Response.fromStream(
         await _client.send(request).timeout(const Duration(seconds: 20)),
       ).timeout(const Duration(seconds: 20));
