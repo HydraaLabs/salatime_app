@@ -294,6 +294,15 @@ void main() {
       final day = PrayerTimeAdjustmentController.adjustedDay(
         harness.prayer.prayerTimeModel!.data,
       )!;
+      // Fix the display clock within today's restored timetable so this
+      // first-frame check does not depend on the host's time after Isha.
+      final restoredDate = DateTime.parse(day.date!);
+      final firstFrameNow = DateTime(
+        restoredDate.year,
+        restoredDate.month,
+        restoredDate.day,
+        12,
+      );
       await tester.pumpWidget(
         GetMaterialApp(
           locale: const Locale('en'),
@@ -301,6 +310,7 @@ void main() {
             body: SingleChildScrollView(
               child: ModernPrayerDashboard(
                 prayerTimeController: harness.prayer,
+                now: () => firstFrameNow,
               ),
             ),
           ),
