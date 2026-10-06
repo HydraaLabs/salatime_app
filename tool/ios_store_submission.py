@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Submit the exact SalaTime rating release from CI without logging private data.
+"""Submit the exact SalaTime account-language release from CI without logging private data.
 
 Only --submit mutates App Store Connect. --preflight is GET-only. New versions
 inherit Apple's metadata; preservation is verified before creating any review
@@ -35,17 +35,19 @@ SUBMITTED = {'WAITING_FOR_REVIEW', 'IN_REVIEW', 'PENDING_DEVELOPER_RELEASE',
              'PENDING_APPLE_RELEASE', 'PROCESSING_FOR_APP_STORE', 'READY_FOR_SALE',
              'READY_FOR_DISTRIBUTION'}
 WHATS_NEW = {
-    'fr-FR': 'Demande de notation native après plusieurs jours d’utilisation et accès direct à la page d’avis depuis les paramètres.',
-    'en-US': 'Native rating requests after several days of use and direct access to the store review page from Settings.',
-    'ar-SA': 'طلب التقييم عبر واجهة المتجر الأصلية بعد عدة أيام من الاستخدام، والوصول مباشرةً إلى صفحة التقييم من الإعدادات.',
+    'fr-FR': 'Votre choix de langue est conservé avec votre compte et synchronisé entre vos appareils. Le message de bienvenue utilise la langue choisie à la création du compte. La demande de notation native et l’accès aux avis depuis les paramètres sont aussi améliorés.',
+    'en-US': 'Your language choice is saved with your account and synced across devices. The welcome email uses the language chosen when creating your account. Native rating requests and access to store reviews from Settings are also improved.',
+    'ar-SA': 'يُحفظ اختيار لغتك مع حسابك ويتزامن بين أجهزتك. تستخدم رسالة الترحيب اللغة المختارة عند إنشاء الحساب. كما تم تحسين طلب التقييم الأصلي والوصول إلى تقييمات المتجر من الإعدادات.',
 }
-REVIEW_NOTE = ('Rating fix: StoreKit requests a review after 3 distinct usage days and 72 hours, '
+RATING_REVIEW_NOTE = ('Rating fix: StoreKit requests a review after 3 distinct usage days and 72 hours, '
                'following 10 quiet seconds on Home (30-day interval, maximum 3 attempts). '
                'No custom prompt or satisfaction question. Apple controls display; TestFlight '
                'shows no prompt. Settings > Rate SalaTime opens App Store reviews immediately.')
+REVIEW_NOTE = (RATING_REVIEW_NOTE + ' Language fix: account sync preserves the chosen language; '
+               'the welcome email uses the language chosen at account creation (10 languages, including RTL).')
 
 
-def review_notes(source_notes, previous_version, attachments_inherited):
+def review_notes(source_notes, previous_version, attachments_inherited, release_note=None):
     """Keep review access and demo evidence without appending an unbounded history.
 
     The previous version remains the complete, untouched historical record. This
@@ -55,21 +57,22 @@ def review_notes(source_notes, previous_version, attachments_inherited):
     Apple's Notes limit is 4,000 UTF-8 bytes, rather than 4,000 characters.
     """
     source_notes = source_notes.rstrip()
-    history = f'Historical demonstration context from version {previous_version}. '
-    if not attachments_inherited:
+    origin = re.search(r'Historical demonstration context from version (\d+\.\d+\.\d+)\.', source_notes)
+    history = f'Historical demonstration context from version {origin[1] if origin else previous_version}. '
+    if not attachments_inherited or 'remains attached to that previous version' in source_notes:
         history += ('Any demonstration attachment mentioned below remains attached to that previous version. '
                     'This rating fix adds no physical-device recording. ')
     history += 'Existing demo links and limitations remain applicable.'
     paragraphs = [paragraph.strip() for paragraph in re.split(r'\n\s*\n', source_notes) if paragraph.strip()]
-    known_layout = (any(paragraph.startswith('LOCATION (') for paragraph in paragraphs)
-                    and any(paragraph.startswith(('ACCESS AND ACCOUNTS', 'PURPOSE, ACCESS AND ACCOUNTS'))
+    known_layout = (any(paragraph.startswith(('LOCATION (', 'LOCATION:')) for paragraph in paragraphs)
+                    and any(paragraph.startswith(('ACCESS AND ACCOUNTS', 'PURPOSE, ACCESS AND ACCOUNTS', 'ACCESS:'))
                             for paragraph in paragraphs))
     if known_layout:
         # Retain actual evidence and limitations exactly; only qualify stale
         # "new/attached" labels so they cannot imply a new build-38 recording.
         demonstrations = []
         for paragraph in paragraphs:
-            if paragraph.startswith(('NEW PHYSICAL IPHONE DEMO', 'EXISTING ACCOUNT/FEATURE DEMO',
+            if paragraph.startswith(('NEW PHYSICAL IPHONE DEMO', 'HISTORICAL PHYSICAL IPHONE DEMO', 'EXISTING ACCOUNT/FEATURE DEMO',
                                      'EXISTING PHYSICAL-DEVICE DEMO')):
                 paragraph = re.sub(r'^NEW PHYSICAL IPHONE DEMO', 'HISTORICAL PHYSICAL IPHONE DEMO', paragraph)
                 paragraph = paragraph.replace('The attached SalaTime-AppReview-demo.mp4',
@@ -80,7 +83,7 @@ def review_notes(source_notes, previous_version, attachments_inherited):
                    if line.strip().startswith(('Settings > Account:', 'Create account:'))]
         require(any(line.startswith('Settings > Account:') for line in account),
                 'Previous account instructions need review before submission')
-        sections = [REVIEW_NOTE,
+        sections = [release_note or REVIEW_NOTE,
             ('ACCESS: Free public prayer/Quran tools; no membership, purchase or subscription. '
              'Core features need no account. Streaming, maps and sync need internet. '
              'Location/notifications are optional; a manual city is available.'),
@@ -100,7 +103,7 @@ def review_notes(source_notes, previous_version, attachments_inherited):
              'territories; mainland China excluded. Language/location affect content/times. '
              'No regional paywalls; network/map coverage may affect online features.')]
     else:
-        sections = [REVIEW_NOTE, history, source_notes]
+        sections = [release_note or REVIEW_NOTE, history, source_notes]
     notes = '\n\n'.join(section for section in sections if section)
     # Existing public evidence/permission/support links are retained byte-for-byte.
     urls = list(dict.fromkeys(re.findall(r'https?://[^\s<>]+', source_notes)))
@@ -660,6 +663,64 @@ def self_test():
             raise AssertionError(f'Unexpected fake operation {method} {base}')
 
     class Checks(unittest.TestCase):
+        def test_next_version_preserves_36_screenshots_private_fields_and_historical_notes(self):
+            api = FakeClient(build_version='1.0.29', inherit_attachments=False)
+            api.previous['attributes']['versionString'] = '1.0.28'
+            api.build['id'] = 'build39'
+            api.build['attributes']['version'] = '39'
+            compact = review_notes(self.historical_notes(), '1.0.27', False, RATING_REVIEW_NOTE)
+            api.reviews['old']['attributes']['notes'] = compact
+            api.reviews['new']['attributes']['notes'] = compact
+            historical = copy.deepcopy(api.reviews['old'])
+            original = api.request
+            def with_images(method, path, payload=None):
+                if method == 'GET' and urllib.parse.urlsplit(path).path.endswith('/appStoreReviewAttachments'):
+                    api.calls.append((method, path))
+                    return {'data': []}
+                result = original(method, path, payload)
+                if method == 'GET' and urllib.parse.urlsplit(path).path.endswith('/appScreenshots'):
+                    first = result['data'][0]
+                    result['data'] = []
+                    for index in range(12):
+                        row = copy.deepcopy(first)
+                        row['attributes']['fileName'] = f'existing-{index:02}.png'
+                        row['attributes']['sourceFileChecksum'] = hashlib.md5(str(index).encode()).hexdigest()
+                        result['data'].append(row)
+                return result
+            api.request = with_images
+            flow = Submission(api, '1.0.29', '39', previous_version='1.0.28')
+            flow.submit()
+            self.assertEqual(flow.report['status'], 'submitted')
+            self.assertEqual(flow.report['screenshot_count'], 36)
+            self.assertEqual(api.attached, 'build39')
+            self.assertEqual(api.reviews['old'], historical)
+            self.assertTrue(all(api.reviews['new']['attributes'][field] == historical['attributes'][field]
+                                for field in REVIEW_FIELDS))
+            notes = api.reviews['new']['attributes']['notes']
+            self.assertLessEqual(len(notes.encode('utf-8')), 4000)
+            self.assertIn('Language fix:', notes)
+            self.assertIn('Historical demonstration context from version 1.0.27.', notes)
+            self.assertIn('remains attached to that previous version', notes)
+            self.assertIn('does not prove recalculation during real travel', notes)
+            for url in re.findall(r'https?://[^\s<>]+', compact): self.assertIn(url, notes)
+            self.assertTrue(all(method == 'GET' for method, path in api.calls
+                                if '/old/' in path or path.endswith('/review-old')))
+            before = len(api.calls)
+            resumed = Submission(api, '1.0.29', '39', previous_version='1.0.28')
+            resumed.submit()
+            self.assertEqual(resumed.report['status'], 'already_submitted')
+            self.assertTrue(all(method == 'GET' for method, _ in api.calls[before:]))
+
+        def test_compact_public_notes_do_not_accumulate_another_history(self):
+            compact = review_notes(self.historical_notes(), '1.0.27', False, RATING_REVIEW_NOTE)
+            notes = review_notes(compact, '1.0.28', True)
+            self.assertLessEqual(len(notes.encode('utf-8')), 4000)
+            self.assertEqual(notes.count('Rating fix:'), 1)
+            self.assertEqual(notes.count('Language fix:'), 1)
+            self.assertEqual(notes.count('Historical demonstration context from version'), 1)
+            self.assertIn('version 1.0.27.', notes)
+            for url in re.findall(r'https?://[^\s<>]+', compact): self.assertIn(url, notes)
+
         def historical_notes(self):
             return ('SalaTime 1.0.27: previous release history. ' + 'Historical release summary. ' * 85 +
                     '\n\nNEW PHYSICAL IPHONE DEMO (51 seconds, build 35)\n'
@@ -894,9 +955,9 @@ def main():
     mode.add_argument('--submit', action='store_true')
     mode.add_argument('--self-test', action='store_true')
     parser.add_argument('--for-upload', action='store_true')
-    parser.add_argument('--version', default='1.0.28')
-    parser.add_argument('--previous-version', default='1.0.27')
-    parser.add_argument('--build-number', default='38')
+    parser.add_argument('--version', default='1.0.29')
+    parser.add_argument('--previous-version', default='1.0.28')
+    parser.add_argument('--build-number', default='39')
     parser.add_argument('--wait-seconds', type=int, default=1200)
     parser.add_argument('--receipt', type=Path, default=Path('build/ios/app-store-submission.json'))
     args = parser.parse_args()

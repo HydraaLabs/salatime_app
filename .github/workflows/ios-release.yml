@@ -3,10 +3,20 @@ name: iOS App Store release
 on:
   workflow_dispatch:
     inputs:
+      version:
+        description: App Store version matching pubspec.yaml
+        required: true
+        default: '1.0.29'
+        type: string
+      previous_version:
+        description: Previous public App Store version used to preserve metadata
+        required: true
+        default: '1.0.28'
+        type: string
       build_number:
         description: Unique CFBundleVersion for this upload
         required: true
-        default: '26'
+        default: '39'
         type: string
       upload_to_testflight:
         description: Upload the validated IPA to App Store Connect
@@ -14,7 +24,7 @@ on:
         default: false
         type: boolean
       submit_to_app_store:
-        description: Submit the rating update to App Review after the exact uploaded build is valid
+        description: Submit the account-language update to App Review after the exact uploaded build is valid
         required: true
         default: false
         type: boolean
@@ -39,6 +49,8 @@ jobs:
     env:
       IOS_TEAM_ID: ${{ vars.IOS_TEAM_ID }}
       IOS_GOOGLE_REVERSED_CLIENT_ID: ${{ vars.IOS_GOOGLE_REVERSED_CLIENT_ID }}
+      STORE_VERSION: ${{ inputs.version }}
+      PREVIOUS_STORE_VERSION: ${{ inputs.previous_version }}
       RELEASE_BUILD_NUMBER: ${{ inputs.build_number }}
       UPLOAD_TO_TESTFLIGHT: ${{ inputs.upload_to_testflight }}
       SUBMIT_TO_APP_STORE: ${{ inputs.submit_to_app_store }}
@@ -71,7 +83,7 @@ jobs:
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
         run: |
           python3 tool/ios_store_submission.py --preflight --for-upload \
-            --version=1.0.28 --build-number="$RELEASE_BUILD_NUMBER" \
+            --version="$STORE_VERSION" --previous-version="$PREVIOUS_STORE_VERSION" --build-number="$RELEASE_BUILD_NUMBER" \
             --receipt=build/ios/app-store-preflight.json
       - uses: subosito/flutter-action@v2
         with:
@@ -142,7 +154,7 @@ jobs:
           xcrun altool --upload-app --type ios --file "${packages[0]}" \
             --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
           printf '%s\n' 'Upload accepted. Apple processing and TestFlight availability must be checked in App Store Connect.' >> "$GITHUB_STEP_SUMMARY"
-      - name: Submit exact processed rating update to App Review
+      - name: Submit exact processed account-language update to App Review
         if: inputs.submit_to_app_store
         timeout-minutes: 25
         env:
@@ -151,7 +163,7 @@ jobs:
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
         run: |
           python3 tool/ios_store_submission.py --submit \
-            --version=1.0.28 --build-number="$RELEASE_BUILD_NUMBER" \
+            --version="$STORE_VERSION" --previous-version="$PREVIOUS_STORE_VERSION" --build-number="$RELEASE_BUILD_NUMBER" \
             --receipt=build/ios/app-store-submission.json
       - name: Save sanitized App Store state and submission receipt
         if: always() && inputs.upload_to_testflight
@@ -171,6 +183,8 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
+      STORE_VERSION: ${{ inputs.version }}
+      PREVIOUS_STORE_VERSION: ${{ inputs.previous_version }}
       RELEASE_BUILD_NUMBER: ${{ inputs.build_number }}
       SUBMIT_TO_APP_STORE: ${{ inputs.submit_to_app_store }}
     steps:
@@ -190,16 +204,16 @@ jobs:
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
         run: |
           python3 tool/ios_store_submission.py --preflight \
-            --version=1.0.28 --build-number="$RELEASE_BUILD_NUMBER" \
+            --version="$STORE_VERSION" --previous-version="$PREVIOUS_STORE_VERSION" --build-number="$RELEASE_BUILD_NUMBER" \
             --receipt=build/ios/app-store-preflight.json
-      - name: Resume exact processed rating update submission
+      - name: Resume exact processed account-language update submission
         env:
           ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
         run: |
           python3 tool/ios_store_submission.py --submit \
-            --version=1.0.28 --build-number="$RELEASE_BUILD_NUMBER" \
+            --version="$STORE_VERSION" --previous-version="$PREVIOUS_STORE_VERSION" --build-number="$RELEASE_BUILD_NUMBER" \
             --receipt=build/ios/app-store-submission.json
       - name: Save sanitized resumed submission receipt
         if: always()
