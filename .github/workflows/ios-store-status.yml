@@ -1,0 +1,32 @@
+name: iOS App Store read-only status
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  status:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify read-only status helper
+        run: python3 tool/ios_store_status.py --self-test
+      - name: Read current Apple versions, builds and review relationships
+        env:
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: python3 tool/ios_store_status.py --receipt=build/ios/app-store-status.json
+      - name: Save sanitized Apple state
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SalaTime-App-Store-status-${{ github.run_id }}
+          path: build/ios/app-store-status.json
+          if-no-files-found: error
+          retention-days: 7
