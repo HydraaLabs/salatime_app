@@ -861,5 +861,13 @@
   "travel_location_denied": "الوصول إلى الموقع غير مسموح: تبقى آخر المواقيت محفوظة.",
   "travel_location_error": "الموقع غير متاح مؤقتاً. يمكنك المحاولة مجدداً من إعدادات الصلاة.",
   "travel_location_android_permission": "على Android، اختر «السماح طوال الوقت» في أذونات الموقع للتحديث في الخلفية. يبقى إشعار SalaTime ظاهراً أثناء التتبع. يمكنك إيقافه من إعدادات الصلاة.",
-  "travel_location_notification": "تحديث المواقيت أثناء تنقلك. يمكنك إيقافه من إعدادات الصلاة."
+  "travel_location_notification": "تحديث المواقيت أثناء تنقلك. يمكنك إيقافه من إعدادات الصلاة.",
+  "analytics_usage_title": "إحصاءات الاستخدام",
+  "analytics_usage_summary": "ساهم في تحسين SalaTime بمشاركة استخدام الشاشات والميزات مع Google Firebase. يمكنك إيقاف المشاركة في أي وقت.",
+  "analytics_usage_error": "تعذر حفظ هذا الاختيار. يرجى المحاولة مرة أخرى.",
+  "app_update_available": "يتوفر تحديث لتطبيق SalaTime.",
+  "app_update_version_available": "الإصدار @version من SalaTime متاح.",
+  "app_update_now": "تحديث",
+  "app_update_later": "لاحقًا",
+  "app_update_open_failed": "تعذر فتح المتجر. يرجى المحاولة مجددًا."
 }

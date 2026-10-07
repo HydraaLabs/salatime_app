@@ -35,17 +35,38 @@
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
 
+    <!-- Usage statistics have no advertising identifier or ad-services access,
+         including permissions contributed by transitive SDK manifests. -->
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" tools:node="remove"/>
+    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_AD_ID" tools:node="remove"/>
+    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_ATTRIBUTION" tools:node="remove"/>
+    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_TOPICS" tools:node="remove"/>
+
     <!-- Wallpaper / Media -->
     <uses-permission android:name="android.permission.SET_WALLPAPER"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <application
         android:name="${applicationName}"
-        android:label="SalaTime"
+        android:label="${salatimeAppLabel}"
         android:supportsRtl="true"
         android:fullBackupContent="@xml/auth_backup_rules"
         android:dataExtractionRules="@xml/auth_data_extraction_rules"
         android:icon="@mipmap/launcher_icon">
+
+        <!-- Build-level suppression also overrides an earlier SDK opt-in. -->
+        <meta-data android:name="firebase_analytics_collection_deactivated"
+            android:value="${salatimeAnalyticsDeactivated}" />
+
+        <!-- Analytics starts only after the app applies its saved choice.
+             Screens are reported by the Flutter allowlist observer. -->
+        <meta-data android:name="firebase_analytics_collection_enabled" android:value="false"/>
+        <meta-data android:name="google_analytics_automatic_screen_reporting_enabled" android:value="false"/>
+        <meta-data android:name="google_analytics_adid_collection_enabled" android:value="false"/>
+        <meta-data android:name="google_analytics_default_allow_analytics_storage" android:value="false"/>
+        <meta-data android:name="google_analytics_default_allow_ad_storage" android:value="false"/>
+        <meta-data android:name="google_analytics_default_allow_ad_user_data" android:value="false"/>
+        <meta-data android:name="google_analytics_default_allow_ad_personalization_signals" android:value="false"/>
 
         <activity android:name="com.aboutyou.dart_packages.sign_in_with_apple.SignInWithAppleCallback" android:exported="true">
             <intent-filter>

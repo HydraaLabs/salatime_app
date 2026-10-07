@@ -11,6 +11,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:salatime/controller/home_layout_controller.dart';
 import 'package:salatime/helper/theme_helper.dart';
 import 'package:salatime/service/first_launch_setup_service.dart';
+import 'package:salatime/service/analytics/app_analytics_service.dart';
+import 'package:salatime/service/analytics/analytics_navigator_observer.dart';
+import 'package:salatime/service/analytics/firebase_analytics_bootstrap.dart';
 import 'package:salatime/util/app_constants.dart';
 import 'package:salatime/util/sentry_configuration.dart';
 
@@ -60,6 +63,7 @@ Future<void> _bootstrapApp() async {
   await AudioServiceHelper.init();
   Map<String, Map<String, String>> languages = await di.init();
   final preferences = await SharedPreferences.getInstance();
+  AppAnalyticsService.instance = createFirebaseAnalyticsService(preferences);
   final initialRoute = FirstLaunchSetupService(preferences).shouldShow
       ? RouteHelper.firstLaunchSetup
       : await BackgroundLocationScreen.shouldShow()
@@ -70,6 +74,8 @@ Future<void> _bootstrapApp() async {
   }
   final app = MyApp(languages: languages, initialRoute: initialRoute);
   runApp(_sentryConfiguration.enabled ? SentryWidget(child: app) : app);
+  // Optional Analytics initialization never delays the first prayer screen.
+  unawaited(AppAnalyticsService.instance.initialize());
   // Account/cloud failures never block offline prayer times or onboarding.
   unawaited(PreferenceCloudSync.instance.initialize().catchError((_) {}));
   unawaited(ReadingProgressService.instance.initialize().catchError((_) {}));
@@ -81,6 +87,8 @@ class MyApp extends StatelessWidget {
   MyApp({super.key, required this.languages, required this.initialRoute});
 
   final InternetController internetController = Get.find<InternetController>();
+  final AnalyticsNavigatorObserver _analyticsObserver =
+      AnalyticsNavigatorObserver();
 
   @override
   Widget build(BuildContext context) {
@@ -107,9 +115,10 @@ class MyApp extends StatelessWidget {
                       .toList(),
                   initialRoute: initialRoute,
                   getPages: RouteHelper.routes,
-                  navigatorObservers: _sentryConfiguration.enabled
-                      ? [SentryNavigatorObserver()]
-                      : [],
+                  navigatorObservers: [
+                    _analyticsObserver,
+                    if (_sentryConfiguration.enabled) SentryNavigatorObserver(),
+                  ],
                   defaultTransition: Transition.topLevel,
                   translations: Messages(languages: languages),
                   fallbackLocale: Locale(

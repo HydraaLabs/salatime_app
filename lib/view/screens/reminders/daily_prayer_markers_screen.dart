@@ -218,7 +218,10 @@ class _DailyPrayerMarkersScreenState extends State<DailyPrayerMarkersScreen> {
                       title: Text('extra_reminders_title'.tr),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () async {
-                        await Get.to(() => const AdditionalRemindersScreen());
+                        await Get.to(
+                          () => const AdditionalRemindersScreen(),
+                          routeName: '/additionalReminders',
+                        );
                         if (mounted) setState(() => _markers = _load());
                       },
                     ),

@@ -794,5 +794,13 @@
   "widget_ios_steps": "1. Sentuh dan tahan area kosong di Layar Utama.\n2. Ketuk Edit, lalu Tambah Widget (atau +).\n3. Cari SalaTime.\n4. Pilih ukuran lalu ketuk Tambah Widget.",
   "play_store_review_question": "Apakah Anda menyukai SalaTime?",
   "play_store_review_yes": "Ya",
-  "play_store_review_no": "Tidak"
+  "play_store_review_no": "Tidak",
+  "analytics_usage_title": "Statistik penggunaan",
+  "analytics_usage_summary": "Bantu meningkatkan SalaTime dengan membagikan penggunaan layar dan fitur ke Google Firebase. Anda dapat menonaktifkannya kapan saja.",
+  "analytics_usage_error": "Pilihan ini tidak dapat disimpan. Silakan coba lagi.",
+  "app_update_available": "Pembaruan SalaTime tersedia.",
+  "app_update_version_available": "SalaTime @version tersedia.",
+  "app_update_now": "Perbarui",
+  "app_update_later": "Nanti",
+  "app_update_open_failed": "Tidak dapat membuka toko. Silakan coba lagi."
 }

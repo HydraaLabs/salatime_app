@@ -48,6 +48,7 @@ class OfflineSuraList extends StatelessWidget {
                   appBackButton: true,
                   surahNumber: sura.id.toString(),
                 ),
+                routeName: '/offlineQuranReader',
               );
             },
             child: Card(

@@ -727,13 +727,14 @@
 			);
 			inputPaths = (
 				"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}",
+				"${SRCROOT}/../tool/configure_ios_analytics.py",
 			);
 			name = "Thin Binary";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" embed_and_thin";
+			shellScript = "set -e\n/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" embed_and_thin\npython3 \"$SRCROOT/../tool/configure_ios_analytics.py\" --info-plist \"$TARGET_BUILD_DIR/$INFOPLIST_PATH\"\n";
 		};
 		6B8A86E72AFB0FE212E91394 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;

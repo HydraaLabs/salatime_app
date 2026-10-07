@@ -120,6 +120,7 @@ class OfflineQuranController extends GetxController {
           appBackButton: true,
           surahNumber: surahNumber.toString(),
         ),
+        routeName: '/offlineQuranReader',
         arguments: 0,
       );
     });

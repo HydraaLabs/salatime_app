@@ -67,6 +67,7 @@ class _OfflineQuranSearchScreenState extends State<OfflineQuranSearchScreen> {
                             appBackButton: true,
                             surahNumber: chapter['id'].toString(),
                           ),
+                          routeName: '/offlineQuranReader',
                           arguments: {
                             'highlightedWord': verse['arabic_name'],
                             'pageNumber': verse['page_key'],

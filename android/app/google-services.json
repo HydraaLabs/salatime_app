@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "436624512066",
+    "project_id": "salatime-e3ed1",
+    "storage_bucket": "salatime-e3ed1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:436624512066:android:21645179f0c31400be49db",
+        "android_client_info": {
+          "package_name": "net.salatime.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCoJ9I6mS67nN6HkVxV9wvwqDafRPcwkFQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

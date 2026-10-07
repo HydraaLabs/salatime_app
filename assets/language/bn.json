@@ -799,5 +799,13 @@
   "widget_ios_steps": "1. হোম স্ক্রিনের একটি খালি জায়গা চেপে ধরুন।\n2. Edit, তারপর Add Widget (বা +) চাপুন।\n3. SalaTime খুঁজুন।\n4. আকার বেছে নিয়ে Add Widget চাপুন।",
   "play_store_review_question": "আপনার কি SalaTime ভালো লাগে?",
   "play_store_review_yes": "হ্যাঁ",
-  "play_store_review_no": "না"
+  "play_store_review_no": "না",
+  "analytics_usage_title": "ব্যবহারের পরিসংখ্যান",
+  "analytics_usage_summary": "Google Firebase-এর সাথে স্ক্রিন ও ফিচারের ব্যবহার শেয়ার করে SalaTime উন্নত করতে সাহায্য করুন। যেকোনো সময় এটি বন্ধ করতে পারেন।",
+  "analytics_usage_error": "এই পছন্দটি সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।",
+  "app_update_available": "SalaTime-এর একটি আপডেট উপলব্ধ।",
+  "app_update_version_available": "SalaTime @version উপলব্ধ।",
+  "app_update_now": "আপডেট করুন",
+  "app_update_later": "পরে",
+  "app_update_open_failed": "স্টোর খোলা যায়নি। আবার চেষ্টা করুন।"
 }

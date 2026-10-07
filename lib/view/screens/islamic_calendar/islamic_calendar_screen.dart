@@ -264,6 +264,7 @@ class _IslamicCalendarScreenState extends State<IslamicCalendarScreen> {
                     OutlinedButton.icon(
                       onPressed: () => Navigator.of(context).push(
                         MaterialPageRoute<void>(
+                          settings: const RouteSettings(name: '/prayerMonth'),
                           builder: (_) =>
                               PrayerMonthScreen(initialDate: _selected),
                         ),

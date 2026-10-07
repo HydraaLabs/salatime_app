@@ -1,11 +1,16 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:salatime/controller/home_layout_controller.dart';
 import 'package:salatime/controller/internet_check_controller.dart';
+import 'package:salatime/service/analytics/analytics_navigator_observer.dart';
+import 'package:salatime/service/analytics/app_analytics_service.dart';
+import 'package:salatime/service/analytics/screen_catalog.dart';
 import 'package:salatime/theme/modern_light_theme.dart';
 import 'package:salatime/util/dimensions.dart';
 import 'package:salatime/util/images.dart';
@@ -17,10 +22,13 @@ import 'package:salatime/view/screens/home/home_screen.dart';
 import 'package:salatime/view/screens/nearby_mosque/nearby_mosque_screen.dart';
 
 import 'np_internet_widgets.dart';
+import 'app_update_notice_host.dart';
 import 'play_store_review_host.dart';
 
 class BottomNavbarScreen extends StatefulWidget {
-  const BottomNavbarScreen({super.key, this.pageBuilder});
+  const BottomNavbarScreen({super.key, this.pageBuilder, this.onScreenViewed});
+
+  final AnalyticsScreenCallback? onScreenViewed;
 
   /// Allows the shell to host alternate page content without changing navigation.
   final Widget Function(
@@ -40,6 +48,8 @@ class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
   final GlobalKey _pagesKey = GlobalKey();
   static const int _pageCount = 5;
   int _selectedPageIndex = 0;
+  String? _lastAnalyticsScreen;
+  ModalRoute<dynamic>? _route;
 
   // Pages already visited are kept alive in the IndexedStack; unvisited
   // pages stay unmounted until first access.
@@ -57,7 +67,34 @@ class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
     super.initState();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _route = ModalRoute.of(context);
+    _reportVisibleTab();
+  }
+
+  void _reportVisibleTab() {
+    final screen = AnalyticsScreenCatalog.forTab(_selectedPageIndex);
+    if (_route != null) {
+      AnalyticsScreenCatalog.setTabScreen(_route!, screen);
+    }
+    if (_route?.isCurrent != true) return;
+    if (screen == _lastAnalyticsScreen) return;
+    _lastAnalyticsScreen = screen;
+    unawaited(
+      Future<void>.sync(
+        () =>
+            (widget.onScreenViewed ??
+            AppAnalyticsService.instance.screenViewed)(screen),
+      ).catchError((Object _) {
+        // Optional statistics must not block tabs or returning home.
+      }),
+    );
+  }
+
   void _selectPage(int index) {
+    if (index == _selectedPageIndex) return;
     // Prevent access to online-only pages without internet
     if ((index == 3 || index == 4) && !internetController.hasInternet.value) {
       showNoInternetDialog();
@@ -67,6 +104,7 @@ class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
       _selectedPageIndex = index;
       _visitedPages.add(index);
     });
+    _reportVisibleTab();
   }
 
   /// Scales [baseSize] according to the current device width relative to
@@ -82,6 +120,7 @@ class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
   void _returnHome() {
     if (_selectedPageIndex == 0) return;
     setState(() => _selectedPageIndex = 0);
+    _reportVisibleTab();
   }
 
   Widget _page(BuildContext context, int index) {
@@ -113,92 +152,111 @@ class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
   @override
   Widget build(BuildContext context) {
     final isIOS = defaultTargetPlatform == TargetPlatform.iOS;
-    return PlayStoreReviewHost(
+    return AppUpdateNoticeHost(
       isHome: _selectedPageIndex == 0,
-      child: PopScope<Object?>(
-        canPop: _selectedPageIndex == 0,
-        onPopInvokedWithResult: (didPop, result) {
-          if (!didPop) _returnHome();
-        },
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final wide =
-                constraints.maxWidth >= 600 && constraints.maxHeight >= 480;
-            final pages = IndexedStack(
-              key: _pagesKey,
-              index: _selectedPageIndex,
-              children: [
-                for (int i = 0; i < _pageCount; i++)
-                  _visitedPages.contains(i)
-                      ? _page(context, i)
-                      : const SizedBox.shrink(),
-              ],
-            );
-            return Scaffold(
-              body: wide
-                  // Keep a single status-bar surface above both panes. A page
-                  // app bar must not set white icons over the pale rail inset.
-                  ? SafeArea(
-                      bottom: false,
-                      child: Row(
-                        children: [
-                          SafeArea(
-                            child: NavigationRail(
-                              selectedIndex: _selectedPageIndex,
-                              onDestinationSelected: _selectPage,
-                              labelType: NavigationRailLabelType.all,
-                              destinations: [
-                                NavigationRailDestination(
-                                  icon: const Icon(Icons.home_outlined),
-                                  label: Text('nav_today'.tr),
-                                ),
-                                NavigationRailDestination(
-                                  icon: SvgPicture.asset(
-                                    Images.Icon_Qibla,
-                                    width: 26,
-                                    height: 26,
-                                    colorFilter: ColorFilter.mode(
-                                      Theme.of(context).colorScheme.onSurface,
-                                      BlendMode.srcIn,
-                                    ),
+      builder: (context, updateBanner, pauseReview) => PlayStoreReviewHost(
+        isHome: _selectedPageIndex == 0 && !pauseReview,
+        child: PopScope<Object?>(
+          canPop: _selectedPageIndex == 0,
+          onPopInvokedWithResult: (didPop, result) {
+            if (!didPop) _returnHome();
+          },
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final wide =
+                  constraints.maxWidth >= 600 && constraints.maxHeight >= 480;
+              final pages = IndexedStack(
+                key: _pagesKey,
+                index: _selectedPageIndex,
+                children: [
+                  for (int i = 0; i < _pageCount; i++)
+                    _visitedPages.contains(i)
+                        ? _page(context, i)
+                        : const SizedBox.shrink(),
+                ],
+              );
+              return Scaffold(
+                body: wide
+                    // Keep a single status-bar surface above both panes. A page
+                    // app bar must not set white icons over the pale rail inset.
+                    ? SafeArea(
+                        bottom: false,
+                        child: Row(
+                          children: [
+                            SafeArea(
+                              child: NavigationRail(
+                                selectedIndex: _selectedPageIndex,
+                                onDestinationSelected: _selectPage,
+                                labelType: NavigationRailLabelType.all,
+                                destinations: [
+                                  NavigationRailDestination(
+                                    icon: const Icon(Icons.home_outlined),
+                                    label: Text('nav_today'.tr),
                                   ),
-                                  label: Text('nav_qibla'.tr),
-                                ),
-                                NavigationRailDestination(
-                                  icon: const Icon(Icons.auto_awesome_outlined),
-                                  label: Text('nav_dhikr'.tr),
-                                ),
-                                NavigationRailDestination(
-                                  icon: const Icon(Icons.location_on_outlined),
-                                  label: Text('nav_mosques'.tr),
-                                ),
-                                NavigationRailDestination(
-                                  icon: const Icon(Icons.menu),
-                                  label: Text('nav_more'.tr),
-                                ),
-                              ],
+                                  NavigationRailDestination(
+                                    icon: SvgPicture.asset(
+                                      Images.Icon_Qibla,
+                                      width: 26,
+                                      height: 26,
+                                      colorFilter: ColorFilter.mode(
+                                        Theme.of(context).colorScheme.onSurface,
+                                        BlendMode.srcIn,
+                                      ),
+                                    ),
+                                    label: Text('nav_qibla'.tr),
+                                  ),
+                                  NavigationRailDestination(
+                                    icon: const Icon(
+                                      Icons.auto_awesome_outlined,
+                                    ),
+                                    label: Text('nav_dhikr'.tr),
+                                  ),
+                                  NavigationRailDestination(
+                                    icon: const Icon(
+                                      Icons.location_on_outlined,
+                                    ),
+                                    label: Text('nav_mosques'.tr),
+                                  ),
+                                  NavigationRailDestination(
+                                    icon: const Icon(Icons.menu),
+                                    label: Text('nav_more'.tr),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          const VerticalDivider(width: 1),
-                          Expanded(child: pages),
+                            const VerticalDivider(width: 1),
+                            Expanded(child: pages),
+                          ],
+                        ),
+                      )
+                    : pages,
+                bottomNavigationBar: wide && updateBanner == null
+                    ? null
+                    : Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (updateBanner != null)
+                            SafeArea(
+                              top: false,
+                              bottom: wide,
+                              child: updateBanner,
+                            ),
+                          if (!wide)
+                            Obx(() {
+                              final isModern =
+                                  Get.find<HomeLayoutController>()
+                                      .currentLayout
+                                      .value ==
+                                  HomeLayoutController.modern;
+                              return isModern
+                                  ? _buildModernNavBar(context)
+                                  : _buildClassicNavBar(context, isIOS);
+                            }),
                         ],
                       ),
-                    )
-                  : pages,
-              bottomNavigationBar: wide
-                  ? null
-                  : Obx(() {
-                      final isModern =
-                          Get.find<HomeLayoutController>()
-                              .currentLayout
-                              .value ==
-                          HomeLayoutController.modern;
-                      return isModern
-                          ? _buildModernNavBar(context)
-                          : _buildClassicNavBar(context, isIOS);
-                    }),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );

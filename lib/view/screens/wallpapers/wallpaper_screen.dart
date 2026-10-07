@@ -60,6 +60,7 @@ class WallpaperScreens extends StatelessWidget {
                                   () => WallpaperDetailsScreen(
                                     categoryName: '${apiData?.category}',
                                   ),
+                                  routeName: '/wallpaperDetail',
                                 );
                               },
                               child: Row(

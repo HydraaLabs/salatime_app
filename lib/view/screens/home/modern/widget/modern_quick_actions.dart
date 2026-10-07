@@ -76,7 +76,10 @@ class ModernQuickActions extends StatelessWidget {
                 ),
               ),
               GestureDetector(
-                onTap: () => Get.to(() => CategoryScreen(appBackButton: true)),
+                onTap: () => Get.to(
+                  () => CategoryScreen(appBackButton: true),
+                  routeName: '/more',
+                ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

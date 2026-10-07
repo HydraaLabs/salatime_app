@@ -41,6 +41,7 @@ class NotificationSettingsMenu extends StatelessWidget {
               trailing: const Icon(Icons.chevron_right),
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute<void>(
+                  settings: const RouteSettings(name: '/notificationPhase'),
                   builder: (_) => NotificationPhaseScreen(
                     phase: phase,
                     soundPreview: soundPreview,
@@ -64,6 +65,7 @@ class NotificationSettingsMenu extends StatelessWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute<void>(
+                settings: const RouteSettings(name: '/additionalReminders'),
                 builder: (_) => const AdditionalRemindersScreen(),
               ),
             ),
@@ -117,6 +119,7 @@ class NotificationSettingsScreen extends StatelessWidget {
               trailing: const Icon(Icons.chevron_right),
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute<void>(
+                  settings: const RouteSettings(name: '/upcomingPrayerAlarms'),
                   builder: (_) => const UpcomingPrayerAlarmsScreen(),
                 ),
               ),

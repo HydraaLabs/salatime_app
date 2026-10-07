@@ -125,8 +125,12 @@ class UserAddedDikirWidget extends StatelessWidget {
                       child: GestureDetector(
                         onTap: () {
                           localDhikrController.localDhikrId = dhikr.id;
-                          Get.to(() =>
-                              const LocalDhikrCountScreen(appBackButton: true));
+                          Get.to(
+                            () => const LocalDhikrCountScreen(
+                              appBackButton: true,
+                            ),
+                            routeName: '/localDhikrCount',
+                          );
                         },
                         child: Card(
                           clipBehavior: Clip.antiAlias,

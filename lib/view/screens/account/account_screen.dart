@@ -19,7 +19,10 @@ class AccountSettingsCard extends StatelessWidget {
         title: Text('auth_account_title'.tr),
         subtitle: Text(user == null ? 'auth_account_hint'.tr : user.email),
         trailing: const Icon(Icons.chevron_right),
-        onTap: () => Get.to(() => const AccountScreen()),
+        onTap: () => Get.to(
+          () => const AccountScreen(),
+          routeName: '/account',
+        ),
       ),
     );
   });

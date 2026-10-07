@@ -40,6 +40,7 @@ class SuraDetaileScreen extends StatelessWidget {
                 tooltip: 'reading_progress_title'.tr,
                 onPressed: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(
+                    settings: const RouteSettings(name: '/readingProgress'),
                     builder: (_) => const ReadingProgressScreen(),
                   ),
                 ),

@@ -3,6 +3,16 @@ import AVFoundation
 @testable import Runner
 
 class RunnerTests: XCTestCase {
+  func testUpdateStoreCountryUsesAccountISOCodeAndRejectsUnknownCountries() {
+    XCTAssertEqual(SalaTimePlatformBridge.updateStoreCountry("MAR"), "MA")
+    XCTAssertEqual(SalaTimePlatformBridge.updateStoreCountry("FRA"), "FR")
+    XCTAssertEqual(SalaTimePlatformBridge.updateStoreCountry("USA"), "US")
+    XCTAssertEqual(SalaTimePlatformBridge.updateStoreCountry("gbr"), "GB")
+    XCTAssertNil(SalaTimePlatformBridge.updateStoreCountry("MA"))
+    XCTAssertNil(SalaTimePlatformBridge.updateStoreCountry("ZZZ"))
+    XCTAssertNil(SalaTimePlatformBridge.updateStoreCountry(""))
+  }
+
   private let base = Date(timeIntervalSince1970: 1800000000)
   private func snapshot(previous: Date? = nil, gap: TimeInterval = 3 * 3600, timeZone: String = "Africa/Casablanca") -> PrayerWidgetSnapshot {
     let previous = previous ?? base

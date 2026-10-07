@@ -74,6 +74,8 @@ jobs:
           fi
           python3 tool/ios_release.py self-test
           python3 tool/ios_store_submission.py --self-test
+          python3 tool/test_configure_ios_analytics.py
+          python3 tool/check_analytics_native_privacy.py
           ruby -e 'require "xcodeproj"; puts "xcodeproj #{Xcodeproj::VERSION}"'
       - name: Check App Store version and unused build number
         if: inputs.upload_to_testflight
@@ -105,6 +107,9 @@ jobs:
             --dart-define=SALATIME_SENTRY_ENVIRONMENT=ci \
             --dart-define=SALATIME_APPLE_IOS_ENABLED=true \
             --dart-define=SALATIME_GOOGLE_IOS_ENABLED="$GOOGLE_IOS_ENABLED"
+          python3 tool/check_analytics_native_privacy.py \
+            --info-plist=build/ios/iphonesimulator/Runner.app/Info.plist \
+            --ios-deactivated=true
           SIMULATOR_ID=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; data=json.load(sys.stdin); print(next(d["udid"] for devices in data["devices"].values() for d in devices if d["name"].startswith("iPhone")))')
           xcrun simctl boot "$SIMULATOR_ID" || true
           xcrun simctl bootstatus "$SIMULATOR_ID" -b
@@ -160,7 +165,7 @@ jobs:
           xcrun altool --upload-app --type ios --file "${packages[0]}" \
             --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
           printf '%s\n' 'Upload accepted. Apple processing and TestFlight availability must be checked in App Store Connect.' >> "$GITHUB_STEP_SUMMARY"
-      - name: Submit exact processed account-language update to App Review
+      - name: Submit exact processed reliability and analytics update to App Review
         if: inputs.submit_to_app_store
         timeout-minutes: 25
         env:
@@ -212,7 +217,7 @@ jobs:
           python3 tool/ios_store_submission.py --preflight \
             --version="$STORE_VERSION" --previous-version="$PREVIOUS_STORE_VERSION" --build-number="$RELEASE_BUILD_NUMBER" \
             --receipt=build/ios/app-store-preflight.json
-      - name: Resume exact processed account-language update submission
+      - name: Resume exact processed reliability and analytics update submission
         env:
           ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}

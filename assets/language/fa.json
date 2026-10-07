@@ -799,5 +799,13 @@
   "widget_ios_steps": "1. یک فضای خالی صفحه اصلی را لمس کرده و نگه دارید.\n2. Edit سپس Add Widget (یا +) را بزنید.\n3. SalaTime را جستجو کنید.\n4. اندازه را انتخاب کرده و Add Widget را بزنید.",
   "play_store_review_question": "آیا SalaTime را دوست دارید؟",
   "play_store_review_yes": "بله",
-  "play_store_review_no": "خیر"
+  "play_store_review_no": "خیر",
+  "analytics_usage_title": "آمار استفاده",
+  "analytics_usage_summary": "با اشتراک‌گذاری استفاده از صفحه‌ها و قابلیت‌ها با Google Firebase، به بهبود SalaTime کمک کنید. می‌توانید هر زمان آن را غیرفعال کنید.",
+  "analytics_usage_error": "این انتخاب ذخیره نشد. دوباره تلاش کنید.",
+  "app_update_available": "به‌روزرسانی SalaTime در دسترس است.",
+  "app_update_version_available": "نسخهٔ @version برنامهٔ SalaTime در دسترس است.",
+  "app_update_now": "به‌روزرسانی",
+  "app_update_later": "بعداً",
+  "app_update_open_failed": "باز کردن فروشگاه ممکن نشد. دوباره تلاش کنید."
 }

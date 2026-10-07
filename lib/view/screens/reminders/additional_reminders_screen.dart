@@ -347,6 +347,7 @@ class _AdditionalRemindersScreenState extends State<AdditionalRemindersScreen> {
                         final value = await Navigator.of(context)
                             .push<AdditionalReminderSetting>(
                               MaterialPageRoute(
+                                settings: const RouteSettings(name: '/reminderTiming'),
                                 builder: (_) =>
                                     _ReminderTimingScreen(setting: setting),
                               ),

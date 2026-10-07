@@ -91,6 +91,7 @@ class _DhikrScreenState extends State<DhikrScreen> {
 
   void _openProgress() => Navigator.of(context).push(
     MaterialPageRoute<void>(
+      settings: const RouteSettings(name: '/readingProgress'),
       builder: (_) => ReadingProgressScreen(service: _progress),
     ),
   );
@@ -385,6 +386,7 @@ class _DhikrScreenState extends State<DhikrScreen> {
               trailing: const Icon(Icons.chevron_right),
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute<void>(
+                  settings: const RouteSettings(name: '/personalDhikr'),
                   builder: (_) => const PersonalDhikrScreen(),
                 ),
               ),
@@ -399,6 +401,7 @@ class _DhikrScreenState extends State<DhikrScreen> {
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute<void>(
+                      settings: const RouteSettings(name: '/athkarCategory'),
                       builder: (_) => Scaffold(
                         appBar: CustomAppBar(
                           title: 'athkar_title'.tr,

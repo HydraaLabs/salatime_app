@@ -11,6 +11,7 @@ import 'package:http/http.dart' as http;
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:salatime/controller/localization_controller.dart';
+import 'package:salatime/service/analytics/app_analytics_service.dart';
 import 'package:salatime/util/app_constants.dart';
 
 class MobileUser {
@@ -438,6 +439,7 @@ class MobileAuthService {
         },
       ),
       expectedGeneration: generation,
+      analyticsAction: AppAnalyticsAction.accountSignIn,
     );
   }
 
@@ -467,6 +469,7 @@ class MobileAuthService {
         },
       ),
       expectedGeneration: generation,
+      analyticsAction: AppAnalyticsAction.accountSignUp,
     );
   }
 
@@ -493,6 +496,7 @@ class MobileAuthService {
         },
       ),
       expectedGeneration: generation,
+      analyticsAction: link ? null : AppAnalyticsAction.accountSignIn,
     );
   }
 
@@ -524,6 +528,7 @@ class MobileAuthService {
         },
       ),
       expectedGeneration: generation,
+      analyticsAction: link ? null : AppAnalyticsAction.accountSignIn,
     );
   }
 
@@ -593,12 +598,20 @@ class MobileAuthService {
   }
 
   Future<void> logout() async {
+    final wasSignedIn = _token != null;
     try {
       if (_token != null) {
         await _request('POST', '/logout', authenticated: true);
       }
     } finally {
       await clearSession();
+    }
+    if (wasSignedIn) {
+      unawaited(
+        AppAnalyticsService.instance.appAction(
+          AppAnalyticsAction.accountSignOut,
+        ),
+      );
     }
   }
 
@@ -637,6 +650,7 @@ class MobileAuthService {
   Future<void> _establish(
     Map<String, dynamic> data, {
     required int expectedGeneration,
+    AppAnalyticsAction? analyticsAction,
   }) async {
     if (!_validToken(data['token']) || data['user'] is! Map) {
       throw const MobileAuthException('auth_service_unavailable');
@@ -655,6 +669,13 @@ class MobileAuthService {
     } on MobileAuthException {
       await _discardCandidate(token);
       rethrow;
+    }
+    // A concurrent logout may win while secure storage writes. Only count a
+    // session that was actually established; never send the profile or token.
+    if (analyticsAction != null &&
+        _sessionGeneration == expectedGeneration + 1 &&
+        _token == token) {
+      unawaited(AppAnalyticsService.instance.appAction(analyticsAction));
     }
   }
 

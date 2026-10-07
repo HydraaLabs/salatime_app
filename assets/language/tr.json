@@ -794,5 +794,13 @@
   "widget_ios_steps": "1. Ana Ekranın boş bir alanına basılı tutun.\n2. Düzenle ve Araç Takımı Ekle (veya +) seçeneğine dokunun.\n3. SalaTime’ı arayın.\n4. Boyutu seçip Araç Takımı Ekle’ye dokunun.",
   "play_store_review_question": "SalaTime uygulamasını beğeniyor musunuz?",
   "play_store_review_yes": "Evet",
-  "play_store_review_no": "Hayır"
+  "play_store_review_no": "Hayır",
+  "analytics_usage_title": "Kullanım istatistikleri",
+  "analytics_usage_summary": "Ekran ve özellik kullanımını Google Firebase ile paylaşarak SalaTime’ın geliştirilmesine yardımcı olun. Bunu istediğiniz zaman kapatabilirsiniz.",
+  "analytics_usage_error": "Bu seçim kaydedilemedi. Lütfen tekrar deneyin.",
+  "app_update_available": "SalaTime güncellemesi mevcut.",
+  "app_update_version_available": "SalaTime @version mevcut.",
+  "app_update_now": "Güncelle",
+  "app_update_later": "Daha sonra",
+  "app_update_open_failed": "Mağaza açılamadı. Lütfen tekrar deneyin."
 }

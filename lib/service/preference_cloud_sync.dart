@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:salatime/service/mobile_auth_service.dart';
+import 'package:salatime/service/analytics/app_analytics_service.dart';
 import 'package:salatime/controller/localization_controller.dart';
 import 'package:salatime/util/app_constants.dart';
 import 'package:salatime/helper/additional_reminder_plan.dart';
@@ -58,7 +59,17 @@ class PreferenceCloudSync with WidgetsBindingObserver {
             }
           : null,
       onStatus: (value) {
-        if (!_disposed) status.value = value;
+        if (_disposed) return;
+        status.value = value;
+        // The engine emits this only after the account copy and local cache
+        // agree. Failed attempts, conflicts and partial updates are excluded.
+        if (value == 'cloud_synced') {
+          unawaited(
+            AppAnalyticsService.instance.appAction(
+              AppAnalyticsAction.cloudSync,
+            ),
+          );
+        }
       },
     );
     if (earlyLanguageChoice != null) {

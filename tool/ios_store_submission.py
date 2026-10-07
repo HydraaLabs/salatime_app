@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Submit the exact SalaTime reliability release from CI without logging private data.
+"""Submit the exact SalaTime reliability and analytics release from CI without logging private data.
 
 Only --submit mutates App Store Connect. --preflight is GET-only. New versions
 inherit Apple's metadata; preservation is verified before creating any review
@@ -35,21 +35,22 @@ SUBMITTED = {'WAITING_FOR_REVIEW', 'IN_REVIEW', 'PENDING_DEVELOPER_RELEASE',
              'PENDING_APPLE_RELEASE', 'PROCESSING_FOR_APP_STORE', 'READY_FOR_SALE',
              'READY_FOR_DISTRIBUTION'}
 WHATS_NEW = {
-    'fr-FR': 'Amélioration de la stabilité de la boussole et de la localisation, du chargement des données et du calcul de la zakat.',
-    'en-US': 'Improved compass and location reliability, data loading, and zakat calculation.',
-    'ar-SA': 'تحسين استقرار البوصلة وتحديد الموقع وتحميل البيانات وحساب الزكاة.',
+    'fr-FR': 'Nouveau bandeau de mise à jour sur l’accueil et statistiques d’utilisation désactivables dans les paramètres. Amélioration de la stabilité de la boussole, de la localisation, du chargement des données et du calcul de la zakat.',
+    'en-US': 'New update banner on Home and usage analytics that can be disabled in Settings. Improved compass and location reliability, data loading, and zakat calculation.',
+    'ar-SA': 'إضافة شريط للتحديث في الصفحة الرئيسية وإحصاءات استخدام يمكن تعطيلها من الإعدادات. تحسين استقرار البوصلة وتحديد الموقع وتحميل البيانات وحساب الزكاة.',
 }
 RATING_REVIEW_NOTE = ('Rating fix: StoreKit requests a review after 3 distinct usage days and 72 hours, '
                'following 10 quiet seconds on Home (30-day interval, maximum 3 attempts). '
                'No custom prompt or satisfaction question. Apple controls display; TestFlight '
                'shows no prompt. Settings > Rate SalaTime opens App Store reviews immediately.')
-REVIEW_NOTE = ('Reliability fix: late Compass GPS errors and invalid sensor/catalog values are handled. '
-               'Location permission requests are serialized; missing settings allow manual Nisab. '
-               'Production error/hang reporting remains active; simulator CI sends no telemetry. '
+REVIEW_NOTE = ('Reliability fix: compass/data errors, location concurrency and Nisab fallback. '
+               'Production error/hang reporting remains active; CI sends no telemetry. '
                'Rating fix: StoreKit after 3 usage days/72 hours and 10 quiet Home seconds; '
-               '30-day interval, maximum 3 attempts. No custom prompt or satisfaction question. Apple controls display; '
-               'TestFlight shows no prompt. Settings > Rate SalaTime opens App Store reviews. '
-               'Language fix: account language sync and welcome emails in 10 languages remain unchanged.')
+               '30-day interval, maximum 3 attempts. Apple controls display; no custom prompt; TestFlight shows none. '
+               'Settings > Rate SalaTime opens reviews. Language fix: account/welcome languages unchanged (10). '
+               'Analytics: Firebase screens/events; no account ID, GPS or query content; no ads/IDFA/IDFV. '
+               'More > Settings > Usage statistics disables collection. '
+               'Update banner: Home store link and 24h snooze.')
 
 
 def review_notes(source_notes, previous_version, attachments_inherited, release_note=None):
@@ -709,6 +710,9 @@ def self_test():
             self.assertIn('Language fix:', notes)
             self.assertIn('Reliability fix:', notes)
             self.assertIn('Production error/hang reporting remains active', notes)
+            self.assertIn('Analytics: Firebase', notes)
+            self.assertIn('Usage statistics disables collection', notes)
+            self.assertIn('Update banner:', notes)
             self.assertNotIn('all crashes', notes.lower())
             self.assertIn('Historical demonstration context from version 1.0.27.', notes)
             self.assertIn('remains attached to that previous version', notes)

@@ -18,6 +18,7 @@ class NofificationDWWidget extends StatelessWidget {
       trailing: const Icon(Icons.chevron_right),
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute<void>(
+          settings: const RouteSettings(name: '/notificationSettings'),
           builder: (_) => const NotificationSettingsScreen(),
         ),
       ),

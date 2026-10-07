@@ -79,6 +79,7 @@ class _AutomaticLocationTileState extends State<AutomaticLocationTile>
       if (enabled) {
         await Navigator.of(context).push(
           MaterialPageRoute<void>(
+            settings: const RouteSettings(name: '/backgroundLocation'),
             builder: (_) => const BackgroundLocationScreen(fromSettings: true),
           ),
         );

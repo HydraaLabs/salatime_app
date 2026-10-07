@@ -275,6 +275,9 @@ class _PrayerTimeCalculationSettingsState
                         ),
                         onTap: () => Navigator.of(context).push(
                           MaterialPageRoute<void>(
+                            settings: const RouteSettings(
+                              name: '/calculationMethod',
+                            ),
                             builder: (_) => const CalculationMethodScreen(),
                           ),
                         ),

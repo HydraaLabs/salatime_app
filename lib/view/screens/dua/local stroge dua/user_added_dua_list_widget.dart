@@ -123,10 +123,13 @@ class UserAddedDuaWidget extends StatelessWidget {
                       ),
                       child: GestureDetector(
                         onTap: () {
-                          Get.to(LocalDuasViewScreen(
-                            dua: duasData,
-                            appBackButton: true,
-                          ));
+                          Get.to(
+                            LocalDuasViewScreen(
+                              dua: duasData,
+                              appBackButton: true,
+                            ),
+                            routeName: '/localDuaView',
+                          );
                         },
                         child: Card(
                           clipBehavior: Clip.antiAlias,

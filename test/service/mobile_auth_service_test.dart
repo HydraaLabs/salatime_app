@@ -9,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:salatime/service/analytics/app_analytics_service.dart';
 import 'package:salatime/service/mobile_auth_service.dart';
 import 'package:salatime/util/app_constants.dart';
 
@@ -69,6 +70,26 @@ class FakeIdentityProvider implements MobileIdentityProvider {
   }
 }
 
+class _AnalyticsSink implements AppAnalyticsSink {
+  final actions = <String>[];
+  Completer<void>? actionGate;
+
+  @override
+  Future<void> appAction(String name) async {
+    actions.add(name);
+    if (actionGate != null) await actionGate!.future;
+  }
+
+  @override
+  Future<void> screenViewed(String name) async {}
+
+  @override
+  Future<void> setCollectionEnabled(bool enabled) async {}
+
+  @override
+  Future<void> resetData() async {}
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   final profile = {
@@ -118,6 +139,93 @@ void main() {
       requests.add(request);
       return respond(request);
     }),
+  );
+
+  Future<_AnalyticsSink> observeActions() async {
+    final previous = AppAnalyticsService.instance;
+    final sink = _AnalyticsSink();
+    final analytics = AppAnalyticsService(
+      preferences: await SharedPreferences.getInstance(),
+      sink: sink,
+      enabledInBuild: true,
+    );
+    AppAnalyticsService.instance = analytics;
+    addTearDown(() {
+      AppAnalyticsService.instance = previous;
+      analytics.collectionPreference.dispose();
+    });
+    await analytics.initialize();
+    return sink;
+  }
+
+  test(
+    'Analytics records completed authentication without account data',
+    () async {
+      final analytics = await observeActions();
+      final auth = service(
+        (_) => data(session()),
+        identity: FakeIdentityProvider(),
+      );
+      await auth.register(
+        name: 'Test',
+        email: 'test@example.test',
+        password: 'Alphabet2026!',
+      );
+      await auth
+          .clearSession(); // Expiration/local cleanup is not user sign-out.
+      await auth.login(email: 'test@example.test', password: 'Alphabet2026!');
+      auth.configuration.value = const MobileAuthConfiguration(google: true);
+      await auth.signInWithGoogle(
+        link: true,
+      ); // Linking is not another sign-in.
+      await auth.logout();
+      await Future<void>.delayed(Duration.zero);
+      expect(analytics.actions, [
+        'account_sign_up',
+        'account_sign_in',
+        'account_sign_out',
+      ]);
+    },
+  );
+
+  test(
+    'failed credentials and session storage do not produce success events',
+    () async {
+      final analytics = await observeActions();
+      final rejected = service((_) => data({}, 422));
+      await expectLater(
+        rejected.login(email: 'test@example.test', password: 'Alphabet2026!'),
+        throwsA(isA<MobileAuthException>()),
+      );
+      store.failWrite = true;
+      final unsaved = service((_) => data(session()));
+      await expectLater(
+        unsaved.login(email: 'test@example.test', password: 'Alphabet2026!'),
+        throwsA(isA<MobileAuthException>()),
+      );
+      await Future<void>.delayed(Duration.zero);
+      expect(analytics.actions, isEmpty);
+    },
+  );
+
+  test(
+    'slow Analytics transport does not delay successful authentication',
+    () async {
+      final analytics = await observeActions();
+      final gate = analytics.actionGate = Completer<void>();
+      addTearDown(() {
+        if (!gate.isCompleted) gate.complete();
+      });
+      final auth = service((_) => data(session()));
+      await auth
+          .login(email: 'test@example.test', password: 'Alphabet2026!')
+          .timeout(const Duration(seconds: 1));
+      expect(auth.user.value!.id, '7');
+      expect(analytics.actions, ['account_sign_in']);
+      expect(gate.isCompleted, isFalse);
+      gate.complete();
+      await Future<void>.delayed(Duration.zero);
+    },
   );
 
   test(

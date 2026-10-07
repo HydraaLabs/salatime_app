@@ -6,6 +6,7 @@ import 'package:salatime/view/screens/prayer_share/prayer_share_screen.dart';
 
 import 'dart:io';
 import 'widgets/prayer_widget_settings.dart';
+import 'widgets/analytics_settings_tile.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -74,8 +75,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       title: Text('daily_markers_title'.tr),
                       trailing: const Icon(Icons.chevron_right),
-                      onTap: () =>
-                          Get.to(() => const DailyPrayerMarkersScreen()),
+                      onTap: () => Get.to(
+                        () => const DailyPrayerMarkersScreen(),
+                        routeName: '/prayerMarkers',
+                      ),
                     ),
                   ),
                   Card(
@@ -86,7 +89,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       title: Text('islamic_calendar_title'.tr),
                       trailing: const Icon(Icons.chevron_right),
-                      onTap: () => Get.to(() => const IslamicCalendarScreen()),
+                      onTap: () => Get.to(
+                        () => const IslamicCalendarScreen(),
+                        routeName: '/islamicCalendar',
+                      ),
                     ),
                   ),
                   Card(
@@ -97,7 +103,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       title: Text('prayer_share_title'.tr),
                       trailing: const Icon(Icons.chevron_right),
-                      onTap: () => Get.to(() => const PrayerShareScreen()),
+                      onTap: () => Get.to(
+                        () => const PrayerShareScreen(),
+                        routeName: '/prayerShare',
+                      ),
                     ),
                   ),
 
@@ -109,6 +118,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const HomeLayoutDWWidget(),
                   if (Platform.isAndroid || Platform.isIOS)
                     const PrayerWidgetSettings(),
+                  const AnalyticsSettingsTile(),
 
                   // share and rate app section  for android.
                   Platform.isAndroid

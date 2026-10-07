@@ -84,6 +84,7 @@ class BookmarkTab extends StatelessWidget {
                                 appBackButton: true,
                                 surahNumber: bookMark.serialNumber,
                               ),
+                              routeName: '/offlineQuranReader',
                               arguments: int.parse(bookMark.pageKey),
                             );
                           } else {

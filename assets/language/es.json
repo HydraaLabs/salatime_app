@@ -799,5 +799,13 @@
   "widget_ios_steps": "1. Mantén pulsada una zona vacía de la pantalla de inicio.\n2. Toca Editar y Añadir widget (o +).\n3. Busca SalaTime.\n4. Desliza hasta el tamaño deseado y toca Añadir widget.",
   "play_store_review_question": "¿Te gusta SalaTime?",
   "play_store_review_yes": "Sí",
-  "play_store_review_no": "No"
+  "play_store_review_no": "No",
+  "analytics_usage_title": "Estadísticas de uso",
+  "analytics_usage_summary": "Ayuda a mejorar SalaTime compartiendo el uso de pantallas y funciones con Google Firebase. Puedes desactivarlo en cualquier momento.",
+  "analytics_usage_error": "No se pudo guardar esta opción. Inténtalo de nuevo.",
+  "app_update_available": "Hay una actualización de SalaTime disponible.",
+  "app_update_version_available": "SalaTime @version está disponible.",
+  "app_update_now": "Actualizar",
+  "app_update_later": "Más tarde",
+  "app_update_open_failed": "No se pudo abrir la tienda. Inténtalo de nuevo."
 }

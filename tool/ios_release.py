@@ -24,6 +24,8 @@ import tempfile
 import zipfile
 import urllib.request
 
+from check_analytics_native_privacy import IOS_DISABLED, check_plist
+
 APP_ID = "net.salatime.app"
 WIDGET_ID = f"{APP_ID}.SalaTimeWidget"
 APP_GROUP = f"group.{APP_ID}"
@@ -232,6 +234,7 @@ def verify() -> None:
     require(len(packages) == 1, "Expected exactly one exported IPA")
     report = {"team_id": state["team_id"], "app_group": APP_GROUP, "targets": {},
               "google_ios_url_scheme_verified": {},
+              "analytics_native_privacy_verified": {},
               "provider_configuration": json.loads(Path("build/ios/provider-configuration.json").read_text())}
     # Check the archive as well as the exported IPA: export may re-sign bundles.
     with tempfile.TemporaryDirectory(prefix="salatime-ipa-", dir=state_directory()) as unpacked:
@@ -260,6 +263,10 @@ def verify() -> None:
                 require(entitlements.get("com.apple.security.application-groups") == [APP_GROUP],
                         "Signed App Group is incorrect")
                 if name == "Runner":
+                    # Check both the archived and exported native configuration,
+                    # since export can alter or re-sign the final app bundle.
+                    check_plist(bundle / "Info.plist", deactivated=False)
+                    report["analytics_native_privacy_verified"][location] = True
                     require(entitlements.get("com.apple.developer.applesignin") == ["Default"],
                             "Signed app is missing Sign in with Apple")
                     require(f"{checked['prefix']}.{APP_ID}" in entitlements.get("keychain-access-groups", []),
@@ -272,7 +279,7 @@ def verify() -> None:
             len({item["build"] for item in report["targets"].values()}) == 1,
             "App and widget versions must match in the archive and IPA")
     Path("build/ios/release-validation.json").write_text(json.dumps(report, indent=2) + "\n")
-    print("Signed archive and IPA verified: app/widget IDs, versions, profiles, App Group, Keychain, Apple login and configured Google URL scheme.")
+    print("Signed archive and IPA verified: app/widget IDs, versions, profiles, App Group, Keychain, Apple login, configured Google URL scheme and native Analytics privacy.")
 
 
 def cleanup() -> None:
@@ -355,6 +362,29 @@ def self_test() -> None:
             continue
         raise AssertionError("Invalid Google iOS URL configuration was accepted")
     print(f"Google URL guards passed: matching/disabled clients and {len(invalid_google)} invalid configurations.")
+    with tempfile.TemporaryDirectory(prefix="salatime-analytics-release-tests-") as temporary:
+        info_path = Path(temporary) / "Info.plist"
+        release_info = dict.fromkeys(IOS_DISABLED, False)
+        release_info["FIREBASE_ANALYTICS_COLLECTION_DEACTIVATED"] = False
+        info_path.write_bytes(plistlib.dumps(release_info))
+        check_plist(info_path, deactivated=False)
+        invalid_analytics = []
+        for key, value in [("FIREBASE_ANALYTICS_COLLECTION_DEACTIVATED", True),
+                           ("FIREBASE_ANALYTICS_COLLECTION_DEACTIVATED", "false"),
+                           ("FIREBASE_ANALYTICS_COLLECTION_ENABLED", True),
+                           ("GOOGLE_ANALYTICS_IDFV_COLLECTION_ENABLED", True),
+                           ("GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_STORAGE", True)]:
+            changed = dict(release_info)
+            changed[key] = value
+            invalid_analytics.append(changed)
+        for changed in invalid_analytics:
+            info_path.write_bytes(plistlib.dumps(changed))
+            try:
+                check_plist(info_path, deactivated=False)
+            except ValueError:
+                continue
+            raise AssertionError("Unsafe native Analytics release configuration was accepted")
+    print(f"Native Analytics release guards passed: valid plist and {len(invalid_analytics)} rejected configurations.")
     # Publishing is an external side effect: test both modes and a provider
     # being disabled between the initial preflight and the final upload guard.
     import contextlib

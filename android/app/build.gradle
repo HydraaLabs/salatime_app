@@ -2,6 +2,12 @@ plugins {
     id "com.android.application"
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
+    id "com.google.gms.google-services" apply false
+}
+
+// The companion QA package is deliberately not a production Firebase app.
+if (!project.hasProperty('salatimePreview')) {
+    apply plugin: 'com.google.gms.google-services'
 }
 
 def localProperties = new Properties()
@@ -64,6 +70,8 @@ android {
 
     defaultConfig {
         applicationId "net.salatime.app"
+        manifestPlaceholders.salatimeAppLabel = project.hasProperty('salatimePreview')
+            ? "SalaTime Test" : "SalaTime"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         minSdkVersion flutter.minSdkVersion
@@ -84,12 +92,16 @@ android {
 
     buildTypes {
         debug {
+            manifestPlaceholders.salatimeAnalyticsDeactivated =
+                !project.hasProperty('salatimeAnalyticsDebug')
             // Opt-in companion install for hardware QA without replacing Play data.
             if (project.hasProperty('salatimePreview')) {
                 applicationIdSuffix '.preview'
             }
         }
         release {
+            manifestPlaceholders.salatimeAnalyticsDeactivated =
+                project.hasProperty('salatimePreview')
             signingConfig signingConfigs.release
             // Exercise the same R8 pipeline on hardware beside the Play app.
             if (project.hasProperty('salatimePreview')) {

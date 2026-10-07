@@ -82,6 +82,7 @@ class OfflineJuzListWidget extends StatelessWidget {
                                             surahNumber: apiData.chapterId!
                                                 .toString(),
                                           ),
+                                          routeName: '/offlineQuranReader',
                                         );
                                       },
                                       child: Card(

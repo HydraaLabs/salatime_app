@@ -857,5 +857,13 @@
   "travel_location_denied": "Localisation non autorisée : les derniers horaires sont conservés.",
   "travel_location_error": "La localisation est momentanément indisponible. Vous pouvez réessayer depuis les réglages de prière.",
   "travel_location_android_permission": "Sur Android, choisissez « Toujours autoriser » dans les autorisations de localisation pour le suivi en arrière-plan. Une notification SalaTime restera visible pendant ce suivi. Vous pouvez le désactiver dans les réglages de prière.",
-  "travel_location_notification": "Actualisation des horaires pendant vos déplacements. Arrêt dans les réglages de prière."
+  "travel_location_notification": "Actualisation des horaires pendant vos déplacements. Arrêt dans les réglages de prière.",
+  "analytics_usage_title": "Statistiques d’utilisation",
+  "analytics_usage_summary": "Aidez à améliorer SalaTime en partageant l’usage des écrans et fonctionnalités avec Google Firebase. Vous pouvez désactiver ce partage à tout moment.",
+  "analytics_usage_error": "Impossible d’enregistrer ce choix. Veuillez réessayer.",
+  "app_update_available": "Une mise à jour de SalaTime est disponible.",
+  "app_update_version_available": "SalaTime @version est disponible.",
+  "app_update_now": "Mettre à jour",
+  "app_update_later": "Plus tard",
+  "app_update_open_failed": "Impossible d’ouvrir la boutique. Réessayez."
 }
