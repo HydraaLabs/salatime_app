@@ -43,14 +43,14 @@ class QiblahHelper {
     if (defaultTargetPlatform != TargetPlatform.android) return 0;
 
     try {
-      return await _geomagneticChannel
-              .invokeMethod<double>('getDeclination', <String, Object>{
-                'latitude': latitude,
-                'longitude': longitude,
-                'altitude': altitude,
-                'timestamp': measuredAt.millisecondsSinceEpoch,
-              }) ??
-          0;
+      final declination = await _geomagneticChannel
+          .invokeMethod<double>('getDeclination', <String, Object>{
+            'latitude': latitude,
+            'longitude': longitude,
+            'altitude': altitude,
+            'timestamp': measuredAt.millisecondsSinceEpoch,
+          });
+      return declination != null && declination.isFinite ? declination : 0;
     } on MissingPluginException {
       return 0;
     } on PlatformException {

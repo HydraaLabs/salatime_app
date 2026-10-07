@@ -23,12 +23,13 @@ class _QiblahCompassWidgetState extends State<QiblahCompassWidget> {
   double _previousQiblah = 0;
 
   Stream<_QiblahReading>? _qiblahStream;
+  int _streamRevision = 0;
 
   @override
   void initState() {
     super.initState();
     if (widget.isActive) {
-      _qiblahStream = _createQiblahStream();
+      _qiblahStream = _createQiblahStream(++_streamRevision);
     }
   }
 
@@ -36,19 +37,38 @@ class _QiblahCompassWidgetState extends State<QiblahCompassWidget> {
   void didUpdateWidget(covariant QiblahCompassWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.isActive == widget.isActive) return;
-    _qiblahStream = widget.isActive ? _createQiblahStream() : null;
+    final revision = ++_streamRevision;
+    _qiblahStream = widget.isActive ? _createQiblahStream(revision) : null;
   }
+
+  @override
+  void dispose() {
+    _streamRevision++;
+    super.dispose();
+  }
+
+  bool _isCurrentStream(int revision) =>
+      mounted && widget.isActive && revision == _streamRevision;
 
   /// The flutter_qiblah singleton stream can get stuck forever (created once
   /// in an error state, or the underlying
   /// [Geolocator.getPositionStream] never emits on some devices). Build our own
   /// stream instead: one position fix + live compass events.
-  Stream<_QiblahReading> _createQiblahStream() async* {
+  Stream<_QiblahReading> _createQiblahStream(int revision) async* {
     if (!isGeolocatorSupported) {
       throw StateError('location_not_available');
     }
 
-    final position = await _getBestAvailablePosition();
+    late final Position position;
+    try {
+      position = await _getBestAvailablePosition();
+    } catch (_) {
+      // An async generator can forward a failed await to its zone after its
+      // listener is cancelled. Preserve errors for the current screen only.
+      if (!_isCurrentStream(revision)) return;
+      rethrow;
+    }
+    if (!_isCurrentStream(revision)) return;
     final qiblahBearing = QiblahHelper.bearingFromTrueNorth(
       position.latitude,
       position.longitude,
@@ -59,6 +79,7 @@ class _QiblahCompassWidgetState extends State<QiblahCompassWidget> {
       altitude: position.altitude,
       measuredAt: position.timestamp,
     );
+    if (!_isCurrentStream(revision)) return;
 
     final events = FlutterCompass.events;
     if (events == null) {

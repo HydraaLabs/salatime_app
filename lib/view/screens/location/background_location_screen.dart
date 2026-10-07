@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:salatime/helper/location_auto_update_service.dart';
+import 'package:salatime/helper/location_permission_coordinator.dart';
 import 'package:salatime/helper/route_helper.dart';
 
 /// A neutral explanation immediately followed by the system permission dialog.
@@ -45,11 +46,14 @@ class _BackgroundLocationScreenState extends State<BackgroundLocationScreen> {
       _error = null;
     });
     try {
-      var foreground = await Permission.location.status;
-      if (foreground.isDenied) foreground = await Permission.location.request();
+      final foreground = await LocationPermissionCoordinator.instance
+          .ensureForegroundWithPermissionHandler(canRequest: () => mounted);
+      if (!mounted || !LocationPermissionCoordinator.isForeground) return;
       if (foreground.isGranted) {
-        final always = await Permission.locationAlways.status;
-        if (always.isDenied) await Permission.locationAlways.request();
+        await LocationPermissionCoordinator.instance.ensureAlways(
+          canRequest: () => mounted,
+        );
+        if (!mounted || !LocationPermissionCoordinator.isForeground) return;
         // The system may grant only While Using or defer the Always prompt.
         // Keep the user's opt-in, without pretending background access exists.
         if (await Permission.location.isGranted ||

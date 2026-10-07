@@ -23,9 +23,38 @@ class ZakatCalculator extends StatefulWidget {
 }
 
 class _ZakatCalculatorState extends State<ZakatCalculator> {
+  late final SettingsController _settings;
+  late final ZakatCalculatorController _calculator;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _settings = Get.find<SettingsController>();
+    _calculator = ZakatCalculatorController(
+      settings: _settings.mosqueSettingsApiData?.data,
+    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _loadSettings();
+    });
+  }
+
+  Future<void> _loadSettings() async {
+    setState(() => _loading = true);
+    await _settings.fetchMosqueSettingsData();
+    if (!mounted) return;
+    _calculator.applySettings(_settings.mosqueSettingsApiData?.data);
+    setState(() => _loading = false);
+  }
+
+  @override
+  void dispose() {
+    _calculator.onClose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    Get.find<SettingsController>().fetchMosqueSettingsData();
     return Scaffold(
       // Appbar start ===>
       appBar: CustomAppBar(
@@ -48,11 +77,12 @@ class _ZakatCalculatorState extends State<ZakatCalculator> {
       ),
 
       // body start
-      body: SingleChildScrollView(
-        child: GetBuilder<ZakatCalculatorController>(
-          init: ZakatCalculatorController(),
-          initState: (_) {},
-          builder: (zakatCalculatorController) {
+      body: _loading && _settings.mosqueSettingsApiData?.data == null
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+        child: Builder(
+          builder: (context) {
+            final zakatCalculatorController = _calculator;
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15),
               child: Form(
@@ -62,6 +92,21 @@ class _ZakatCalculatorState extends State<ZakatCalculator> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 5),
+                    if (_loading) const LinearProgressIndicator(),
+                    if (!_loading && (_settings.mosqueSettingsLoadFailed ||
+                        _settings.mosqueSettingsApiData?.data == null))
+                      Row(
+                        children: [
+                          Expanded(child: Text(
+                            (_settings.mosqueSettingsLoadFailed
+                                ? 'please_try_again' : 'no_data_found').tr,
+                          )),
+                          TextButton(
+                            onPressed: _loadSettings,
+                            child: Text('try_again'.tr),
+                          ),
+                        ],
+                      ),
 //---------------------------------------------------------//
 //----------------- What I OWN section here ---------------//
                     Center(
@@ -377,26 +422,13 @@ class _ZakatCalculatorState extends State<ZakatCalculator> {
                           const SizedBox(width: 10),
                           Expanded(
                             child: ResultField(
-                              readOnly: zakatCalculatorController
-                                          .isApiNisabExist.text ==
-                                      ""
-                                  ? false
-                                  : true,
-                              labelText: "todays_nisab".tr,
-                              controllerValue: Get.find<SettingsController>()
-                                          .mosqueSettingsApiData!
-                                          .data!
-                                          .automaticPayerTime ==
-                                      true
-                                  ? zakatCalculatorController.totalNisab
-                                  : zakatCalculatorController.isApiNisabExist,
-                              onSaved: (value) {
-                                zakatCalculatorController.nisab = value!;
-                              },
-                              validator: (value) {
-                                return zakatCalculatorController
-                                    .validateTotalNisab(value!);
-                              },
+                              readOnly: zakatCalculatorController.hasConfiguredNisab,
+                              labelText: [
+                                'todays_nisab'.tr,
+                                zakatCalculatorController.currencySymbol,
+                              ].where((part) => part.isNotEmpty).join(' '),
+                              controllerValue: zakatCalculatorController.totalNisab,
+                              validator: zakatCalculatorController.validateTotalNisab,
                             ),
                           ),
                         ],
@@ -446,17 +478,17 @@ class _ZakatCalculatorState extends State<ZakatCalculator> {
                         fontSize: Dimensions.FONT_SIZE_DEFAULT,
                         onPressed: () {
                           final isValidForm = zakatCalculatorController
-                              .zakatCalculatorformkey.currentState!
-                              .validate();
-                          if (isValidForm) {
-                            zakatCalculatorController.getTotalOwn();
-                            zakatCalculatorController.getTotalOwe();
+                              .zakatCalculatorformkey.currentState?.validate() ?? false;
+                          if (!isValidForm) {
+                            zakatCalculatorController.totalZakat.clear();
+                            return;
+                          }
+                          if (zakatCalculatorController.getTotalOwn() &&
+                              zakatCalculatorController.getTotalOwe()) {
                             zakatCalculatorController.getEqual();
                             zakatCalculatorController.getZakat();
-                            // zakatCalculatorController.totalNisab.text = "";
-                            // zakatCalculatorController
-                            //     .zakatCalculatorformkey.currentState!
-                            //     .reset();
+                          } else {
+                            zakatCalculatorController.totalZakat.clear();
                           }
                         }),
                     const SizedBox(height: 15),

@@ -79,6 +79,7 @@ class MainActivity : AudioServiceFragmentActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        SafeProcessTextPlugin.install(flutterEngine)
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "net.salatime.app/automatic_silence")
             .setMethodCallHandler { call, result ->

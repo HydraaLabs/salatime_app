@@ -20,6 +20,7 @@ import 'package:salatime/data/model/response/city_suggestion_model.dart';
 import 'package:salatime/data/model/response/todays_prayer_time_model.dart';
 import 'package:salatime/controller/theme_controller.dart';
 import 'package:salatime/helper/location_helper.dart';
+import 'package:salatime/helper/location_permission_coordinator.dart';
 import 'package:salatime/helper/location_auto_update_service.dart';
 import 'package:salatime/helper/local_prayer_calculator.dart';
 import 'package:salatime/helper/automatic_prayer_method.dart';
@@ -147,7 +148,34 @@ class PrayerTimeController extends GetxController implements GetxService {
     }
   }
 
-  Future<void> getLocation() async {
+  Future<void>? _locating;
+
+  Future<void> getLocation() {
+    final pending = _locating;
+    if (pending != null) return pending;
+    return _locating = _getLocationSafely().whenComplete(
+      () => _locating = null,
+    );
+  }
+
+  Future<void> _getLocationSafely() async {
+    try {
+      await _getLocation();
+    } catch (_) {
+      if (isClosed || !LocationPermissionCoordinator.isForeground) return;
+      isLocationDenied.value = true;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLocationDenied', true);
+      if (isClosed || !LocationPermissionCoordinator.isForeground) return;
+      showCustomSnackBar(
+        'for_getting_Automatic_Prayer_Time_Nearby_Mosque_Qibla_Compass_need_to_enable_location_permission'
+            .tr,
+        isError: true,
+      );
+    }
+  }
+
+  Future<void> _getLocation() async {
     bool serviceEnabled = false;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     LocationPermission permission;
@@ -177,50 +205,33 @@ class PrayerTimeController extends GetxController implements GetxService {
       return;
     }
 
+    if (isClosed || !LocationPermissionCoordinator.isForeground) return;
+
     // Check if location services are enabled
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (isClosed || !LocationPermissionCoordinator.isForeground) return;
     if (!serviceEnabled) {
       // If not enabled, prompt user to enable location services
       await Geolocator.openLocationSettings();
       return;
     }
 
-    // Check location permission status
-    permission = await Geolocator.checkPermission();
-
-    if (permission == LocationPermission.denied) {
-      // If permission is denied, request permission from the user
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        //   If permission is still denied, show a message to the user using GetX's Snackbar
-        showCustomSnackBar(
-          "for_getting_Automatic_Prayer_Time_Nearby_Mosque_Qibla_Compass_need_to_enable_location_permission"
-              .tr,
-          isError: true,
-        );
-
-        await prefs.setBool("isLocationDenied", true);
-        bool? storedFontSize = prefs.getBool("isLocationDenied");
-        if (storedFontSize != null) {
-          isLocationDenied.value = storedFontSize;
-        }
-
-        return;
-      }
-    } else if (permission == LocationPermission.deniedForever) {
-      // If permission is permanently denied, show a message to the user using GetX's Snackbar
+    permission = await LocationPermissionCoordinator.instance.ensureForeground(
+      canRequest: () => !isClosed,
+    );
+    if (isClosed || !LocationPermissionCoordinator.isForeground) return;
+    if (!LocationPermissionCoordinator.isGranted(permission)) {
+      isLocationDenied.value = true;
+      await prefs.setBool('isLocationDenied', true);
+      if (isClosed || !LocationPermissionCoordinator.isForeground) return;
       showCustomSnackBar(
-        "for_getting_Automatic_Prayer_Time_Nearby_Mosque_Qibla_Compass_need_to_enable_location_permission"
+        'for_getting_Automatic_Prayer_Time_Nearby_Mosque_Qibla_Compass_need_to_enable_location_permission'
             .tr,
         isError: true,
-        onTap: () => openAppSettings(),
+        onTap: permission == LocationPermission.deniedForever
+            ? () => openAppSettings()
+            : null,
       );
-
-      await prefs.setBool("isLocationDenied", true);
-      bool? storedFontSize = prefs.getBool("isLocationDenied");
-      if (storedFontSize != null) {
-        isLocationDenied.value = storedFontSize;
-      }
       return;
     }
 
@@ -228,6 +239,7 @@ class PrayerTimeController extends GetxController implements GetxService {
     if (serviceEnabled) {
       try {
         final position = await _resolvePosition();
+        if (isClosed || !LocationPermissionCoordinator.isForeground) return;
         latitude = position.latitude;
         longitude = position.longitude;
 
@@ -247,6 +259,7 @@ class PrayerTimeController extends GetxController implements GetxService {
 
         update();
       } catch (e) {
+        if (isClosed || !LocationPermissionCoordinator.isForeground) return;
         await prefs.setBool("isLocationDenied", true);
         bool? storedFontSize = prefs.getBool("isLocationDenied");
         if (storedFontSize != null) {

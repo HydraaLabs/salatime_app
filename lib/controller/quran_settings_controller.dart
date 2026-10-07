@@ -207,26 +207,38 @@ class SettingsController extends GetxController implements GetxService {
   // local variable
   RxBool isMosqueSettingsLoading = false.obs;
   MosqueSettingsModel? mosqueSettingsApiData;
+  bool mosqueSettingsLoadFailed = false;
+  Future<void>? _mosqueSettingsRequest;
 
-  // get juz list form here
-  Future<void> fetchMosqueSettingsData({String? translatorId}) async {
+  Future<void> fetchMosqueSettingsData({String? translatorId}) {
+    return _mosqueSettingsRequest ??= _loadMosqueSettingsData();
+  }
+
+  Future<void> _loadMosqueSettingsData() async {
     try {
       isMosqueSettingsLoading(true);
+      mosqueSettingsLoadFailed = false;
+      update();
 
       final response = await quranSettingRepo.getMosqueSettingsRepo();
-update();
       if (response.statusCode == 200) {
         mosqueSettingsApiData = MosqueSettingsModel.fromJson(response.body);
-        Get.find<HomeLayoutController>().applyApiValue(
-          mosqueSettingsApiData?.data?.homeLayout,
-        );
+        if (Get.isRegistered<HomeLayoutController>()) {
+          Get.find<HomeLayoutController>().applyApiValue(
+            mosqueSettingsApiData?.data?.homeLayout,
+          );
+        }
+      } else {
+        mosqueSettingsLoadFailed = true;
       }
     } catch (e) {
+      mosqueSettingsLoadFailed = true;
       if (kDebugMode) {
         print("Error fetching data: $e");
       }
     } finally {
       isMosqueSettingsLoading(false);
+      _mosqueSettingsRequest = null;
       update();
     }
   }

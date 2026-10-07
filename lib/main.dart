@@ -12,6 +12,7 @@ import 'package:salatime/controller/home_layout_controller.dart';
 import 'package:salatime/helper/theme_helper.dart';
 import 'package:salatime/service/first_launch_setup_service.dart';
 import 'package:salatime/util/app_constants.dart';
+import 'package:salatime/util/sentry_configuration.dart';
 
 import 'controller/internet_check_controller.dart';
 import 'controller/localization_controller.dart';
@@ -24,9 +25,16 @@ import 'util/messages.dart';
 import 'view/screens/location/background_location_screen.dart';
 import 'view/base/app_system_ui.dart';
 
+final _sentryConfiguration = AppSentryConfiguration.fromEnvironment();
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+
+  if (!_sentryConfiguration.enabled) {
+    await _bootstrapApp();
+    return;
+  }
 
   await SentryFlutter.init((options) {
     options.dsn = const String.fromEnvironment(
@@ -34,7 +42,7 @@ Future<void> main() async {
       defaultValue:
           'https://27e1be168bc55d72f29af823f175dbc5@o4511371910184960.ingest.de.sentry.io/4512053084356688',
     );
-    options.environment = 'production';
+    options.environment = _sentryConfiguration.environment;
     options.sendDefaultPii = false;
     options.attachScreenshot = false;
     options.enablePrintBreadcrumbs = false;
@@ -60,11 +68,8 @@ Future<void> _bootstrapApp() async {
   if (initialRoute == RouteHelper.bottomNavbar) {
     await PrayerTimeStartup.restore();
   }
-  runApp(
-    SentryWidget(
-      child: MyApp(languages: languages, initialRoute: initialRoute),
-    ),
-  );
+  final app = MyApp(languages: languages, initialRoute: initialRoute);
+  runApp(_sentryConfiguration.enabled ? SentryWidget(child: app) : app);
   // Account/cloud failures never block offline prayer times or onboarding.
   unawaited(PreferenceCloudSync.instance.initialize().catchError((_) {}));
   unawaited(ReadingProgressService.instance.initialize().catchError((_) {}));
@@ -102,7 +107,9 @@ class MyApp extends StatelessWidget {
                       .toList(),
                   initialRoute: initialRoute,
                   getPages: RouteHelper.routes,
-                  navigatorObservers: [SentryNavigatorObserver()],
+                  navigatorObservers: _sentryConfiguration.enabled
+                      ? [SentryNavigatorObserver()]
+                      : [],
                   defaultTransition: Transition.topLevel,
                   translations: Messages(languages: languages),
                   fallbackLocale: Locale(

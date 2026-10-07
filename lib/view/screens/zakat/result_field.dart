@@ -22,7 +22,7 @@ class ResultField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
       readOnly: readOnly,
-      keyboardType: TextInputType.number,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
       controller: controllerValue,
       validator: validator,
       onSaved: onSaved,

@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:salatime/helper/qiblah_helper.dart';
+import 'package:salatime/helper/location_permission_coordinator.dart';
 import 'package:salatime/util/app_constants.dart';
 
 class QiblaMap extends StatefulWidget {
@@ -51,14 +52,13 @@ class _QiblaMapState extends State<QiblaMap> {
   }
 
   Future<void> _locate() async {
+    if (_locating || !LocationPermissionCoordinator.isForeground) return;
     setState(() => _locating = true);
     try {
-      var permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-      if (permission != LocationPermission.always &&
-          permission != LocationPermission.whileInUse) {
+      final permission = await LocationPermissionCoordinator.instance
+          .ensureForeground(canRequest: () => mounted);
+      if (!mounted || !LocationPermissionCoordinator.isForeground) return;
+      if (!LocationPermissionCoordinator.isGranted(permission)) {
         throw StateError('Location unavailable');
       }
       final position = await Geolocator.getCurrentPosition(
@@ -67,7 +67,7 @@ class _QiblaMapState extends State<QiblaMap> {
           timeLimit: Duration(seconds: 10),
         ),
       );
-      if (!mounted) return;
+      if (!mounted || !LocationPermissionCoordinator.isForeground) return;
       setState(() => _position = LatLng(position.latitude, position.longitude));
       _map.move(_position!, 16);
     } catch (_) {

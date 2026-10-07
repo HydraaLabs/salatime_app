@@ -1,3 +1,5 @@
+import 'dart:async';
+
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
@@ -31,6 +33,18 @@ class NearbyMosque extends StatefulWidget {
 
 class _NearbyMosqueState extends State<NearbyMosque> {
   final MapController _mapController = MapController();
+  late final NearbyMosqueController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = Get.isRegistered<NearbyMosqueController>()
+        ? Get.find<NearbyMosqueController>()
+        : Get.put(NearbyMosqueController());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(_controller.getLocation());
+    });
+  }
 
   // Parse "lat,lng" stored by NearbyMosqueController.getLocation().
   LatLng? _userLatLng(String userLocation) {
@@ -86,7 +100,6 @@ class _NearbyMosqueState extends State<NearbyMosque> {
 
   @override
   Widget build(BuildContext context) {
-    Get.put(NearbyMosqueController()).getLocation();
     return Scaffold(
       // Appbar start ===>
       appBar: CustomAppBar(
@@ -98,7 +111,7 @@ class _NearbyMosqueState extends State<NearbyMosque> {
       // body start ==>
       body: SingleChildScrollView(
         child: GetBuilder<NearbyMosqueController>(
-          init: NearbyMosqueController(),
+          init: _controller,
           builder: (nearbyMosqueController) {
             return Obx(
               () =>

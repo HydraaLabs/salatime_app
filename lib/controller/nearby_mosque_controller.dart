@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:salatime/helper/location_helper.dart';
+import 'package:salatime/helper/location_permission_coordinator.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:geolocator/geolocator.dart';
@@ -41,91 +42,72 @@ class NearbyMosqueController extends GetxController {
     loadKmDropdownValue(km.value);
   }
 
-  Future<void> getLocation() async {
-    bool serviceEnabled = false;
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    LocationPermission permission;
+  Future<void>? _locating;
 
-    // Geolocator is not implemented on every platform (e.g. Linux desktop).
-    // Gracefully fall back instead of throwing a MissingPluginException.
-    if (!isGeolocatorSupported) {
-      isLocationDenied.value = true;
-      await prefs.setBool("isLocationDenied", true);
-      debugPrint('Geolocator is not supported on this platform');
-      return;
-    }
+  Future<void> getLocation() {
+    final pending = _locating;
+    if (pending != null) return pending;
+    return _locating = _getLocation().whenComplete(() => _locating = null);
+  }
 
-    // Check if location services are enabled
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      // If not enabled, prompt user to enable location services
-      await Geolocator.openLocationSettings();
-      return;
-    }
-
-    // Check location permission status
-    permission = await Geolocator.checkPermission();
-
-    if (permission == LocationPermission.denied) {
-      // If permission is denied, request permission from the user
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        //   If permission is still denied, show a message to the user using GetX's Snackbar
-        showCustomSnackBar(
-          "for_getting_Automatic_Prayer_Time_Nearby_Mosque_Qibla_Compass_need_to_enable_location_permission"
-              .tr,
-          isError: true,
-        );
-
-        await prefs.setBool("isLocationDenied", true);
-        bool? storedFontSize = prefs.getBool("isLocationDenied");
-        if (storedFontSize != null) {
-          isLocationDenied.value = storedFontSize;
-        }
-
+  Future<void> _getLocation() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (isClosed || !LocationPermissionCoordinator.isForeground) return;
+    try {
+      if (!isGeolocatorSupported) {
+        isLocationDenied.value = true;
+        await prefs.setBool('isLocationDenied', true);
         return;
       }
-    } else if (permission == LocationPermission.deniedForever) {
-      // If permission is permanently denied, show a message to the user using GetX's Snackbar
-      showCustomSnackBar(
-        "for_getting_Automatic_Prayer_Time_Nearby_Mosque_Qibla_Compass_need_to_enable_location_permission"
-            .tr,
-        isError: true,
-        onTap: () => openAppSettings(),
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (isClosed || !LocationPermissionCoordinator.isForeground) return;
+      if (!serviceEnabled) {
+        isLocationDenied.value = true;
+        await Geolocator.openLocationSettings();
+        return;
+      }
+      final permission = await LocationPermissionCoordinator.instance
+          .ensureForeground(canRequest: () => !isClosed);
+      if (isClosed || !LocationPermissionCoordinator.isForeground) return;
+      if (!LocationPermissionCoordinator.isGranted(permission)) {
+        await _locationDenied(
+          prefs,
+          permanently: permission == LocationPermission.deniedForever,
+        );
+        return;
+      }
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 20),
+        ),
       );
-
-      await prefs.setBool("isLocationDenied", true);
-      bool? storedFontSize = prefs.getBool("isLocationDenied");
-      if (storedFontSize != null) {
-        isLocationDenied.value = storedFontSize;
-      }
-      return;
-    }
-
-    // If permission is granted, retrieve the current position
-
-    if (serviceEnabled) {
-      try {
-        Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
-        );
-        userLocation.value = '${position.latitude},${position.longitude}';
-        searchNearbyPlaces();
-        update();
-      } catch (e) {
-        await prefs.setBool("isLocationDenied", true);
-        bool? storedFontSize = prefs.getBool("isLocationDenied");
-        if (storedFontSize != null) {
-          isLocationDenied.value = storedFontSize;
-        }
-        showCustomSnackBar(
-          "for_getting_Automatic_Prayer_Time_Nearby_Mosque_Qibla_Compass_need_to_enable_location_permission"
-              .tr,
-          isError: true,
-          onTap: () => openAppSettings(),
-        );
+      if (isClosed || !LocationPermissionCoordinator.isForeground) return;
+      userLocation.value = '${position.latitude},${position.longitude}';
+      searchNearbyPlaces();
+      update();
+    } catch (_) {
+      // Both permission checks and position acquisition can fail natively.
+      // Calls started by the screen must not escape as unhandled futures.
+      if (!isClosed && LocationPermissionCoordinator.isForeground) {
+        await _locationDenied(prefs);
       }
     }
+  }
+
+  Future<void> _locationDenied(
+    SharedPreferences prefs, {
+    bool permanently = false,
+  }) async {
+    isLocationDenied.value = true;
+    await prefs.setBool('isLocationDenied', true);
+    if (isClosed || !LocationPermissionCoordinator.isForeground) return;
+    showCustomSnackBar(
+      'for_getting_Automatic_Prayer_Time_Nearby_Mosque_Qibla_Compass_need_to_enable_location_permission'
+          .tr,
+      isError: true,
+      onTap: permanently ? () => openAppSettings() : null,
+    );
   }
 
   // Overpass API (OpenStreetMap) — free, no API key required.
@@ -155,8 +137,10 @@ class NearbyMosqueController extends GetxController {
       // No valid coordinates yet: try to fetch the position once.
       // getLocation() re-triggers searchNearbyPlaces() on success.
       if (kDebugMode) {
-        print('Overpass: invalid userLocation "${userLocation.value}", '
-            'retrying getLocation()');
+        print(
+          'Overpass: invalid userLocation "${userLocation.value}", '
+          'retrying getLocation()',
+        );
       }
       await getLocation();
       parts = userLocation.value.split(',');
@@ -172,7 +156,8 @@ class NearbyMosqueController extends GetxController {
     }
 
     final int radius = 1000 * kmToRadious;
-    final String query = '[out:json];('
+    final String query =
+        '[out:json];('
         'node["amenity"="place_of_worship"]["religion"="muslim"](around:$radius,$lat,$lng);'
         'way["amenity"="place_of_worship"]["religion"="muslim"](around:$radius,$lat,$lng);'
         ');out center;';
@@ -193,8 +178,10 @@ class NearbyMosqueController extends GetxController {
 
           if (response.statusCode != 200) {
             if (kDebugMode) {
-              print('Overpass $endpoint failed: '
-                  'status ${response.statusCode}');
+              print(
+                'Overpass $endpoint failed: '
+                'status ${response.statusCode}',
+              );
             }
             continue;
           }

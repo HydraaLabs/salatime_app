@@ -6,17 +6,17 @@ on:
       version:
         description: App Store version matching pubspec.yaml
         required: true
-        default: '1.0.29'
+        default: '1.0.30'
         type: string
       previous_version:
         description: Previous public App Store version used to preserve metadata
         required: true
-        default: '1.0.28'
+        default: '1.0.29'
         type: string
       build_number:
         description: Unique CFBundleVersion for this upload
         required: true
-        default: '39'
+        default: '40'
         type: string
       upload_to_testflight:
         description: Upload the validated IPA to App Store Connect
@@ -24,7 +24,7 @@ on:
         default: false
         type: boolean
       submit_to_app_store:
-        description: Submit the account-language update to App Review after the exact uploaded build is valid
+        description: Submit this release to App Review after the exact uploaded build is valid
         required: true
         default: false
         type: boolean
@@ -95,10 +95,14 @@ jobs:
           flutter pub get
           flutter analyze
           flutter test --dart-define=SALATIME_APPLE_IOS_ENABLED=true \
+            --dart-define=SALATIME_SENTRY_ENABLED=false \
+            --dart-define=SALATIME_SENTRY_ENVIRONMENT=ci \
             --dart-define=SALATIME_GOOGLE_IOS_ENABLED="$GOOGLE_IOS_ENABLED"
       - name: Build simulator and run native iOS regression tests
         run: |
           flutter build ios --simulator --debug --no-codesign \
+            --dart-define=SALATIME_SENTRY_ENABLED=false \
+            --dart-define=SALATIME_SENTRY_ENVIRONMENT=ci \
             --dart-define=SALATIME_APPLE_IOS_ENABLED=true \
             --dart-define=SALATIME_GOOGLE_IOS_ENABLED="$GOOGLE_IOS_ENABLED"
           SIMULATOR_ID=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; data=json.load(sys.stdin); print(next(d["udid"] for devices in data["devices"].values() for d in devices if d["name"].startswith("iPhone")))')
@@ -120,6 +124,8 @@ jobs:
       - name: Build signed App Store archive and IPA
         run: |
           flutter build ipa --release \
+            --dart-define=SALATIME_SENTRY_ENABLED=true \
+            --dart-define=SALATIME_SENTRY_ENVIRONMENT=production \
             --build-number="$RELEASE_BUILD_NUMBER" \
             --export-options-plist="$RUNNER_TEMP/salatime-ios-signing/ExportOptions.plist" \
             --dart-define=SALATIME_APPLE_IOS_ENABLED=true \

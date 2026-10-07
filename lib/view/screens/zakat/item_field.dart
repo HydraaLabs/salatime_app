@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:salatime/controller/zakat_calculator_controller.dart';
 import '../../../util/dimensions.dart';
 import '../../../util/styles.dart';
 
@@ -22,8 +23,9 @@ class ItemField extends StatelessWidget {
         ),
         Expanded(
           child: TextFormField(
-            keyboardType: TextInputType.number,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
             controller: controllerValue,
+            validator: ZakatCalculatorController.validateAmount,
             decoration: InputDecoration(
               hintText: "amount".tr,
               labelStyle: TextStyle(

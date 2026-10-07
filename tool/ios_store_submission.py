@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Submit the exact SalaTime account-language release from CI without logging private data.
+"""Submit the exact SalaTime reliability release from CI without logging private data.
 
 Only --submit mutates App Store Connect. --preflight is GET-only. New versions
 inherit Apple's metadata; preservation is verified before creating any review
@@ -35,16 +35,21 @@ SUBMITTED = {'WAITING_FOR_REVIEW', 'IN_REVIEW', 'PENDING_DEVELOPER_RELEASE',
              'PENDING_APPLE_RELEASE', 'PROCESSING_FOR_APP_STORE', 'READY_FOR_SALE',
              'READY_FOR_DISTRIBUTION'}
 WHATS_NEW = {
-    'fr-FR': 'Votre choix de langue est conservé avec votre compte et synchronisé entre vos appareils. Le message de bienvenue utilise la langue choisie à la création du compte. Demande de notation native après plusieurs jours d’utilisation et accès aux avis depuis les paramètres.',
-    'en-US': 'Your language choice is saved with your account and synced across devices. The welcome email uses the language chosen when creating your account. Native rating requests after several days of use and access to store reviews from Settings.',
-    'ar-SA': 'يُحفظ اختيار لغتك مع حسابك ويتزامن بين أجهزتك. تستخدم رسالة الترحيب اللغة المختارة عند إنشاء الحساب. طلب التقييم عبر واجهة المتجر الأصلية بعد عدة أيام من الاستخدام، والوصول إلى تقييمات المتجر من الإعدادات.',
+    'fr-FR': 'Amélioration de la stabilité de la boussole et de la localisation, du chargement des données et du calcul de la zakat.',
+    'en-US': 'Improved compass and location reliability, data loading, and zakat calculation.',
+    'ar-SA': 'تحسين استقرار البوصلة وتحديد الموقع وتحميل البيانات وحساب الزكاة.',
 }
 RATING_REVIEW_NOTE = ('Rating fix: StoreKit requests a review after 3 distinct usage days and 72 hours, '
                'following 10 quiet seconds on Home (30-day interval, maximum 3 attempts). '
                'No custom prompt or satisfaction question. Apple controls display; TestFlight '
                'shows no prompt. Settings > Rate SalaTime opens App Store reviews immediately.')
-REVIEW_NOTE = (RATING_REVIEW_NOTE + ' Language fix: account sync preserves the chosen language; '
-               'the welcome email uses the language chosen at account creation (10 languages, including RTL).')
+REVIEW_NOTE = ('Reliability fix: late Compass GPS errors and invalid sensor/catalog values are handled. '
+               'Location permission requests are serialized; missing settings allow manual Nisab. '
+               'Production error/hang reporting remains active; simulator CI sends no telemetry. '
+               'Rating fix: StoreKit after 3 usage days/72 hours and 10 quiet Home seconds; '
+               '30-day interval, maximum 3 attempts. No custom prompt or satisfaction question. Apple controls display; '
+               'TestFlight shows no prompt. Settings > Rate SalaTime opens App Store reviews. '
+               'Language fix: account language sync and welcome emails in 10 languages remain unchanged.')
 
 
 def review_notes(source_notes, previous_version, attachments_inherited, release_note=None):
@@ -61,7 +66,7 @@ def review_notes(source_notes, previous_version, attachments_inherited, release_
     history = f'Historical demonstration context from version {origin[1] if origin else previous_version}. '
     if not attachments_inherited or 'remains attached to that previous version' in source_notes:
         history += ('Any demonstration attachment mentioned below remains attached to that previous version. '
-                    'This rating fix adds no physical-device recording. ')
+                    'This update adds no physical-device recording. ')
     history += 'Existing demo links and limitations remain applicable.'
     paragraphs = [paragraph.strip() for paragraph in re.split(r'\n\s*\n', source_notes) if paragraph.strip()]
     known_layout = (any(paragraph.startswith(('LOCATION (', 'LOCATION:')) for paragraph in paragraphs)
@@ -69,7 +74,7 @@ def review_notes(source_notes, previous_version, attachments_inherited, release_
                             for paragraph in paragraphs))
     if known_layout:
         # Retain actual evidence and limitations exactly; only qualify stale
-        # "new/attached" labels so they cannot imply a new build-38 recording.
+        # "new/attached" labels so they cannot imply a recording of this release.
         demonstrations = []
         for paragraph in paragraphs:
             if paragraph.startswith(('NEW PHYSICAL IPHONE DEMO', 'HISTORICAL PHYSICAL IPHONE DEMO', 'EXISTING ACCOUNT/FEATURE DEMO',
@@ -664,11 +669,14 @@ def self_test():
 
     class Checks(unittest.TestCase):
         def test_next_version_preserves_36_screenshots_private_fields_and_historical_notes(self):
-            api = FakeClient(build_version='1.0.29', inherit_attachments=False)
-            api.previous['attributes']['versionString'] = '1.0.28'
-            api.build['id'] = 'build39'
-            api.build['attributes']['version'] = '39'
-            compact = review_notes(self.historical_notes(), '1.0.27', False, RATING_REVIEW_NOTE)
+            api = FakeClient(build_version='1.0.30', inherit_attachments=False)
+            api.previous['attributes']['versionString'] = '1.0.29'
+            api.build['id'] = 'build40'
+            api.build['attributes']['version'] = '40'
+            rating_notes = review_notes(self.historical_notes(), '1.0.27', False, RATING_REVIEW_NOTE)
+            previous_note = (RATING_REVIEW_NOTE + ' Language fix: account sync preserves the chosen language; '
+                             'the welcome email uses the language chosen at account creation (10 languages, including RTL).')
+            compact = review_notes(rating_notes, '1.0.28', True, previous_note)
             api.reviews['old']['attributes']['notes'] = compact
             api.reviews['new']['attributes']['notes'] = compact
             historical = copy.deepcopy(api.reviews['old'])
@@ -688,17 +696,20 @@ def self_test():
                         result['data'].append(row)
                 return result
             api.request = with_images
-            flow = Submission(api, '1.0.29', '39', previous_version='1.0.28')
+            flow = Submission(api, '1.0.30', '40', previous_version='1.0.29')
             flow.submit()
             self.assertEqual(flow.report['status'], 'submitted')
             self.assertEqual(flow.report['screenshot_count'], 36)
-            self.assertEqual(api.attached, 'build39')
+            self.assertEqual(api.attached, 'build40')
             self.assertEqual(api.reviews['old'], historical)
             self.assertTrue(all(api.reviews['new']['attributes'][field] == historical['attributes'][field]
                                 for field in REVIEW_FIELDS))
             notes = api.reviews['new']['attributes']['notes']
             self.assertLessEqual(len(notes.encode('utf-8')), 4000)
             self.assertIn('Language fix:', notes)
+            self.assertIn('Reliability fix:', notes)
+            self.assertIn('Production error/hang reporting remains active', notes)
+            self.assertNotIn('all crashes', notes.lower())
             self.assertIn('Historical demonstration context from version 1.0.27.', notes)
             self.assertIn('remains attached to that previous version', notes)
             self.assertIn('does not prove recalculation during real travel', notes)
@@ -706,7 +717,7 @@ def self_test():
             self.assertTrue(all(method == 'GET' for method, path in api.calls
                                 if '/old/' in path or path.endswith('/review-old')))
             before = len(api.calls)
-            resumed = Submission(api, '1.0.29', '39', previous_version='1.0.28')
+            resumed = Submission(api, '1.0.30', '40', previous_version='1.0.29')
             resumed.submit()
             self.assertEqual(resumed.report['status'], 'already_submitted')
             self.assertTrue(all(method == 'GET' for method, _ in api.calls[before:]))
@@ -717,9 +728,28 @@ def self_test():
             self.assertLessEqual(len(notes.encode('utf-8')), 4000)
             self.assertEqual(notes.count('Rating fix:'), 1)
             self.assertEqual(notes.count('Language fix:'), 1)
+            self.assertEqual(notes.count('Reliability fix:'), 1)
             self.assertEqual(notes.count('Historical demonstration context from version'), 1)
             self.assertIn('version 1.0.27.', notes)
             for url in re.findall(r'https?://[^\s<>]+', compact): self.assertIn(url, notes)
+
+        def test_reliability_notes_fit_previous_public_utf8_budget(self):
+            previous_note = (RATING_REVIEW_NOTE + ' Language fix: account sync preserves the chosen language; '
+                             'the welcome email uses the language chosen at account creation (10 languages, including RTL).')
+            source = review_notes(self.historical_notes(), '1.0.27', False, previous_note)
+            # The accepted build-39 receipt records 3,789 UTF-8 bytes. Pad a
+            # retained demo paragraph to that budget without using private data.
+            padding = 3789 - len(source.encode('utf-8'))
+            self.assertGreater(padding, 0)
+            source = source.replace('No simulated GPS or fabricated app UI.',
+                                    'x' * padding + 'No simulated GPS or fabricated app UI.')
+            self.assertEqual(len(source.encode('utf-8')), 3789)
+            notes = review_notes(source, '1.0.29', True)
+            self.assertLessEqual(len(notes.encode('utf-8')), 4000)
+            self.assertEqual(notes.count('Reliability fix:'), 1)
+            self.assertIn('Production error/hang reporting remains active', notes)
+            self.assertIn('does not prove recalculation during real travel', notes)
+            for url in re.findall(r'https?://[^\s<>]+', source): self.assertIn(url, notes)
 
         def historical_notes(self):
             return ('SalaTime 1.0.27: previous release history. ' + 'Historical release summary. ' * 85 +
@@ -955,9 +985,9 @@ def main():
     mode.add_argument('--submit', action='store_true')
     mode.add_argument('--self-test', action='store_true')
     parser.add_argument('--for-upload', action='store_true')
-    parser.add_argument('--version', default='1.0.29')
-    parser.add_argument('--previous-version', default='1.0.28')
-    parser.add_argument('--build-number', default='39')
+    parser.add_argument('--version', default='1.0.30')
+    parser.add_argument('--previous-version', default='1.0.29')
+    parser.add_argument('--build-number', default='40')
     parser.add_argument('--wait-seconds', type=int, default=1200)
     parser.add_argument('--receipt', type=Path, default=Path('build/ios/app-store-submission.json'))
     args = parser.parse_args()

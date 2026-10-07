@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:salatime/controller/quran_settings_controller.dart';
+import 'package:salatime/view/base/mosque_settings_description.dart';
 import 'package:salatime/view/base/custom_app_bar.dart';
-import '../../../util/dimensions.dart';
-import '../../../util/styles.dart';
 
 class ZakatDetaile extends StatelessWidget {
   final bool appBackButton;
@@ -11,7 +9,6 @@ class ZakatDetaile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Get.find<SettingsController>().fetchMosqueSettingsData();
     return Scaffold(
       // Appbar start ===>
       appBar: CustomAppBar(
@@ -20,26 +17,8 @@ class ZakatDetaile extends StatelessWidget {
       ),
 
       // body start
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: Dimensions.PADDING_SIZE_DEFAULT),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: Dimensions.PADDING_SIZE_SMALL),
-              Text(
-                Get.find<SettingsController>()
-                    .mosqueSettingsApiData!
-                    .data!
-                    .zakatDescription
-                    .toString(),
-                textAlign: TextAlign.justify,
-                style: robotoMedium.copyWith(),
-              ),
-            ],
-          ),
-        ),
+      body: MosqueSettingsDescription(
+        description: (data) => data.zakatDescription,
       ),
     );
   }

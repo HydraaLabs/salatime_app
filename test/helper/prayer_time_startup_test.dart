@@ -294,15 +294,12 @@ void main() {
       final day = PrayerTimeAdjustmentController.adjustedDay(
         harness.prayer.prayerTimeModel!.data,
       )!;
-      // Fix the display clock within today's restored timetable so this
-      // first-frame check does not depend on the host's time after Isha.
-      final restoredDate = DateTime.parse(day.date!);
-      final firstFrameNow = DateTime(
-        restoredDate.year,
-        restoredDate.month,
-        restoredDate.day,
-        12,
-      );
+      // Today's restored model has an upcoming Fajr at this fixed instant.
+      // After Isha the countdown needs an asynchronously loaded tomorrow; that
+      // behavior is covered by the dashboard neighbor tests, not this frame.
+      final frameNow = DateTime.parse(
+        '${day.date!} ${day.fajrStart!}:00',
+      ).subtract(const Duration(minutes: 1));
       await tester.pumpWidget(
         GetMaterialApp(
           locale: const Locale('en'),
@@ -310,7 +307,7 @@ void main() {
             body: SingleChildScrollView(
               child: ModernPrayerDashboard(
                 prayerTimeController: harness.prayer,
-                now: () => firstFrameNow,
+                now: () => frameNow,
               ),
             ),
           ),
@@ -334,6 +331,7 @@ void main() {
       }
       expect(find.text('--:--'), findsNothing);
       expect(find.textContaining('--:--:--'), findsNothing);
+      expect(find.textContaining('00:01:00'), findsOneWidget);
       expect(tester.takeException(), isNull);
       expect(harness.forbiddenCalls, isEmpty);
       expect(harness.locationGate.isCompleted, isFalse);

@@ -1,7 +1,52 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:salatime/helper/qiblah_helper.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  group('QiblahHelper magnetic declination', () {
+    const channel = MethodChannel('net.salatime.app/geomagnetic');
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    setUp(() => debugDefaultTargetPlatformOverride = TargetPlatform.android);
+    tearDown(() {
+      messenger.setMockMethodCallHandler(channel, null);
+      debugDefaultTargetPlatformOverride = null;
+    });
+
+    Future<double> declination() => QiblahHelper.magneticDeclination(
+      latitude: 34.0181,
+      longitude: -5.0078,
+      altitude: 100,
+      measuredAt: DateTime(2026, 10, 7),
+    );
+
+    test(
+      'rejects non-finite native readings before they can poison compass angles',
+      () async {
+        for (final value in [
+          double.nan,
+          double.infinity,
+          double.negativeInfinity,
+        ]) {
+          messenger.setMockMethodCallHandler(channel, (_) async => value);
+          final correction = await declination();
+          expect(correction, 0);
+          expect(
+            QiblahHelper.normalizeDegrees(90 + correction).isFinite,
+            isTrue,
+          );
+        }
+      },
+    );
+
+    test('retains a finite native correction', () async {
+      messenger.setMockMethodCallHandler(channel, (_) async => -3.5);
+      expect(await declination(), -3.5);
+    });
+  });
+
   group('QiblahHelper.bearingFromTrueNorth', () {
     test('points east-southeast from Fes', () {
       final bearing = QiblahHelper.bearingFromTrueNorth(34.0181, -5.0078);

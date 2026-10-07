@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:salatime/helper/location_helper.dart';
+import 'package:salatime/helper/location_permission_coordinator.dart';
 import 'package:salatime/shimmer/all_shimmer_loder.dart';
 import 'package:salatime/view/base/custom_app_bar.dart';
 import 'package:salatime/view/screens/compass/widget/qiblah_compass.dart';
@@ -37,6 +38,14 @@ class _CompassScreenState extends State<CompassScreen> {
     _initFuture = _checkQiblahRequirements();
   }
 
+  @override
+  void didUpdateWidget(covariant CompassScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!oldWidget.isActive && widget.isActive) {
+      _initFuture = _checkQiblahRequirements();
+    }
+  }
+
   Future<String?> _checkQiblahRequirements() async {
     final supported = await FlutterQiblah.androidDeviceSensorSupport();
     if (supported != true) {
@@ -44,10 +53,10 @@ class _CompassScreenState extends State<CompassScreen> {
     }
 
     if (isGeolocatorSupported) {
-      var status = await Permission.location.status;
-      if (status.isDenied) {
-        status = await Permission.location.request();
-      }
+      final status = await LocationPermissionCoordinator.instance
+          .ensureForegroundWithPermissionHandler(
+            canRequest: () => mounted && widget.isActive,
+          );
       if (status.isPermanentlyDenied || status.isRestricted) {
         return 'location_service_denied_forever_for_getting_this_service_please_enable_location';
       }
