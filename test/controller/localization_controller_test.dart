@@ -13,6 +13,7 @@ import 'package:salatime/data/api/api_client.dart';
 import 'package:salatime/service/cloud/preference_device.dart';
 import 'package:salatime/service/cloud/preference_sync_engine.dart';
 import 'package:salatime/util/app_constants.dart';
+import '../support/memory_translations.dart';
 
 class _LocaleRemote implements PreferenceRemote {
   CloudDocument value = const CloudDocument(2, {
@@ -69,6 +70,7 @@ void main() {
     Get.reset();
     Get.testMode = true;
     Get.locale = null;
+    useMemoryTranslations();
     SharedPreferences.setMockInitialValues({});
     binding.platformDispatcher.localeTestValue = const Locale('en', 'US');
   });

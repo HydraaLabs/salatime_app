@@ -22,8 +22,6 @@ class NearbyMosqueController extends GetxController {
   double? latitude;
   double? longitude;
   RxString currentAddress = '--'.obs;
-  late StreamSubscription<Position> streamSubscription;
-  late LocationSettings locationSettings;
   RxBool isLocationDenied = false.obs;
 
   // local variable

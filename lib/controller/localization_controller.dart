@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/api/api_client.dart';
 import '../data/model/response/language_model.dart';
+import '../helper/app_translations.dart';
 import '../util/app_constants.dart';
 import 'quran_controller.dart';
 import 'offline_quran_controller.dart';
@@ -98,7 +99,6 @@ class LocalizationController extends GetxController implements GetxService {
       savedLanguageCode: locale.languageCode,
       savedCountryCode: locale.countryCode,
     );
-    final updatedLocale = Get.updateLocale(locale);
     _locale = locale;
     _selectedIndex =
         index >= 0 &&
@@ -111,8 +111,11 @@ class LocalizationController extends GetxController implements GetxService {
     // Invalidate an in-flight cloud restoration before preference writes yield.
     _languageChanges.add(locale);
     _refreshQuranTranslations();
-    await saveLanguage(_locale);
-    await updatedLocale;
+    final saved = saveLanguage(_locale);
+    // The strings of a language chosen for the first time are read here.
+    await AppTranslations.ensureRegistered(locale.languageCode);
+    if (_locale == locale) await Get.updateLocale(locale);
+    await saved;
     update();
   }
 

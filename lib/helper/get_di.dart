@@ -1,8 +1,4 @@
-// ignore_for_file: no_leading_underscores_for_local_identifiers
-
-import 'dart:convert';
-
-import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:salatime/controller/alphabet_controller.dart';
@@ -26,12 +22,12 @@ import 'package:salatime/controller/theme_controller.dart';
 import 'package:salatime/controller/wallpaper_controller.dart';
 import 'package:salatime/controller/zakat_calculator_controller.dart';
 import 'package:salatime/data/api/api_client.dart';
-import 'package:salatime/data/model/response/language_model.dart';
 import 'package:salatime/data/repository/dikir_list_repo.dart';
 import 'package:salatime/data/repository/dua_list_repo.dart';
 import 'package:salatime/data/repository/quran_setting_repo.dart';
 import 'package:salatime/data/repository/sifatname_list_repo.dart';
 import 'package:salatime/data/repository/wallpaper_repo.dart';
+import 'package:salatime/helper/app_translations.dart';
 import 'package:salatime/util/app_constants.dart';
 
 Future<Map<String, Map<String, String>>> init() async {
@@ -104,19 +100,19 @@ Future<Map<String, Map<String, String>>> init() async {
   Get.lazyPut(() => CategoryListController());
   Get.lazyPut(() => ZakatCalculatorController());
 
-  // Retrieving localized data
-  Map<String, Map<String, String>> languages = {};
-  for (LanguageModel languageModel in AppConstants.languages) {
-    String jsonStringValues = await rootBundle.loadString(
-      'assets/language/${languageModel.languageCode}.json',
-    );
-    Map<String, dynamic> mappedJson = json.decode(jsonStringValues);
-    Map<String, String> _json = {};
-    mappedJson.forEach((key, value) {
-      _json[key] = value.toString();
-    });
-    languages['${languageModel.languageCode}_${languageModel.countryCode}'] =
-        _json;
-  }
+  // Interface strings: only the active language and the English fallback are
+  // read before the first frame; the other languages load when selected.
+  final locale = LocalizationController.resolveLocale(
+    systemLocale: WidgetsBinding.instance.platformDispatcher.locale,
+    savedLanguageCode: sharedPreferences.getString(AppConstants.LANGUAGE_CODE),
+    savedCountryCode: sharedPreferences.getString(AppConstants.COUNTRY_CODE),
+  );
+  final codes = {locale.languageCode, AppConstants.languages.first.languageCode!};
+  final languages = <String, Map<String, String>>{};
+  await Future.wait(
+    codes.map((code) async {
+      languages[AppTranslations.keyFor(code)] = await AppTranslations.load(code);
+    }),
+  );
   return languages;
 }

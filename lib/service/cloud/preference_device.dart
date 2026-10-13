@@ -14,6 +14,7 @@ import 'package:salatime/controller/quran_milestone_controller.dart';
 import 'package:salatime/controller/quran_settings_controller.dart';
 import 'package:salatime/controller/theme_controller.dart';
 import 'package:salatime/helper/additional_reminder_plan.dart';
+import 'package:salatime/helper/app_translations.dart';
 import 'package:salatime/helper/islamic_calendar.dart';
 import 'package:salatime/helper/prayer_notification_preferences.dart';
 import 'package:salatime/helper/salat_waqt_service.dart';
@@ -431,7 +432,11 @@ class AppPreferenceDevice implements GuardedPreferenceDevice {
         Get.isRegistered<LocalizationController>()) {
       final c = Get.find<LocalizationController>();
       c.loadCurrentLanguage();
-      await Get.updateLocale(c.locale);
+      await AppTranslations.ensureRegistered(c.locale.languageCode);
+      // A selection made while the strings were loading wins.
+      if (canRestoreLanguage?.call() ?? true) {
+        await Get.updateLocale(c.locale);
+      }
     }
     if (changed.contains('homeLayout') &&
         Get.isRegistered<HomeLayoutController>()) {

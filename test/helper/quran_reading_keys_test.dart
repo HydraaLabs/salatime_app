@@ -39,7 +39,9 @@ void main() {
     },
   );
 
-  for (final locale in ['ar', 'en', 'bn', 'sp']) {
+  // Only the English files are bundled: they are the canonical chapter source;
+  // other languages come from assets/quran/translations.
+  for (final locale in ['en']) {
     test(
       '$locale offline chapters match their files and all 6236 reading keys',
       () {

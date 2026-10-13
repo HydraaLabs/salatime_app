@@ -10,6 +10,7 @@ import 'package:salatime/data/api/api_client.dart';
 import 'package:salatime/data/model/response/sura_detile_model.dart';
 import 'package:salatime/data/repository/sifatname_list_repo.dart';
 import 'package:salatime/service/quran/quran_translation_repository.dart';
+import '../support/memory_translations.dart';
 
 SuraDetaileModel chapter(int number, String language) => SuraDetaileModel(
   data: Data(
@@ -73,6 +74,7 @@ void main() {
     SharedPreferences.setMockInitialValues({'selectedTranslatorId': '1'});
     prefs = await SharedPreferences.getInstance();
     Get.testMode = true;
+    useMemoryTranslations();
   });
   tearDown(Get.reset);
   test(
