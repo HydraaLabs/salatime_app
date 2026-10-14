@@ -21,6 +21,7 @@ struct PrayerWidgetSnapshot: Codable {
     let locale: String
     let timeZone: String
     let use24HourFormat: Bool
+    var countdownPrefix: String? = nil
 
     var zone: TimeZone { TimeZone(identifier: timeZone) ?? .current }
     var calendar: Calendar {
@@ -59,7 +60,14 @@ struct PrayerWidgetSnapshot: Codable {
         let horizon = now.addingTimeInterval(seconds ? 48 * 3600 : 4 * 3600)
         var dates = Set<Date>([now, horizon])
         for prayer in prayers {
-            for date in [prayer.instant, prayer.instant.addingTimeInterval(Self.elapsedWindow),
+            // The native timer omits leading fields/digits. Change padding only
+            // at format boundaries; the system still supplies every second tick.
+            let paddingBoundaries: [Date] = seconds ? [
+                prayer.instant.addingTimeInterval(-10 * 3600 + 1),
+                prayer.instant.addingTimeInterval(-10 * 60 + 1),
+                prayer.instant.addingTimeInterval(10 * 60)
+            ] : []
+            for date in paddingBoundaries + [prayer.instant, prayer.instant.addingTimeInterval(Self.elapsedWindow),
                          prayer.instant.addingTimeInterval(-60 * 60),
                          prayer.instant.addingTimeInterval(-Self.warningWindow + 1)] {
                 if date > now && date < horizon { dates.insert(date) }
@@ -85,6 +93,14 @@ struct PrayerWidgetPresentation {
     let prayer: PrayerWidgetPrayer
     let since: Bool
     let urgent: Bool
+
+    func timerPadding(at date: Date) -> String {
+        let seconds = max(0, Int(since ? date.timeIntervalSince(prayer.instant) : prayer.instant.timeIntervalSince(date)))
+        if seconds < 600 { return "00:0" }
+        if seconds < 3600 { return "00:" }
+        if seconds < 36000 { return "0" }
+        return ""
+    }
 
     func minutes(at date: Date) -> Int {
         let interval = since ? date.timeIntervalSince(prayer.instant) : prayer.instant.timeIntervalSince(date)
@@ -165,7 +181,8 @@ enum PrayerWidgetStore {
             sinceLabel: payload["sinceLabel"] as? String ?? "Time since @prayer",
             emptyLabel: payload["emptyLabel"] as? String ?? "Open SalaTime to refresh",
             locale: payload["locale"] as? String ?? "en", timeZone: payload["timeZone"] as? String ?? "UTC",
-            use24HourFormat: payload["use24HourFormat"] as? Bool ?? true
+            use24HourFormat: payload["use24HourFormat"] as? Bool ?? true,
+            countdownPrefix: payload["countdownPrefix"] as? String
         )
         try JSONEncoder().encode(snapshot).write(to: container.appendingPathComponent("prayer-widget.json"), options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
     }

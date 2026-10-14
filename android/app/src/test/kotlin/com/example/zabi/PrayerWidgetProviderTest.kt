@@ -19,6 +19,72 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33], manifest = Config.NONE, application = Application::class)
 class PrayerWidgetProviderTest {
+    @Test fun countdownIncludesTranslatedPrefixAndHoursInAllWidgetSizes() {
+        val app = RuntimeEnvironment.getApplication()
+        val now = System.currentTimeMillis()
+        val prefs = app.getSharedPreferences("salatime_prayer_widget", 0)
+        for (expanded in listOf(false, true)) {
+            for ((remaining, expected) in listOf(
+                750000L to "dans 00:12:30", 59000L to "dans 00:00:59",
+                3600000L to "dans 01:00:00", 36000000L to "dans 10:00:00"
+            )) {
+                prefs.edit().clear().putString("locale", "fr")
+                    .putString("countdownPrefix", "dans")
+                    .putString("prayers", JSONArray().put(JSONObject()
+                        .put("at", now + remaining).put("name", "Dohr")).toString()).apply()
+                app.getSharedPreferences("salatime_widget_options", 0).edit().clear()
+                    .putBoolean("countdown", true).putBoolean("seconds", true).apply()
+                val view = PrayerWidgetProvider.createViews(app, expanded, now).apply(app, FrameLayout(app))
+                assertEquals(expected, view.findViewById<TextView>(R.id.widget_countdown).text.toString())
+            }
+        }
+    }
+
+    @Test
+    @Config(qualifiers = "en")
+    fun countdownFallbackUsesSavedLocaleWhenPayloadPrefixIsMissingOrBlank() {
+        val app = RuntimeEnvironment.getApplication()
+        val now = System.currentTimeMillis()
+        val prefs = app.getSharedPreferences("salatime_prayer_widget", 0)
+        assertEquals("in", app.getString(R.string.prayer_widget_countdown_prefix))
+        for (expanded in listOf(false, true)) {
+            for (prefix in listOf(null, "", "   ")) {
+                val update = prefs.edit().clear().putString("locale", "fr-FR")
+                    .putString("prayers", JSONArray().put(JSONObject()
+                        .put("at", now + 750000L).put("name", "Dohr")).toString())
+                if (prefix != null) update.putString("countdownPrefix", prefix)
+                update.apply()
+                app.getSharedPreferences("salatime_widget_options", 0).edit().clear()
+                    .putBoolean("countdown", true).putBoolean("seconds", true).apply()
+                val view = PrayerWidgetProvider.createViews(app, expanded, now).apply(app, FrameLayout(app))
+                assertEquals("dans 00:12:30", view.findViewById<TextView>(R.id.widget_countdown).text.toString())
+            }
+        }
+    }
+
+    @Test fun elapsedAndClockModesDoNotSayInAndMinuteModeKeepsItsPreference() {
+        val app = RuntimeEnvironment.getApplication()
+        val now = System.currentTimeMillis()
+        val prefs = app.getSharedPreferences("salatime_prayer_widget", 0)
+        val options = app.getSharedPreferences("salatime_widget_options", 0)
+        prefs.edit().clear().putString("locale", "fr").putString("countdownPrefix", "dans")
+            .putString("prayers", JSONArray()
+                .put(JSONObject().put("at", now - 750000).put("name", "Dohr"))
+                .put(JSONObject().put("at", now + 7200000).put("name", "Asr")).toString()).apply()
+        for (expanded in listOf(false, true)) {
+            options.edit().clear().putBoolean("countdown", true).putBoolean("seconds", true).apply()
+            val elapsed = PrayerWidgetProvider.createViews(app, expanded, now).apply(app, FrameLayout(app))
+            assertEquals("00:12:30", elapsed.findViewById<TextView>(R.id.widget_countdown).text.toString())
+            options.edit().putBoolean("seconds", false).apply()
+            val minutes = PrayerWidgetProvider.createViews(app, expanded, now + 7200000 - 750000)
+                .apply(app, FrameLayout(app))
+            assertEquals("dans 00:13", minutes.findViewById<TextView>(R.id.widget_time).text.toString())
+            options.edit().putBoolean("countdown", false).apply()
+            val clock = PrayerWidgetProvider.createViews(app, expanded, now).apply(app, FrameLayout(app))
+            assertTrue(!clock.findViewById<TextView>(R.id.widget_time).text.toString().contains("dans"))
+        }
+    }
+
     @Test fun countdownTurnsRedStrictlyBelowOneHourAndResetsAfterPrayer() {
         val app = RuntimeEnvironment.getApplication()
         val at = java.time.Instant.parse("2026-09-13T16:00:00Z").toEpochMilli()
@@ -194,7 +260,7 @@ class PrayerWidgetProviderTest {
         app.getSharedPreferences("salatime_widget_options", 0).edit().putBoolean("seconds", false).apply()
         val next = PrayerWidgetProvider.createViews(app, false, at + 60 * 60000).apply(app, FrameLayout(app))
         assertEquals("Maghrib", next.findViewById<TextView>(R.id.widget_prayer).text.toString())
-        assertEquals("02:00", next.findViewById<TextView>(R.id.widget_time).text.toString())
+        assertEquals("in 02:00", next.findViewById<TextView>(R.id.widget_time).text.toString())
     }
 
     @Test fun widgetSchedulesEndOfElapsedHourThenTheNextPrayerWarning() {

@@ -6,4 +6,5 @@
     <string name="prayer_widget_small">SalaTime · Small</string>
     <string name="prayer_widget_large">SalaTime · Large</string>
     <string name="prayer_widget_since_label">Time since @prayer</string>
+    <string name="prayer_widget_countdown_prefix">in</string>
 </resources>

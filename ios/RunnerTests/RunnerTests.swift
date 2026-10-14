@@ -138,6 +138,39 @@ class RunnerTests: XCTestCase {
     let fajr = try XCTUnwrap(data.presentation(at: lateIsha.addingTimeInterval(2 * 3600)))
     XCTAssertEqual(data.prayers(for: fajr.prayer).map(\.prayerId), [1])
   }
+  func testWidgetTimerRetainsHoursAndLeadingZeros() throws {
+    let data = snapshot()
+    let next = base.addingTimeInterval(3 * 3600)
+    for (remaining, nativeTimer, expected) in [
+      (750.0, "12:30", "00:12:30"), (599.0, "9:59", "00:09:59"),
+      (600.0, "10:00", "00:10:00"), (1.0, "0:01", "00:00:01"),
+      (3599.0, "59:59", "00:59:59"), (3600.0, "1:00:00", "01:00:00"),
+      (36000.0, "10:00:00", "10:00:00")
+    ] {
+      let now = next.addingTimeInterval(-remaining)
+      let presentation = PrayerWidgetPresentation(prayer: data.prayers[1], since: false, urgent: false)
+      XCTAssertEqual(presentation.timerPadding(at: now) + nativeTimer, expected)
+    }
+    let dates = data.transitions(after: base.addingTimeInterval(-12 * 3600), seconds: true)
+    for offset in [-36000.0 + 1, -3600 + 1, -600 + 1, 600] {
+      XCTAssertTrue(dates.contains(next.addingTimeInterval(offset)))
+    }
+    let elapsed = try XCTUnwrap(data.presentation(at: base.addingTimeInterval(750)))
+    XCTAssertTrue(elapsed.since)
+    XCTAssertEqual(elapsed.timerPadding(at: base.addingTimeInterval(750)) + "12:30", "00:12:30")
+  }
+
+  func testWidgetSnapshotAcceptsOldPayloadAndPersistsTranslatedPrefix() throws {
+    let encoder = JSONEncoder()
+    var data = snapshot()
+    let legacy = try encoder.encode(data)
+    XCTAssertNil(try JSONDecoder().decode(PrayerWidgetSnapshot.self, from: legacy).countdownPrefix)
+    data.countdownPrefix = "dans"
+    let decoded = try JSONDecoder().decode(PrayerWidgetSnapshot.self, from: encoder.encode(data))
+    XCTAssertEqual(decoded.countdownPrefix, "dans")
+    XCTAssertEqual(decoded.prayers.count, data.prayers.count)
+  }
+
   func testAllBundledNotificationSoundsMeetIOSDurationLimit() throws {
     let files = try XCTUnwrap(Bundle.main.urls(forResourcesWithExtension: "aiff", subdirectory: nil))
     XCTAssertEqual(files.count, 68, "Every sound in the catalogue must be embedded in Runner")

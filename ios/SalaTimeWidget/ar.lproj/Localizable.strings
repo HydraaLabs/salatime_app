@@ -1,2 +1,4 @@
 "widget_description" = "مواقيت الصلاة والعد التنازلي بثلاثة أحجام.";
 "widget_open" = "افتح SalaTime لتحميل مواقيت الصلاة.";
+
+"widget_countdown_prefix" = "بعد";

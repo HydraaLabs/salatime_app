@@ -349,6 +349,10 @@ void main() {
 
   test('widget data is available without initializing notifications', () async {
     harness.failInitialization = true;
+    Get.addTranslations({
+      'fr': {'countdown_prefix': 'dans'},
+    });
+    Get.locale = const Locale('fr');
     await PrayerWidgetSync.refresh();
     expect(harness.initializeCalls, 0);
     expect(harness.scheduled, isEmpty);
@@ -357,6 +361,7 @@ void main() {
     final args = Map<String, dynamic>.from(update.arguments);
     expect(jsonDecode(args['prayers']), hasLength(5));
     expect(args['timeZone'], 'UTC');
+    expect(args['countdownPrefix'], 'dans');
     expect(args.containsKey('alarms'), false);
   });
 

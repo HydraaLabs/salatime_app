@@ -7,6 +7,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.util.SizeF
@@ -161,15 +162,33 @@ open class PrayerWidgetProvider : AppWidgetProvider() {
                 if (expanded) views.setViewVisibility(R.id.widget_period, View.GONE)
                 else views.setTextViewText(R.id.widget_date, date)
             }
+            val prefix = if (countdown && !elapsed) {
+                val savedPrefix = prefs.getString("countdownPrefix", null)?.trim()
+                val translatedPrefix = savedPrefix?.takeIf { it.isNotEmpty() } ?: context
+                    .createConfigurationContext(Configuration(context.resources.configuration).apply { setLocale(locale) })
+                    .getString(R.string.prayer_widget_countdown_prefix).trim()
+                "$translatedPrefix "
+            } else ""
             val seconds = options.getBoolean("seconds", true)
             if (countdown && !seconds) {
                 val minutes = (if (elapsed) (now - (at ?: now)) / 60000 else ((at ?: now) - now + 59999) / 60000).coerceAtLeast(0)
-                views.setTextViewText(R.id.widget_time, String.format(locale, "%02d:%02d", minutes / 60, minutes % 60))
+                views.setTextViewText(R.id.widget_time, prefix + String.format(locale, "%02d:%02d", minutes / 60, minutes % 60))
             }
             views.setViewVisibility(R.id.widget_time, if (countdown && seconds) View.GONE else View.VISIBLE)
             views.setViewVisibility(R.id.widget_countdown, if (countdown && seconds) View.VISIBLE else View.GONE)
             views.setChronometerCountDown(R.id.widget_countdown, !elapsed)
-            views.setChronometer(R.id.widget_countdown, android.os.SystemClock.elapsedRealtime() + ((at ?: now) - now), null, countdown && seconds)
+            val duration = kotlin.math.abs((at ?: now) - now)
+            val padding = when {
+                duration < 3600000 -> "00:"
+                duration < 36000000 -> "0"
+                else -> ""
+            }
+            // Android's Chronometer already pads minutes below one hour.
+            val timerFormat = prefix.replace("%", "%%") + padding + "%s"
+            // Apply the format before setBase, so the first frame is formatted
+            // even before the launcher attaches and starts the chronometer.
+            views.setString(R.id.widget_countdown, "setFormat", timerFormat)
+            views.setChronometer(R.id.widget_countdown, android.os.SystemClock.elapsedRealtime() + ((at ?: now) - now), timerFormat, countdown && seconds)
             views.setContentDescription(R.id.widget_root, if (at == null) "$empty. $city" else "$title, $prayer, $timeText $period, $date, $city")
             views.setOnClickPendingIntent(R.id.widget_root, openApp(context))
             return views
@@ -217,7 +236,9 @@ open class PrayerWidgetProvider : AppWidgetProvider() {
                 nextAt?.minus(WARNING_WINDOW_MS)?.plus(1)?.takeIf { it > now } else null
             val nextPriorityAt = if (options.getBoolean("countdown", true))
                 nextAt?.minus(60 * 60000L)?.takeIf { it > now } else null
-            val at = listOfNotNull(nextAt, expiry, nextPriorityAt, warningAt).minOrNull()
+            val paddingAt = if (options.getBoolean("countdown", true) && options.getBoolean("seconds", true))
+                nextAt?.minus(10 * 3600000L)?.plus(1)?.takeIf { it > now } else null
+            val at = listOfNotNull(nextAt, expiry, nextPriorityAt, warningAt, paddingAt).minOrNull()
             val alarm = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             alarm.cancel(refreshIntent(context))
             if (at != null) {

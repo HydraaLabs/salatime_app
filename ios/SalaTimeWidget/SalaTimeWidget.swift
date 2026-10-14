@@ -64,12 +64,12 @@ struct SalaTimeWidgetView: View {
                     .font(.caption).lineLimit(small || medium ? 1 : 2)
                 if small {
                     Text(current.prayer.name).font(.headline).lineLimit(1).minimumScaleFactor(0.75)
-                    counter(current, data: data).font(.system(size: 28, weight: .semibold, design: .rounded))
+                    counter(current, data: data).font(.system(size: 24, weight: .semibold, design: .rounded))
                 } else {
                     HStack(alignment: .firstTextBaseline) {
                         Text(current.prayer.name).font(.title2.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.7)
                         Spacer(minLength: 8)
-                        counter(current, data: data).font(.system(size: medium ? 28 : 32, weight: .semibold, design: .rounded))
+                        counter(current, data: data).font(.system(size: medium ? 24 : 28, weight: .semibold, design: .rounded))
                     }
                 }
                 if medium {
@@ -120,20 +120,41 @@ struct SalaTimeWidgetView: View {
     }
 
     @ViewBuilder private func counter(_ current: PrayerWidgetPresentation, data: PrayerWidgetSnapshot) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 4) {
+            if entry.options.countdown && !current.since {
+                Group {
+                    if let prefix = data.countdownPrefix, !prefix.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        Text(verbatim: prefix)
+                    } else {
+                        // Use the app locale from the widget environment for
+                        // snapshots saved before countdownPrefix was added.
+                        Text("widget_countdown_prefix")
+                    }
+                }.font(.caption)
+            }
+            counterValue(current, data: data)
+                // Keep HH:mm:ss in reading order, including with Arabic labels.
+                .environment(\.layoutDirection, .leftToRight)
+                .monospacedDigit()
+                .minimumScaleFactor(0.6)
+        }
+        .foregroundColor(current.urgent ? (colorScheme == .dark ? Color(red: 1, green: 0.56, blue: 0.56) : Color(red: 0.72, green: 0.12, blue: 0.12)) : primary)
+        .lineLimit(1)
+    }
+
+    @ViewBuilder private func counterValue(_ current: PrayerWidgetPresentation, data: PrayerWidgetSnapshot) -> some View {
         Group {
             if !entry.options.countdown {
                 Text(clock(current.prayer.instant, data: data))
             } else if entry.options.seconds {
-                Text(current.prayer.instant, style: .timer)
+                // Concatenation retains SwiftUI's live timer on iOS 15+.
+                (Text(verbatim: current.timerPadding(at: entry.date)) + Text(current.prayer.instant, style: .timer))
+                    .environment(\.locale, Locale(identifier: "en_US_POSIX"))
             } else {
                 let minutes = current.minutes(at: entry.date)
                 Text(String(format: "%02d:%02d", minutes / 60, minutes % 60))
             }
         }
-        .monospacedDigit()
-        .foregroundColor(current.urgent ? (colorScheme == .dark ? Color(red: 1, green: 0.56, blue: 0.56) : Color(red: 0.72, green: 0.12, blue: 0.12)) : primary)
-        .lineLimit(1)
-        .accessibilityLabel(Text(current.since ? data.sinceLabel.replacingOccurrences(of: "@prayer", with: current.prayer.name) : data.nextLabel))
     }
     private func clock(_ date: Date, data: PrayerWidgetSnapshot) -> String {
         let formatter = DateFormatter(); formatter.locale = Locale(identifier: data.locale); formatter.timeZone = data.zone

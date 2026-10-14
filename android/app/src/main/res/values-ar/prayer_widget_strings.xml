@@ -6,4 +6,5 @@
     <string name="prayer_widget_small">SalaTime · صغير</string>
     <string name="prayer_widget_large">SalaTime · كبير</string>
     <string name="prayer_widget_since_label">مضى على @prayer</string>
+    <string name="prayer_widget_countdown_prefix">بعد</string>
 </resources>
