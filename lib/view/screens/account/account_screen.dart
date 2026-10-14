@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:salatime/service/mobile_auth_service.dart';
 import 'package:salatime/view/screens/account/cloud_sync_status_card.dart';
+import 'package:salatime/view/base/google_sign_in_button.dart';
 
 enum _AccountForm { login, register, forgot, reset }
 
@@ -19,10 +20,7 @@ class AccountSettingsCard extends StatelessWidget {
         title: Text('auth_account_title'.tr),
         subtitle: Text(user == null ? 'auth_account_hint'.tr : user.email),
         trailing: const Icon(Icons.chevron_right),
-        onTap: () => Get.to(
-          () => const AccountScreen(),
-          routeName: '/account',
-        ),
+        onTap: () => Get.to(() => const AccountScreen(), routeName: '/account'),
       ),
     );
   });
@@ -346,14 +344,15 @@ class _AccountScreenState extends State<AccountScreen> {
       if (user.emailVerified &&
           _auth.configuration.value.google &&
           !user.providers.contains('google'))
-        OutlinedButton(
+        GoogleSignInButton(
+          key: const ValueKey('auth_link_google'),
+          label: 'auth_link_google'.tr,
           onPressed: _busy
               ? null
               : () => _run(
                   () => _auth.signInWithGoogle(link: true),
                   success: 'auth_provider_linked',
                 ),
-          child: Text('auth_link_google'.tr),
         ),
       if (user.emailVerified &&
           _auth.configuration.value.apple &&
@@ -414,9 +413,10 @@ class _AccountScreenState extends State<AccountScreen> {
                     _mode == _AccountForm.register) &&
                 (config.google || config.apple)) ...[
               if (config.google)
-                OutlinedButton(
+                GoogleSignInButton(
+                  key: const ValueKey('auth_google'),
+                  label: 'auth_google'.tr,
                   onPressed: _busy ? null : () => _run(_auth.signInWithGoogle),
-                  child: Text('auth_google'.tr),
                 ),
               if (config.apple)
                 OutlinedButton.icon(
