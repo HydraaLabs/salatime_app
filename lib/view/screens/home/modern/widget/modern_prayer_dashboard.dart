@@ -1,3 +1,4 @@
+import 'package:salatime/service/analytics/app_analytics_service.dart';
 import 'package:salatime/service/preference_cloud_sync.dart';
 import 'package:salatime/helper/prayer_notification_preferences.dart';
 import 'package:salatime/controller/prayer_time_adjustment.dart';
@@ -264,6 +265,16 @@ class _ModernPrayerDashboardState extends State<ModernPrayerDashboard> {
         first.day == second.day;
   }
 
+  void _returnToToday() {
+    if (_isChangingDate) return;
+
+    final today = widget.now();
+    setState(() {
+      _selectedDate = DateTime(today.year, today.month, today.day);
+      _displayedPrayerTimeModel = widget.prayerTimeController.prayerTimeModel;
+    });
+  }
+
   Future<void> _changeDate(int dayOffset) async {
     if (_isChangingDate) return;
 
@@ -277,10 +288,7 @@ class _ModernPrayerDashboardState extends State<ModernPrayerDashboard> {
     final today = widget.now();
 
     if (_isSameDate(targetDate, today)) {
-      setState(() {
-        _selectedDate = DateTime(today.year, today.month, today.day);
-        _displayedPrayerTimeModel = widget.prayerTimeController.prayerTimeModel;
-      });
+      _returnToToday();
       return;
     }
 
@@ -428,6 +436,15 @@ class _ModernPrayerDashboardState extends State<ModernPrayerDashboard> {
                   hijriDateText: hijriDateText,
                   gregorianDateText: gregorianDateText,
                   isLoading: _isChangingDate,
+                  isShowingToday: isShowingToday,
+                  onToday: () {
+                    unawaited(
+                      AppAnalyticsService.instance.appAction(
+                        AppAnalyticsAction.prayerDayToday,
+                      ),
+                    );
+                    _returnToToday();
+                  },
                   onPrevious: _isChangingDate ? null : () => _changeDate(-1),
                   onNext: _isChangingDate ? null : () => _changeDate(1),
                 ),
@@ -618,6 +635,8 @@ class _DateBar extends StatelessWidget {
   final String hijriDateText;
   final String gregorianDateText;
   final bool isLoading;
+  final bool isShowingToday;
+  final VoidCallback onToday;
   final VoidCallback? onPrevious;
   final VoidCallback? onNext;
 
@@ -625,6 +644,8 @@ class _DateBar extends StatelessWidget {
     required this.hijriDateText,
     required this.gregorianDateText,
     required this.isLoading,
+    required this.isShowingToday,
+    required this.onToday,
     required this.onPrevious,
     required this.onNext,
   });
@@ -703,6 +724,15 @@ class _DateBar extends StatelessWidget {
               ],
             ),
           ),
+          if (!isShowingToday)
+            IconButton(
+              key: const ValueKey('prayer_date_today'),
+              onPressed: isLoading ? null : onToday,
+              tooltip: 'calendar_today'.tr,
+              color: Colors.white,
+              disabledColor: Colors.white38,
+              icon: const Icon(Icons.today_rounded),
+            ),
           IconButton(
             key: const ValueKey('prayer_date_next'),
             onPressed: onNext,

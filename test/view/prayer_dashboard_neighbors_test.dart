@@ -8,6 +8,7 @@ import 'package:salatime/data/api/api_client.dart';
 import 'package:salatime/data/model/response/todays_prayer_time_model.dart';
 import 'package:salatime/view/screens/home/modern/widget/modern_prayer_dashboard.dart';
 import 'package:salatime/theme/brand_colors.dart';
+import 'package:salatime/service/analytics/app_analytics_service.dart';
 
 PrayerTimeModel _day(DateTime date, {String fajr = '05:30'}) => PrayerTimeModel(
   data: Data(
@@ -236,4 +237,59 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
   });
+  testWidgets('the today button appears on another day and returns to today', (
+    tester,
+  ) async {
+    final previous = AppAnalyticsService.instance;
+    final sink = _AnalyticsSink();
+    final analytics = AppAnalyticsService(
+      preferences: Get.find<SharedPreferences>(),
+      sink: sink,
+      enabledInBuild: true,
+    );
+    AppAnalyticsService.instance = analytics;
+    addTearDown(() {
+      AppAnalyticsService.instance = previous;
+      analytics.collectionPreference.dispose();
+    });
+    await tester.runAsync(analytics.initialize);
+    now = DateTime(2026, 9, 12, 12);
+    controller.prayerTimeModel = _day(DateTime(2026, 9, 12));
+    await tester.pumpWidget(app());
+    await tester.pump();
+    final today = find.byKey(const ValueKey('prayer_date_today'));
+    String shownDate() => tester
+        .widget<Text>(find.byKey(const ValueKey('gregorian_date_text')))
+        .data!;
+    expect(today, findsNothing);
+
+    await tester.tap(find.byKey(const ValueKey('prayer_date_next')));
+    await tester.pump();
+    await tester.tap(find.byKey(const ValueKey('prayer_date_next')));
+    await tester.pump();
+    expect(shownDate(), 'Monday, September 14, 2026');
+    expect(today, findsOneWidget);
+
+    await tester.tap(today);
+    await tester.pump();
+    expect(shownDate(), 'Saturday, September 12, 2026');
+    expect(today, findsNothing);
+    expect(find.text('in 01:00:00'), findsOneWidget);
+    await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+    expect(sink.events, ['prayer_day_today']);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+}
+
+class _AnalyticsSink implements AppAnalyticsSink {
+  final events = <String>[];
+  @override
+  Future<void> setCollectionEnabled(bool enabled) async {}
+  @override
+  Future<void> screenViewed(String screenName) async {}
+  @override
+  Future<void> appAction(String eventName) async => events.add(eventName);
+  @override
+  Future<void> resetData() async {}
 }
