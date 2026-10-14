@@ -152,7 +152,7 @@ class RunnerTests: XCTestCase {
       XCTAssertEqual(presentation.timerPadding(at: now) + nativeTimer, expected)
     }
     let dates = data.transitions(after: base.addingTimeInterval(-12 * 3600), seconds: true)
-    for offset in [-36000.0 + 1, -3600 + 1, -600 + 1, 600] {
+    for offset: TimeInterval in [-36000 + 1, -3600 + 1, -600 + 1, 600] {
       XCTAssertTrue(dates.contains(next.addingTimeInterval(offset)))
     }
     let elapsed = try XCTUnwrap(data.presentation(at: base.addingTimeInterval(750)))
