@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Submit the exact SalaTime reliability and analytics release from CI without logging private data.
+"""Submit the exact SalaTime widget countdown release from CI without logging private data.
 
 Only --submit mutates App Store Connect. --preflight is GET-only. New versions
 inherit Apple's metadata; preservation is verified before creating any review
@@ -35,22 +35,23 @@ SUBMITTED = {'WAITING_FOR_REVIEW', 'IN_REVIEW', 'PENDING_DEVELOPER_RELEASE',
              'PENDING_APPLE_RELEASE', 'PROCESSING_FOR_APP_STORE', 'READY_FOR_SALE',
              'READY_FOR_DISTRIBUTION'}
 WHATS_NEW = {
-    'fr-FR': 'Nouveau bandeau de mise à jour sur l’accueil et statistiques d’utilisation désactivables dans les paramètres. Amélioration de la stabilité de la boussole, de la localisation, du chargement des données et du calcul de la zakat.',
-    'en-US': 'New update banner on Home and usage analytics that can be disabled in Settings. Improved compass and location reliability, data loading, and zakat calculation.',
-    'ar-SA': 'إضافة شريط للتحديث في الصفحة الرئيسية وإحصاءات استخدام يمكن تعطيلها من الإعدادات. تحسين استقرار البوصلة وتحديد الموقع وتحميل البيانات وحساب الزكاة.',
+    'fr-FR': 'Widgets : le compte à rebours affiche la prochaine prière en heures, minutes et secondes (par exemple « Assr dans 00:44:09 »). Démarrage plus rapide et application plus légère. Mises à jour techniques de la localisation, de la Qibla et du partage.',
+    'en-US': 'Widgets: the countdown shows the next prayer in hours, minutes and seconds (for example “Asr in 00:44:09”). Faster startup and a smaller app. Technical updates to location, Qibla and sharing.',
+    'ar-SA': 'الأدوات: يعرض العدّ التنازلي الصلاة القادمة بالساعات والدقائق والثواني (مثل «العصر بعد 00:44:09»). تشغيل أسرع وحجم أصغر للتطبيق. تحديثات تقنية لتحديد الموقع والقبلة والمشاركة.',
 }
 RATING_REVIEW_NOTE = ('Rating fix: StoreKit requests a review after 3 distinct usage days and 72 hours, '
                'following 10 quiet seconds on Home (30-day interval, maximum 3 attempts). '
                'No custom prompt or satisfaction question. Apple controls display; TestFlight '
                'shows no prompt. Settings > Rate SalaTime opens App Store reviews immediately.')
-REVIEW_NOTE = ('Reliability fix: compass/data errors, location concurrency and Nisab fallback. '
+REVIEW_NOTE = ('Widget: HH:mm:ss next-prayer countdown; faster startup; no new data/permission. '
+               'Reliability fix: compass, location and Nisab. '
                'Production error/hang reporting remains active; CI sends no telemetry. '
                'Rating fix: StoreKit after 3 usage days/72 hours and 10 quiet Home seconds; '
                '30-day interval, maximum 3 attempts. Apple controls display; no custom prompt; TestFlight shows none. '
                'Settings > Rate SalaTime opens reviews. Language fix: account/welcome languages unchanged (10). '
                'Analytics: Firebase screens/events; no account ID, GPS or query content; no ads/IDFA/IDFV. '
                'More > Settings > Usage statistics disables collection. '
-               'Update banner: Home store link and 24h snooze.')
+               'Update banner: Home store link, 24h snooze.')
 
 
 def review_notes(source_notes, previous_version, attachments_inherited, release_note=None):
@@ -989,8 +990,8 @@ def main():
     mode.add_argument('--submit', action='store_true')
     mode.add_argument('--self-test', action='store_true')
     parser.add_argument('--for-upload', action='store_true')
-    parser.add_argument('--version', default='1.0.30')
-    parser.add_argument('--previous-version', default='1.0.29')
+    parser.add_argument('--version', default='1.0.31')
+    parser.add_argument('--previous-version', default='1.0.30')
     parser.add_argument('--build-number', default='40')
     parser.add_argument('--wait-seconds', type=int, default=1200)
     parser.add_argument('--receipt', type=Path, default=Path('build/ios/app-store-submission.json'))
