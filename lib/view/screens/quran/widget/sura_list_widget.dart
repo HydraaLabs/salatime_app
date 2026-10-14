@@ -16,6 +16,7 @@ import 'package:salatime/util/dimensions.dart';
 import 'package:salatime/util/images.dart';
 import 'package:salatime/util/styles.dart';
 import 'package:salatime/view/base/catalog_search_field.dart';
+import 'package:salatime/service/analytics/app_analytics_service.dart';
 
 class SuraListWidget extends StatefulWidget {
   const SuraListWidget({super.key});
@@ -83,6 +84,7 @@ class _SuraListWidgetState extends State<SuraListWidget> {
               child: CatalogSearchField(
                 controller: _search,
                 fieldKey: const ValueKey('surah-catalog-search'),
+                analyticsAction: AppAnalyticsAction.surahSearch,
                 hintText: 'surah_search_hint'.tr,
                 onChanged: (_) => setState(() {}),
               ),

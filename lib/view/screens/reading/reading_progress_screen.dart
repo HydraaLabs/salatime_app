@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:salatime/service/analytics/app_analytics_service.dart';
 import 'package:salatime/service/mobile_auth_service.dart';
 import 'package:salatime/service/reading/reading_progress_service.dart';
 import 'package:salatime/view/base/custom_app_bar.dart';
@@ -293,10 +294,17 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
                 alignment: AlignmentDirectional.centerStart,
                 child: OutlinedButton.icon(
                   key: const ValueKey('reading-progress-sign-in'),
-                  onPressed: () => Get.to<void>(
-                    () => AccountScreen(service: widget.authService),
-                    routeName: '/account',
-                  ),
+                  onPressed: () {
+                    unawaited(
+                      AppAnalyticsService.instance.appAction(
+                        AppAnalyticsAction.readingCloudPrompt,
+                      ),
+                    );
+                    Get.to<void>(
+                      () => AccountScreen(service: widget.authService),
+                      routeName: '/account',
+                    );
+                  },
                   icon: const Icon(Icons.login),
                   label: Text('auth_login'.tr),
                 ),

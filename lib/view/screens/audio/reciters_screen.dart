@@ -10,6 +10,7 @@ import 'package:salatime/util/images.dart';
 import 'package:salatime/util/styles.dart';
 import 'package:salatime/view/base/catalog_search_field.dart';
 import 'package:salatime/view/base/custom_app_bar.dart';
+import 'package:salatime/service/analytics/app_analytics_service.dart';
 
 class ReciterScreen extends StatefulWidget {
   final bool? appBackButton;
@@ -65,6 +66,7 @@ class _ReciterScreenState extends State<ReciterScreen> {
             child: CatalogSearchField(
               controller: _searchController,
               fieldKey: const ValueKey('reciter_search'),
+              analyticsAction: AppAnalyticsAction.reciterSearch,
               hintText: 'reciter_search_hint'.tr,
               onChanged: (_) {
                 if (_scrollController.hasClients) _scrollController.jumpTo(0);

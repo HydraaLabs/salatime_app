@@ -37,8 +37,15 @@ Les événements d'action sont limités à :
 | `account_sign_up` | Inscription par e-mail réussie, après sauvegarde de la session |
 | `account_sign_out` | Déconnexion réussie et nettoyage de la session |
 | `cloud_sync` | Préférences entièrement synchronisées avec le compte |
+| `surah_search` | Première saisie dans une recherche de sourates (Coran, hors ligne ou audio), une fois par écran ouvert |
+| `reciter_search` | Première saisie dans la recherche de récitateurs, une fois par écran ouvert |
+| `reading_cloud_prompt` | Appui sur « Se connecter » dans l'invitation de la progression de lecture |
+| `prayer_day_today` | Appui sur le bouton qui ramène l'accueil moderne au jour actuel |
 
-Ces actions n'ont aucun paramètre applicatif. Les vues d'écran envoient uniquement
+Ces actions n'ont aucun paramètre applicatif. Les événements de recherche
+indiquent seulement qu'une fonctionnalité a servi : le texte saisi, les
+résultats et la sourate ou le récitateur choisis ne sont jamais transmis.
+Les vues d'écran envoient uniquement
 un nom du catalogue et la classe fixe `SalaTime`, via l'événement standard
 `screen_view`. Les URL brutes, requêtes, arguments de route, e-mails, noms,
 identifiants de compte, tokens, coordonnées GPS précises, recherches, versets,

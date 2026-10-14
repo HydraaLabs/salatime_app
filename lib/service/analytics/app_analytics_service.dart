@@ -11,7 +11,12 @@ enum AppAnalyticsAction {
   accountSignIn('account_sign_in'),
   accountSignUp('account_sign_up'),
   cloudSync('cloud_sync'),
-  accountSignOut('account_sign_out');
+  accountSignOut('account_sign_out'),
+  // Feature use only: the typed text, results and chosen items are never sent.
+  surahSearch('surah_search'),
+  reciterSearch('reciter_search'),
+  readingCloudPrompt('reading_cloud_prompt'),
+  prayerDayToday('prayer_day_today');
 
   const AppAnalyticsAction(this.eventName);
   final String eventName;

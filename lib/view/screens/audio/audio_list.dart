@@ -15,6 +15,7 @@ import 'package:salatime/view/base/catalog_search_field.dart';
 import 'package:salatime/view/screens/audio/audio_player_sheet.dart';
 
 import '../../../util/dimensions.dart';
+import 'package:salatime/service/analytics/app_analytics_service.dart';
 
 class AudioPlayerView extends StatefulWidget {
   final bool? appBackButton;
@@ -97,6 +98,7 @@ class _AudioPlayerViewState extends State<AudioPlayerView> {
           child: CatalogSearchField(
             controller: _searchController,
             fieldKey: const ValueKey('audio_surah_search'),
+            analyticsAction: AppAnalyticsAction.surahSearch,
             hintText: 'surah_search_hint'.tr,
             onChanged: (_) {
               if (_scrollController.hasClients) _scrollController.jumpTo(0);

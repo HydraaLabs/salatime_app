@@ -13,6 +13,7 @@ import 'package:salatime/view/base/catalog_search_field.dart';
 import 'package:salatime/view/screens/offline_quran/offline_surah_detail_screen.dart';
 import '../../../../controller/quran_settings_controller.dart';
 import '../../../base/loading_indicator.dart';
+import 'package:salatime/service/analytics/app_analytics_service.dart';
 
 class OfflineSuraList extends StatefulWidget {
   const OfflineSuraList({super.key});
@@ -74,6 +75,7 @@ class _OfflineSuraListState extends State<OfflineSuraList> {
             onChanged: (value) => setState(() => _query = value),
             hintText: 'surah_search_hint'.tr,
             fieldKey: const ValueKey('offline-surah-search'),
+            analyticsAction: AppAnalyticsAction.surahSearch,
           ),
         ),
         Expanded(

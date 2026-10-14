@@ -11,6 +11,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:salatime/controller/home_layout_controller.dart';
 import 'package:salatime/helper/athkar_catalog.dart';
+import 'package:salatime/service/analytics/app_analytics_service.dart';
 import 'package:salatime/service/mobile_auth_service.dart';
 import 'package:salatime/service/reading/reading_progress_service.dart';
 import 'package:salatime/theme/modern_dark_theme.dart';
@@ -260,6 +261,19 @@ void main() {
   testWidgets('guest invitation opens the existing account sign-in form', (
     tester,
   ) async {
+    final previous = AppAnalyticsService.instance;
+    final sink = _AnalyticsSink();
+    final analytics = AppAnalyticsService(
+      preferences: await SharedPreferences.getInstance(),
+      sink: sink,
+      enabledInBuild: true,
+    );
+    AppAnalyticsService.instance = analytics;
+    addTearDown(() {
+      AppAnalyticsService.instance = previous;
+      analytics.collectionPreference.dispose();
+    });
+    await tester.runAsync(analytics.initialize);
     await tester.pumpWidget(app());
     await tester.pumpAndSettle();
     expect(key('reading-progress-sign-in-prompt'), findsOneWidget);
@@ -269,6 +283,8 @@ void main() {
     expect(key('auth_email'), findsOneWidget);
     expect(key('auth_password'), findsOneWidget);
     expect(reading.writes, 0);
+    await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+    expect(sink.actions, ['reading_cloud_prompt']);
   });
 
   testWidgets(
@@ -359,4 +375,16 @@ void main() {
       );
     }
   }
+}
+
+class _AnalyticsSink implements AppAnalyticsSink {
+  final actions = <String>[];
+  @override
+  Future<void> setCollectionEnabled(bool enabled) async {}
+  @override
+  Future<void> screenViewed(String screenName) async {}
+  @override
+  Future<void> appAction(String eventName) async => actions.add(eventName);
+  @override
+  Future<void> resetData() async {}
 }
