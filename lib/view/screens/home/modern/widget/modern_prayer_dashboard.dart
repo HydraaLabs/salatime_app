@@ -1,6 +1,7 @@
 import 'package:salatime/service/analytics/app_analytics_service.dart';
 import 'package:salatime/service/preference_cloud_sync.dart';
 import 'package:salatime/helper/prayer_notification_preferences.dart';
+import 'package:salatime/helper/additional_reminder_plan.dart';
 import 'package:salatime/controller/prayer_time_adjustment.dart';
 // ignore_for_file: deprecated_member_use
 
@@ -57,6 +58,12 @@ class _ModernPrayerDashboardState extends State<ModernPrayerDashboard> {
   final Map<PrayerNotificationPrayer, bool> _notificationStates = {};
   final Set<int> _updatingPrayerIds = {};
   bool _notificationStatesLoaded = false;
+  StreamSubscription<void>? _reminderChanges;
+  // Mirrors the Middle of the night reminder of Other notifications.
+  bool? _middleNightEnabled;
+  bool _updatingMiddleNight = false;
+  Data? _followingDay;
+  DateTime? _followingDayFor;
   late DateTime _selectedDate;
   late DateTime _lastToday;
   PrayerTimeModel? _displayedPrayerTimeModel;
@@ -72,8 +79,12 @@ class _ModernPrayerDashboardState extends State<ModernPrayerDashboard> {
     _selectedDate = DateTime(now.year, now.month, now.day);
     _lastToday = _selectedDate;
     _displayedPrayerTimeModel = widget.prayerTimeController.prayerTimeModel;
+    _reminderChanges = AdditionalReminderPreferences.changes.listen((_) {
+      if (mounted) unawaited(_loadMiddleNightReminder());
+    });
     _recomputeCountdown();
     unawaited(_loadNotificationStates());
+    unawaited(_loadMiddleNightReminder());
     _ticker = Timer.periodic(
       const Duration(seconds: 1),
       (_) => _recomputeCountdown(),
@@ -156,9 +167,67 @@ class _ModernPrayerDashboardState extends State<ModernPrayerDashboard> {
     }
   }
 
+  Future<void> _loadMiddleNightReminder() async {
+    try {
+      final settings = await AdditionalReminderPreferences.load();
+      if (!mounted || _updatingMiddleNight) return;
+      setState(() {
+        _middleNightEnabled = settings
+            .firstWhere(
+              (setting) => setting.type == AdditionalReminderType.middleNight,
+            )
+            .enabled;
+      });
+    } catch (error) {
+      Get.log('Failed to load the middle of the night reminder: $error');
+    }
+  }
+
+  /// Same setting as Other notifications > Middle of the night.
+  Future<void> _toggleMiddleNightReminder() async {
+    final previousValue = _middleNightEnabled;
+    if (previousValue == null || _updatingMiddleNight) return;
+    final nextValue = !previousValue;
+    PreferenceCloudSync.instance.noteLocalChange();
+    setState(() {
+      _middleNightEnabled = nextValue;
+      _updatingMiddleNight = true;
+    });
+    try {
+      await AdditionalReminderPreferences.update(
+        AdditionalReminderType.middleNight,
+        enabled: nextValue,
+      );
+      PreferenceCloudSync.instance.noteLocalChange();
+      unawaited(_refreshPrayerNotifications(nextValue));
+    } catch (error) {
+      Get.log('Failed to update the middle of the night reminder: $error');
+      if (mounted) setState(() => _middleNightEnabled = previousValue);
+    } finally {
+      if (mounted) setState(() => _updatingMiddleNight = false);
+    }
+  }
+
+  Future<void> _loadFollowingDay(DateTime date) async {
+    try {
+      final next = await widget.prayerTimeController.getPrayerTimeForDate(
+        DateTime(date.year, date.month, date.day + 1),
+        allowNetwork: false,
+      );
+      if (!mounted || !_isSameDate(_selectedDate, date)) return;
+      setState(() {
+        _followingDay = next?.data;
+        _followingDayFor = date;
+      });
+    } catch (_) {
+      // The same day's Fajr remains a close approximation.
+    }
+  }
+
   @override
   void dispose() {
     unawaited(_notificationChanges?.cancel());
+    unawaited(_reminderChanges?.cancel());
     _ticker?.cancel();
     super.dispose();
   }
@@ -306,6 +375,7 @@ class _ModernPrayerDashboardState extends State<ModernPrayerDashboard> {
       _isChangingDate = false;
       if (model != null) {
         _displayedPrayerTimeModel = model;
+        unawaited(_loadFollowingDay(targetDate));
       } else {
         _selectedDate = previousDate;
         _displayedPrayerTimeModel = previousModel;
@@ -326,10 +396,14 @@ class _ModernPrayerDashboardState extends State<ModernPrayerDashboard> {
     return '$hours:$minutes:$seconds';
   }
 
-  List<_PrayerEntry> _prayers(PrayerTimeModel? prayerTimeModel) {
+  List<_PrayerEntry> _prayers(
+    PrayerTimeModel? prayerTimeModel, {
+    Data? followingDay,
+  }) {
     final data = PrayerTimeAdjustmentController.adjustedDay(
       prayerTimeModel?.data,
     );
+    final following = PrayerTimeAdjustmentController.adjustedDay(followingDay);
     return [
       _PrayerEntry(
         notificationId: 1,
@@ -367,6 +441,17 @@ class _ModernPrayerDashboardState extends State<ModernPrayerDashboard> {
         time: data?.ishaStart,
         icon: Images.ModernPrayer_IshaMoon,
       ),
+      // Not a prayer: a display time like sunrise, linked to the reminder.
+      _PrayerEntry(
+        labelKey: 'extra_reminder_middleNight',
+        time: middleOfNightClock(
+          maghrib: data?.maghribStart,
+          // Until the following day is known, its Fajr is within a minute.
+          fajr: following?.fajrStart ?? data?.fajrStart,
+        ),
+        icon: Images.ModernPrayer_MiddleNight,
+        middleNightReminder: true,
+      ),
     ];
   }
 
@@ -396,7 +481,13 @@ class _ModernPrayerDashboardState extends State<ModernPrayerDashboard> {
     final displayedModel = isShowingToday
         ? widget.prayerTimeController.prayerTimeModel
         : _displayedPrayerTimeModel;
-    final prayers = _prayers(displayedModel);
+    final followingDay = isShowingToday
+        ? _nextDay
+        : _followingDayFor != null &&
+              _isSameDate(_followingDayFor!, _selectedDate)
+        ? _followingDay
+        : null;
+    final prayers = _prayers(displayedModel, followingDay: followingDay);
     final activeIndex = isShowingToday ? _nextPrayerIndex(prayers) : -1;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final materialLocalizations = MaterialLocalizations.of(context);
@@ -479,18 +570,23 @@ class _ModernPrayerDashboardState extends State<ModernPrayerDashboard> {
                   isActive: index == activeIndex,
                   is24HourFormat:
                       widget.prayerTimeController.is24HourFormat.value,
-                  notificationEnabled: prayers[index].notificationId == null
+                  notificationEnabled: prayers[index].middleNightReminder
+                      ? _middleNightEnabled
+                      : prayers[index].notificationId == null
                       ? null
                       : _notificationStates[PrayerNotificationPrayer.fromLegacyId(
                           prayers[index].notificationId!,
                           date: _selectedDate,
                         )],
-                  notificationUpdating:
-                      prayers[index].notificationId != null &&
-                      _updatingPrayerIds.contains(
-                        prayers[index].notificationId,
-                      ),
-                  onNotificationPressed: prayers[index].notificationId == null
+                  notificationUpdating: prayers[index].middleNightReminder
+                      ? _updatingMiddleNight
+                      : prayers[index].notificationId != null &&
+                            _updatingPrayerIds.contains(
+                              prayers[index].notificationId,
+                            ),
+                  onNotificationPressed: prayers[index].middleNightReminder
+                      ? _toggleMiddleNightReminder
+                      : prayers[index].notificationId == null
                       ? null
                       : () => _togglePrayerNotification(prayers[index]),
                 ),
@@ -753,13 +849,17 @@ class _PrayerEntry {
   final String labelKey;
   final String? time;
   final String icon;
+  final bool middleNightReminder;
 
   const _PrayerEntry({
     this.notificationId,
     required this.labelKey,
     required this.time,
     required this.icon,
+    this.middleNightReminder = false,
   });
+
+  bool get hasNotification => notificationId != null || middleNightReminder;
 }
 
 class _PrayerRow extends StatelessWidget {
@@ -824,7 +924,7 @@ class _PrayerRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          if (prayer.notificationId != null)
+          if (prayer.hasNotification)
             SizedBox.square(
               dimension: 48,
               child: notificationUpdating
@@ -837,7 +937,9 @@ class _PrayerRow extends StatelessWidget {
                     )
                   : IconButton(
                       key: ValueKey(
-                        'prayer_notification_${prayer.notificationId}',
+                        prayer.middleNightReminder
+                            ? 'prayer_notification_middle_night'
+                            : 'prayer_notification_${prayer.notificationId}',
                       ),
                       tooltip:
                           (notificationEnabled == true

@@ -52,6 +52,24 @@ class _SeriesReminderStore extends InMemorySharedPreferencesStore {
 }
 
 void main() {
+  test('middle of the night clock matches the reminder definition', () {
+    // Maghrib 17:48, next Fajr 04:56: 11 h 08 of night, middle at 23:22.
+    expect(middleOfNightClock(maghrib: '17:48', fajr: '04:56'), '23:22');
+    // A half-minute middle shows the minute it falls in.
+    expect(middleOfNightClock(maghrib: '18:00', fajr: '05:01'), '23:30');
+    // Short summer nights move the middle past midnight.
+    expect(middleOfNightClock(maghrib: '21:50', fajr: '02:30'), '00:10');
+    expect(middleOfNightClock(maghrib: '21:50:00', fajr: '02:30:00'), '00:10');
+    for (final (maghrib, fajr) in [
+      (null, '05:00'),
+      ('18:00', null),
+      ('--:--', '05:00'),
+      ('25:00', '05:00'),
+    ]) {
+      expect(middleOfNightClock(maghrib: maghrib, fajr: fajr), isNull);
+    }
+  });
+
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(LocalPrayerCalculator.initializeTimeZones);
   setUp(() => SharedPreferences.setMockInitialValues({}));

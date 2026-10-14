@@ -9,6 +9,7 @@ import 'package:salatime/data/model/response/todays_prayer_time_model.dart';
 import 'package:salatime/view/screens/home/modern/widget/modern_prayer_dashboard.dart';
 import 'package:salatime/theme/brand_colors.dart';
 import 'package:salatime/service/analytics/app_analytics_service.dart';
+import 'package:salatime/helper/additional_reminder_plan.dart';
 
 PrayerTimeModel _day(DateTime date, {String fajr = '05:30'}) => PrayerTimeModel(
   data: Data(
@@ -54,6 +55,7 @@ class _Strings extends Translations {
       'asr': 'Asr',
       'magrib': 'Maghrib',
       'time_since_prayer': 'Time since @prayer',
+      'extra_reminder_middleNight': 'Middle of the night',
     },
   };
 }
@@ -70,6 +72,7 @@ void main() {
     now = DateTime(2026, 9, 12, 23, 55);
   });
   tearDown(Get.reset);
+  var reschedules = 0;
   Widget app({Brightness brightness = Brightness.light}) => GetMaterialApp(
     theme: ThemeData(brightness: brightness),
     translations: _Strings(),
@@ -79,6 +82,7 @@ void main() {
         child: ModernPrayerDashboard(
           prayerTimeController: controller,
           now: () => now,
+          rescheduleNotifications: () async => reschedules++,
         ),
       ),
     ),
@@ -280,6 +284,61 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
   });
+  testWidgets(
+    'middle of the night row mirrors its Other notifications reminder',
+    (tester) async {
+      Future<bool> saved() async => (await AdditionalReminderPreferences.load())
+          .firstWhere((s) => s.type == AdditionalReminderType.middleNight)
+          .enabled;
+      now = DateTime(2026, 9, 12, 12);
+      controller.prayerTimeModel = _day(DateTime(2026, 9, 12));
+      await tester.pumpWidget(app());
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump();
+      // Maghrib 19:00 and the following Fajr 05:30: 10 h 30 of night.
+      expect(find.text('Middle of the night'), findsOneWidget);
+      expect(find.text('00:15'), findsOneWidget);
+      final bell = find.byKey(
+        const ValueKey('prayer_notification_middle_night'),
+      );
+      Icon icon() => tester.widget<Icon>(
+        find.descendant(of: bell, matching: find.byType(Icon)),
+      );
+      Future<void> settle() async {
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 20)),
+        );
+        await tester.pump();
+      }
+
+      await settle();
+      expect(icon().icon, Icons.notifications_none_rounded);
+      expect(tester.widget<IconButton>(bell).onPressed, isNotNull);
+      expect(await tester.runAsync(saved), isFalse);
+
+      await tester.ensureVisible(bell);
+      await tester.pump();
+      await tester.tap(bell);
+      await tester.pump();
+      await settle();
+      expect(await tester.runAsync(saved), isTrue);
+      expect(icon().icon, Icons.notifications_rounded);
+      expect(reschedules, 1);
+
+      // Turning it off in Other notifications updates the Home bell.
+      await tester.runAsync(
+        () => AdditionalReminderPreferences.update(
+          AdditionalReminderType.middleNight,
+          enabled: false,
+        ),
+      );
+      await settle();
+      expect(icon().icon, Icons.notifications_none_rounded);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
 }
 
 class _AnalyticsSink implements AppAnalyticsSink {

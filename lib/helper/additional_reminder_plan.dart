@@ -568,6 +568,30 @@ Set<int> selectReminderAlarmIds({
   return unique.take(limit.clamp(0, 450)).map((item) => item.id).toSet();
 }
 
+/// Wall-clock middle of the night that follows [maghrib], as "HH:mm".
+///
+/// Same definition as [calculatePrayerNight]: halfway between Maghrib and the
+/// following Fajr. [fajr] is that following day's Fajr ("HH:mm").
+String? middleOfNightClock({required String? maghrib, required String? fajr}) {
+  int? minutes(String? value) {
+    final parts = value?.trim().split(':');
+    if (parts == null || parts.length < 2) return null;
+    final hour = int.tryParse(parts[0]);
+    final minute = int.tryParse(parts[1]);
+    if (hour == null || minute == null || hour > 23 || minute > 59) return null;
+    return hour * 60 + minute;
+  }
+
+  final start = minutes(maghrib);
+  final end = minutes(fajr);
+  if (start == null || end == null) return null;
+  final night = end + 24 * 60 - start;
+  if (night <= 0 || night >= 24 * 60) return null;
+  final middle = (start * 60 + night * 30) ~/ 60 % (24 * 60);
+  String two(int value) => value.toString().padLeft(2, '0');
+  return '${two(middle ~/ 60)}:${two(middle % 60)}';
+}
+
 ({tz.TZDateTime middle, tz.TZDateTime lastThird})? calculatePrayerNight({
   required tz.TZDateTime previousMaghrib,
   required tz.TZDateTime fajr,

@@ -131,6 +131,8 @@ class Images {
       '${modern_icon_path}prayer_isha_moon.svg';
   static const String ModernPrayer_MaghribSunset =
       '${modern_icon_path}prayer_maghrib_sunset.svg';
+  static const String ModernPrayer_MiddleNight =
+      '${modern_icon_path}prayer_middle_night.svg';
 
   // language screen
   static const flag_icon_path = 'assets/icon/flag/';
