@@ -3,9 +3,12 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:hijri/hijri_calendar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:salatime/controller/package_prayer_time_controller.dart';
 import 'package:salatime/controller/prayer_time_adjustment.dart';
+import 'package:salatime/helper/islamic_calendar.dart';
 import 'package:salatime/helper/local_prayer_calculator.dart';
 import 'package:salatime/helper/prayer_alarm_health.dart';
 import 'package:salatime/helper/prayer_alarm_plan.dart';
@@ -18,6 +21,18 @@ class PrayerWidgetSync {
   static final _coordinator = PrayerRefreshCoordinator(refresh: _refresh);
 
   static Future<void> refresh() => _coordinator.request(immediate: true);
+
+  /// Hijri date for a prayer's civil day, with the user's calendar correction.
+  /// Read from storage so background widget updates use the same correction.
+  static String hijriLabel(String date, SharedPreferences prefs) {
+    final day = DateTime.parse(date);
+    final correction =
+        (prefs.getInt(IslamicCalendarPreferences.storageKey) ?? 0).clamp(-2, 2);
+    final hijri = HijriCalendar.fromDate(
+      DateTime(day.year, day.month, day.day + correction),
+    );
+    return '${hijri.hDay} ${'hijri_month_${hijri.hMonth}'.tr} ${hijri.hYear}';
+  }
 
   static Future<void> _refresh({
     required bool requestPermissions,
@@ -89,6 +104,7 @@ class PrayerWidgetSync {
       return;
     }
     try {
+      final prefs = await SharedPreferences.getInstance();
       await PrayerAlarmHealth.channel.invokeMethod<void>('updateWidget', {
         'prayers': jsonEncode(
           prayers
@@ -99,6 +115,7 @@ class PrayerWidgetSync {
                   'date': p.date,
                   'name': p.nameKey.tr,
                   'shortName': 'widget_prayer_${p.prayerId}'.tr,
+                  'hijri': hijriLabel(p.date, prefs),
                 },
               )
               .toList(),

@@ -188,6 +188,38 @@ class PrayerWidgetProviderTest {
         assertEquals("Later", view.findViewById<TextView>(R.id.widget_slot_name_1).text.toString())
     }
 
+    @Test fun dateLineAddsTheHijriDateOfTheDisplayedPrayersDay() {
+        val app = RuntimeEnvironment.getApplication()
+        val next = java.time.Instant.parse("2026-10-15T04:56:00Z").toEpochMilli()
+        fun show(hijri: String?, dateOption: Boolean = true): List<TextView> {
+            app.getSharedPreferences("salatime_prayer_widget", 0).edit().clear()
+                .putString("prayers", JSONArray()
+                    .put(JSONObject().put("at", next - 9 * 3600000).put("name", "Isha")
+                        .put("date", "2026-10-14").apply { if (hijri != null) put("hijri", "3 Joumada al-Oula 1448") })
+                    .put(JSONObject().put("at", next).put("name", "As-sobh")
+                        .put("date", "2026-10-15").apply { if (hijri != null) put("hijri", hijri) }).toString())
+                .putString("locale", "fr-FR").putString("timeZone", "UTC").apply()
+            app.getSharedPreferences("salatime_widget_options", 0).edit().clear()
+                .putBoolean("countdown", false).putBoolean("date", dateOption).apply()
+            return listOf(false, true).map { expanded ->
+                PrayerWidgetProvider.createViews(app, expanded, next - 3 * 3600000)
+                    .apply(app, FrameLayout(app)).findViewById(R.id.widget_date)
+            }
+        }
+        for (date in show("4 Joumada al-Oula 1448")) {
+            val text = date.text.toString()
+            assertTrue(text, text.contains("15"))
+            assertTrue(text, text.endsWith(" · 4 Joumada al-Oula 1448"))
+        }
+        for (date in show(null)) {
+            assertTrue(date.text.toString().contains("15"))
+            assertTrue(!date.text.toString().contains("Joumada"))
+        }
+        for (date in show("4 Joumada al-Oula 1448", dateOption = false)) {
+            assertEquals(View.GONE, date.visibility)
+        }
+    }
+
     @Test fun clockAndEmptyWidgetStayGreenEvenInsideTheWarningWindow() {
         val app = RuntimeEnvironment.getApplication()
         val now = System.currentTimeMillis()

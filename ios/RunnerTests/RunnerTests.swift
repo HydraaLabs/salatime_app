@@ -171,6 +171,13 @@ class RunnerTests: XCTestCase {
     XCTAssertEqual(decoded.prayers.count, data.prayers.count)
   }
 
+  func testWidgetPrayerDecodesTheHijriDateAndAcceptsOlderPayloads() throws {
+    let current = Data(#"{"at":1792040160000,"prayerId":1,"date":"2026-10-15","name":"As-sobh","shortName":"Sobh","hijri":"4 Joumada al-Oula 1448"}"#.utf8)
+    let legacy = Data(#"{"at":1792040160000,"prayerId":1,"date":"2026-10-15","name":"As-sobh","shortName":"Sobh"}"#.utf8)
+    XCTAssertEqual(try JSONDecoder().decode(PrayerWidgetPrayer.self, from: current).hijri, "4 Joumada al-Oula 1448")
+    XCTAssertNil(try JSONDecoder().decode(PrayerWidgetPrayer.self, from: legacy).hijri)
+  }
+
   func testAllBundledNotificationSoundsMeetIOSDurationLimit() throws {
     let files = try XCTUnwrap(Bundle.main.urls(forResourcesWithExtension: "aiff", subdirectory: nil))
     XCTAssertEqual(files.count, 68, "Every sound in the catalogue must be embedded in Runner")

@@ -109,7 +109,7 @@ struct SalaTimeWidgetView: View {
                     }
                 }
                 Spacer(minLength: 0)
-                if entry.options.date { Text(day(current.prayer.instant, data: data)).font(.caption2).lineLimit(1) }
+                if entry.options.date { Text(day(current.prayer, data: data)).font(.caption2).lineLimit(1) }
             } else {
                 Spacer()
                 Text(snapshot?.emptyLabel ?? NSLocalizedString("widget_open", comment: "Open app to load prayer times"))
@@ -161,10 +161,14 @@ struct SalaTimeWidgetView: View {
         formatter.dateFormat = data.use24HourFormat ? "HH:mm" : "h:mm a"
         return formatter.string(from: date)
     }
-    private func day(_ date: Date, data: PrayerWidgetSnapshot) -> String {
+    private func day(_ prayer: PrayerWidgetPrayer, data: PrayerWidgetSnapshot) -> String {
         let formatter = DateFormatter(); formatter.locale = Locale(identifier: data.locale); formatter.timeZone = data.zone
         formatter.setLocalizedDateFormatFromTemplate("EEE d MMM")
-        return formatter.string(from: date)
+        let gregorian = formatter.string(from: prayer.instant)
+        guard let hijri = prayer.hijri?.trimmingCharacters(in: .whitespacesAndNewlines), !hijri.isEmpty else {
+            return gregorian
+        }
+        return gregorian + " · " + hijri
     }
 }
 

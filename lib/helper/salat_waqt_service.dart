@@ -673,6 +673,7 @@ class SalatWaqtService {
                         'date': p.date,
                         'name': p.nameKey.tr,
                         'shortName': 'widget_prayer_${p.prayerId}'.tr,
+                        'hijri': PrayerWidgetSync.hijriLabel(p.date, prefs),
                       },
                     )
                     .toList(),

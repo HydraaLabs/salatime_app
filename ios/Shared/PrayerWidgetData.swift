@@ -6,6 +6,8 @@ struct PrayerWidgetPrayer: Codable {
     let date: String
     let name: String
     let shortName: String?
+    // Hijri date of `date` with the user's correction; absent in older payloads.
+    var hijri: String? = nil
     var instant: Date { Date(timeIntervalSince1970: at / 1000) }
     var id: String { "\(date):\(prayerId)" }
 }

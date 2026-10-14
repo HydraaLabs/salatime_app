@@ -108,7 +108,11 @@ open class PrayerWidgetProvider : AppWidgetProvider() {
             val at = displayed?.optLong("at")
             val timeText = at?.let { format(if (hour24) "HH:mm" else "h:mm", it) } ?: "—:—"
             val period = if (at != null && !hour24) format("a", at) else ""
-            val date = at?.let { format(android.text.format.DateFormat.getBestDateTimePattern(locale, "EEEdMMM"), it) } ?: ""
+            val gregorian = at?.let { format(android.text.format.DateFormat.getBestDateTimePattern(locale, "EEEdMMM"), it) } ?: ""
+            // The app sends the Hijri date with the user's calendar correction;
+            // older payloads without it keep the Gregorian date only.
+            val hijri = displayed?.optString("hijri")?.trim().orEmpty()
+            val date = listOf(gregorian, hijri).filter { it.isNotEmpty() }.joinToString(" · ")
             val empty = prefs.getString("emptyLabel", context.getString(R.string.prayer_widget_open_label))
             views.setInt(R.id.widget_root, "setLayoutDirection", if (locale.language in listOf("ar", "fa", "ur")) View.LAYOUT_DIRECTION_RTL else View.LAYOUT_DIRECTION_LTR)
             // The prayer name already occupies the next line; repeating it here

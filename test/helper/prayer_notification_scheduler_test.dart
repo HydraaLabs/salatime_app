@@ -365,6 +365,44 @@ void main() {
     expect(args.containsKey('alarms'), false);
   });
 
+  test('widget days carry their Hijri date with the user correction', () async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(IslamicCalendarPreferences.storageKey, 1);
+    Get.addTranslations({
+      'en': {for (var m = 1; m <= 12; m++) 'hijri_month_$m': 'Month $m'},
+    });
+    Get.locale = const Locale('en');
+    String expected(String date) {
+      final day = DateTime.parse(date);
+      final hijri = HijriCalendar.fromDate(
+        DateTime(day.year, day.month, day.day + 1),
+      );
+      return '${hijri.hDay} Month ${hijri.hMonth} ${hijri.hYear}';
+    }
+
+    await PrayerWidgetSync.refresh();
+    final widget = harness.nativeCalls.singleWhere(
+      (call) => call.method == 'updateWidget',
+    );
+    final days = (jsonDecode(widget.arguments['prayers']) as List)
+        .cast<Map<String, dynamic>>();
+    expect(days, isNotEmpty);
+    for (final day in days) {
+      expect(day['hijri'], expected(day['date']));
+    }
+
+    harness.clearCalls();
+    await harness.refresh();
+    final update = harness.nativeCalls.singleWhere(
+      (call) => call.method == 'update',
+    );
+    for (final day
+        in (jsonDecode(update.arguments['prayers']) as List)
+            .cast<Map<String, dynamic>>()) {
+      expect(day['hijri'], expected(day['date']));
+    }
+  });
+
   test('the alarm schedule update also carries the widget prefix', () async {
     Get.addTranslations({
       'fr': {'countdown_prefix': 'dans'},
