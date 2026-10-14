@@ -17,7 +17,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   get: ^4.6.6
   shared_preferences: ^2.2.2
-  geolocator: ^13.0.1
+  geolocator: ^14.1.1
   geocoding: ^4.0.0
   intl: ^0.20.2
   http: ^1.1.0
@@ -36,12 +36,12 @@ dependencies:
   sqflite: ^2.3.0
   flutter_timezone: ^5.1.1
   #  prayers_times: ^0.0.6
-  share_plus: ^11.1.0
+  share_plus: ^13.3.1
   permission_handler: ^12.0.1
   # Native alarm recovery adapter targets this version's persisted format.
   flutter_local_notifications: 17.2.4
   timezone: ^0.9.3
-  flutter_qiblah: ^3.1.0+1
+  flutter_qiblah: ^3.2.0
   shimmer: ^3.0.0
   scrollable_positioned_list: ^0.3.8
   just_audio: ^0.10.5
@@ -56,12 +56,12 @@ dependencies:
   google_fonts: ^8.2.0
   google_sign_in: ^7.2.0
   sign_in_with_apple: ">=7.0.1 <8.2.0"
-  flutter_secure_storage: ^10.3.3
+  flutter_secure_storage: ^11.2.0
   crypto: ^3.0.7
   flutter_map: ^8.3.1
   latlong2: ^0.10.1
   flutter_compass_v2: ^1.0.3
-  package_info_plus: ^9.0.1
+  package_info_plus: ^10.2.2
   adhan: ^2.0.0+1
 
   # just_audio: ^0.9.38
