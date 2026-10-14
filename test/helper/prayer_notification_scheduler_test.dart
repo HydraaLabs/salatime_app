@@ -365,6 +365,18 @@ void main() {
     expect(args.containsKey('alarms'), false);
   });
 
+  test('the alarm schedule update also carries the widget prefix', () async {
+    Get.addTranslations({
+      'fr': {'countdown_prefix': 'dans'},
+    });
+    Get.locale = const Locale('fr');
+    await harness.refresh();
+    final update = harness.nativeCalls.singleWhere(
+      (call) => call.method == 'update',
+    );
+    expect(update.arguments['countdownPrefix'], 'dans');
+  });
+
   test('widget is filled while alarm registration is still blocked', () async {
     await PrayerNotificationPreferences.save(
       PrayerNotificationSetting.defaults(

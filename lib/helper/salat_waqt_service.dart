@@ -682,6 +682,7 @@ class SalatWaqtService {
                   : controller.currentAddress.value,
               'nextLabel': 'next_prayer'.tr,
               'sinceLabel': 'time_since_prayer'.tr,
+              'countdownPrefix': 'countdown_prefix'.tr,
               'emptyLabel': 'widget_open_to_refresh'.tr,
               'locale': Get.locale?.toLanguageTag() ?? 'en',
               'timeZone': zoneName,
