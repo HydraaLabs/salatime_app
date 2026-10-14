@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:salatime/service/mobile_auth_service.dart';
 import 'package:salatime/view/screens/account/cloud_sync_status_card.dart';
+import 'package:salatime/view/base/apple_sign_in_button.dart';
 import 'package:salatime/view/base/google_sign_in_button.dart';
 
 enum _AccountForm { login, register, forgot, reset }
@@ -355,16 +356,23 @@ class _AccountScreenState extends State<AccountScreen> {
                 ),
         ),
       if (user.emailVerified &&
+          _auth.configuration.value.google &&
+          !user.providers.contains('google') &&
           _auth.configuration.value.apple &&
           !user.providers.contains('apple'))
-        OutlinedButton(
+        const SizedBox(height: 12),
+      if (user.emailVerified &&
+          _auth.configuration.value.apple &&
+          !user.providers.contains('apple'))
+        AppleSignInButton(
+          key: const ValueKey('auth_link_apple'),
+          label: 'auth_link_apple'.tr,
           onPressed: _busy
               ? null
               : () => _run(
                   () => _auth.signInWithApple(link: true),
                   success: 'auth_provider_linked',
                 ),
-          child: Text('auth_link_apple'.tr),
         ),
       const SizedBox(height: 16),
       OutlinedButton.icon(
@@ -418,26 +426,12 @@ class _AccountScreenState extends State<AccountScreen> {
                   label: 'auth_google'.tr,
                   onPressed: _busy ? null : () => _run(_auth.signInWithGoogle),
                 ),
+              if (config.google && config.apple) const SizedBox(height: 12),
               if (config.apple)
-                OutlinedButton.icon(
+                AppleSignInButton(
+                  key: const ValueKey('auth_apple'),
+                  label: 'auth_apple'.tr,
                   onPressed: _busy ? null : () => _run(_auth.signInWithApple),
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor:
-                        Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black,
-                    foregroundColor:
-                        Theme.of(context).brightness == Brightness.dark
-                        ? Colors.black
-                        : Colors.white,
-                    minimumSize: const Size(140, 48),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                  ),
-                  icon: const Icon(Icons.apple),
-                  label: Text('auth_apple'.tr),
                 ),
               const SizedBox(height: 16),
             ],
