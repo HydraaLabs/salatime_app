@@ -22,7 +22,7 @@ class PrayerTimeZones {
 
   static Future<String> refreshDeviceZone() async {
     initialize();
-    final name = await FlutterTimezone.getLocalTimezone();
+    final name = (await FlutterTimezone.getLocalTimezone()).identifier;
     // Unit tests running on a desktop can mock an IANA name without changing
     // their host clock. Only mobile devices use the native clock source.
     _deviceZone = !kIsWeb && (Platform.isAndroid || Platform.isIOS)
