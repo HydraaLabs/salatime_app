@@ -883,5 +883,8 @@
   "app_update_version_available": "SalaTime @version is available.",
   "app_update_now": "Update",
   "app_update_later": "Later",
-  "app_update_open_failed": "Unable to open the store. Please try again."
+  "app_update_open_failed": "Unable to open the store. Please try again.",
+  "nearby_mosque_unnamed": "Mosque",
+  "nearby_mosques_saved_results": "The map service is busy: showing the mosques saved for this area.",
+  "nearby_mosques_unavailable": "Mosque search is temporarily unavailable. Please try again in a few minutes."
 }

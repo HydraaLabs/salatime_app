@@ -811,5 +811,8 @@
   "app_update_version_available": "SalaTime @version mevcut.",
   "app_update_now": "Güncelle",
   "app_update_later": "Daha sonra",
-  "app_update_open_failed": "Mağaza açılamadı. Lütfen tekrar deneyin."
+  "app_update_open_failed": "Mağaza açılamadı. Lütfen tekrar deneyin.",
+  "nearby_mosque_unnamed": "Cami",
+  "nearby_mosques_saved_results": "Harita hizmeti yoğun: bu bölge için kaydedilen camiler gösteriliyor.",
+  "nearby_mosques_unavailable": "Cami araması geçici olarak kullanılamıyor. Lütfen birkaç dakika sonra tekrar deneyin."
 }

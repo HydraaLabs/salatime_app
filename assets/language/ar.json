@@ -878,5 +878,8 @@
   "app_update_version_available": "الإصدار @version من SalaTime متاح.",
   "app_update_now": "تحديث",
   "app_update_later": "لاحقًا",
-  "app_update_open_failed": "تعذر فتح المتجر. يرجى المحاولة مجددًا."
+  "app_update_open_failed": "تعذر فتح المتجر. يرجى المحاولة مجددًا.",
+  "nearby_mosque_unnamed": "مسجد",
+  "nearby_mosques_saved_results": "خدمة الخرائط مشغولة: عرض المساجد المحفوظة لهذه المنطقة.",
+  "nearby_mosques_unavailable": "البحث عن المساجد غير متاح مؤقتًا. يرجى المحاولة بعد بضع دقائق."
 }

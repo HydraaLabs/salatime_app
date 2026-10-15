@@ -82,7 +82,7 @@ class _Mosques extends NearbyMosqueController {
   int searches = 0;
 
   @override
-  void searchNearbyPlaces() => searches++;
+  Future<void> searchNearbyPlaces() async => searches++;
 }
 
 class _Prayer extends PrayerTimeController {

@@ -10,11 +10,24 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:salatime/helper/debug_http_client.dart';
+import 'package:http/http.dart' as http;
+import 'package:salatime/util/app_constants.dart';
 import 'dart:convert';
 
 import 'package:salatime/view/base/custom_snackbar.dart';
 
 class NearbyMosqueController extends GetxController {
+  NearbyMosqueController({
+    http.Client? client,
+    void Function(String message, {bool isError})? notify,
+  }) : _http = client ?? appHttpClient,
+       _notify = notify ?? _showSnackBar;
+
+  final http.Client _http;
+  final void Function(String message, {bool isError}) _notify;
+
+  static void _showSnackBar(String message, {bool isError = false}) =>
+      showCustomSnackBar(message, isError: isError);
   GlobalKey<FormState> nearbyMosqueFormKey = GlobalKey<FormState>();
 
   // Get Address Variable =====>
@@ -119,7 +132,7 @@ class NearbyMosqueController extends GetxController {
   static const String _overpassUserAgent =
       'SalaTime/1.0 (contact: contact@salatime.net)';
 
-  void searchNearbyPlaces() async {
+  Future<void> searchNearbyPlaces() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool("isLocationDenied", false);
     bool? storedFontSize = prefs.getBool("isLocationDenied");
@@ -153,100 +166,214 @@ class NearbyMosqueController extends GetxController {
       return;
     }
 
-    final int radius = 1000 * kmToRadious;
-    final String query =
-        '[out:json];('
+    isLoading(true);
+    try {
+      final language = Get.locale?.languageCode ?? 'en';
+      var results = await _fromSalaTime(lat, lng, kmToRadious, language);
+      results ??= await _fromOverpass(lat, lng, kmToRadious);
+      if (results != null) {
+        places.value = results;
+        await _saveResults(lat, lng, kmToRadious, results);
+        return;
+      }
+      final saved = await _savedResults(lat, lng, kmToRadious);
+      if (saved != null) {
+        places.value = saved;
+        _notify('nearby_mosques_saved_results'.tr);
+        return;
+      }
+      places.value = [];
+      _notify('nearby_mosques_unavailable'.tr, isError: true);
+    } catch (e) {
+      places.value = [];
+      if (kDebugMode) print('Nearby mosques error: $e');
+      _notify('nearby_mosques_unavailable'.tr, isError: true);
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  /// SalaTime's cached OpenStreetMap proxy: one request, results already
+  /// filtered by radius, sorted and named in the app language.
+  Future<List<Map<String, dynamic>>?> _fromSalaTime(
+    double lat,
+    double lng,
+    int radiusKm,
+    String language,
+  ) async {
+    try {
+      final uri = Uri.parse('${AppConstants.BASE_URL}/api/mosques/nearby')
+          .replace(
+            queryParameters: {
+              'lat': lat.toStringAsFixed(5),
+              'lng': lng.toStringAsFixed(5),
+              'radius': '$radiusKm',
+              'lang': language,
+            },
+          );
+      final response = await _http
+          .get(uri, headers: {'Accept': 'application/json'})
+          .timeout(const Duration(seconds: 30));
+      if (response.statusCode != 200) return null;
+      final decoded = json.decode(response.body);
+      if (decoded is! Map || decoded['status'] != true) return null;
+      final mosques = decoded['mosques'];
+      if (mosques is! List) return null;
+      return [
+        for (final mosque in mosques.whereType<Map>())
+          if (mosque['lat'] is num && mosque['lng'] is num)
+            _place(
+              name: mosque['name'] as String?,
+              address: mosque['address'] as String?,
+              lat: (mosque['lat'] as num).toDouble(),
+              lng: (mosque['lng'] as num).toDouble(),
+              distance: (mosque['distance'] as num?)?.toDouble() ?? 0,
+            ),
+      ];
+    } catch (e) {
+      if (kDebugMode) print('SalaTime mosques proxy failed: $e');
+      return null;
+    }
+  }
+
+  /// Direct OpenStreetMap fallback, used only when the proxy is unreachable.
+  Future<List<Map<String, dynamic>>?> _fromOverpass(
+    double lat,
+    double lng,
+    int radiusKm,
+  ) async {
+    final radius = 1000 * radiusKm;
+    final query =
+        '[out:json][timeout:15];('
         'node["amenity"="place_of_worship"]["religion"="muslim"](around:$radius,$lat,$lng);'
         'way["amenity"="place_of_worship"]["religion"="muslim"](around:$radius,$lat,$lng);'
         ');out center;';
+    for (final endpoint in _overpassUrls) {
+      try {
+        final response = await _http
+            .post(
+              Uri.parse(endpoint),
+              headers: {'User-Agent': _overpassUserAgent},
+              body: {'data': query},
+            )
+            .timeout(const Duration(seconds: 15));
+        if (response.statusCode != 200) continue;
+        final elements = json.decode(response.body)['elements'];
+        if (elements is! List) continue;
+        final results = <Map<String, dynamic>>[];
+        for (final element in elements) {
+          final eLat = (element['lat'] ?? element['center']?['lat'])
+              ?.toDouble();
+          final eLng = (element['lon'] ?? element['center']?['lon'])
+              ?.toDouble();
+          if (eLat == null || eLng == null) continue;
+          final Map tags = element['tags'] ?? {};
+          final address = [
+            tags['addr:housenumber'],
+            tags['addr:street'],
+            tags['addr:city'],
+          ].whereType<String>().join(' ');
+          results.add(
+            _place(
+              name: tags['name'] as String?,
+              address: address,
+              lat: eLat,
+              lng: eLng,
+              distance: _distance(lat, lng, eLat, eLng),
+            ),
+          );
+        }
+        results.sort(
+          (a, b) =>
+              (a['distance'] as double).compareTo(b['distance'] as double),
+        );
+        return results;
+      } catch (e) {
+        if (kDebugMode) print('Overpass $endpoint failed: $e');
+      }
+    }
+    return null;
+  }
 
-    isLoading(true);
+  /// The shape the screen has used since the Google Places integration.
+  Map<String, dynamic> _place({
+    required String? name,
+    required String? address,
+    required double lat,
+    required double lng,
+    required double distance,
+  }) => {
+    'name': (name == null || name.trim().isEmpty)
+        ? 'nearby_mosque_unnamed'.tr
+        : name,
+    'vicinity': (address == null || address.trim().isEmpty) ? '--' : address,
+    'geometry': {
+      'location': {'lat': lat, 'lng': lng},
+    },
+    'distance': distance,
+  };
+
+  double _distance(double lat, double lng, double toLat, double toLng) =>
+      isGeolocatorSupported
+      ? Geolocator.distanceBetween(lat, lng, toLat, toLng)
+      : 0;
+
+  static const _savedKey = 'nearby_mosques_last_v1';
+
+  /// The last successful search, kept for when every source is unavailable.
+  Future<void> _saveResults(
+    double lat,
+    double lng,
+    int radiusKm,
+    List<Map<String, dynamic>> results,
+  ) async {
     try {
-      // Try each Overpass endpoint once, in order, until one answers.
-      String? responseBody;
-      for (final endpoint in _overpassUrls) {
-        try {
-          final response = await appHttpClient
-              .post(
-                Uri.parse(endpoint),
-                headers: {'User-Agent': _overpassUserAgent},
-                body: {'data': query},
-              )
-              .timeout(const Duration(seconds: 40));
-
-          if (response.statusCode != 200) {
-            if (kDebugMode) {
-              print(
-                'Overpass $endpoint failed: '
-                'status ${response.statusCode}',
-              );
-            }
-            continue;
-          }
-          responseBody = response.body;
-          break;
-        } catch (e) {
-          if (kDebugMode) {
-            print('Overpass $endpoint failed: $e');
-          }
-        }
-      }
-
-      if (responseBody == null) {
-        // All endpoints failed.
-        places.value = [];
-        showCustomSnackBar("please_try_again".tr, isError: true);
-        return;
-      }
-
-      final decoded = json.decode(responseBody);
-      final List elements = decoded['elements'] ?? [];
-      final List<Map<String, dynamic>> results = [];
-
-      for (final element in elements) {
-        // Nodes carry lat/lng directly; ways carry a "center".
-        final double? eLat = (element['lat'] ?? element['center']?['lat'])
-            ?.toDouble();
-        final double? eLng = (element['lon'] ?? element['center']?['lon'])
-            ?.toDouble();
-        if (eLat == null || eLng == null) continue;
-
-        final Map tags = element['tags'] ?? {};
-        final addressParts = <String>[
-          if (tags['addr:housenumber'] != null) '${tags['addr:housenumber']}',
-          if (tags['addr:street'] != null) '${tags['addr:street']}',
-          if (tags['addr:city'] != null) '${tags['addr:city']}',
-        ];
-
-        double distance = 0;
-        if (isGeolocatorSupported) {
-          distance = Geolocator.distanceBetween(lat, lng, eLat, eLng);
-        }
-
-        // Keep the same shape the screen used with Google Places so the
-        // view does not need to change.
-        results.add({
-          'name': tags['name'] ?? 'Mosquée',
-          'vicinity': addressParts.isEmpty ? '--' : addressParts.join(' '),
-          'geometry': {
-            'location': {'lat': eLat, 'lng': eLng},
-          },
-          'distance': distance,
-        });
-      }
-
-      results.sort(
-        (a, b) => (a['distance'] as double).compareTo(b['distance'] as double),
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+        _savedKey,
+        json.encode({
+          'lat': lat,
+          'lng': lng,
+          'radius': radiusKm,
+          'results': results,
+        }),
       );
-      places.value = results;
-    } catch (e) {
-      places.value = [];
-      if (kDebugMode) {
-        print("Overpass api Error: $e");
+    } catch (_) {
+      // Saving is a convenience; the current results are already shown.
+    }
+  }
+
+  /// Saved results for a search made within 1 km with at least this radius.
+  Future<List<Map<String, dynamic>>?> _savedResults(
+    double lat,
+    double lng,
+    int radiusKm,
+  ) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final saved = json.decode(prefs.getString(_savedKey) ?? '');
+      if (saved is! Map ||
+          (saved['radius'] as num) < radiusKm ||
+          _distance(
+                lat,
+                lng,
+                (saved['lat'] as num).toDouble(),
+                (saved['lng'] as num).toDouble(),
+              ) >
+              1000) {
+        return null;
       }
-      showCustomSnackBar("please_try_again".tr, isError: true);
-    } finally {
-      isLoading(false);
+      final results = [
+        for (final item in (saved['results'] as List).whereType<Map>())
+          Map<String, dynamic>.from(item),
+      ];
+      return results
+          .where(
+            (item) => (item['distance'] as num).toDouble() <= radiusKm * 1000,
+          )
+          .toList();
+    } catch (_) {
+      return null;
     }
   }
 
