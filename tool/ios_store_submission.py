@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Submit the exact SalaTime search and Home release from CI without logging private data.
+"""Submit the exact SalaTime nearby mosques release from CI without logging private data.
 
 Only --submit mutates App Store Connect. --preflight is GET-only. New versions
 inherit Apple's metadata; preservation is verified before creating any review
@@ -35,15 +35,15 @@ SUBMITTED = {'WAITING_FOR_REVIEW', 'IN_REVIEW', 'PENDING_DEVELOPER_RELEASE',
              'PENDING_APPLE_RELEASE', 'PROCESSING_FOR_APP_STORE', 'READY_FOR_SALE',
              'READY_FOR_DISTRIBUTION'}
 WHATS_NEW = {
-    'fr-FR': 'Recherche des sourates et des récitateurs en arabe, en français ou en translittération. Accueil : bouton « Aujourd’hui » et horaire du milieu de la nuit avec rappel activable. Date de l’hégire dans le widget. Nouveaux boutons de connexion Google et Apple.',
-    'en-US': 'Search surahs and reciters in Arabic, English or transliteration. Home: a Today button and the middle of the night time with an optional reminder. Hijri date in the widget. Refreshed Google and Apple sign-in buttons.',
-    'ar-SA': 'البحث عن السور والقراء بالعربية أو بالحروف اللاتينية. الصفحة الرئيسية: زر «اليوم» ووقت منتصف الليل مع تذكير اختياري. التاريخ الهجري في الأداة. أزرار جديدة لتسجيل الدخول عبر Google وApple.',
+    'fr-FR': 'Recherche des mosquées proches plus fiable : résultats plus rapides, conservés quand le service de cartes est saturé, et noms dans votre langue.',
+    'en-US': 'More reliable nearby mosque search: faster results, kept when the map service is busy, and mosque names in your language.',
+    'ar-SA': 'بحث أكثر موثوقية عن المساجد القريبة: نتائج أسرع، تبقى متاحة عند انشغال خدمة الخرائط، وأسماء المساجد بلغتك.',
 }
 RATING_REVIEW_NOTE = ('Rating fix: StoreKit requests a review after 3 distinct usage days and 72 hours, '
                'following 10 quiet seconds on Home (30-day interval, maximum 3 attempts). '
                'No custom prompt or satisfaction question. Apple controls display; TestFlight '
                'shows no prompt. Settings > Rate SalaTime opens App Store reviews immediately.')
-REVIEW_NOTE = ('Search surahs/reciters, Today button, midnight row, widget Hijri; no new data/permission. '
+REVIEW_NOTE = ('Nearby mosques via cached OpenStreetMap proxy, saved fallback; no new data/permission. '
                'Reliability fix: compass, location and Nisab. '
                'Production error/hang reporting remains active; CI sends no telemetry. '
                'Rating fix: StoreKit after 3 usage days/72 hours and 10 quiet Home seconds; '
@@ -990,8 +990,8 @@ def main():
     mode.add_argument('--submit', action='store_true')
     mode.add_argument('--self-test', action='store_true')
     parser.add_argument('--for-upload', action='store_true')
-    parser.add_argument('--version', default='1.0.32')
-    parser.add_argument('--previous-version', default='1.0.31')
+    parser.add_argument('--version', default='1.0.33')
+    parser.add_argument('--previous-version', default='1.0.32')
     parser.add_argument('--build-number', default='40')
     parser.add_argument('--wait-seconds', type=int, default=1200)
     parser.add_argument('--receipt', type=Path, default=Path('build/ios/app-store-submission.json'))
