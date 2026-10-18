@@ -550,10 +550,14 @@ class Submission:
                     if (row['attributes'].get('state') or row['attributes'].get('appStoreState')) in EDITABLE_INFO]
         require(len(editable) == 1, 'Expected one editable App Store app info')
         info_id = editable[0]['id']
-        info_rows = {row['attributes']['locale']: row for row in
-                     self.api.rows(query(f'/v1/appInfos/{info_id}/appInfoLocalizations', limit=200))}
-        require('en-US' in info_rows, 'Primary app info localization is missing')
-        privacy = info_rows['en-US']['attributes'].get('privacyPolicyUrl')
+
+        def info_rows():
+            return {row['attributes']['locale']: row for row in
+                    self.api.rows(query(f'/v1/appInfos/{info_id}/appInfoLocalizations', limit=200))}
+
+        primary = info_rows().get('en-US')
+        require(primary is not None, 'Primary app info localization is missing')
+        privacy = primary['attributes'].get('privacyPolicyUrl')
         destination = self.metadata(target_id)
         for locale in added:
             expected = new_locale_fields(locale, source)
@@ -571,19 +575,21 @@ class Submission:
                     self.api.request('PATCH', f'/v1/appStoreVersionLocalizations/{current["row"]["id"]}',
                                      resource('appStoreVersionLocalizations', current['row']['id'], updates))
             names = {'name': NEW_LOCALES[locale]['name'], 'subtitle': NEW_LOCALES[locale]['subtitle']}
-            row = info_rows.get(locale)
+            # Apple creates the app info localization itself, with the primary
+            # English name and subtitle, when the version localization is added.
+            row = info_rows().get(locale)
             if row is None:
                 attributes = {'locale': locale, **names, **({'privacyPolicyUrl': privacy} if privacy else {})}
                 self.api.request('POST', '/v1/appInfoLocalizations', resource(
                     'appInfoLocalizations', attributes=attributes,
                     relationships={'appInfo': relation('appInfos', info_id)}))
             elif any(row['attributes'].get(f) != v for f, v in names.items()):
-                require(all(row['attributes'].get(f) in (None, '', v) for f, v in names.items()),
+                require(all(row['attributes'].get(f) in (None, '', v, primary['attributes'].get(f))
+                            for f, v in names.items()),
                         'Existing app name or subtitle differs; review before submission')
                 self.api.request('PATCH', f'/v1/appInfoLocalizations/{row["id"]}',
                                  resource('appInfoLocalizations', row['id'], names))
-        readback = {row['attributes']['locale']: row['attributes'] for row in
-                    self.api.rows(query(f'/v1/appInfos/{info_id}/appInfoLocalizations', limit=200))}
+        readback = {locale: row['attributes'] for locale, row in info_rows().items()}
         for locale in added:
             require(readback.get(locale, {}).get('name') == NEW_LOCALES[locale]['name'] and
                     readback[locale].get('subtitle') == NEW_LOCALES[locale]['subtitle'],
@@ -751,10 +757,16 @@ def self_test():
                     version = payload['data']['relationships']['appStoreVersion']['data']['id']
                     row = {'id': f'{version}-{attributes["locale"]}', 'attributes': dict(attributes)}
                     self.locales[version].append(row)
+                    english = next(r for r in self.info_locales['info-edit'] if r['attributes']['locale'] == 'en-US')
+                    if not any(r['attributes']['locale'] == attributes['locale'] for r in self.info_locales['info-edit']):
+                        self.info_locales['info-edit'].append({'id': 'info-edit-' + attributes['locale'], 'attributes': {
+                            **english['attributes'], 'locale': attributes['locale']}})
                     return {'data': row}
                 if base == '/v1/appInfoLocalizations':
                     attributes = payload['data']['attributes']
                     info = payload['data']['relationships']['appInfo']['data']['id']
+                    if any(r['attributes']['locale'] == attributes['locale'] for r in self.info_locales[info]):
+                        raise APIError(409, b'ENTITY_ERROR.ATTRIBUTE.INVALID.DUPLICATE')
                     row = {'id': f'{info}-{attributes["locale"]}', 'attributes': dict(attributes)}
                     self.info_locales[info].append(row)
                     return {'data': row}
@@ -766,6 +778,10 @@ def self_test():
                     self.target['attributes']['appStoreState'] = 'READY_FOR_REVIEW'
                     return {'data': self.items[0]}
             elif method == 'PATCH':
+                if base.startswith('/v1/appInfoLocalizations/'):
+                    for row in self.info_locales['info-edit']:
+                        if row['id'] == payload['data']['id']: row['attributes'].update(payload['data']['attributes'])
+                    return {'data': payload['data']}
                 if base.startswith('/v1/appStoreVersionLocalizations/'):
                     for row in self.locales['new']:
                         if row['id'] == payload['data']['id']: row['attributes'].update(payload['data']['attributes'])
@@ -868,9 +884,28 @@ def self_test():
                 self.assertEqual(versions[locale]['whatsNew'], NEW_LOCALE_WHATS_NEW[locale])
                 self.assertEqual(versions[locale]['supportUrl'], 'https://salatime.net')
             posts = [path for method, path in api.calls if method == 'POST' and 'Localizations' in path]
-            self.assertEqual(len(posts), 2 * len(NEW_LOCALES))
+            self.assertEqual(len(posts), len(NEW_LOCALES))
+            self.assertEqual(api.info_locales['info-edit'][0]['attributes']['name'], 'SalaTime')
             for locale in WHATS_NEW:
                 self.assertEqual(versions[locale]['keywords'], KEYWORDS[locale])
+
+        def test_resume_after_apple_copied_english_names_for_a_new_locale(self):
+            api = FakeClient()
+            listing = NEW_LOCALES['es-ES']
+            api.locales['new'].append({'id': 'new-es-ES', 'attributes': {
+                'locale': 'es-ES', 'description': listing['description'], 'keywords': listing['keywords']}})
+            english = copy.deepcopy(api.info_locales['info-edit'][0]['attributes'])
+            api.info_locales['info-edit'].append({'id': 'info-edit-es-ES', 'attributes': {**english, 'locale': 'es-ES'}})
+            flow = Submission(api, '1.0.28', '38')
+            flow.submit()
+            self.assertEqual(flow.report['status'], 'submitted')
+            names = {row['attributes']['locale']: row['attributes'] for row in api.info_locales['info-edit']}
+            self.assertEqual(names['es-ES']['name'], listing['name'])
+            self.assertEqual(names['es-ES']['subtitle'], listing['subtitle'])
+            versions = {row['attributes']['locale']: row['attributes'] for row in api.locales['new']}
+            self.assertEqual(versions['es-ES']['promotionalText'], listing['promotionalText'])
+            self.assertFalse([path for method, path in api.calls
+                              if method == 'POST' and path.endswith('/appInfoLocalizations')])
 
         def test_new_listing_text_fits_apple_limits(self):
             self.assertEqual(set(NEW_LOCALES), set(NEW_LOCALE_WHATS_NEW))
