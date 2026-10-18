@@ -812,6 +812,9 @@
   "app_update_now": "Kemas kini",
   "app_update_later": "Kemudian",
   "app_update_open_failed": "Tidak dapat membuka kedai. Sila cuba lagi.",
+  "app_update_downloading": "Memuat turun kemas kini…",
+  "app_update_ready": "Kemas kini sedia. Mulakan semula SalaTime untuk memasangnya.",
+  "app_update_restart": "Mulakan semula",
   "nearby_mosque_unnamed": "Masjid",
   "nearby_mosques_saved_results": "Perkhidmatan peta sedang sibuk: memaparkan masjid yang disimpan untuk kawasan ini.",
   "nearby_mosques_unavailable": "Carian masjid tidak tersedia buat sementara waktu. Sila cuba lagi dalam beberapa minit."

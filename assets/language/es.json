@@ -817,6 +817,9 @@
   "app_update_now": "Actualizar",
   "app_update_later": "Más tarde",
   "app_update_open_failed": "No se pudo abrir la tienda. Inténtalo de nuevo.",
+  "app_update_downloading": "Descargando la actualización…",
+  "app_update_ready": "La actualización está lista. Reinicia SalaTime para instalarla.",
+  "app_update_restart": "Reiniciar",
   "nearby_mosque_unnamed": "Mezquita",
   "nearby_mosques_saved_results": "El servicio de mapas está saturado: se muestran las mezquitas guardadas para esta zona.",
   "nearby_mosques_unavailable": "La búsqueda de mezquitas no está disponible por el momento. Inténtalo de nuevo en unos minutos."

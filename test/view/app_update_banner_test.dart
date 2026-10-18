@@ -64,6 +64,7 @@ void main() {
         ((_) async =>
             '{"resultCount":1,"results":[{"trackId":6812923710,"bundleId":"net.salatime.app","wrapperType":"software","version":"1.0.29","minimumOsVersion":"15.0"}]}'),
     openUrl: open ?? ((_) async => true),
+    openProductPage: () async => false,
   );
 
   Widget app({
@@ -169,6 +170,49 @@ void main() {
     expect(find.byKey(const ValueKey('app-update-banner')), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
   });
+
+  for (final language in ['fr', 'ar']) {
+    testWidgets('$language banner shows the Play download, then Restart', (
+      tester,
+    ) async {
+      await tester.binding.setSurfaceSize(const Size(320, 640));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      var updates = 0;
+      Widget banner(AppUpdateProgress progress) => app(
+        language: language,
+        scale: 2,
+        home: Scaffold(
+          bottomNavigationBar: AppUpdateBanner(
+            progress: progress,
+            onUpdate: () => updates++,
+            onLater: () {},
+          ),
+        ),
+      );
+      await tester.pumpWidget(banner(AppUpdateProgress.downloading));
+      await tester.pump();
+      expect(find.byKey(const ValueKey('app-update-progress')), findsOneWidget);
+      expect(find.byKey(const ValueKey('app-update-now')), findsNothing);
+      expect(find.byKey(const ValueKey('app-update-later')), findsOneWidget);
+      expect(
+        find.text(translations.keys[language]!['app_update_downloading']!),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(banner(AppUpdateProgress.downloaded));
+      await tester.pump();
+      expect(
+        find.text(translations.keys[language]!['app_update_ready']!),
+        findsOneWidget,
+      );
+      await tester.tap(
+        find.text(translations.keys[language]!['app_update_restart']!),
+      );
+      expect(updates, 1);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox());
+    });
+  }
 
   testWidgets('background and non-home pages never check or show a banner', (
     tester,

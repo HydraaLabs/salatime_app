@@ -33,14 +33,17 @@ void main() {
     int? code = 34,
     String package = 'net.salatime.app',
     UpdateAvailability availability = UpdateAvailability.updateAvailable,
+    bool flexible = false,
+    bool immediate = false,
+    InstallStatus status = InstallStatus.unknown,
   }) => AppUpdateInfo(
     updateAvailability: availability,
-    immediateUpdateAllowed: false,
+    immediateUpdateAllowed: immediate,
     immediateAllowedPreconditions: null,
-    flexibleUpdateAllowed: false,
+    flexibleUpdateAllowed: flexible,
     flexibleAllowedPreconditions: null,
     availableVersionCode: code,
-    installStatus: InstallStatus.unknown,
+    installStatus: status,
     packageName: package,
     clientVersionStalenessDays: null,
     updatePriority: 0,
@@ -76,6 +79,10 @@ void main() {
     Future<IosStoreContext?> Function()? context,
     bool enabled = true,
     Duration timeout = const Duration(seconds: 5),
+    Future<AppUpdateResult> Function()? flexible,
+    Future<void> Function()? complete,
+    Future<AppUpdateResult> Function()? immediate,
+    Future<bool> Function()? productPage,
   }) => AppUpdateService(
     enabled: enabled,
     platform: () => platform,
@@ -90,7 +97,179 @@ void main() {
     now: () => now,
     openUrl: open,
     timeout: timeout,
+    startFlexibleUpdate:
+        flexible ?? (() => throw StateError('unexpected flexible update')),
+    completeFlexibleUpdate:
+        complete ?? (() => throw StateError('unexpected install')),
+    performImmediateUpdate:
+        immediate ?? (() => throw StateError('unexpected immediate update')),
+    openProductPage: productPage ?? (() async => false),
   );
+
+  group('updating inside the app', () {
+    test('Android downloads through Play, then restarts on demand', () async {
+      final download = Completer<AppUpdateResult>();
+      var installs = 0;
+      final opened = <Uri>[];
+      final check = service(
+        androidCheck: () async => android(flexible: true, immediate: true),
+        flexible: () => download.future,
+        complete: () async => installs++,
+        open: (uri) async {
+          opened.add(uri);
+          return true;
+        },
+      );
+      final update = (await check.checkForUpdate())!;
+      final started = check.startUpdate(update);
+      await Future<void>.delayed(Duration.zero);
+      expect(check.progress.value, AppUpdateProgress.downloading);
+      expect(await check.startUpdate(update), isTrue);
+      download.complete(AppUpdateResult.success);
+      expect(await started, isTrue);
+      expect(check.progress.value, AppUpdateProgress.downloaded);
+      expect(installs, 0);
+      expect(await check.startUpdate(update), isTrue);
+      expect(installs, 1);
+      expect(opened, isEmpty);
+    });
+
+    test('a refused Play download stays quiet and keeps the banner', () async {
+      final opened = <Uri>[];
+      final check = service(
+        androidCheck: () async => android(flexible: true),
+        flexible: () async => AppUpdateResult.userDeniedUpdate,
+        open: (uri) async {
+          opened.add(uri);
+          return true;
+        },
+      );
+      final update = (await check.checkForUpdate())!;
+      expect(await check.startUpdate(update), isTrue);
+      expect(check.progress.value, AppUpdateProgress.idle);
+      expect(check.availableUpdate.value?.key, 'android:34');
+      expect(opened, isEmpty);
+    });
+
+    test(
+      'Play full-screen update when a flexible one is not allowed',
+      () async {
+        var immediate = 0;
+        final check = service(
+          androidCheck: () async => android(immediate: true),
+          immediate: () async {
+            immediate++;
+            return AppUpdateResult.success;
+          },
+          open: (_) async => throw StateError('store link not expected'),
+        );
+        expect(
+          await check.startUpdate((await check.checkForUpdate())!),
+          isTrue,
+        );
+        expect(immediate, 1);
+      },
+    );
+
+    test(
+      'failed or unavailable Play flows fall back to the store link',
+      () async {
+        for (final flow in <AppUpdateService Function(List<Uri>)>[
+          (opened) => service(
+            androidCheck: () async => android(),
+            open: (uri) async {
+              opened.add(uri);
+              return true;
+            },
+          ),
+          (opened) => service(
+            androidCheck: () async => android(flexible: true),
+            flexible: () async => AppUpdateResult.inAppUpdateFailed,
+            open: (uri) async {
+              opened.add(uri);
+              return true;
+            },
+          ),
+          (opened) => service(
+            androidCheck: () async => android(flexible: true),
+            flexible: () async =>
+                throw PlatformException(code: 'Error during installation'),
+            open: (uri) async {
+              opened.add(uri);
+              return true;
+            },
+          ),
+          (opened) => service(
+            androidCheck: () async => android(immediate: true),
+            immediate: () async => AppUpdateResult.inAppUpdateFailed,
+            open: (uri) async {
+              opened.add(uri);
+              return true;
+            },
+          ),
+        ]) {
+          final opened = <Uri>[];
+          final check = flow(opened);
+          expect(
+            await check.startUpdate((await check.checkForUpdate())!),
+            isTrue,
+          );
+          expect(opened, [AppUpdateService.playStoreUri]);
+          expect(check.progress.value, AppUpdateProgress.idle);
+        }
+      },
+    );
+
+    test(
+      'a finished download is offered again despite an earlier snooze',
+      () async {
+        final check = service(
+          androidCheck: () async => android(status: InstallStatus.downloaded),
+        );
+        await preferences.setString(
+          AppUpdateService.snoozeKey,
+          jsonEncode({
+            'version': 'android:34',
+            'until': now.add(const Duration(hours: 12)).millisecondsSinceEpoch,
+          }),
+        );
+        final update = await check.checkForUpdate();
+        expect(update?.key, 'android:34');
+        expect(check.progress.value, AppUpdateProgress.downloaded);
+        await check.dismiss(update!);
+        expect(check.availableUpdate.value, isNull);
+        now = now.add(const Duration(hours: 7));
+        expect(await check.checkForUpdate(), isNull);
+        now = now.add(const Duration(days: 1));
+        expect((await check.checkForUpdate())?.key, 'android:34');
+      },
+    );
+
+    test(
+      'iOS shows the App Store page in the app, else opens the link',
+      () async {
+        for (final shown in [true, false]) {
+          final opened = <Uri>[];
+          var pages = 0;
+          final check = service(
+            platform: TargetPlatform.iOS,
+            productPage: () async {
+              pages++;
+              return shown;
+            },
+            open: (uri) async {
+              opened.add(uri);
+              return true;
+            },
+          );
+          final update = (await check.checkForUpdate())!;
+          expect(await check.startUpdate(update), isTrue);
+          expect(pages, 1);
+          expect(opened, shown ? isEmpty : [AppUpdateService.appStoreUri]);
+        }
+      },
+    );
+  });
 
   test(
     'Android relies on actual Play availability and a higher version code',

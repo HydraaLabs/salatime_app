@@ -875,6 +875,9 @@
   "app_update_now": "Mettre à jour",
   "app_update_later": "Plus tard",
   "app_update_open_failed": "Impossible d’ouvrir la boutique. Réessayez.",
+  "app_update_downloading": "Téléchargement de la mise à jour…",
+  "app_update_ready": "La mise à jour est prête. Redémarrez SalaTime pour l’installer.",
+  "app_update_restart": "Redémarrer",
   "nearby_mosque_unnamed": "Mosquée",
   "nearby_mosques_saved_results": "Le service de cartes est saturé : affichage des mosquées enregistrées pour cette zone.",
   "nearby_mosques_unavailable": "La recherche de mosquées est momentanément indisponible. Réessayez dans quelques minutes."

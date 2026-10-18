@@ -6,9 +6,11 @@ import AVFoundation
 import CryptoKit
 import StoreKit
 
-final class SalaTimePlatformBridge: NSObject, UIDocumentPickerDelegate {
+final class SalaTimePlatformBridge: NSObject, UIDocumentPickerDelegate, SKStoreProductViewControllerDelegate {
     private var channels: [FlutterMethodChannel] = []
     private var importResult: FlutterResult?
+    private var productPageOpening = false
+    static let appStoreID = 6812923710
     private var presenter: UIViewController? {
         UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
             .flatMap { $0.windows }.first(where: { $0.isKeyWindow })?.rootViewController
@@ -32,7 +34,8 @@ final class SalaTimePlatformBridge: NSObject, UIDocumentPickerDelegate {
         let sounds = FlutterMethodChannel(name: "net.salatime.app/personal_sounds", binaryMessenger: messenger)
         sounds.setMethodCallHandler { [weak self] call, result in self?.sound(call, result: result) }
         let updates = FlutterMethodChannel(name: "net.salatime.app/store_updates", binaryMessenger: messenger)
-        updates.setMethodCallHandler { call, result in
+        updates.setMethodCallHandler { [weak self] call, result in
+            if call.method == "openProductPage" { self?.openProductPage(result: result) ?? result(false); return }
             guard call.method == "getContext" else { result(FlutterMethodNotImplemented); return }
             // The account's storefront can differ from the device's region.
             // Unknown stores leave the optional update notice unavailable.
@@ -85,6 +88,33 @@ final class SalaTimePlatformBridge: NSObject, UIDocumentPickerDelegate {
             return (String(pair[0]), String(pair[1]))
         })
     }()
+
+    /// Shows SalaTime's App Store page inside the app, where Apple's own
+    /// Update button installs the new version. Answers false when the page
+    /// cannot be shown so Flutter can open the App Store link instead.
+    private func openProductPage(result: @escaping FlutterResult) {
+        guard !productPageOpening, let presenter = presenter, presenter.presentedViewController == nil else {
+            result(false); return
+        }
+        productPageOpening = true
+        let controller = SKStoreProductViewController()
+        controller.delegate = self
+        let parameters = [SKStoreProductParameterITunesItemIdentifier: NSNumber(value: Self.appStoreID)]
+        controller.loadProduct(withParameters: parameters) { [weak self] loaded, _ in
+            DispatchQueue.main.async {
+                guard let self = self else { result(false); return }
+                guard loaded, let presenter = self.presenter, presenter.presentedViewController == nil else {
+                    self.productPageOpening = false
+                    result(false); return
+                }
+                presenter.present(controller, animated: true) { result(true) }
+            }
+        }
+    }
+
+    func productViewControllerDidFinish(_ viewController: SKStoreProductViewController) {
+        viewController.dismiss(animated: true) { [weak self] in self?.productPageOpening = false }
+    }
 
     private func widget(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {

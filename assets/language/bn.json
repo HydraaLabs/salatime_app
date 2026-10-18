@@ -817,6 +817,9 @@
   "app_update_now": "আপডেট করুন",
   "app_update_later": "পরে",
   "app_update_open_failed": "স্টোর খোলা যায়নি। আবার চেষ্টা করুন।",
+  "app_update_downloading": "আপডেট ডাউনলোড হচ্ছে…",
+  "app_update_ready": "আপডেট প্রস্তুত। ইনস্টল করতে SalaTime আবার চালু করুন।",
+  "app_update_restart": "আবার চালু করুন",
   "nearby_mosque_unnamed": "মসজিদ",
   "nearby_mosques_saved_results": "মানচিত্র পরিষেবা ব্যস্ত: এই এলাকার সংরক্ষিত মসজিদগুলো দেখানো হচ্ছে।",
   "nearby_mosques_unavailable": "মসজিদ অনুসন্ধান সাময়িকভাবে অনুপলব্ধ। কয়েক মিনিট পরে আবার চেষ্টা করুন।"

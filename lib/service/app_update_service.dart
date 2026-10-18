@@ -36,6 +36,9 @@ class IosStoreContext {
       AppUpdateService._numericVersion(systemVersion) != null;
 }
 
+/// Progress of an Android update installed through Google Play in the app.
+enum AppUpdateProgress { idle, downloading, downloaded }
+
 /// A store-confirmed update. Store links are fixed, never taken from a payload.
 class AvailableAppUpdate {
   const AvailableAppUpdate.android(int versionCode)
@@ -68,6 +71,10 @@ class AppUpdateService {
     Future<bool> Function(Uri)? openUrl,
     TargetPlatform Function()? platform,
     Future<IosStoreContext?> Function()? iosStoreContext,
+    Future<AppUpdateResult> Function()? startFlexibleUpdate,
+    Future<void> Function()? completeFlexibleUpdate,
+    Future<AppUpdateResult> Function()? performImmediateUpdate,
+    Future<bool> Function()? openProductPage,
     DateTime Function()? now,
     bool? enabled,
     this.timeout = const Duration(seconds: 5),
@@ -78,6 +85,13 @@ class AppUpdateService {
        _openUrl = openUrl ?? _launchExternal,
        _platform = platform ?? (() => defaultTargetPlatform),
        _iosStoreContext = iosStoreContext ?? _readIosStoreContext,
+       _startFlexibleUpdate =
+           startFlexibleUpdate ?? InAppUpdate.startFlexibleUpdate,
+       _completeFlexibleUpdate =
+           completeFlexibleUpdate ?? InAppUpdate.completeFlexibleUpdate,
+       _performImmediateUpdate =
+           performImmediateUpdate ?? InAppUpdate.performImmediateUpdate,
+       _openProductPage = openProductPage ?? _openIosProductPage,
        _now = now ?? DateTime.now,
        _enabled = enabled ?? (!kIsWeb && kReleaseMode);
 
@@ -102,10 +116,15 @@ class AppUpdateService {
   final Future<bool> Function(Uri) _openUrl;
   final TargetPlatform Function() _platform;
   final Future<IosStoreContext?> Function() _iosStoreContext;
+  final Future<AppUpdateResult> Function() _startFlexibleUpdate;
+  final Future<void> Function() _completeFlexibleUpdate;
+  final Future<AppUpdateResult> Function() _performImmediateUpdate;
+  final Future<bool> Function() _openProductPage;
   final DateTime Function() _now;
   final bool _enabled;
   final Duration timeout;
   final availableUpdate = ValueNotifier<AvailableAppUpdate?>(null);
+  final progress = ValueNotifier<AppUpdateProgress>(AppUpdateProgress.idle);
 
   Future<AvailableAppUpdate?>? _pending;
   AvailableAppUpdate? _cachedUpdate;
@@ -117,6 +136,11 @@ class AppUpdateService {
     const channel = MethodChannel('net.salatime.app/store_updates');
     final values = await channel.invokeMapMethod<String, dynamic>('getContext');
     return IosStoreContext.fromMap(values);
+  }
+
+  static Future<bool> _openIosProductPage() async {
+    const channel = MethodChannel('net.salatime.app/store_updates');
+    return await channel.invokeMethod<bool>('openProductPage') ?? false;
   }
 
   static Future<String> _fetchLookup(Uri uri) async {
@@ -174,6 +198,10 @@ class AppUpdateService {
                 info.updateAvailability ==
                     UpdateAvailability.developerTriggeredUpdateInProgress)) {
           update = AvailableAppUpdate.android(code);
+          // A download started earlier in this or a previous session.
+          if (info.installStatus == InstallStatus.downloaded) {
+            _setProgress(AppUpdateProgress.downloaded, publish: false);
+          }
         }
       } else {
         final context = await _iosStoreContext().timeout(timeout);
@@ -206,7 +234,7 @@ class AppUpdateService {
   }
 
   AvailableAppUpdate? _visibleUpdate() {
-    if (_cachedUpdate?.key == _snoozedVersion &&
+    if (_cachedUpdate?.key == _snoozedKey &&
         _snoozedUntil != null &&
         _now().isBefore(_snoozedUntil!)) {
       return null;
@@ -239,7 +267,9 @@ class AppUpdateService {
   }
 
   Future<void> dismiss(AvailableAppUpdate update) async {
-    _snoozedVersion = update.key;
+    _snoozedVersion = progress.value == AppUpdateProgress.downloaded
+        ? 'ready:${update.key}'
+        : update.key;
     _snoozedUntil = _now().add(snoozeDuration);
     _publish(null);
     try {
@@ -255,6 +285,79 @@ class AppUpdateService {
           .timeout(timeout);
     } catch (_) {
       // Still dismissed for this session if local storage is unavailable.
+    }
+  }
+
+  /// A finished download is snoozed separately: postponing the download does
+  /// not hide the offer to install what the user chose to download.
+  String? get _snoozedKey => progress.value == AppUpdateProgress.downloaded
+      ? (_snoozedVersion?.startsWith('ready:') ?? false
+            ? _snoozedVersion!.substring(6)
+            : null)
+      : _snoozedVersion;
+
+  void _setProgress(AppUpdateProgress value, {bool publish = true}) {
+    progress.value = value;
+    if (publish) _publish(_visibleUpdate());
+  }
+
+  /// Android downloads through Google Play inside SalaTime (flexible flow,
+  /// else Play's full-screen flow); iOS shows the App Store page inside the
+  /// app, where Apple's Update button installs it. Every failure falls back to
+  /// the fixed store link. Returns false only when nothing could be opened.
+  Future<bool> startUpdate(AvailableAppUpdate update) async {
+    if (update.platform == TargetPlatform.iOS) {
+      try {
+        if (await _openProductPage().timeout(const Duration(seconds: 15))) {
+          return true;
+        }
+      } catch (_) {
+        // StoreKit unavailable: the App Store link below still works.
+      }
+      return openStore(update);
+    }
+    switch (progress.value) {
+      case AppUpdateProgress.downloaded:
+        return installDownloaded();
+      case AppUpdateProgress.downloading:
+        return true;
+      case AppUpdateProgress.idle:
+        break;
+    }
+    try {
+      // Play accepts each update info for a single flow: always ask again.
+      final info = await _androidUpdate().timeout(timeout);
+      if (info.installStatus == InstallStatus.downloaded) {
+        _setProgress(AppUpdateProgress.downloaded);
+        return true;
+      }
+      if (info.flexibleUpdateAllowed) {
+        _setProgress(AppUpdateProgress.downloading);
+        // Completes once Google Play has downloaded the update.
+        final result = await _startFlexibleUpdate();
+        if (result == AppUpdateResult.success) {
+          _setProgress(AppUpdateProgress.downloaded);
+          return true;
+        }
+        _setProgress(AppUpdateProgress.idle);
+        if (result == AppUpdateResult.userDeniedUpdate) return true;
+      } else if (info.immediateUpdateAllowed) {
+        final result = await _performImmediateUpdate();
+        if (result != AppUpdateResult.inAppUpdateFailed) return true;
+      }
+    } catch (_) {
+      _setProgress(AppUpdateProgress.idle);
+    }
+    return openStore(update);
+  }
+
+  /// Restarts SalaTime on the version Google Play has downloaded.
+  Future<bool> installDownloaded() async {
+    try {
+      await _completeFlexibleUpdate().timeout(timeout);
+      return true;
+    } catch (_) {
+      return false;
     }
   }
 

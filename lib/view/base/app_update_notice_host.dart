@@ -41,6 +41,7 @@ class _AppUpdateNoticeHostState extends State<AppUpdateNoticeHost>
         WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed;
     WidgetsBinding.instance.addObserver(this);
     _service.availableUpdate.addListener(_updateChanged);
+    _service.progress.addListener(_updateChanged);
   }
 
   @override
@@ -54,9 +55,11 @@ class _AppUpdateNoticeHostState extends State<AppUpdateNoticeHost>
   void didUpdateWidget(AppUpdateNoticeHost oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.service != widget.service) {
-      (oldWidget.service ?? AppUpdateService.instance).availableUpdate
-          .removeListener(_updateChanged);
+      final previous = oldWidget.service ?? AppUpdateService.instance;
+      previous.availableUpdate.removeListener(_updateChanged);
+      previous.progress.removeListener(_updateChanged);
       _service.availableUpdate.addListener(_updateChanged);
+      _service.progress.addListener(_updateChanged);
     }
     if (oldWidget.isHome != widget.isHome ||
         oldWidget.service != widget.service) {
@@ -97,7 +100,7 @@ class _AppUpdateNoticeHostState extends State<AppUpdateNoticeHost>
       _opening = true;
       _openFailed = false;
     });
-    final opened = await _service.openStore(update);
+    final opened = await _service.startUpdate(update);
     if (mounted) {
       setState(() {
         _opening = false;
@@ -110,6 +113,7 @@ class _AppUpdateNoticeHostState extends State<AppUpdateNoticeHost>
   void dispose() {
     _timer?.cancel();
     _service.availableUpdate.removeListener(_updateChanged);
+    _service.progress.removeListener(_updateChanged);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -121,7 +125,9 @@ class _AppUpdateNoticeHostState extends State<AppUpdateNoticeHost>
         ? null
         : AppUpdateBanner(
             version: update.version,
-            busy: _opening,
+            progress: _service.progress.value,
+            // The download continues in Google Play; only the start is busy.
+            busy: _opening && _service.progress.value == AppUpdateProgress.idle,
             openFailed: _openFailed,
             onUpdate: () => unawaited(_open(update)),
             onLater: () => unawaited(_service.dismiss(update)),

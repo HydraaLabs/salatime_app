@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:salatime/service/app_update_service.dart';
 
 /// Non-modal and height-flexible on phones, tablets and enlarged text.
 class AppUpdateBanner extends StatelessWidget {
@@ -10,6 +11,7 @@ class AppUpdateBanner extends StatelessWidget {
     this.version,
     this.busy = false,
     this.openFailed = false,
+    this.progress = AppUpdateProgress.idle,
   });
 
   final VoidCallback onUpdate;
@@ -17,6 +19,7 @@ class AppUpdateBanner extends StatelessWidget {
   final String? version;
   final bool busy;
   final bool openFailed;
+  final AppUpdateProgress progress;
 
   @override
   Widget build(BuildContext context) {
@@ -46,11 +49,17 @@ class AppUpdateBanner extends StatelessWidget {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        version == null
-                            ? 'app_update_available'.tr
-                            : 'app_update_version_available'.trParams({
-                                'version': version!,
-                              }),
+                        switch (progress) {
+                          AppUpdateProgress.downloading =>
+                            'app_update_downloading'.tr,
+                          AppUpdateProgress.downloaded => 'app_update_ready'.tr,
+                          AppUpdateProgress.idle =>
+                            version == null
+                                ? 'app_update_available'.tr
+                                : 'app_update_version_available'.trParams({
+                                    'version': version!,
+                                  }),
+                        },
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: colors.onPrimaryContainer,
                           fontWeight: FontWeight.w600,
@@ -59,6 +68,16 @@ class AppUpdateBanner extends StatelessWidget {
                     ),
                   ],
                 ),
+                if (progress == AppUpdateProgress.downloading) ...[
+                  const SizedBox(height: 8),
+                  LinearProgressIndicator(
+                    key: const ValueKey('app-update-progress'),
+                    color: colors.primary,
+                    backgroundColor: colors.onPrimaryContainer.withValues(
+                      alpha: 0.15,
+                    ),
+                  ),
+                ],
                 if (openFailed) ...[
                   const SizedBox(height: 6),
                   Text(
@@ -81,21 +100,26 @@ class AppUpdateBanner extends StatelessWidget {
                         ),
                         child: Text('app_update_later'.tr),
                       ),
-                      FilledButton(
-                        key: const ValueKey('app-update-now'),
-                        onPressed: busy ? null : onUpdate,
-                        child: busy
-                            ? SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: colors.onPrimary,
-                                  semanticsLabel: 'app_update_now'.tr,
+                      if (progress != AppUpdateProgress.downloading)
+                        FilledButton(
+                          key: const ValueKey('app-update-now'),
+                          onPressed: busy ? null : onUpdate,
+                          child: busy
+                              ? SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: colors.onPrimary,
+                                    semanticsLabel: 'app_update_now'.tr,
+                                  ),
+                                )
+                              : Text(
+                                  progress == AppUpdateProgress.downloaded
+                                      ? 'app_update_restart'.tr
+                                      : 'app_update_now'.tr,
                                 ),
-                              )
-                            : Text('app_update_now'.tr),
-                      ),
+                        ),
                     ],
                   ),
                 ),

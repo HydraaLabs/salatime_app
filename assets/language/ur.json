@@ -812,6 +812,9 @@
   "app_update_now": "اپ ڈیٹ کریں",
   "app_update_later": "بعد میں",
   "app_update_open_failed": "اسٹور نہیں کھل سکا۔ دوبارہ کوشش کریں۔",
+  "app_update_downloading": "اپ ڈیٹ ڈاؤن لوڈ ہو رہی ہے…",
+  "app_update_ready": "اپ ڈیٹ تیار ہے۔ انسٹال کرنے کے لیے SalaTime دوبارہ شروع کریں۔",
+  "app_update_restart": "دوبارہ شروع کریں",
   "nearby_mosque_unnamed": "مسجد",
   "nearby_mosques_saved_results": "نقشہ سروس مصروف ہے: اس علاقے کی محفوظ کردہ مساجد دکھائی جا رہی ہیں۔",
   "nearby_mosques_unavailable": "مساجد کی تلاش عارضی طور پر دستیاب نہیں۔ براہ کرم چند منٹ بعد دوبارہ کوشش کریں۔"

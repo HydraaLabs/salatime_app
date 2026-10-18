@@ -812,6 +812,9 @@
   "app_update_now": "Güncelle",
   "app_update_later": "Daha sonra",
   "app_update_open_failed": "Mağaza açılamadı. Lütfen tekrar deneyin.",
+  "app_update_downloading": "Güncelleme indiriliyor…",
+  "app_update_ready": "Güncelleme hazır. Yüklemek için SalaTime’ı yeniden başlatın.",
+  "app_update_restart": "Yeniden başlat",
   "nearby_mosque_unnamed": "Cami",
   "nearby_mosques_saved_results": "Harita hizmeti yoğun: bu bölge için kaydedilen camiler gösteriliyor.",
   "nearby_mosques_unavailable": "Cami araması geçici olarak kullanılamıyor. Lütfen birkaç dakika sonra tekrar deneyin."

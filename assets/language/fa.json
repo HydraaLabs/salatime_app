@@ -817,6 +817,9 @@
   "app_update_now": "به‌روزرسانی",
   "app_update_later": "بعداً",
   "app_update_open_failed": "باز کردن فروشگاه ممکن نشد. دوباره تلاش کنید.",
+  "app_update_downloading": "در حال دانلود به‌روزرسانی…",
+  "app_update_ready": "به‌روزرسانی آماده است. برای نصب، SalaTime را دوباره راه‌اندازی کنید.",
+  "app_update_restart": "راه‌اندازی دوباره",
   "nearby_mosque_unnamed": "مسجد",
   "nearby_mosques_saved_results": "سرویس نقشه شلوغ است: مساجد ذخیره‌شده برای این منطقه نمایش داده می‌شود.",
   "nearby_mosques_unavailable": "جستجوی مسجد موقتاً در دسترس نیست. لطفاً چند دقیقه دیگر دوباره تلاش کنید."
