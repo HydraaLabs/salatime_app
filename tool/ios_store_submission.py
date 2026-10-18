@@ -23,6 +23,8 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+from ios_store_locales import NEW_LOCALES, NEW_LOCALE_WHATS_NEW
+
 APP_ID = '6812923710'
 BUNDLE_ID = 'net.salatime.app'
 API = 'https://api.appstoreconnect.apple.com'
@@ -59,6 +61,23 @@ REVIEW_NOTE = ('Nearby mosques via cached OpenStreetMap proxy, saved fallback; n
                'Analytics: Firebase screens/events; no account ID, GPS or query content; no ads/IDFA/IDFV. '
                'More > Settings > Usage statistics disables collection. '
                'Update banner: Home store link, 24h snooze.')
+
+
+EDITABLE_INFO = {'PREPARE_FOR_SUBMISSION', 'DEVELOPER_REJECTED', 'REJECTED', 'METADATA_REJECTED',
+                 'READY_FOR_REVIEW'}
+
+
+def release_notes(locale):
+    return WHATS_NEW[locale] if locale in WHATS_NEW else NEW_LOCALE_WHATS_NEW[locale]
+
+
+def new_locale_fields(locale, source):
+    """Version text for a newly added listing; URLs follow the English listing."""
+    english = source['locales']['en-US']['row']['attributes']
+    fields = {f: NEW_LOCALES[locale][f] for f in ('description', 'keywords', 'promotionalText')}
+    fields.update({f: english[f] for f in ('supportUrl', 'marketingUrl') if english.get(f)})
+    fields['whatsNew'] = release_notes(locale)
+    return fields
 
 
 def expected_localization(locale, previous, field):
@@ -425,7 +444,8 @@ class Submission:
         return {'locales': locales, 'review': review, 'attachments': attachments}
 
     def preserve_metadata(self, source, target_id):
-        require(set(source['locales']) == set(WHATS_NEW), 'Expected existing FR/EN/AR store localizations')
+        require(set(WHATS_NEW) <= set(source['locales']) <= set(WHATS_NEW) | set(NEW_LOCALES),
+                'Expected existing FR/EN/AR store localizations')
         require(source['review'] is not None, 'Previous review information is missing')
         expected_review = source['review']['attributes']
         require(all(expected_review.get(field) for field in ('contactFirstName', 'contactLastName',
@@ -434,7 +454,7 @@ class Submission:
             require(bool(expected_review.get('demoAccountName')) and bool(expected_review.get('demoAccountPassword')),
                     'Previous demo account information is incomplete')
         destination = self.metadata(target_id)
-        require(not (set(destination['locales']) - set(source['locales'])),
+        require(not (set(destination['locales']) - set(source['locales']) - set(NEW_LOCALES)),
                 'Target version has unexpected localizations')
         for locale, original in source['locales'].items():
             attributes = original['row']['attributes']
@@ -460,8 +480,8 @@ class Submission:
                     require(actual in (None, '', attributes.get(field)),
                             'Inherited localization metadata differs; review before submission')
                     updates[field] = expected
-            if current.get('whatsNew') != WHATS_NEW[locale]:
-                updates['whatsNew'] = WHATS_NEW[locale]
+            if current.get('whatsNew') != release_notes(locale):
+                updates['whatsNew'] = release_notes(locale)
             if updates:
                 self.api.request('PATCH', f'/v1/appStoreVersionLocalizations/{target["row"]["id"]}',
                                  resource('appStoreVersionLocalizations', target['row']['id'], updates))
@@ -491,15 +511,20 @@ class Submission:
         if updates:
             self.api.request('PATCH', f'/v1/appStoreReviewDetails/{review["id"]}',
                              resource('appStoreReviewDetails', review['id'], updates))
+        added = self.add_locales(source, target_id)
         # Re-read every text, ordered image checksum and private field before
         # creating a review submission. Private fields are never added to report.
         verified = self.metadata(target_id)
+        for locale in added:
+            row = verified['locales'][locale]['row']['attributes']
+            require(all(row.get(f) == v for f, v in new_locale_fields(locale, source).items()),
+                    'New localization readback failed')
         for locale, original in source['locales'].items():
             target = verified['locales'][locale]
             require(target['screenshots'] == original['screenshots'], 'Screenshot preservation readback failed')
             require(all(target['row']['attributes'].get(f) == expected_localization(locale, original['row']['attributes'], f)
                         for f in LOCALIZATION_FIELDS), 'Localization preservation readback failed')
-            require(target['row']['attributes'].get('whatsNew') == WHATS_NEW[locale], 'Release notes readback failed')
+            require(target['row']['attributes'].get('whatsNew') == release_notes(locale), 'Release notes readback failed')
         require(all(verified['review']['attributes'].get(f) == expected_review.get(f) for f in REVIEW_FIELDS),
                 'Private review preservation readback failed')
         require(verified['review']['attributes'].get('notes') == expected_notes, 'Review note readback failed')
@@ -514,6 +539,57 @@ class Submission:
                   previous_review_attachments_unchanged=True, review_contact_preserved=True,
                   demo_account_preserved=True, privacy_unchanged=True,
                   review_note_utf8_bytes=len(expected_notes.encode('utf-8')))
+
+    def add_locales(self, source, target_id):
+        """Create the App Store listings in NEW_LOCALES that the previous version lacks."""
+        added = sorted(set(NEW_LOCALES) - set(source['locales']))
+        if not added:
+            return []
+        infos = self.api.rows(query(f'/v1/apps/{APP_ID}/appInfos', limit=20))
+        editable = [row for row in infos
+                    if (row['attributes'].get('state') or row['attributes'].get('appStoreState')) in EDITABLE_INFO]
+        require(len(editable) == 1, 'Expected one editable App Store app info')
+        info_id = editable[0]['id']
+        info_rows = {row['attributes']['locale']: row for row in
+                     self.api.rows(query(f'/v1/appInfos/{info_id}/appInfoLocalizations', limit=200))}
+        require('en-US' in info_rows, 'Primary app info localization is missing')
+        privacy = info_rows['en-US']['attributes'].get('privacyPolicyUrl')
+        destination = self.metadata(target_id)
+        for locale in added:
+            expected = new_locale_fields(locale, source)
+            current = destination['locales'].get(locale)
+            if current is None:
+                self.api.request('POST', '/v1/appStoreVersionLocalizations', resource(
+                    'appStoreVersionLocalizations', attributes={'locale': locale, **expected},
+                    relationships={'appStoreVersion': relation('appStoreVersions', target_id)}))
+            else:
+                attributes = current['row']['attributes']
+                updates = {f: v for f, v in expected.items() if attributes.get(f) != v}
+                require(all(attributes.get(f) in (None, '') for f in updates if f != 'whatsNew'),
+                        'Existing new localization differs; review before submission')
+                if updates:
+                    self.api.request('PATCH', f'/v1/appStoreVersionLocalizations/{current["row"]["id"]}',
+                                     resource('appStoreVersionLocalizations', current['row']['id'], updates))
+            names = {'name': NEW_LOCALES[locale]['name'], 'subtitle': NEW_LOCALES[locale]['subtitle']}
+            row = info_rows.get(locale)
+            if row is None:
+                attributes = {'locale': locale, **names, **({'privacyPolicyUrl': privacy} if privacy else {})}
+                self.api.request('POST', '/v1/appInfoLocalizations', resource(
+                    'appInfoLocalizations', attributes=attributes,
+                    relationships={'appInfo': relation('appInfos', info_id)}))
+            elif any(row['attributes'].get(f) != v for f, v in names.items()):
+                require(all(row['attributes'].get(f) in (None, '', v) for f, v in names.items()),
+                        'Existing app name or subtitle differs; review before submission')
+                self.api.request('PATCH', f'/v1/appInfoLocalizations/{row["id"]}',
+                                 resource('appInfoLocalizations', row['id'], names))
+        readback = {row['attributes']['locale']: row['attributes'] for row in
+                    self.api.rows(query(f'/v1/appInfos/{info_id}/appInfoLocalizations', limit=200))}
+        for locale in added:
+            require(readback.get(locale, {}).get('name') == NEW_LOCALES[locale]['name'] and
+                    readback[locale].get('subtitle') == NEW_LOCALES[locale]['subtitle'],
+                    'New app name or subtitle readback failed')
+        self.save(stage='locales_added', added_locales=added)
+        return added
 
     def review_submission(self, target_id):
         submissions = self.api.rows(f'/v1/apps/{APP_ID}/reviewSubmissions?filter[platform]=IOS&limit=200')
@@ -607,6 +683,11 @@ def self_test():
             self.build_version, self.mismatched_images = build_version, mismatched_images
             self.inherit_attachments = inherit_attachments
             self.locales, self.reviews = {}, {}
+            self.infos = [{'id': 'info-live', 'attributes': {'state': 'READY_FOR_DISTRIBUTION'}},
+                          {'id': 'info-edit', 'attributes': {'state': 'PREPARE_FOR_SUBMISSION'}}]
+            self.info_locales = {info: [{'id': f'{info}-{locale}', 'attributes': {
+                'locale': locale, 'name': 'SalaTime', 'subtitle': 'Existing', 'privacyPolicyUrl': 'https://salatime.net/privacy-policy'}}
+                for locale in WHATS_NEW] for info in ('info-live', 'info-edit')}
             for version in ('old', 'new'):
                 self.locales[version] = [ {'id': version + '-' + locale,
                     'attributes': {'locale': locale, 'description': 'Existing description', 'keywords': 'existing',
@@ -631,6 +712,11 @@ def self_test():
                     {'id': 'pre', 'type': 'preReleaseVersions', 'attributes': {'version': self.build_version, 'platform': 'IOS'}}]}
                 if base.endswith('/appStoreVersionLocalizations'):
                     return {'data': copy.deepcopy(self.locales[base.split('/')[3]])}
+                if base == f'/v1/apps/{APP_ID}/appInfos': return {'data': copy.deepcopy(self.infos)}
+                if base.endswith('/appInfoLocalizations'):
+                    return {'data': copy.deepcopy(self.info_locales[base.split('/')[3]])}
+                if base.endswith('/appScreenshotSets') and base.split('/')[3].split('-', 1)[1] in NEW_LOCALES:
+                    return {'data': []}
                 if base.endswith('/appScreenshotSets'):
                     return {'data': [{'id': base.split('/')[3], 'attributes': {'screenshotDisplayType': 'APP_IPHONE_65'}}]}
                 if base.endswith('/appScreenshots'):
@@ -660,6 +746,18 @@ def self_test():
                     self.target = {'id': 'new', 'attributes': {'appStoreState': 'PREPARE_FOR_SUBMISSION',
                                    **payload['data']['attributes']}}
                     return {'data': self.target}
+                if base == '/v1/appStoreVersionLocalizations':
+                    attributes = payload['data']['attributes']
+                    version = payload['data']['relationships']['appStoreVersion']['data']['id']
+                    row = {'id': f'{version}-{attributes["locale"]}', 'attributes': dict(attributes)}
+                    self.locales[version].append(row)
+                    return {'data': row}
+                if base == '/v1/appInfoLocalizations':
+                    attributes = payload['data']['attributes']
+                    info = payload['data']['relationships']['appInfo']['data']['id']
+                    row = {'id': f'{info}-{attributes["locale"]}', 'attributes': dict(attributes)}
+                    self.info_locales[info].append(row)
+                    return {'data': row}
                 if base == '/v1/reviewSubmissions':
                     self.submission = {'id': 'submission', 'attributes': {'state': 'READY_FOR_REVIEW'}}
                     return {'data': self.submission}
@@ -752,6 +850,43 @@ def self_test():
             self.assertEqual(notes.count('Historical demonstration context from version'), 1)
             self.assertIn('version 1.0.27.', notes)
             for url in re.findall(r'https?://[^\s<>]+', compact): self.assertIn(url, notes)
+
+        def test_new_locales_are_created_once_without_touching_published_info(self):
+            api = FakeClient()
+            published = copy.deepcopy(api.info_locales['info-live'])
+            flow = Submission(api, '1.0.28', '38')
+            flow.submit()
+            self.assertEqual(flow.report['status'], 'submitted')
+            self.assertEqual(flow.report['added_locales'], sorted(NEW_LOCALES))
+            self.assertEqual(api.info_locales['info-live'], published)
+            names = {row['attributes']['locale']: row['attributes'] for row in api.info_locales['info-edit']}
+            versions = {row['attributes']['locale']: row['attributes'] for row in api.locales['new']}
+            for locale, listing in NEW_LOCALES.items():
+                self.assertEqual(names[locale]['name'], listing['name'])
+                self.assertEqual(names[locale]['privacyPolicyUrl'], 'https://salatime.net/privacy-policy')
+                self.assertEqual(versions[locale]['keywords'], listing['keywords'])
+                self.assertEqual(versions[locale]['whatsNew'], NEW_LOCALE_WHATS_NEW[locale])
+                self.assertEqual(versions[locale]['supportUrl'], 'https://salatime.net')
+            posts = [path for method, path in api.calls if method == 'POST' and 'Localizations' in path]
+            self.assertEqual(len(posts), 2 * len(NEW_LOCALES))
+            for locale in WHATS_NEW:
+                self.assertEqual(versions[locale]['keywords'], KEYWORDS[locale])
+
+        def test_new_listing_text_fits_apple_limits(self):
+            self.assertEqual(set(NEW_LOCALES), set(NEW_LOCALE_WHATS_NEW))
+            self.assertFalse(set(NEW_LOCALES) & set(WHATS_NEW))
+            for locale, listing in NEW_LOCALES.items():
+                self.assertLessEqual(len(listing['name']), 30, locale)
+                self.assertLessEqual(len(listing['subtitle']), 30, locale)
+                self.assertLessEqual(len(listing['keywords'].encode('utf-8')), 100, locale)
+                self.assertLessEqual(len(listing['promotionalText']), 170, locale)
+                self.assertLessEqual(len(listing['description']), 4000, locale)
+                self.assertLessEqual(len(NEW_LOCALE_WHATS_NEW[locale]), 4000, locale)
+                parts = listing['keywords'].split(',')
+                self.assertEqual(len(parts), len(set(parts)), locale)
+                shown = set(re.findall(r'\w+', (listing['name'] + ' ' + listing['subtitle']).lower()))
+                self.assertFalse(shown & set(parts), (locale, shown & set(parts)))
+                self.assertIn('https://salatime.net/privacy-policy', listing['description'])
 
         def test_keywords_fit_apple_limit_and_skip_name_words(self):
             names = {'en-US': 'SalaTime Prayer Times Quran Adhan Qibla daily Athkar',
