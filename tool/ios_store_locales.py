@@ -119,9 +119,9 @@ Privasi: {PRIVACY}""",
 
 # Release notes for these locales; keep them in step with WHATS_NEW for each release.
 NEW_LOCALE_WHATS_NEW = {
-    'tr': 'Yakındaki cami araması daha güvenilir: daha hızlı sonuçlar, harita hizmeti yoğunken korunan sonuçlar ve kendi dilinizde cami adları.',
-    'id': 'Pencarian masjid terdekat lebih andal: hasil lebih cepat, tetap tersedia saat layanan peta sibuk, dan nama masjid dalam bahasa Anda.',
-    'ms': 'Carian masjid berdekatan lebih dipercayai: keputusan lebih pantas, kekal tersedia apabila perkhidmatan peta sibuk, dan nama masjid dalam bahasa anda.',
-    'es-ES': 'Búsqueda de mezquitas cercanas más fiable: resultados más rápidos, conservados cuando el servicio de mapas está saturado, y nombres en tu idioma.',
-    'es-MX': 'Búsqueda de mezquitas cercanas más confiable: resultados más rápidos, conservados cuando el servicio de mapas está saturado, y nombres en tu idioma.',
+    'tr': 'SalaTime artık App Store’da Türkçe. Namaz vakitleri, ezan, Kuran, kıble ve zikirler tek bir uygulamada. Küçük iyileştirmeler.',
+    'id': 'SalaTime kini hadir dalam bahasa Indonesia di App Store. Jadwal sholat, azan, Al-Quran, kiblat, dan zikir dalam satu aplikasi. Perbaikan kecil.',
+    'ms': 'SalaTime kini dalam bahasa Melayu di App Store. Waktu solat, azan, al-Quran, kiblat dan zikir dalam satu aplikasi. Penambahbaikan kecil.',
+    'es-ES': 'SalaTime ya está en español en el App Store. Horarios de oración, Adhan, Corán, Qibla y Athkar en una sola app. Pequeñas mejoras.',
+    'es-MX': 'SalaTime ya está en español en el App Store. Horarios de oración, Adhan, Corán, Qibla y Athkar en una sola app. Pequeñas mejoras.',
 }
