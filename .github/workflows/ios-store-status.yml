@@ -22,11 +22,18 @@ jobs:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
         run: python3 tool/ios_store_status.py --receipt=build/ios/app-store-status.json
+      - name: Read App Store listing text (GET only)
+        env:
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        working-directory: tool
+        run: python3 ios_store_listing.py && mv build/ios/app-store-listing.json ../build/ios/
       - name: Save sanitized Apple state
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: SalaTime-App-Store-status-${{ github.run_id }}
-          path: build/ios/app-store-status.json
+          path: build/ios/app-store-*.json
           if-no-files-found: error
           retention-days: 7
