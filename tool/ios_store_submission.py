@@ -34,6 +34,13 @@ EDITABLE = {'PREPARE_FOR_SUBMISSION', 'DEVELOPER_REJECTED', 'REJECTED',
 SUBMITTED = {'WAITING_FOR_REVIEW', 'IN_REVIEW', 'PENDING_DEVELOPER_RELEASE',
              'PENDING_APPLE_RELEASE', 'PROCESSING_FOR_APP_STORE', 'READY_FOR_SALE',
              'READY_FOR_DISTRIBUTION'}
+# Keyword fields set for the new version (100-byte Apple limit). Words already in
+# the name or subtitle are not repeated: Apple indexes those fields together.
+KEYWORDS = {
+    'en-US': 'salah,salat,namaz,azan,athan,dua,muslim,islam,mosque,hijri,ramadan,dhikr,tasbih,zakat,hadith,kaaba',
+    'fr-FR': 'horaire,salat,namaz,azan,quran,invocation,musulman,islam,mosquée,hégire,ramadan,dhikr,tasbih,zakat',
+    'ar-SA': 'صلاة,مواقيت,أذان,قبلة,زكاة,هجري,أذكار,دعاء,مساجد,رمضان',
+}
 WHATS_NEW = {
     'fr-FR': 'Recherche des mosquées proches plus fiable : résultats plus rapides, conservés quand le service de cartes est saturé, et noms dans votre langue.',
     'en-US': 'More reliable nearby mosque search: faster results, kept when the map service is busy, and mosque names in your language.',
@@ -52,6 +59,13 @@ REVIEW_NOTE = ('Nearby mosques via cached OpenStreetMap proxy, saved fallback; n
                'Analytics: Firebase screens/events; no account ID, GPS or query content; no ads/IDFA/IDFV. '
                'More > Settings > Usage statistics disables collection. '
                'Update banner: Home store link, 24h snooze.')
+
+
+def expected_localization(locale, previous, field):
+    """Previous version text, except the keyword fields deliberately updated."""
+    if field == 'keywords' and locale in KEYWORDS:
+        return KEYWORDS[locale]
+    return previous.get(field)
 
 
 def review_notes(source_notes, previous_version, attachments_inherited, release_note=None):
@@ -441,9 +455,10 @@ class Submission:
             current = target['row']['attributes']
             updates = {}
             for field in LOCALIZATION_FIELDS:
-                expected, actual = attributes.get(field), current.get(field)
+                expected, actual = expected_localization(locale, attributes, field), current.get(field)
                 if expected != actual:
-                    require(actual in (None, ''), 'Inherited localization metadata differs; review before submission')
+                    require(actual in (None, '', attributes.get(field)),
+                            'Inherited localization metadata differs; review before submission')
                     updates[field] = expected
             if current.get('whatsNew') != WHATS_NEW[locale]:
                 updates['whatsNew'] = WHATS_NEW[locale]
@@ -482,7 +497,7 @@ class Submission:
         for locale, original in source['locales'].items():
             target = verified['locales'][locale]
             require(target['screenshots'] == original['screenshots'], 'Screenshot preservation readback failed')
-            require(all(target['row']['attributes'].get(f) == original['row']['attributes'].get(f)
+            require(all(target['row']['attributes'].get(f) == expected_localization(locale, original['row']['attributes'], f)
                         for f in LOCALIZATION_FIELDS), 'Localization preservation readback failed')
             require(target['row']['attributes'].get('whatsNew') == WHATS_NEW[locale], 'Release notes readback failed')
         require(all(verified['review']['attributes'].get(f) == expected_review.get(f) for f in REVIEW_FIELDS),
@@ -737,6 +752,20 @@ def self_test():
             self.assertEqual(notes.count('Historical demonstration context from version'), 1)
             self.assertIn('version 1.0.27.', notes)
             for url in re.findall(r'https?://[^\s<>]+', compact): self.assertIn(url, notes)
+
+        def test_keywords_fit_apple_limit_and_skip_name_words(self):
+            names = {'en-US': 'SalaTime Prayer Times Quran Adhan Qibla daily Athkar',
+                     'fr-FR': 'SalaTime Prière et Coran Adhan Qibla et Athkar'}
+            for locale, words in KEYWORDS.items():
+                self.assertLessEqual(len(words.encode('utf-8')), 100)
+                parts = words.split(',')
+                self.assertEqual(len(parts), len(set(parts)))
+                self.assertTrue(all(part and part == part.strip() for part in parts))
+                taken = set(names.get(locale, '').lower().split())
+                self.assertFalse(taken & set(parts), locale)
+            self.assertEqual(expected_localization('en-US', {'keywords': 'old'}, 'keywords'), KEYWORDS['en-US'])
+            self.assertEqual(expected_localization('de-DE', {'keywords': 'old'}, 'keywords'), 'old')
+            self.assertEqual(expected_localization('en-US', {'description': 'd'}, 'description'), 'd')
 
         def test_reliability_notes_fit_previous_public_utf8_budget(self):
             previous_note = (RATING_REVIEW_NOTE + ' Language fix: account sync preserves the chosen language; '
