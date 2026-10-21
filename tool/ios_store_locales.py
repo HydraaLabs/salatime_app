@@ -119,9 +119,9 @@ Privasi: {PRIVACY}""",
 
 # Release notes for these locales; keep them in step with WHATS_NEW for each release.
 NEW_LOCALE_WHATS_NEW = {
-    'tr': 'SalaTime artık App Store’da Türkçe. Namaz vakitleri, ezan, Kuran, kıble ve zikirler tek bir uygulamada. Küçük iyileştirmeler.',
-    'id': 'SalaTime kini hadir dalam bahasa Indonesia di App Store. Jadwal sholat, azan, Al-Quran, kiblat, dan zikir dalam satu aplikasi. Perbaikan kecil.',
-    'ms': 'SalaTime kini dalam bahasa Melayu di App Store. Waktu solat, azan, al-Quran, kiblat dan zikir dalam satu aplikasi. Penambahbaikan kecil.',
-    'es-ES': 'SalaTime ya está en español en el App Store. Horarios de oración, Adhan, Corán, Qibla y Athkar en una sola app. Pequeñas mejoras.',
-    'es-MX': 'SalaTime ya está en español en el App Store. Horarios de oración, Adhan, Corán, Qibla y Athkar en una sola app. Pequeñas mejoras.',
+    'tr': 'Daha kolay güncelleme: Güncelle bandı, SalaTime’ın App Store sayfasını doğrudan uygulama içinde açar.',
+    'id': 'Pembaruan lebih mudah: banner Perbarui kini membuka halaman App Store SalaTime langsung di dalam aplikasi.',
+    'ms': 'Kemas kini lebih mudah: sepanduk Kemas kini kini membuka halaman App Store SalaTime terus dalam aplikasi.',
+    'es-ES': 'Actualizar es más fácil: el aviso Actualizar abre la página de SalaTime en el App Store dentro de la app.',
+    'es-MX': 'Actualizar es más fácil: el aviso Actualizar abre la página de SalaTime en el App Store dentro de la app.',
 }

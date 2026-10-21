@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Submit the exact SalaTime store languages release from CI without logging private data.
+"""Submit the exact SalaTime in-app update release from CI without logging private data.
 
 Only --submit mutates App Store Connect. --preflight is GET-only. New versions
 inherit Apple's metadata; preservation is verified before creating any review
@@ -44,15 +44,15 @@ KEYWORDS = {
     'ar-SA': 'صلاة,مواقيت,أذان,قبلة,زكاة,هجري,أذكار,دعاء,مساجد,رمضان',
 }
 WHATS_NEW = {
-    'fr-FR': 'SalaTime est désormais présentée dans ses 10 langues sur l’App Store, avec une fiche en turc, indonésien, malais et espagnol. Petites améliorations.',
-    'en-US': 'SalaTime now lists its 10 languages on the App Store, with new Turkish, Indonesian, Malay and Spanish pages. Minor improvements.',
-    'ar-SA': 'يعرض SalaTime الآن لغاته العشر على App Store، مع صفحات جديدة بالتركية والإندونيسية والملايوية والإسبانية. تحسينات بسيطة.',
+    'fr-FR': 'Mise à jour plus simple : le bandeau « Mettre à jour » ouvre la page App Store de SalaTime directement dans l’app.',
+    'en-US': 'Easier updates: the Update banner now opens SalaTime’s App Store page right inside the app.',
+    'ar-SA': 'تحديث أسهل: يفتح شريط «تحديث» صفحة SalaTime على App Store مباشرة داخل التطبيق.',
 }
 RATING_REVIEW_NOTE = ('Rating fix: StoreKit requests a review after 3 distinct usage days and 72 hours, '
                'following 10 quiet seconds on Home (30-day interval, maximum 3 attempts). '
                'No custom prompt or satisfaction question. Apple controls display; TestFlight '
                'shows no prompt. Settings > Rate SalaTime opens App Store reviews immediately.')
-REVIEW_NOTE = ('Listing: 10 app languages declared; tr/id/ms/es pages; no new data/permission. '
+REVIEW_NOTE = ('Update banner opens App Store page in-app (StoreKit); no new data/permission. '
                'Reliability fix: compass, location and Nisab. '
                'Production error/hang reporting remains active; CI sends no telemetry. '
                'Rating fix: StoreKit after 3 usage days/72 hours and 10 quiet Home seconds; '
@@ -1189,8 +1189,8 @@ def main():
     mode.add_argument('--submit', action='store_true')
     mode.add_argument('--self-test', action='store_true')
     parser.add_argument('--for-upload', action='store_true')
-    parser.add_argument('--version', default='1.0.34')
-    parser.add_argument('--previous-version', default='1.0.33')
+    parser.add_argument('--version', default='1.0.35')
+    parser.add_argument('--previous-version', default='1.0.34')
     parser.add_argument('--build-number', default='40')
     parser.add_argument('--wait-seconds', type=int, default=1200)
     parser.add_argument('--receipt', type=Path, default=Path('build/ios/app-store-submission.json'))
