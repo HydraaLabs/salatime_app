@@ -469,7 +469,9 @@ class Submission:
                 destination = self.metadata(target_id)
                 target = destination['locales'][locale]
             expected_screenshots = original['screenshots']
-            require(any(expected_screenshots.values()), 'Previous localization has no complete screenshots')
+            # Listings added through NEW_LOCALES show the primary screenshots.
+            require(any(expected_screenshots.values()) or locale in NEW_LOCALES,
+                    'Previous localization has no complete screenshots')
             require(target['screenshots'] == expected_screenshots,
                     'Inherited screenshots differ or are missing; supply verified originals before submission')
             current = target['row']['attributes']
@@ -906,6 +908,27 @@ def self_test():
             self.assertEqual(versions['es-ES']['promotionalText'], listing['promotionalText'])
             self.assertFalse([path for method, path in api.calls
                               if method == 'POST' and path.endswith('/appInfoLocalizations')])
+
+        def test_next_version_keeps_added_locales_without_their_own_screenshots(self):
+            api = FakeClient()
+            for version in ('old', 'new'):
+                for locale, listing in NEW_LOCALES.items():
+                    api.locales[version].append({'id': f'{version}-{locale}', 'attributes': {
+                        'locale': locale, 'description': listing['description'], 'keywords': listing['keywords'],
+                        'promotionalText': listing['promotionalText'], 'supportUrl': 'https://salatime.net',
+                        'marketingUrl': None, 'whatsNew': 'Old release'}})
+            for info in ('info-live', 'info-edit'):
+                for locale, listing in NEW_LOCALES.items():
+                    api.info_locales[info].append({'id': f'{info}-{locale}', 'attributes': {
+                        'locale': locale, 'name': listing['name'], 'subtitle': listing['subtitle']}})
+            flow = Submission(api, '1.0.28', '38')
+            flow.submit()
+            self.assertEqual(flow.report['status'], 'submitted')
+            versions = {row['attributes']['locale']: row['attributes'] for row in api.locales['new']}
+            for locale, listing in NEW_LOCALES.items():
+                self.assertEqual(versions[locale]['whatsNew'], NEW_LOCALE_WHATS_NEW[locale])
+                self.assertEqual(versions[locale]['keywords'], listing['keywords'])
+            self.assertFalse([path for method, path in api.calls if method == 'POST' and 'Localizations' in path])
 
         def test_new_listing_text_fits_apple_limits(self):
             self.assertEqual(set(NEW_LOCALES), set(NEW_LOCALE_WHATS_NEW))
