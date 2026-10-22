@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:salatime/service/analytics/app_analytics_service.dart';
 import 'package:salatime/helper/location_auto_update_service.dart';
 import 'package:salatime/helper/location_permission_coordinator.dart';
 import 'package:salatime/helper/route_helper.dart';
@@ -39,6 +40,11 @@ class _BackgroundLocationScreenState extends State<BackgroundLocationScreen> {
     }
   }
 
+  Future<void> _skip() {
+    trackAppAction(AppAnalyticsAction.backgroundLocationSkipped);
+    return _finish();
+  }
+
   Future<void> _requestPermission() async {
     if (_busy) return;
     setState(() {
@@ -58,6 +64,7 @@ class _BackgroundLocationScreenState extends State<BackgroundLocationScreen> {
         // Keep the user's opt-in, without pretending background access exists.
         if (await Permission.location.isGranted ||
             await Permission.locationAlways.isGranted) {
+          trackAppAction(AppAnalyticsAction.backgroundLocationGranted);
           await LocationAutoUpdateService.enable();
         }
       }
@@ -127,7 +134,7 @@ class _BackgroundLocationScreenState extends State<BackgroundLocationScreen> {
                     ),
                     if (!ios)
                       TextButton(
-                        onPressed: _busy ? null : _finish,
+                        onPressed: _busy ? null : _skip,
                         child: Text('no_thanks'.tr),
                       ),
                     // Recovery after a platform error is not a pre-permission

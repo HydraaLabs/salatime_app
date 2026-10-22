@@ -102,12 +102,14 @@ class FirstLaunchSetupService {
     );
   }
 
-  static Future<void> requestNotificationPermission() async {
-    if (kIsWeb || !(Platform.isAndroid || Platform.isIOS)) return;
-    final status = await Permission.notification.status;
+  /// Returns whether notifications are allowed, or null off mobile platforms.
+  static Future<bool?> requestNotificationPermission() async {
+    if (kIsWeb || !(Platform.isAndroid || Platform.isIOS)) return null;
+    var status = await Permission.notification.status;
     if (!status.isGranted) {
-      await Permission.notification.request();
+      status = await Permission.notification.request();
     }
+    return status.isGranted;
   }
 
   static Future<bool> requestBatteryOptimizationExemption() async {

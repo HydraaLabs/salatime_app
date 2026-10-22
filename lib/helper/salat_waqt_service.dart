@@ -11,6 +11,7 @@ import 'package:hijri/hijri_calendar.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:salatime/service/analytics/app_analytics_service.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:salatime/controller/package_prayer_time_controller.dart';
 import 'package:salatime/controller/prayer_time_adjustment.dart';
@@ -39,6 +40,7 @@ class SalatWaqtService {
     refresh: _runRefresh,
   );
   static Future<void>? _notificationPermission;
+  static const _alarmsReadyTrackedKey = 'analytics_prayer_alarms_ready_v1';
 
   /// Replan from saved preferences without opening any system permission dialog.
   /// Rapid edits share one pass; the returned future includes edits made in flight.
@@ -68,7 +70,16 @@ class SalatWaqtService {
       if (isCurrent() && (prefs.getBool(failedKey) ?? false)) {
         throw StateError('Prayer alarms could not all be scheduled');
       }
+      // Counted once per installation: the first complete set of alarms. A
+      // background isolate has no statistics, so it leaves this to the app.
+      if (isCurrent() &&
+          AppAnalyticsService.instance.collectionEnabled &&
+          !(prefs.getBool(_alarmsReadyTrackedKey) ?? false)) {
+        await prefs.setBool(_alarmsReadyTrackedKey, true);
+        trackAppAction(AppAnalyticsAction.prayerAlarmsReady);
+      }
     } catch (error, stack) {
+      trackAppAction(AppAnalyticsAction.prayerAlarmsFailed);
       try {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool(failedKey, true);

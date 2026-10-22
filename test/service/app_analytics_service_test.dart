@@ -36,6 +36,47 @@ void main() {
     sink = _FakeSink();
   });
 
+  test('action names are fixed, unique and valid GA4 event names', () {
+    final names = AppAnalyticsAction.values.map((a) => a.eventName).toList();
+    expect(names.toSet().length, names.length);
+    for (final name in names) {
+      expect(name, matches(RegExp(r'^[a-z][a-z0-9_]{0,39}$')));
+      expect(
+        name.startsWith('firebase_') ||
+            name.startsWith('google_') ||
+            name.startsWith('ga_'),
+        isFalse,
+      );
+    }
+    expect(
+      names,
+      containsAll([
+        'setup_welcome_done',
+        'setup_completed',
+        'notification_permission_granted',
+        'notification_permission_denied',
+        'location_service_off',
+        'location_permission_denied',
+        'location_position_failed',
+        'location_resolved',
+        'background_location_granted',
+        'background_location_skipped',
+        'prayer_alarms_ready',
+        'prayer_alarms_failed',
+      ]),
+    );
+  });
+
+  test('trackAppAction reaches the active service without waiting', () async {
+    final previous = AppAnalyticsService.instance;
+    addTearDown(() => AppAnalyticsService.instance = previous);
+    AppAnalyticsService.instance = create();
+    await AppAnalyticsService.instance.initialize();
+    trackAppAction(AppAnalyticsAction.locationResolved);
+    await settle();
+    expect(sink.events, ['location_resolved']);
+  });
+
   test(
     'first screens queue without waiting for Firebase and preserve order',
     () async {

@@ -1,6 +1,7 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:salatime/firebase_options.dart';
@@ -26,10 +27,23 @@ AppAnalyticsService createFirebaseAnalyticsService(
       if (!enabledInBuild) return null;
       final package = await PackageInfo.fromPlatform();
       if (package.packageName != 'net.salatime.app') return null;
+      if (await isFirebaseTestLab()) return null;
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
       return FirebaseAnalyticsSink(FirebaseAnalytics.instance);
     },
   );
+}
+
+/// True on Firebase Test Lab devices (Google Play pre-launch reports), whose
+/// automated sessions would otherwise count as real users.
+Future<bool> isFirebaseTestLab() async {
+  if (defaultTargetPlatform != TargetPlatform.android) return false;
+  try {
+    const channel = MethodChannel('net.salatime.app/test_environment');
+    return await channel.invokeMethod<bool>('isTestLab') ?? false;
+  } catch (_) {
+    return false;
+  }
 }

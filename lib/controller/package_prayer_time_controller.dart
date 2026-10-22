@@ -14,6 +14,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:salatime/service/analytics/app_analytics_service.dart';
 import 'package:salatime/data/api/api_client.dart';
 import 'package:salatime/data/model/response/city_model.dart';
 import 'package:salatime/data/model/response/city_suggestion_model.dart';
@@ -211,6 +212,7 @@ class PrayerTimeController extends GetxController implements GetxService {
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (isClosed || !LocationPermissionCoordinator.isForeground) return;
     if (!serviceEnabled) {
+      trackAppAction(AppAnalyticsAction.locationServiceOff);
       // If not enabled, prompt user to enable location services
       await Geolocator.openLocationSettings();
       return;
@@ -221,6 +223,7 @@ class PrayerTimeController extends GetxController implements GetxService {
     );
     if (isClosed || !LocationPermissionCoordinator.isForeground) return;
     if (!LocationPermissionCoordinator.isGranted(permission)) {
+      trackAppAction(AppAnalyticsAction.locationPermissionDenied);
       isLocationDenied.value = true;
       await prefs.setBool('isLocationDenied', true);
       if (isClosed || !LocationPermissionCoordinator.isForeground) return;
@@ -237,9 +240,12 @@ class PrayerTimeController extends GetxController implements GetxService {
 
     // If permission is granted, retrieve the current position
     if (serviceEnabled) {
+      var resolved = false;
       try {
         final position = await _resolvePosition();
         if (isClosed || !LocationPermissionCoordinator.isForeground) return;
+        resolved = true;
+        trackAppAction(AppAnalyticsAction.locationResolved);
         latitude = position.latitude;
         longitude = position.longitude;
 
@@ -260,17 +266,17 @@ class PrayerTimeController extends GetxController implements GetxService {
         update();
       } catch (e) {
         if (isClosed || !LocationPermissionCoordinator.isForeground) return;
+        if (!resolved) {
+          trackAppAction(AppAnalyticsAction.locationPositionFailed);
+        }
         await prefs.setBool("isLocationDenied", true);
         bool? storedFontSize = prefs.getBool("isLocationDenied");
         if (storedFontSize != null) {
           isLocationDenied.value = storedFontSize;
         }
-        showCustomSnackBar(
-          "for_getting_Automatic_Prayer_Time_Nearby_Mosque_Qibla_Compass_need_to_enable_location_permission"
-              .tr,
-          isError: true,
-          onTap: () => openAppSettings(),
-        );
+        // Permission is granted here: the position itself (GPS fix, timeout
+        // or geocoding) is unavailable, so do not ask to enable a permission.
+        showCustomSnackBar('travel_location_error'.tr, isError: true);
       }
     }
   }

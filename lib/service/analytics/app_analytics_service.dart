@@ -16,10 +16,29 @@ enum AppAnalyticsAction {
   surahSearch('surah_search'),
   reciterSearch('reciter_search'),
   readingCloudPrompt('reading_cloud_prompt'),
-  prayerDayToday('prayer_day_today');
+  prayerDayToday('prayer_day_today'),
+  // First-run funnel and setup outcomes. Only the outcome is sent: never a
+  // position, city, error message or permission detail.
+  setupWelcomeDone('setup_welcome_done'),
+  setupCompleted('setup_completed'),
+  notificationPermissionGranted('notification_permission_granted'),
+  notificationPermissionDenied('notification_permission_denied'),
+  locationServiceOff('location_service_off'),
+  locationPermissionDenied('location_permission_denied'),
+  locationPositionFailed('location_position_failed'),
+  locationResolved('location_resolved'),
+  backgroundLocationGranted('background_location_granted'),
+  backgroundLocationSkipped('background_location_skipped'),
+  prayerAlarmsReady('prayer_alarms_ready'),
+  prayerAlarmsFailed('prayer_alarms_failed');
 
   const AppAnalyticsAction(this.eventName);
   final String eventName;
+}
+
+/// Fire-and-forget helper for call sites that must never wait on statistics.
+void trackAppAction(AppAnalyticsAction action) {
+  unawaited(AppAnalyticsService.instance.appAction(action));
 }
 
 /// The application can use this interface without a configured Firebase app.

@@ -10,9 +10,22 @@ import 'package:salatime/controller/localization_controller.dart';
 import 'package:salatime/data/api/api_client.dart';
 import 'package:salatime/helper/prayer_notification_preferences.dart';
 import 'package:salatime/helper/route_helper.dart';
+import 'package:salatime/service/analytics/app_analytics_service.dart';
 import 'package:salatime/util/app_constants.dart';
 import 'package:salatime/view/screens/onboarding/first_launch_setup_screen.dart';
 import 'package:salatime/view/screens/onboarding/widget_prompt.dart';
+
+class _RecordingSink implements AppAnalyticsSink {
+  final events = <String>[];
+  @override
+  Future<void> setCollectionEnabled(bool enabled) async {}
+  @override
+  Future<void> screenViewed(String screenName) async {}
+  @override
+  Future<void> appAction(String eventName) async => events.add(eventName);
+  @override
+  Future<void> resetData() async {}
+}
 
 class _Translations extends Translations {
   _Translations(this.strings);
@@ -62,6 +75,15 @@ void main() {
           ),
         ),
       );
+      final analytics = _RecordingSink();
+      final previousAnalytics = AppAnalyticsService.instance;
+      addTearDown(() => AppAnalyticsService.instance = previousAnalytics);
+      AppAnalyticsService.instance = AppAnalyticsService(
+        preferences: preferences,
+        sink: analytics,
+        enabledInBuild: true,
+      );
+      await tester.runAsync(AppAnalyticsService.instance.initialize);
       await tester.pumpWidget(
         GetMaterialApp(
           translations: _Translations(french),
@@ -94,6 +116,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Home destination'), findsOneWidget);
+      await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+      expect(analytics.events, ['setup_welcome_done', 'setup_completed']);
       expect(
         preferences.getBool(AppConstants.FIRST_LAUNCH_SETUP_COMPLETE_KEY),
         isTrue,

@@ -1,6 +1,7 @@
 import 'package:salatime/helper/additional_reminder_plan.dart';
 import 'package:salatime/helper/prayer_notification_preferences.dart';
 import 'package:salatime/view/screens/notification/notification_settings_screen.dart';
+import 'package:salatime/service/analytics/app_analytics_service.dart';
 import 'widget_prompt.dart';
 
 import 'package:flutter/foundation.dart';
@@ -38,6 +39,7 @@ class _FirstLaunchSetupScreenState extends State<FirstLaunchSetupScreen> {
   }
 
   Future<void> _goToSettings() async {
+    trackAppAction(AppAnalyticsAction.setupWelcomeDone);
     await _pageController.nextPage(
       duration: const Duration(milliseconds: 350),
       curve: Curves.easeOutCubic,
@@ -67,7 +69,15 @@ class _FirstLaunchSetupScreenState extends State<FirstLaunchSetupScreen> {
 
       if (notifications.any((s) => s.enabled) || extras.any((s) => s.enabled)) {
         try {
-          await FirstLaunchSetupService.requestNotificationPermission();
+          final allowed =
+              await FirstLaunchSetupService.requestNotificationPermission();
+          if (allowed != null) {
+            trackAppAction(
+              allowed
+                  ? AppAnalyticsAction.notificationPermissionGranted
+                  : AppAnalyticsAction.notificationPermissionDenied,
+            );
+          }
           await FirstLaunchSetupService.requestBatteryOptimizationExemption();
         } catch (_) {
           // A denied or unavailable system permission must not trap the user in
@@ -75,6 +85,7 @@ class _FirstLaunchSetupScreenState extends State<FirstLaunchSetupScreen> {
         }
       }
 
+      trackAppAction(AppAnalyticsAction.setupCompleted);
       if (mounted) await WidgetPrompt.showOnce(context, preferences);
 
       final nextRoute = await BackgroundLocationScreen.shouldShow()

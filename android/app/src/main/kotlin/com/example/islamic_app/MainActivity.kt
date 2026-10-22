@@ -81,6 +81,14 @@ class MainActivity : AudioServiceFragmentActivity() {
         super.configureFlutterEngine(flutterEngine)
         SafeProcessTextPlugin.install(flutterEngine)
 
+        // Google Play pre-launch reports run on Firebase Test Lab devices, which
+        // set this system flag. Usage statistics stay off there.
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "net.salatime.app/test_environment")
+            .setMethodCallHandler { call, result ->
+                if (call.method != "isTestLab") { result.notImplemented(); return@setMethodCallHandler }
+                result.success(Settings.System.getString(contentResolver, "firebase.test.lab") == "true")
+            }
+
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "net.salatime.app/automatic_silence")
             .setMethodCallHandler { call, result ->
                 try {
