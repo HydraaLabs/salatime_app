@@ -119,9 +119,9 @@ Privasi: {PRIVACY}""",
 
 # Release notes for these locales; keep them in step with WHATS_NEW for each release.
 NEW_LOCALE_WHATS_NEW = {
-    'tr': 'Daha kolay güncelleme: Güncelle bandı, SalaTime’ın App Store sayfasını doğrudan uygulama içinde açar.',
-    'id': 'Pembaruan lebih mudah: banner Perbarui kini membuka halaman App Store SalaTime langsung di dalam aplikasi.',
-    'ms': 'Kemas kini lebih mudah: sepanduk Kemas kini kini membuka halaman App Store SalaTime terus dalam aplikasi.',
-    'es-ES': 'Actualizar es más fácil: el aviso Actualizar abre la página de SalaTime en el App Store dentro de la app.',
-    'es-MX': 'Actualizar es más fácil: el aviso Actualizar abre la página de SalaTime en el App Store dentro de la app.',
+    'tr': 'İlk açılışta ve metin seçimi menüsünde kararlılık düzeltmeleri. Konum geçici olarak alınamadığında daha anlaşılır bir mesaj.',
+    'id': 'Perbaikan stabilitas saat pertama dibuka dan di menu pilihan teks. Pesan lebih jelas saat lokasi sementara tidak tersedia.',
+    'ms': 'Pembaikan kestabilan semasa pelancaran pertama dan dalam menu pilihan teks. Mesej lebih jelas apabila lokasi tidak tersedia buat sementara.',
+    'es-ES': 'Correcciones de estabilidad al abrir la app por primera vez y en el menú de selección de texto. Mensaje más claro cuando la ubicación no está disponible temporalmente.',
+    'es-MX': 'Correcciones de estabilidad al abrir la app por primera vez y en el menú de selección de texto. Mensaje más claro cuando la ubicación no está disponible temporalmente.',
 }
