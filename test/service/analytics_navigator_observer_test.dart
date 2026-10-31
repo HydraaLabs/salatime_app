@@ -23,6 +23,8 @@ void main() {
       );
     }
     expect(AnalyticsScreenCatalog.fromRouteName('/bottomNavbar'), isNull);
+    expect(AnalyticsScreenCatalog.forTab(6), isNull);
+    expect(AnalyticsScreenCatalog.forTab(-1), isNull);
     for (var tab = 0; tab < 5; tab++) {
       expect(
         AnalyticsScreenCatalog.screenNames,

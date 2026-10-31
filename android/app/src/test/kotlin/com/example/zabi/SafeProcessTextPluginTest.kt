@@ -87,7 +87,8 @@ class SafeProcessTextPluginTest {
             harness.activity.launchError = error
             val reply = Reply()
             harness.launch(reply)
-            assertEquals("text_action_unavailable", reply.errorCode)
+            assertNull(reply.errorCode)
+            assertNull(reply.value)
             assertEquals(1, reply.calls)
             assertFalse(harness.plugin.onActivityResult(harness.activity.requestCode!!, Activity.RESULT_CANCELED, null))
             assertEquals(1, reply.calls)

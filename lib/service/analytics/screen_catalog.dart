@@ -70,12 +70,13 @@ class AnalyticsScreenCatalog {
   // its IndexedStack reports the tab actually visible, including after a pop.
   static String? fromRouteName(String? routeName) => routes[routeName];
 
-  static String forTab(int index) => switch (index) {
+  /// Null for an index outside the five tabs: statistics must never crash.
+  static String? forTab(int index) => switch (index) {
     0 => 'home',
     1 => 'qibla',
     2 => 'dhikr',
     3 => 'mosques',
     4 => 'more',
-    _ => throw RangeError.range(index, 0, 4, 'index'),
+    _ => null,
   };
 }

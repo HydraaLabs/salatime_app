@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
@@ -76,6 +77,7 @@ class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
 
   void _reportVisibleTab() {
     final screen = AnalyticsScreenCatalog.forTab(_selectedPageIndex);
+    if (screen == null) return;
     if (_route != null) {
       AnalyticsScreenCatalog.setTabScreen(_route!, screen);
     }
@@ -95,6 +97,17 @@ class _BottomNavbarScreenState extends State<BottomNavbarScreen> {
 
   void _selectPage(int index) {
     if (index == _selectedPageIndex) return;
+    if (index < 0 || index >= _pageCount) {
+      // 1.0.35 crashed on a tab index of 6 that no tab produces. Ignore it and
+      // keep a warning (index only) to find where it comes from.
+      unawaited(
+        Sentry.captureMessage(
+          'Ignored bottom tab index $index',
+          level: SentryLevel.warning,
+        ).then<void>((_) {}, onError: (Object _) {}),
+      );
+      return;
+    }
     // Prevent access to online-only pages without internet
     if ((index == 3 || index == 4) && !internetController.hasInternet.value) {
       showNoInternetDialog();

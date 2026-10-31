@@ -33,7 +33,10 @@ class SafeProcessTextPlugin(channel: ProcessTextChannel) : ProcessTextPlugin(cha
         // The engine registers the pending result before startActivityForResult.
         // Its channel's exception handler otherwise replies without removing it,
         // so a later cancellation tries to complete the same Dart request twice.
-        reply.error("text_action_unavailable", error.message, null)
+        // Answer "no text" rather than an error: Flutter's selection toolbar
+        // does not catch it, so an error surfaced as an unhandled exception
+        // (for example Facebook's unexported text action).
+        reply.success(null)
         super.onActivityResult(reply.hashCode(), Activity.RESULT_CANCELED, null)
     }
 
