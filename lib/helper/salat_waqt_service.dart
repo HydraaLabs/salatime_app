@@ -49,6 +49,16 @@ class SalatWaqtService {
     return _refreshCoordinator.request();
   }
 
+  /// For changes made in settings and pickers. A schedule that cannot be fully
+  /// applied is already recorded (failedKey) and shown on the alarm screens,
+  /// so the error must not escape as an unhandled exception.
+  static Future<void> refreshAfterChange({bool requestPermissions = true}) =>
+      initializeSalatWaqt(requestPermissions: requestPermissions).catchError((
+        Object error,
+      ) {
+        debugPrint('Prayer alarm refresh failed: $error');
+      });
+
   static Future<void> initializeSalatWaqt({bool requestPermissions = true}) {
     unawaited(PrayerWidgetSync.refresh());
     return _refreshCoordinator.request(

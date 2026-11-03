@@ -490,7 +490,10 @@ class AppPreferenceDevice implements GuardedPreferenceDevice {
           'use24HourFormat',
         }.contains,
       )) {
-        await SalatWaqtService.requestRefresh();
+        await SalatWaqtService.requestRefresh().catchError((Object error) {
+          // Recorded by the scheduler and shown on the alarm screens.
+          debugPrint('Prayer alarm refresh after sync failed: $error');
+        });
       }
     }
   }

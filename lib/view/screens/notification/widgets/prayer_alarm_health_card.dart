@@ -173,7 +173,7 @@ class _PrayerAlarmHealthCardState extends State<PrayerAlarmHealthCard>
                               AndroidFlutterLocalNotificationsPlugin
                             >()
                             ?.requestExactAlarmsPermission();
-                        await SalatWaqtService.initializeSalatWaqt();
+                        await SalatWaqtService.refreshAfterChange();
                       }),
                 icon: const Icon(Icons.alarm),
                 label: Text('alarm_allow_exact'.tr),

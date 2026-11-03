@@ -81,7 +81,7 @@ class CustomCityDialog extends StatelessWidget {
                     );
                     prayerTimeController.getLocation();
                     Get.back();
-                    SalatWaqtService.initializeSalatWaqt();
+                    SalatWaqtService.refreshAfterChange();
                   },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
@@ -184,7 +184,7 @@ class CustomCityDialog extends StatelessWidget {
                               );
                               prayerTimeController.getLocation();
                               Get.back();
-                              SalatWaqtService.initializeSalatWaqt();
+                              SalatWaqtService.refreshAfterChange();
                             },
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
@@ -264,7 +264,7 @@ class CustomCityDialog extends StatelessWidget {
                             );
                             prayerTimeController.getLocation();
                             Get.back();
-                            SalatWaqtService.initializeSalatWaqt();
+                            SalatWaqtService.refreshAfterChange();
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(

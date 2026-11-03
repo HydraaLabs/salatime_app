@@ -314,7 +314,7 @@ class _PrayerTimeCalculationSettingsState
                               onChange: (value) async {
                                 await prayerTimeController
                                     .setSelectedPrayerMadhab(value);
-                                await SalatWaqtService.initializeSalatWaqt();
+                                await SalatWaqtService.refreshAfterChange();
                               },
                             ),
                             const SizedBox(

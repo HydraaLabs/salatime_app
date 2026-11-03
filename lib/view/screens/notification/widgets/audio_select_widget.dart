@@ -58,14 +58,14 @@ class _NotificationSoundSelectorState extends State<NotificationSoundSelector> {
                       (sound) => sound['key'] == key,
                     )['path'],
                   );
-                  await SalatWaqtService.initializeSalatWaqt();
+                  await SalatWaqtService.refreshAfterChange();
                 },
               ),
               ImportSoundButton(
                 onImported: (sound) async {
                   await controller.selectSound(sound['path']);
                   controller.update();
-                  await SalatWaqtService.initializeSalatWaqt();
+                  await SalatWaqtService.refreshAfterChange();
                 },
               ),
             ],

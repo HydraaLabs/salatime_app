@@ -357,7 +357,7 @@ class _TimeSelectorScreenState extends State<TimeSelectorScreen> {
                               : () {
                                   final minutes = (_sliderValue - 30.0).round();
                                   widget.onSave(widget.prayerKey, minutes);
-                                  SalatWaqtService.initializeSalatWaqt();
+                                  SalatWaqtService.refreshAfterChange();
                                 },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: isAtZero
